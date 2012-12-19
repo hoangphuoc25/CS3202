@@ -43,6 +43,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(SolutionDir)source;$(SolutionDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -67,6 +68,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="source\UnitTest.cpp" />
+    <ClCompile Include="TestPQLParser.cpp" />
+    <ClCompile Include="TestStringBuffer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="TestPQLParser.h" />
+    <ClInclude Include="TestStringBuffer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
