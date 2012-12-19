@@ -11,12 +11,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="PQLAst.cpp" />
     <ClCompile Include="PQLParser.cpp" />
     <ClCompile Include="StringBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="PQLAst.h" />
     <ClInclude Include="PQLParser.h" />
     <ClInclude Include="StringBuffer.h" />
   </ItemGroup>
