@@ -37,7 +37,7 @@ private:
     PQLParser(const PQLParser &o);
     PQLParser& operator=(const PQLParser &o);
 
-    bool parse_decls();
+    void parse_decls();
     bool parse_decl_one();
     int eat_space();
     void eat_nonws_token(StringBuffer &sb);

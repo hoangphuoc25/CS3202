@@ -229,16 +229,16 @@ PQLAst *PQLParser::parse(const string &s)
     this->bufLen = this->buf.size();
     this->entTable.clear();
     this->parseErrors = 0;
-    if (!this->parse_decls()) {
+    this->parse_decls();
+    if (this->parseErrors > 0) {
         return NULL;
     }
     return NULL;
 }
 
-bool PQLParser::parse_decls()
+void PQLParser::parse_decls()
 {
     while (this->parse_decl_one()) {
         // nothing
     }
-    return true;
 }
