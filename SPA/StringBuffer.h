@@ -21,7 +21,7 @@ private:
     int nrChars;
     int capacity;
     char *buf;
-    void grow_buffer(void);
+    void grow_buffer(int add);
 };
 
 #endif

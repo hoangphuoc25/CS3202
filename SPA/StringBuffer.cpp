@@ -55,18 +55,14 @@ StringBuffer::~StringBuffer()
 
 void StringBuffer::append(char c)
 {
-    if (nrChars + 1 > capacity) {
-        grow_buffer();
-    }
+    grow_buffer(1);
     buf[nrChars++] = c;
 }
 
 void StringBuffer::append(const char *s)
 {
     int len = strlen(s);
-    if (nrChars + len > capacity) {
-        grow_buffer();
-    }
+    grow_buffer(len);
     for (int i = 0; i < len; i++) {
         buf[nrChars++] = s[i];
     }
@@ -75,9 +71,7 @@ void StringBuffer::append(const char *s)
 void StringBuffer::append(string s)
 {
     int len = s.size();
-    if (nrChars + len > capacity) {
-        grow_buffer();
-    }
+    grow_buffer(len);
     for (int i = 0; i < len; i++) {
         buf[nrChars++] = s[i];
     }
@@ -85,22 +79,25 @@ void StringBuffer::append(string s)
 
 int StringBuffer::strcmp(const char *s)
 {
-    if (nrChars + 1 > capacity) {
-        grow_buffer();
-    }
+    grow_buffer(1);
     buf[nrChars] = 0;
     return std::strcmp(buf, s);
 }
 
-void StringBuffer::grow_buffer(void)
+void StringBuffer::grow_buffer(int add)
 {
-    int newCap = capacity / 2 * 3;
-    char *newbuf = new char[newCap+1];
-    buf[nrChars] = 0;
-    strcpy(newbuf, buf);
-    delete[] buf;
-    buf = newbuf;
-    capacity = newCap;
+    if (add <= 0) {
+        return;
+    }
+    if (nrChars + add > capacity) {
+        int newCap = capacity / 2 * 3;
+        char *newbuf = new char[newCap+1];
+        buf[nrChars] = 0;
+        strcpy(newbuf, buf);
+        delete[] buf;
+        buf = newbuf;
+        capacity = newCap;
+    }
 }
 
 string StringBuffer::toString(void)
