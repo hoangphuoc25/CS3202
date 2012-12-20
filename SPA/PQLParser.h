@@ -97,8 +97,8 @@ private:
     PQLParser(const PQLParser &o);
     PQLParser& operator=(const PQLParser &o);
 
-    void parse_decls();
-    bool parse_decl_one();
+    void eat_decls();
+    bool eat_decl_one();
     int eat_space();
     void eat_nonws_token(StringBuffer &sb);
     bool eat_one_char(char ch);
@@ -118,7 +118,7 @@ private:
     bool eat_select_tuple(StringBuffer &sb);
     AttrRef eat_select_tuple_elem(StringBuffer &sb);
     bool eat_select_boolean(StringBuffer &sb);
-    bool insert_design_ent(DesignEnt ent, const std::string &s);
+    bool insert_syn(DesignEnt ent, const std::string &s);
     DesignEnt retrieve_syn_type(const std::string& s) const;
     DesignEnt string_to_entity(const std::string &s);
     AttrType string_to_attrType(const std::string &s) const;

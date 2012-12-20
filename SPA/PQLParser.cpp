@@ -78,7 +78,7 @@ AttrType PQLParser::string_to_attrType(const string &s) const
     }
 }
 
-bool PQLParser::insert_design_ent(DesignEnt entType, const std::string &s)
+bool PQLParser::insert_syn(DesignEnt entType, const std::string &s)
 {
     if (s.size() <= 0) {
         this->error("Zero length entity of type %s",
@@ -356,7 +356,7 @@ AttrRef PQLParser::eat_attrRef(StringBuffer &sb)
     #undef RR
 }
 
-bool PQLParser::parse_decl_one()
+bool PQLParser::eat_decl_one()
 {
     #define EAT_SYN() do {\
         ret = this->eat_synonym(sb);\
@@ -372,7 +372,7 @@ bool PQLParser::parse_decl_one()
             }\
             return false;\
         }\
-        if (!this->insert_design_ent(entType, s)) {\
+        if (!this->insert_syn(entType, s)) {\
             return false;\
         }\
     } while(0)
@@ -408,6 +408,13 @@ bool PQLParser::parse_decl_one()
     return true;
 
     #undef EAT_SYN
+}
+
+void PQLParser::eat_decls()
+{
+    while (this->eat_decl_one()) {
+        // nothing
+    }
 }
 
 bool PQLParser::eat_select_boolean(StringBuffer &sb)
@@ -510,7 +517,7 @@ void PQLParser::parse(const string &s)
     this->entTable.clear();
     this->entVec.clear();
     this->parseErrors = 0;
-    this->parse_decls();
+    this->eat_decls();
     if (this->parseErrors > 0) {
         return;
     }
@@ -536,13 +543,6 @@ void PQLParser::parse(const string &s)
                 "\"%s\"", sb.toString().c_str());
             return;
         }
-    }
-}
-
-void PQLParser::parse_decls()
-{
-    while (this->parse_decl_one()) {
-        // nothing
     }
 }
 
