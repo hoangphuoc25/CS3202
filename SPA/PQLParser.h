@@ -21,6 +21,9 @@
 #define ENT_INVALID_STR  "invalid"
 
 #define BOOLEAN_STR "BOOLEAN"
+#define WITH_STR    "with"
+#define PATTERN_STR "pattern"
+#define AND_STR     "and"
 
 enum DesignEnt {
     ENT_PROC, ENT_STMTLST, ENT_STMT, ENT_ASSIGN, ENT_CALL,
@@ -111,6 +114,8 @@ private:
     bool eat_synonym(StringBuffer &sb);
     AttrRef eat_attrRef(StringBuffer &sb);
     bool eat_attrName(StringBuffer &sb);
+    void eat_alpha(StringBuffer &sb);
+    bool eat_alpha_string(StringBuffer &sb, const std::string &s);
     void eat_ident(StringBuffer &sb);
     bool eat_ident_string(StringBuffer &sb, const std::string &s);
     bool eat_string_till_ws(StringBuffer &sb, const std::string &s);
@@ -118,6 +123,9 @@ private:
     bool eat_select_tuple(StringBuffer &sb);
     AttrRef eat_select_tuple_elem(StringBuffer &sb);
     bool eat_select_boolean(StringBuffer &sb);
+    bool eat_with(StringBuffer &sb);
+    bool eat_pattern(StringBuffer &sb);
+    void eat_select_stwithpat(StringBuffer &sb);
     bool insert_syn(DesignEnt ent, const std::string &s);
     DesignEnt retrieve_syn_type(const std::string& s) const;
     DesignEnt string_to_entity(const std::string &s);

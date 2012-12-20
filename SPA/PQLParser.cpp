@@ -216,6 +216,28 @@ bool PQLParser::eat_string_till_ws(StringBuffer &sb, const std::string &str)
     return (str == ateStr);
 }
 
+void PQLParser::eat_alpha(StringBuffer &sb)
+{
+    while (this->bufIdx < this->bufLen &&
+            isalpha(this->buf[this->bufIdx])) {
+        sb.append(this->buf[this->bufIdx++]);
+    }
+}
+
+bool PQLParser::eat_alpha_string(StringBuffer &sb, const string& str)
+{
+    int saveIdx = this->bufIdx;
+    sb.clear();
+    this->eat_alpha(sb);
+    string s = sb.toString();
+    if (s == str) {
+        return true;
+    } else {
+        this->bufIdx = saveIdx;
+        return false;
+    }
+}
+
 void PQLParser::eat_ident(StringBuffer &sb)
 {
     while (this->bufIdx < this->bufLen &&
@@ -507,6 +529,31 @@ bool PQLParser::eat_select_tuple(StringBuffer &sb)
     return true;
 }
 
+bool PQLParser::eat_with(StringBuffer &sb)
+{
+    return this->eat_alpha_string(sb, WITH_STR);
+}
+
+bool PQLParser::eat_pattern(StringBuffer &sb)
+{
+    return this->eat_alpha_string(sb, PATTERN_STR);
+}
+
+void PQLParser::eat_select_stwithpat(StringBuffer &sb)
+{
+    if (this->bufIdx >= this->bufLen) {
+        return;
+    }
+    while (1) {
+        if (this->eat_space() <= 0) {
+            break;
+        }
+        if (this->eat_with(sb)) {
+        } else {
+        }
+    }
+}
+
 void PQLParser::parse(const string &s)
 {
     StringBuffer sb;
@@ -543,6 +590,13 @@ void PQLParser::parse(const string &s)
                 "\"%s\"", sb.toString().c_str());
             return;
         }
+    }
+
+    this->eat_select_stwithpat(sb);
+    this->eat_space();
+    if (this->bufIdx != this->bufLen) {
+        this->error("Expected end of query, got \"%s\"",
+            this->buf.c_str() + this->bufIdx);
     }
 }
 
