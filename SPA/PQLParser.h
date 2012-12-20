@@ -24,6 +24,7 @@
 #define WITH_STR    "with"
 #define PATTERN_STR "pattern"
 #define AND_STR     "and"
+#define SELECT_STR  "Select"
 
 enum DesignEnt {
     ENT_PROC, ENT_STMTLST, ENT_STMT, ENT_ASSIGN, ENT_CALL,

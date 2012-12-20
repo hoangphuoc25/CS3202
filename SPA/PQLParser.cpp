@@ -261,7 +261,7 @@ bool PQLParser::eat_ident_string(StringBuffer &sb, const char *str)
 
 bool PQLParser::eat_select(StringBuffer &sb)
 {
-    return this->eat_string_till_ws(sb, "Select");
+    return this->eat_string_till_ws(sb, SELECT_STR);
 }
 
 bool PQLParser::eat_comma()
