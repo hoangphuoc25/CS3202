@@ -326,11 +326,6 @@ bool PQLParser::eat_attrName(StringBuffer &sb)
 
 AttrRef PQLParser::eat_attrRef(StringBuffer &sb)
 {
-    #define RR() do {\
-        this->bufIdx = saveIdx;\
-        return AttrRef();\
-    } while(0)
-
     sb.clear();
     int saveIdx = this->bufIdx;
     string syn, attr;
@@ -338,21 +333,21 @@ AttrRef PQLParser::eat_attrRef(StringBuffer &sb)
     if (this->eat_synonym(sb)) {
         syn = sb.toString();
         if (!this->eat_period()) {
-            RR();
+            RESTORE_AND_RET(AttrRef(), saveIdx);
         }
         sb.clear();
         if (!this->eat_attrName(sb)) {
-            RR();
+            RESTORE_AND_RET(AttrRef(), saveIdx);
         }
         attr = sb.toString();
         // "type check"
         DesignEnt entType = this->retrieve_syn_type(syn);
         if (entType == ENT_INVALID) {
-            RR();
+            RESTORE_AND_RET(AttrRef(), saveIdx);;
         }
         AttrType attrType = this->string_to_attrType(attr);
         if (attrType == ATTR_INVALID) {
-            RR();
+            RESTORE_AND_RET(AttrRef(), saveIdx);
         }
         ok = false;
         switch (attrType) {
@@ -375,12 +370,11 @@ AttrRef PQLParser::eat_attrRef(StringBuffer &sb)
         if (ok) {
             return AttrRef(syn, entType, attrType);
         } else {
-            RR();
+            RESTORE_AND_RET(AttrRef(), saveIdx);
         }
     } else {
-        RR();
+        RESTORE_AND_RET(AttrRef(), saveIdx);
     }
-    #undef RR
 }
 
 bool PQLParser::eat_decl_one()
