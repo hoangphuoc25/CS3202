@@ -78,6 +78,38 @@ AttrType PQLParser::string_to_attrType(const string &s) const
     }
 }
 
+bool PQLParser::insert_design_ent(DesignEnt entType, const std::string &s)
+{
+    if (s.size() <= 0) {
+        this->error("Zero length entity of type %s",
+            entity_type_to_string(entType));
+        return false;
+    }
+    map<string, DesignEnt>::iterator it = this->entTable.find(s);
+    if (it != this->entTable.end()) {
+        const char *tmpS = s.c_str();
+        this->error("design entity \"%s\" of type \"%s\" was"
+            "previously declared (%s %s)",
+            entity_type_to_string(entType),
+            tmpS, entity_type_to_string(it->second), tmpS);
+        return false;
+    } else {
+        this->entTable[s] = entType;
+        this->entVec.push_back(pair<DesignEnt, string>(entType, s));
+        return true;
+    }
+}
+
+DesignEnt PQLParser::retrieve_syn_type(const string &s) const
+{
+    map<string, DesignEnt>::const_iterator it = this->entTable.find(s);
+    if (it == this->entTable.end()) {
+        return ENT_INVALID;
+    } else {
+        return it->second;
+    }
+}
+
 const char *entity_type_to_string(DesignEnt entType)
 {
     switch (entType) {
@@ -157,6 +189,55 @@ bool PQLParser::eat_one_char(char ch)
     }
 }
 
+void PQLParser::eat_nonws_token(StringBuffer &sb)
+{
+    sb.clear();
+    while (this->bufIdx < this->bufLen &&
+            !isspace(this->buf[this->bufIdx])) {
+        sb.append(this->buf[this->bufIdx++]);
+    }
+}
+
+void PQLParser::eat_till_ws(StringBuffer &sb)
+{
+    while (this->bufIdx < this->bufLen &&
+            !isspace(this->buf[this->bufIdx])) {
+        sb.append(this->buf[this->bufIdx++]);
+    }
+}
+
+bool PQLParser::eat_string_till_ws(StringBuffer &sb, const std::string &str)
+{
+    int len = str.size();
+    string ateStr;
+    sb.clear();
+    this->eat_till_ws(sb);
+    ateStr = sb.toString();
+    return (str == ateStr);
+}
+
+void PQLParser::eat_ident(StringBuffer &sb)
+{
+    while (this->bufIdx < this->bufLen &&
+            (isalnum(this->buf[this->bufIdx]) ||
+             this->buf[this->bufIdx] == '#')) {
+        sb.append(this->buf[this->bufIdx++]);
+    }
+}
+
+bool PQLParser::eat_ident_string(StringBuffer &sb, const std::string &str)
+{
+    sb.clear();
+    this->eat_ident(sb);
+    string s = sb.toString();
+    return (s == str);
+}
+
+bool PQLParser::eat_select(StringBuffer &sb)
+{
+    return this->eat_string_till_ws(sb, "Select");
+}
+
 bool PQLParser::eat_comma()
 {
     return this->eat_one_char(',');
@@ -180,32 +261,6 @@ bool PQLParser::eat_lt()
 bool PQLParser::eat_gt()
 {
     return this->eat_one_char('>');
-}
-
-void PQLParser::eat_nonws_token(StringBuffer &sb)
-{
-    sb.clear();
-    while (this->bufIdx < this->bufLen &&
-            !isspace(this->buf[this->bufIdx])) {
-        sb.append(this->buf[this->bufIdx++]);
-    }
-}
-
-void PQLParser::eat_ident(StringBuffer &sb)
-{
-    while (this->bufIdx < this->bufLen &&
-            (isalnum(this->buf[this->bufIdx]) ||
-             this->buf[this->bufIdx] == '#')) {
-        sb.append(this->buf[this->bufIdx++]);
-    }
-}
-
-bool PQLParser::eat_ident_string(StringBuffer &sb, const std::string &str)
-{
-    sb.clear();
-    this->eat_ident(sb);
-    string s = sb.toString();
-    return (s == str);
 }
 
 bool PQLParser::eat_synonym(StringBuffer &sb)
@@ -299,61 +354,6 @@ AttrRef PQLParser::eat_attrRef(StringBuffer &sb)
         RR();
     }
     #undef RR
-}
-
-void PQLParser::eat_till_ws(StringBuffer &sb)
-{
-    while (this->bufIdx < this->bufLen &&
-            !isspace(this->buf[this->bufIdx])) {
-        sb.append(this->buf[this->bufIdx++]);
-    }
-}
-
-bool PQLParser::eat_string_till_ws(StringBuffer &sb, const std::string &str)
-{
-    int len = str.size();
-    string ateStr;
-    sb.clear();
-    this->eat_till_ws(sb);
-    ateStr = sb.toString();
-    return (str == ateStr);
-}
-
-bool PQLParser::eat_select(StringBuffer &sb)
-{
-    return this->eat_string_till_ws(sb, "Select");
-}
-
-bool PQLParser::insert_design_ent(DesignEnt entType, const std::string &s)
-{
-    if (s.size() <= 0) {
-        this->error("Zero length entity of type %s",
-            entity_type_to_string(entType));
-        return false;
-    }
-    map<string, DesignEnt>::iterator it = this->entTable.find(s);
-    if (it != this->entTable.end()) {
-        const char *tmpS = s.c_str();
-        this->error("design entity \"%s\" of type \"%s\" was"
-            "previously declared (%s %s)",
-            entity_type_to_string(entType),
-            tmpS, entity_type_to_string(it->second), tmpS);
-        return false;
-    } else {
-        this->entTable[s] = entType;
-        this->entVec.push_back(pair<DesignEnt, string>(entType, s));
-        return true;
-    }
-}
-
-DesignEnt PQLParser::retrieve_syn_type(const string &s) const
-{
-    map<string, DesignEnt>::const_iterator it = this->entTable.find(s);
-    if (it == this->entTable.end()) {
-        return ENT_INVALID;
-    } else {
-        return it->second;
-    }
 }
 
 bool PQLParser::parse_decl_one()
