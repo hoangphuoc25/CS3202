@@ -83,6 +83,15 @@ void StringBuffer::append(string s)
     }
 }
 
+int StringBuffer::strcmp(const char *s)
+{
+    if (nrChars + 1 > capacity) {
+        grow_buffer();
+    }
+    buf[nrChars] = 0;
+    return std::strcmp(buf, s);
+}
+
 void StringBuffer::grow_buffer(void)
 {
     int newCap = capacity / 2 * 3;

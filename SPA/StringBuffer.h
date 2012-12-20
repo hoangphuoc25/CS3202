@@ -13,6 +13,7 @@ public:
     void append(char c);
     void append(const char *s);
     void append(std::string s);
+    int strcmp(const char *s);
     std::string toString(void);
     void clear(void);
 private:

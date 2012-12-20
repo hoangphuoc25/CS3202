@@ -10,6 +10,7 @@ CPPUNIT_TEST(testAppendCString);
 CPPUNIT_TEST(testAppendString);
 CPPUNIT_TEST(testAppendMixed);
 CPPUNIT_TEST(testClear);
+CPPUNIT_TEST(testStrcmp);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -22,6 +23,7 @@ private:
     void testAppendString();
     void testAppendMixed();
     void testClear();
+    void testStrcmp();
 };
 
 #endif

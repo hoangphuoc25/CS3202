@@ -124,3 +124,17 @@ void TestStringBuffer::testClear()
     }
     CPPUNIT_ASSERT_EQUAL(src, sb.toString());
 }
+
+void TestStringBuffer::testStrcmp()
+{
+    StringBuffer sb;
+    for (int i = 0; i < 26; i++) {
+        sb.append(i + 'a');
+    }
+    int ret = sb.strcmp("abcdefghijklmnopqrstuvwxyz");
+    CPPUNIT_ASSERT_EQUAL(0, ret);
+    ret = sb.strcmp("aye");
+    CPPUNIT_ASSERT_EQUAL(-1, ret);
+    ret = sb.strcmp("aaa");
+    CPPUNIT_ASSERT_EQUAL(1, ret);
+}
