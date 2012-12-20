@@ -180,12 +180,13 @@ int PQLParser::eat_space()
 
 bool PQLParser::eat_one_char(char ch)
 {
+    int saveIdx = this->bufIdx;
     if (this->bufIdx < this->bufLen &&
             this->buf[this->bufIdx] == ch) {
         this->bufIdx++;
         return true;
     } else {
-        return false;
+        RESTORE_AND_RET(false, saveIdx);
     }
 }
 
@@ -396,10 +397,10 @@ bool PQLParser::eat_decl_one()
                 this->error("Expected synonym, got \"%s\"",\
                     sb.toString().c_str());\
             }\
-            return false;\
+            RESTORE_AND_RET(false, saveIdx);\
         }\
         if (!this->insert_syn(entType, s)) {\
-            return false;\
+            RESTORE_AND_RET(false, saveIdx);\
         }\
     } while(0)
 
@@ -413,10 +414,12 @@ bool PQLParser::eat_decl_one()
     string entStr = sb.toString();
     DesignEnt entType = string_to_entity(entStr);
     if (entType == ENT_INVALID) {
-        this->bufIdx = saveIdx;
-        return false;
+        RESTORE_AND_RET(false, saveIdx);
     }
-    this->eat_space();
+    if (this->eat_space() <= 0) {
+        this->error("Expected whitespace between design entity and synonym");
+        RESTORE_AND_RET(false, saveIdx);
+    }
     EAT_SYN();
     while (1) {
         this->eat_space();
@@ -429,7 +432,7 @@ bool PQLParser::eat_decl_one()
     this->eat_space();
     if (!this->eat_semicolon()) {
         this->error("Missing terminator ';'");
-        return false;
+        RESTORE_AND_RET(false, saveIdx);
     }
     return true;
 
