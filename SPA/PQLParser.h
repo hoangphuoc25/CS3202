@@ -115,10 +115,10 @@ private:
     AttrRef eat_attrRef(StringBuffer &sb);
     bool eat_attrName(StringBuffer &sb);
     void eat_alpha(StringBuffer &sb);
-    bool eat_alpha_string(StringBuffer &sb, const std::string &s);
+    bool eat_alpha_string(StringBuffer &sb, const char *s);
     void eat_ident(StringBuffer &sb);
-    bool eat_ident_string(StringBuffer &sb, const std::string &s);
-    bool eat_string_till_ws(StringBuffer &sb, const std::string &s);
+    bool eat_ident_string(StringBuffer &sb, const char *s);
+    bool eat_string_till_ws(StringBuffer &sb, const char *s);
     bool eat_select(StringBuffer &sb);
     bool eat_select_tuple(StringBuffer &sb);
     AttrRef eat_select_tuple_elem(StringBuffer &sb);

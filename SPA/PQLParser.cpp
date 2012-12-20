@@ -206,14 +206,15 @@ void PQLParser::eat_till_ws(StringBuffer &sb)
     }
 }
 
-bool PQLParser::eat_string_till_ws(StringBuffer &sb, const std::string &str)
+bool PQLParser::eat_string_till_ws(StringBuffer &sb, const char *str)
 {
-    int len = str.size();
-    string ateStr;
     sb.clear();
     this->eat_till_ws(sb);
-    ateStr = sb.toString();
-    return (str == ateStr);
+    if (!sb.strcmp(str)) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 void PQLParser::eat_alpha(StringBuffer &sb)
@@ -224,13 +225,12 @@ void PQLParser::eat_alpha(StringBuffer &sb)
     }
 }
 
-bool PQLParser::eat_alpha_string(StringBuffer &sb, const string& str)
+bool PQLParser::eat_alpha_string(StringBuffer &sb, const char *str)
 {
     int saveIdx = this->bufIdx;
     sb.clear();
     this->eat_alpha(sb);
-    string s = sb.toString();
-    if (s == str) {
+    if (!sb.strcmp(str)) {
         return true;
     } else {
         this->bufIdx = saveIdx;
@@ -247,12 +247,15 @@ void PQLParser::eat_ident(StringBuffer &sb)
     }
 }
 
-bool PQLParser::eat_ident_string(StringBuffer &sb, const std::string &str)
+bool PQLParser::eat_ident_string(StringBuffer &sb, const char *str)
 {
     sb.clear();
     this->eat_ident(sb);
-    string s = sb.toString();
-    return (s == str);
+    if (!sb.strcmp(str)) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 bool PQLParser::eat_select(StringBuffer &sb)
