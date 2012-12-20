@@ -208,12 +208,13 @@ void PQLParser::eat_till_ws(StringBuffer &sb)
 
 bool PQLParser::eat_string_till_ws(StringBuffer &sb, const char *str)
 {
+    int saveIdx = this->bufIdx;
     sb.clear();
     this->eat_till_ws(sb);
     if (!sb.strcmp(str)) {
         return true;
     } else {
-        return false;
+        RESTORE_AND_RET(false, saveIdx);
     }
 }
 
@@ -233,8 +234,7 @@ bool PQLParser::eat_alpha_string(StringBuffer &sb, const char *str)
     if (!sb.strcmp(str)) {
         return true;
     } else {
-        this->bufIdx = saveIdx;
-        return false;
+        RESTORE_AND_RET(false, saveIdx);
     }
 }
 
@@ -249,12 +249,13 @@ void PQLParser::eat_ident(StringBuffer &sb)
 
 bool PQLParser::eat_ident_string(StringBuffer &sb, const char *str)
 {
+    int saveIdx = this->bufIdx;
     sb.clear();
     this->eat_ident(sb);
     if (!sb.strcmp(str)) {
         return true;
     } else {
-        return false;
+        RESTORE_AND_RET(false, saveIdx);
     }
 }
 
