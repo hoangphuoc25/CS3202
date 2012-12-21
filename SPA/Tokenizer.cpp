@@ -24,8 +24,8 @@ Tokenizer::Tokenizer(string s, ReadMode mode)
         }
     } else {
         inputString = s;
-        qq = s.length();
-        pp = 0;
+        end = s.length();
+        start = 0;
     }
 }
 
@@ -45,13 +45,13 @@ void Tokenizer::reset(){
 
 char Tokenizer::myget()
 {
-    if (pp >= qq) {
+    if (start >= end) {
         return EOF;
     }
-    return inputString[pp++];
+    return inputString[start++];
 }
 
-char Tokenizer::nextChar(){
+void Tokenizer::nextChar(){
     if (fmode == 0) {
     currChar = fgetc(pFile);
     } else {
@@ -67,7 +67,7 @@ bool Tokenizer::is_name(string t){
         for (int i = 1; i < len; i++) {
             if (!isalnum(t[i])) {
                 flag = false;
-                break;                                 
+                break;
             }
         }
     }
@@ -110,7 +110,7 @@ bool Tokenizer::is_keyword(string t){
 
 Token Tokenizer::get_token(){
     
-    bool flag = false;  
+    //bool flag = false;  
     if (currChar == ' ' || currChar== '\n' || currChar == '\t' || isalnum(currChar)) {
         while (true) {
             if (!isalnum(currChar)) {
@@ -125,21 +125,21 @@ Token Tokenizer::get_token(){
                 }
             }
           
-
-            // remove blank spaces and newline
+            // remove blank spaces, tabs and newline
             if (currChar == ' ' || currChar== '\n' || currChar == '\t') {
                 continue;
             }
     
-            // get tokenString    
+            // get tokenString
             if (!isalnum(currChar)) {
                 strBuffer.append(currChar);
-                if (!flag) {
+                /* if (!flag) {
                     nextChar();
-                }
+                } */
+                nextChar();
             } else {
                 while(isalnum(currChar)) {
-                    flag = true;
+                    //flag = true;
                     strBuffer.append(currChar);
                     nextChar();
                 }
@@ -182,4 +182,3 @@ Token Tokenizer::get_token(){
         return Token(tokenString, NONE);
     }
 }
- 

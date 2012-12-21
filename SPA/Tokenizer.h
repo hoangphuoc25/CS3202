@@ -32,8 +32,9 @@ private:
 
     string inputString;
     char myget();
-    int qq;
-    int pp;
+    void nextChar();
+    int start;
+    int end;
     ReadMode fmode;
     FILE *pFile;
 
