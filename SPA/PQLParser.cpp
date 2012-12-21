@@ -3,6 +3,7 @@
 #include <cstdarg>
 #include <string>
 #include <map>
+#include <utility>
 #include "PQLParser.h"
 #include "StringBuffer.h"
 
@@ -11,6 +12,16 @@ using std::map;
 using std::vector;
 using std::set;
 using std::pair;
+using std::make_pair;
+
+// RelRef
+
+const char *RelRef::SET_ARG_ONE_INVALID =
+    "RelRef::set_arg_one - arg one has invalid type";
+const char *RelRef::SET_ARG_TWO_INVALID =
+    "RelRef::set_arg_two - arg two has invalid type";
+
+// PQL Parser
 
 #define RESTORE_AND_RET(retVal, savePtr) do {\
     this->bufIdx = savePtr;\
@@ -110,6 +121,38 @@ DesignEnt PQLParser::retrieve_syn_type(const string &s) const
     }
 }
 
+const char *relRefType_to_string(RelRefType relType)
+{
+    switch (relType) {
+    case REL_MODIFIES:
+        return MODIFIES_STR;
+    case REL_USES:
+        return USES_STR;
+    case REL_CALLS:
+        return CALLS_STR;
+    case REL_CALLS_STAR:
+        return CALLS_STAR_STR;
+    case REL_PARENT:
+        return PARENT_STR;
+    case REL_PARENT_STAR:
+        return PARENT_STAR_STR;
+    case REL_FOLLOWS:
+        return FOLLOWS_STR;
+    case REL_FOLLOWS_STAR:
+        return FOLLOWS_STAR_STR;
+    case REL_NEXT:
+        return NEXT_STR;
+    case REL_NEXT_STAR:
+        return NEXT_STAR_STR;
+    case REL_AFFECTS:
+        return AFFECTS_STR;
+    case REL_AFFECTS_STAR:
+        return AFFECTS_STAR_STR;
+    default:
+        return INVALID_STR;
+    }
+}
+
 const char *entity_type_to_string(DesignEnt entType)
 {
     switch (entType) {
@@ -156,15 +199,69 @@ const char *attrType_to_string(AttrType attrType)
     }
 }
 
+bool string_to_uint(const string& s, int *res, char **errorMsg)
+{
+    int len = s.size();
+    if (len <= 0) {
+        if (errorMsg) {
+            *errorMsg = strdup(S_TO_UINT_EMPTY_STRING);
+        }
+        return false;
+    }
+    int idx = 0;
+    while (idx < len && isspace(s[idx])) {
+        idx++;
+    }
+    if (idx >= len) {
+        if (errorMsg) {
+            *errorMsg = strdup(S_TO_UINT_WHITESPACE);
+        }
+        return false;
+    }
+    if (len - idx > 10) {
+        if (errorMsg) {
+            *errorMsg = strdup(S_TO_UINT_TOO_LONG);
+        }
+    }
+    long long tmp = 0;
+    while (idx < len && isdigit(s[idx])) {
+        tmp = tmp * 10 + (s[idx++] - '0');
+    }
+    if (tmp > S_TO_UINT_MAX) {
+        if (errorMsg) {
+            *errorMsg = strdup(S_TO_UINT_OVERFLOW);
+        }
+        return false;
+    }
+    if (res) {
+        *res = (int)tmp;
+    }
+    return true;
+}
+
 void PQLParser::error(const char *s, ...)
 {
     this->parseErrors++;
     va_list ap;
     va_start(ap, s);
-    fprintf(stderr, "Error: ");
-    vfprintf(stderr, s, ap);
-    fprintf(stderr, "\n");
+    this->valist_print("Error: ", s, ap);
     va_end(ap);
+}
+
+void PQLParser::warning(const char *s, ...) const
+{
+    va_list ap;
+    va_start(ap, s);
+    this->valist_print("Warning: ", s, ap);
+    va_end(ap);
+}
+
+void PQLParser::valist_print(const char *pfx, const char *fmt,
+        va_list ap) const
+{
+    fprintf(stderr, "%s", pfx);
+    vfprintf(stderr, fmt, ap);
+    fprintf(stderr, "\n");
 }
 
 int PQLParser::eat_space()
@@ -269,6 +366,27 @@ bool PQLParser::eat_alpha_strings(StringBuffer &sb, int nrStrs, ...)
     return true;
 }
 
+void PQLParser::eat_alpha_star(StringBuffer &sb)
+{
+    while (this->bufIdx < this->bufLen &&
+            (isalpha(this->buf[this->bufIdx]) ||
+             this->buf[this->bufIdx] == '*')) {
+        sb.append(this->buf[this->bufIdx++]);
+    }
+}
+
+bool PQLParser::eat_alpha_star_string(StringBuffer &sb, const char *s)
+{
+    int saveIdx = this->bufIdx;
+    sb.clear();
+    this->eat_alpha_star(sb);
+    if (!sb.strcmp(s)) {
+        return true;
+    } else {
+        RESTORE_AND_RET(false, saveIdx);
+    }
+}
+
 void PQLParser::eat_ident(StringBuffer &sb)
 {
     while (this->bufIdx < this->bufLen &&
@@ -288,6 +406,23 @@ bool PQLParser::eat_ident_string(StringBuffer &sb, const char *str)
     } else {
         RESTORE_AND_RET(false, saveIdx);
     }
+}
+
+int PQLParser::eat_int(StringBuffer &sb)
+{
+    if (this->bufIdx < this->bufLen &&
+            isdigit(this->buf[this->bufIdx])) {
+        sb.append(this->buf[this->bufIdx++]);
+    } else {
+        return 0;
+    }
+    int cnt = 1;
+    while (this->bufIdx < this->bufLen &&
+            isdigit(this->buf[this->bufIdx])) {
+        sb.append(this->buf[this->bufIdx++]);
+        cnt++;
+    }
+    return cnt;
 }
 
 bool PQLParser::eat_select(StringBuffer &sb)
@@ -318,6 +453,26 @@ bool PQLParser::eat_lt()
 bool PQLParser::eat_gt()
 {
     return this->eat_one_char('>');
+}
+
+bool PQLParser::eat_lparen()
+{
+    return this->eat_one_char('(');
+}
+
+bool PQLParser::eat_rparen()
+{
+    return this->eat_one_char(')');
+}
+
+bool PQLParser::eat_underscore()
+{
+    return this->eat_one_char('_');
+}
+
+bool PQLParser::eat_dquote()
+{
+    return this->eat_one_char('"');
 }
 
 bool PQLParser::eat_synonym(StringBuffer &sb)
@@ -575,17 +730,346 @@ bool PQLParser::eat_pattern(StringBuffer &sb)
     return this->eat_alpha_string(sb, PATTERN_STR);
 }
 
+bool PQLParser::eat_and(StringBuffer &sb)
+{
+    return this->eat_alpha_string(sb, AND_STR);
+}
+
+bool PQLParser::eat_modifies(StringBuffer &sb)
+{
+    return this->eat_alpha_string(sb, MODIFIES_STR);
+}
+
+bool PQLParser::eat_uses(StringBuffer &sb)
+{
+    return this->eat_alpha_string(sb, USES_STR);
+}
+
+bool PQLParser::eat_calls(StringBuffer &sb)
+{
+    return this->eat_alpha_string(sb, CALLS_STAR_STR);
+}
+
+bool PQLParser::eat_calls_star(StringBuffer &sb)
+{
+    return this->eat_alpha_star_string(sb, CALLS_STAR_STR);
+}
+
+bool PQLParser::eat_parent(StringBuffer &sb)
+{
+    return this->eat_alpha_string(sb, PARENT_STR);
+}
+
+bool PQLParser::eat_parent_star(StringBuffer &sb)
+{
+    return this->eat_alpha_star_string(sb, PARENT_STAR_STR);
+}
+
+bool PQLParser::eat_follows(StringBuffer &sb)
+{
+    return this->eat_alpha_string(sb, FOLLOWS_STR);
+}
+
+bool PQLParser::eat_follows_star(StringBuffer &sb)
+{
+    return this->eat_alpha_star_string(sb, FOLLOWS_STAR_STR);
+}
+
+bool PQLParser::eat_next(StringBuffer &sb)
+{
+    return this->eat_alpha_string(sb, NEXT_STR);
+}
+
+bool PQLParser::eat_next_star(StringBuffer &sb)
+{
+    return this->eat_alpha_star_string(sb, NEXT_STAR_STR);
+}
+
+bool PQLParser::eat_affects(StringBuffer &sb)
+{
+    return this->eat_alpha_string(sb, AFFECTS_STR);
+}
+
+bool PQLParser::eat_affects_star(StringBuffer &sb)
+{
+    return this->eat_alpha_star_string(sb, AFFECTS_STAR_STR);
+}
+
+RelRefArgType PQLParser::eat_entRef(StringBuffer &sb)
+{
+    int saveIdx = this->bufIdx;
+    sb.clear();
+    if (this->eat_synonym(sb)) {
+        return RELARG_SYN;
+    } else if (this->eat_underscore()) {
+        return REL_WILDCARD;
+    } else if (this->eat_dquote()) {
+        // TODO: Change eat_ident to return no. of chars ate
+        sb.clear();
+        this->eat_ident(sb);
+        if (sb.size() > 0 && this->eat_dquote()) {
+            return RELARG_STRING;
+        }
+    }
+    sb.clear();
+    this->bufIdx = saveIdx;
+    if (this->eat_int(sb) > 0) {
+        return REL_INT;
+    }
+    RESTORE_AND_RET(RELARG_INVALID, saveIdx);
+}
+
+RelRefArgType PQLParser::eat_stmtRef(StringBuffer &sb)
+{
+    int saveIdx = this->bufIdx;
+    sb.clear();
+    if (this->eat_synonym(sb)) {
+        return RELARG_SYN;
+    } else if (this->eat_underscore()) {
+        return REL_WILDCARD;
+    } else if (this->eat_int(sb)) {
+        return REL_INT;
+    }
+    RESTORE_AND_RET(RELARG_INVALID, saveIdx);
+}
+
+RelRefArgType PQLParser::eat_lineRef(StringBuffer &sb)
+{
+    return this->eat_stmtRef(sb);
+}
+
+RelRefArgType PQLParser::eat_varRef(StringBuffer &sb)
+{
+    int saveIdx = this->bufIdx;
+    sb.clear();
+    if (this->eat_synonym(sb)) {
+        return RELARG_SYN;
+    } else if (this->eat_underscore()) {
+        return REL_WILDCARD;
+    } else if (this->eat_dquote()) {
+        // TODO: Change eat_ident to return no. of chars ate
+        sb.clear();
+        this->eat_ident(sb);
+        if (sb.size() > 0 && this->eat_dquote()) {
+            return RELARG_STRING;
+        }
+    }
+    RESTORE_AND_RET(RELARG_INVALID, saveIdx);
+}
+
+RelRef PQLParser::eat_relRef_modifies(StringBuffer &sb)
+{
+    RelRef relRef;
+    RelRefArgType argType;
+    char *errorMsg = NULL;
+    int saveIdx = this->bufIdx;
+    sb.clear();
+    if (!this->eat_modifies(sb)) {
+        RESTORE_AND_RET(RelRef(), saveIdx);
+    }
+    relRef.relType = REL_MODIFIES;
+    this->eat_space();
+    if (!this->eat_lparen()) {
+        RESTORE_AND_RET(RelRef(), saveIdx);
+    }
+    this->eat_space();
+    argType = this->eat_entRef(sb);
+    if (argType == RELARG_INVALID) {
+        RESTORE_AND_RET(RelRef(), saveIdx);
+    }
+    if (!relRef.set_arg_one(argType, sb, &errorMsg)) {
+        if (errorMsg) {
+            this->error(errorMsg);
+            free(errorMsg);
+            errorMsg = NULL;
+        }
+        RESTORE_AND_RET(RelRef(), saveIdx);
+    }
+    this->eat_space();
+    if (!this->eat_comma()) {
+        RESTORE_AND_RET(RelRef(), saveIdx);
+    }
+    this->eat_space();
+    sb.clear();
+    errorMsg = NULL;
+    argType = this->eat_varRef(sb);
+    if (argType == RELARG_INVALID) {
+        RESTORE_AND_RET(RelRef(), saveIdx);
+    }
+    if (!relRef.set_arg_two(argType, sb, &errorMsg)) {
+        if (errorMsg) {
+            this->error(errorMsg);
+            free(errorMsg);
+            errorMsg = NULL;
+        }
+        RESTORE_AND_RET(RelRef(), saveIdx);
+    }
+    this->eat_space();
+    if (!this->eat_rparen()) {
+        RESTORE_AND_RET(RelRef(), saveIdx);
+    }
+    return relRef;
+}
+
+RelRef PQLParser::eat_relRef_uses(StringBuffer &sb)
+{
+    // TODO: Fill in
+    return RelRef();
+}
+
+RelRef PQLParser::eat_relRef_calls(StringBuffer &sb)
+{
+    // TODO: Fill in
+    return RelRef();
+}
+
+RelRef PQLParser::eat_relRef_calls_star(StringBuffer &sb)
+{
+    // TODO: Fill in
+    return RelRef();
+}
+
+RelRef PQLParser::eat_relRef_parent(StringBuffer &sb)
+{
+    // TODO: Fill in
+    return RelRef();
+}
+
+RelRef PQLParser::eat_relRef_parent_star(StringBuffer &sb)
+{
+    // TODO: Fill in
+    return RelRef();
+}
+
+RelRef PQLParser::eat_relRef_follows(StringBuffer &sb)
+{
+    // TODO: Fill in
+    return RelRef();
+}
+
+RelRef PQLParser::eat_relRef_follows_star(StringBuffer &sb)
+{
+    // TODO: Fill in
+    return RelRef();
+}
+
+RelRef PQLParser::eat_relRef_next(StringBuffer &sb)
+{
+    // TODO: Fill in
+    return RelRef();
+}
+
+RelRef PQLParser::eat_relRef_next_star(StringBuffer &sb)
+{
+    // TODO: Fill in
+    return RelRef();
+}
+
+RelRef PQLParser::eat_relRef_affects(StringBuffer &sb)
+{
+    // TODO: Fill in
+    return RelRef();
+}
+
+RelRef PQLParser::eat_relRef_affects_star(StringBuffer &sb)
+{
+    // TODO: Fill in
+    return RelRef();
+}
+
+RelRef PQLParser::eat_relRef(StringBuffer &sb)
+{
+    #define EAT_RELREF_METHOD(method) do {\
+        this->bufIdx = saveIdx;\
+        relRef = this->method(sb);\
+        if (RelRef::valid(relRef)) {\
+            errorMsg = NULL;\
+            if (!this->qinfo->add_relRef(relRef, &errorMsg)) {\
+                this->error(errorMsg);\
+                free(errorMsg);\
+                RESTORE_AND_RET(RelRef(), saveIdx);\
+            } else {\
+                if (errorMsg) {\
+                    this->warning(errorMsg);\
+                    free(errorMsg);\
+                }\
+            }\
+            return relRef;\
+        }\
+    } while(0)
+
+    int saveIdx = this->bufIdx;
+    RelRef relRef;
+    char *errorMsg;
+    EAT_RELREF_METHOD(eat_relRef_modifies);
+    EAT_RELREF_METHOD(eat_relRef_uses);
+    EAT_RELREF_METHOD(eat_relRef_calls_star);
+    EAT_RELREF_METHOD(eat_relRef_calls);
+    EAT_RELREF_METHOD(eat_relRef_parent_star);
+    EAT_RELREF_METHOD(eat_relRef_parent);
+    EAT_RELREF_METHOD(eat_relRef_follows_star);
+    EAT_RELREF_METHOD(eat_relRef_follows);
+    EAT_RELREF_METHOD(eat_relRef_next_star);
+    EAT_RELREF_METHOD(eat_relRef_next);
+    EAT_RELREF_METHOD(eat_relRef_affects_star);
+    EAT_RELREF_METHOD(eat_relRef_affects);
+    return RelRef();
+
+    #undef EAT_RELREF_METHOD
+}
+
+bool PQLParser::eat_relCond(StringBuffer &sb)
+{
+    int saveIdx = this->bufIdx;
+    RelRef relRef;
+    if (this->eat_space() <= 0) {
+        RESTORE_AND_RET(false, saveIdx);
+    }
+    relRef = this->eat_relRef(sb);
+    if (!RelRef::valid(relRef)) {
+        RESTORE_AND_RET(false, saveIdx);
+    }
+    while (1) {
+        saveIdx = this->bufIdx;
+        if (this->eat_space() <= 0) {
+            this->bufIdx = saveIdx;
+            break;
+        }
+        if (!this->eat_and(sb)) {
+            this->bufIdx = saveIdx;
+            break;
+        }
+        if (this->eat_space() <= 0) {
+            this->bufIdx = saveIdx;
+            break;
+        }
+        relRef = this->eat_relRef(sb);
+        if (!RelRef::valid(relRef)) {
+            this->bufIdx = saveIdx;
+            break;
+        }
+    }
+    return true;
+}
+
 void PQLParser::eat_select_stwithpat(StringBuffer &sb)
 {
     if (this->bufIdx >= this->bufLen) {
         return;
     }
+    int saveIdx = this->bufIdx;
     while (1) {
         if (this->eat_space() <= 0) {
             break;
         }
-        if (this->eat_with(sb)) {
+        if (this->eat_such_that(sb) && this->eat_relCond(sb)) {
+            // nothing
+        } else if (this->eat_with(sb)) {
+            // TODO: Fill in
+        } else if (this->eat_pattern(sb)) {
+            // TODO: Fill in
         } else {
+            break;
         }
     }
 }
@@ -661,6 +1145,9 @@ void QueryInfo::reset(const map<string, DesignEnt>& etab,
             it != eVec.end(); it++) {
         this->entVec.push_back(*it);
     }
+    this->evalOrder.clear();
+    this->relRefs.clear();
+    this->relRefsSet.clear();
 }
 
 void QueryInfo::set_select_boolean()
@@ -704,6 +1191,160 @@ bool QueryInfo::add_select_tuple(AttrRef attrRef, char **errorMsg)
     }
 }
 
+DesignEnt QueryInfo::retrieve_syn_type(const string &s) const
+{
+    map<string, DesignEnt>::const_iterator it = this->entTable.find(s);
+    if (it != this->entTable.end()) {
+        return it->second;
+    } else {
+        return ENT_INVALID;
+    }
+}
+
+void QueryInfo::insert_relRef(const RelRef &relRef, char **errorMsg)
+{
+    if (this->relRefsSet.find(relRef) == this->relRefsSet.end()) {
+        this->evalOrder.push_back(
+            make_pair(SUCHTHAT_CLAUSE, this->relRefs.size()));
+        this->relRefsSet.insert(relRef);
+        this->relRefs.push_back(relRef);
+    } else {
+        // else duplicate relRef, dont insert
+        if (errorMsg) {
+            _snprintf_s(this->errorBuf, QINFO_ERROR_LEN, QINFO_ERROR_LEN,
+                "Repeated relRef \"%s\"", relRef.dump().c_str());
+            *errorMsg = strdup(this->errorBuf);
+        }
+    }
+}
+
+bool QueryInfo::add_modifies_relRef(RelRef &relRef, char **errorMsg)
+{
+    DesignEnt entType;
+    if (relRef.argOneType == RELARG_SYN) {
+        entType = this->retrieve_syn_type(relRef.argOneString);
+        switch (entType) {
+        case ENT_ASSIGN: case ENT_STMT: case ENT_IF:
+        case ENT_WHILE: case ENT_PROC: case ENT_CALL:
+        case ENT_PROGLINE:
+            relRef.argOneSyn = entType;
+            break;
+        case ENT_INVALID:
+            if (errorMsg) {
+                _snprintf_s(this->errorBuf, QINFO_ERROR_LEN, QINFO_ERROR_LEN,
+                    "Modifies - arg one is an undeclared synonym \"%s\"",
+                    relRef.argOneString.c_str());
+                *errorMsg = strdup(this->errorBuf);
+            }
+            return false;
+        default:
+            // all other types fail
+            if (errorMsg) {
+                _snprintf_s(this->errorBuf, QINFO_ERROR_LEN, QINFO_ERROR_LEN,
+                    "Modifies - arg one must be a synonym of type assign, "
+                    "stmt, if, while, procedure, call, prog_line"
+                    "; or the name of a procedure enclosed in double quotes"
+                    "; or an underscore");
+                *errorMsg = strdup(this->errorBuf);
+            }
+            return false;
+        }
+    }
+    if (relRef.argTwoType == RELARG_SYN) {
+        entType = this->retrieve_syn_type(relRef.argTwoString);
+        switch (entType) {
+        case ENT_VAR:
+            relRef.argTwoSyn = entType;
+            break;
+        case ENT_INVALID:
+            if (errorMsg) {
+                _snprintf_s(this->errorBuf, QINFO_ERROR_LEN, QINFO_ERROR_LEN,
+                    "Modifies - arg two is an undeclared synonym \"%s\"",
+                    relRef.argTwoString.c_str());
+                *errorMsg = strdup(this->errorBuf);
+            }
+            return false;
+        default:
+            if (errorMsg) {
+                _snprintf_s(this->errorBuf, QINFO_ERROR_LEN, QINFO_ERROR_LEN,
+                    "Modifies - arg two must be a synonym of type variable"
+                    "; or the name of a variable enclosed in double quotes"
+                    "; or an underscore");
+                *errorMsg = strdup(this->errorBuf);
+            }
+            return false;
+        }
+    }
+    this->insert_relRef(relRef, errorMsg);
+    return true;
+}
+
+bool QueryInfo::add_uses_relRef(RelRef &relRef, char **errorMsg)
+{
+    // TODO: fill in
+    return false;
+}
+
+bool QueryInfo::add_calls_relRef(RelRef &relRef, char **errorMsg)
+{
+    // TODO: fill in
+    return false;
+}
+
+bool QueryInfo::add_parent_relRef(RelRef &relRef, char **errorMsg)
+{
+    // TODO: fill in
+    return false;
+}
+
+bool QueryInfo::add_follows_relRef(RelRef &relRef, char **errorMsg)
+{
+    // TODO: fill in
+    return false;
+}
+
+bool QueryInfo::add_next_relRef(RelRef &relRef, char **errorMsg)
+{
+    // TODO: fill in
+    return false;
+}
+
+bool QueryInfo::add_affects_relRef(RelRef &relRef, char **errorMsg)
+{
+    // TODO: fill in
+    return false;
+}
+
+bool QueryInfo::add_relRef(RelRef &relRef, char **errorMsg)
+{
+    switch (relRef.relType) {
+    case REL_MODIFIES:
+        return this->add_modifies_relRef(relRef, errorMsg);
+    case REL_USES:
+        return this->add_uses_relRef(relRef, errorMsg);
+    case REL_CALLS:
+    case REL_CALLS_STAR:
+        return this->add_calls_relRef(relRef, errorMsg);
+    case REL_PARENT:
+    case REL_PARENT_STAR:
+        return this->add_parent_relRef(relRef, errorMsg);
+    case REL_FOLLOWS:
+    case REL_FOLLOWS_STAR:
+        return this->add_follows_relRef(relRef, errorMsg);
+    case REL_NEXT:
+    case REL_NEXT_STAR:
+        return this->add_next_relRef(relRef, errorMsg);
+    case REL_AFFECTS:
+    case REL_AFFECTS_STAR:
+        return this->add_affects_relRef(relRef, errorMsg);
+    default:
+        if (errorMsg) {
+            *errorMsg = strdup("add_relRef - trying to add invalid rel ref");
+        }
+        return false;
+    }
+}
+
 void QueryInfo::dump(void) const
 {
     this->dump(stdout);
@@ -739,6 +1380,15 @@ std::string QueryInfo::dump_to_string() const
         }
     } else {
         sb.append("BOOLEAN\n");
+    }
+    for (vector<pair<ClauseType, int> >::const_iterator it =
+            this->evalOrder.begin(); it != this->evalOrder.end(); it++) {
+        switch (it->first) {
+        case SUCHTHAT_CLAUSE:
+            sb.append(this->relRefs[it->second].dump());
+            sb.append('\n');
+            break;
+        }
     }
     return sb.toString();
 }

@@ -8,9 +8,11 @@ CPPUNIT_TEST_SUITE(TestStringBuffer);
 CPPUNIT_TEST(testAppendChar);
 CPPUNIT_TEST(testAppendCString);
 CPPUNIT_TEST(testAppendString);
+CPPUNIT_TEST(testAppendInt);
 CPPUNIT_TEST(testAppendMixed);
 CPPUNIT_TEST(testClear);
 CPPUNIT_TEST(testStrcmp);
+CPPUNIT_TEST(testSize);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -21,9 +23,11 @@ private:
     void testAppendChar();
     void testAppendCString();
     void testAppendString();
+    void testAppendInt();
     void testAppendMixed();
     void testClear();
     void testStrcmp();
+    void testSize();
 };
 
 #endif

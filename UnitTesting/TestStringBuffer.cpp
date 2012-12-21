@@ -71,6 +71,29 @@ void TestStringBuffer::testAppendString()
     CPPUNIT_ASSERT_EQUAL(src, sb.toString());
 }
 
+void TestStringBuffer::testAppendInt()
+{
+    StringBuffer sb;
+    sb.append_int(0);
+    string s = "0";
+    CPPUNIT_ASSERT_EQUAL(s, sb.toString());
+    sb.append_int(5);
+    s += "5";
+    CPPUNIT_ASSERT_EQUAL(s, sb.toString());
+    sb.append_int(74);
+    s += "74";
+    CPPUNIT_ASSERT_EQUAL(s, sb.toString());
+    sb.append_int(100);
+    s += "100";
+    CPPUNIT_ASSERT_EQUAL(s, sb.toString());
+    sb.append_int(999);
+    s += "999";
+    CPPUNIT_ASSERT_EQUAL(s, sb.toString());
+    sb.append_int(524138);
+    s += "524138";
+    CPPUNIT_ASSERT_EQUAL(s, sb.toString());
+}
+
 void TestStringBuffer::testAppendMixed()
 {
     StringBuffer sb;
@@ -137,4 +160,22 @@ void TestStringBuffer::testStrcmp()
     CPPUNIT_ASSERT_EQUAL(-1, ret);
     ret = sb.strcmp("aaa");
     CPPUNIT_ASSERT_EQUAL(1, ret);
+}
+
+void TestStringBuffer::testSize()
+{
+    StringBuffer sb;
+    CPPUNIT_ASSERT_EQUAL(0, sb.size());
+    for (int i = 0; i < 26; i++) {
+        sb.append(i + 'a');
+    }
+    CPPUNIT_ASSERT_EQUAL(26, sb.size());
+    sb.append("sdrawkcab tleps si ecnetnes sihT");
+    CPPUNIT_ASSERT_EQUAL(58, sb.size());
+    sb.append(string("aloha "));
+    CPPUNIT_ASSERT_EQUAL(64, sb.size());
+    sb.clear();
+    CPPUNIT_ASSERT_EQUAL(0, sb.size());
+    sb.append('b');
+    CPPUNIT_ASSERT_EQUAL(1, sb.size());
 }

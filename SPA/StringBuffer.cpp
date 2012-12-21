@@ -77,6 +77,32 @@ void StringBuffer::append(string s)
     }
 }
 
+void StringBuffer::append_int(int x)
+{
+    long long r = x;
+    long long tpow = 10;
+    int digits = 2;
+    int d;
+    while (tpow <= r) {
+        tpow *= 10;
+        digits++;
+    }
+    tpow /= 10;
+    digits--;
+    if (r == 0) {
+        grow_buffer(1);
+        buf[nrChars++] = '0';
+    } else {
+        grow_buffer(digits);
+        while (digits-- > 0) {
+            d = r / tpow;
+            buf[nrChars++] = d + '0';
+            r %= tpow;
+            tpow /= 10;
+        }
+    }
+}
+
 int StringBuffer::strcmp(const char *s)
 {
     grow_buffer(1);
@@ -109,4 +135,9 @@ string StringBuffer::toString(void)
 void StringBuffer::clear(void)
 {
     this->nrChars = 0;
+}
+
+int StringBuffer::size(void) const
+{
+    return this->nrChars;
 }

@@ -843,3 +843,282 @@ void TestPQLParser::test_select_attrRef()
     output += "  prog_line pl2\n  prog_line pl3\n";
     CPPUNIT_ASSERT_EQUAL(output, qinfo->dump_to_string());
 }
+
+void TestPQLParser::test_modifies()
+{
+    // Modifies(assign,var)
+    string queryStr = "assign ad; variable vhd; ";
+    queryStr += "Select ad such that Modifies(ad,vhd)";
+    string out;
+    PQLParser parser;
+    QueryInfo *qinfo;
+    parser.parse(queryStr);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(0, parser.get_parse_errors());
+    out = "DECLARATIONS\n  assign ad\n  variable vhd\nSELECT TUPLE\n";
+    out += "  assign ad\nModifies(ad,vhd)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // spaces
+    queryStr = "assign fh1; variable gdfg1, hgf1udA; ";
+    queryStr += " Select hgf1udA such that ";
+    queryStr += "  \n Modifies (\t\n  fh1  , \t gdfg1 \t)  ";
+    parser.parse(queryStr);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(0, parser.get_parse_errors());
+    out = "DECLARATIONS\n  assign fh1\n  variable gdfg1\n  variable hgf1udA\n";
+    out += "SELECT TUPLE\n  variable hgf1udA\nModifies(fh1,gdfg1)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Modifies(proc,var)
+    queryStr = "procedure plf1; variable gbdg1; ";
+    queryStr += "Select plf1 such that Modifies(plf1, gbdg1)";
+    parser.parse(queryStr);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(0, parser.get_parse_errors());
+    out = "DECLARATIONS\n  procedure plf1\n  variable gbdg1\n";
+    out += "SELECT TUPLE\n  procedure plf1\nModifies(plf1,gbdg1)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Modifies(if,var)
+    queryStr = "variable mmvd1; if nfI1g; Select nfI1g such that ";
+    queryStr += "Modifies(nfI1g, mmvd1)";
+    parser.parse(queryStr);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(0, parser.get_parse_errors());
+    out = "DECLARATIONS\n  variable mmvd1\n  if nfI1g\nSELECT TUPLE\n";
+    out += "  if nfI1g\nModifies(nfI1g,mmvd1)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Modifies(while,var)
+    queryStr = " while bcv1; variable TQWEx1; Select TQWEx1 such that ";
+    queryStr += "Modifies(bcv1, TQWEx1)";
+    parser.parse(queryStr);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(0, parser.get_parse_errors());
+    out = "DECLARATIONS\n  while bcv1\n  variable TQWEx1\nSELECT TUPLE\n";
+    out += "  variable TQWEx1\nModifies(bcv1,TQWEx1)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Modifies(call,var)
+    queryStr = "  variable qecxv1#; call Kmmbc1; Select Kmmbc1 such that ";
+    queryStr += "Modifies(Kmmbc1, qecxv1#)";
+    parser.parse(queryStr);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(0, parser.get_parse_errors());
+    out = "DECLARATIONS\n  variable qecxv1#\n  call Kmmbc1\nSELECT TUPLE\n";
+    out += "  call Kmmbc1\nModifies(Kmmbc1,qecxv1#)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Modifies(stmt,var)
+    queryStr = "  stmt Iuvc1; variable lljgbf1; Select Iuvc1 such that ";
+    queryStr += "Modifies(Iuvc1, lljgbf1)\n";
+    parser.parse(queryStr);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(0, parser.get_parse_errors());
+    out = "DECLARATIONS\n  stmt Iuvc1\n  variable lljgbf1\nSELECT TUPLE\n";
+    out += "  stmt Iuvc1\nModifies(Iuvc1,lljgbf1)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Modifies(prog_line,var)
+    queryStr = " variable hjf1#xa; prog_line poiote; Select poiote ";
+    queryStr += "such that Modifies(poiote, hjf1#xa )";
+    parser.parse(queryStr);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(0, parser.get_parse_errors());
+    out = "DECLARATIONS\n  variable hjf1#xa\n  prog_line poiote\n";
+    out += "SELECT TUPLE\n  prog_line poiote\nModifies(poiote,hjf1#xa)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Modifies(synonym,string)
+    queryStr = "  stmt fvb1; Select fvb1 such that  ";
+    queryStr += " Modifies  (  \t fvb1,  \"abvxc\"  \n \t)";
+    parser.parse(queryStr);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(0, parser.get_parse_errors());
+    out = "DECLARATIONS\n  stmt fvb1\nSELECT TUPLE\n  stmt fvb1\n";
+    out += "Modifies(fvb1,\"abvxc\")\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Modifies(synonym,_)
+    queryStr = "  while df1; stmt BBx1;  Select <df1,BBx1> ";
+    queryStr += " such that Modifies(df1,   \t  _  \t ) \n";
+    parser.parse(queryStr);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(0, parser.get_parse_errors());
+    out = "DECLARATIONS\n  while df1\n  stmt BBx1\n";
+    out += "SELECT TUPLE\n  while df1\n  stmt BBx1\nModifies(df1,_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Modifies(int,var)
+    queryStr = " variable hcb, m2df1; Select m2df1 such that  ";
+    queryStr += "Modifies(5, m2df1)";
+    parser.parse(queryStr);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(0, parser.get_parse_errors());
+    out = "DECLARATIONS\n  variable hcb\n  variable m2df1\nSELECT TUPLE\n";
+    out += "  variable m2df1\nModifies(5,m2df1)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Modifies(int,string)
+    queryStr = "  variable BLEh; Select BLEh such that Modifies(13,  \"Ex1\")";
+    parser.parse(queryStr);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(0, parser.get_parse_errors());
+    out = "DECLARATIONS\n  variable BLEh\nSELECT TUPLE\n  variable BLEh\n";
+    out += "Modifies(13,\"Ex1\")\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Modifies(int,_)
+    queryStr = " Select BOOLEAN such that Modifies(235, _)";
+    parser.parse(queryStr);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(0, parser.get_parse_errors());
+    out = "DECLARATIONS\nSELECT BOOLEAN\nModifies(235,_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Modifies(string,var)
+    queryStr = " variable utq; Select utq such that ";
+    queryStr += "   Modifies  \t (  \t \"proc1\"  \t ,utq)";
+    parser.parse(queryStr);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(0, parser.get_parse_errors());
+    out = "DECLARATIONS\n  variable utq\nSELECT TUPLE\n  variable utq\n";
+    out += "Modifies(\"proc1\",utq)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Modifies(string,string)
+    queryStr = " while xfgvb1; Select xfgvb1 such that ";
+    queryStr += "Modifies  (  \"fvProc\" \t , \t \n \"bcb14\"  \t \n)";
+    parser.parse(queryStr);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(0, parser.get_parse_errors());
+    out = "DECLARATIONS\n  while xfgvb1\nSELECT TUPLE\n  while xfgvb1\n";
+    out += "Modifies(\"fvProc\",\"bcb14\")\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Modifies(string,_)
+    queryStr = " stmtLst sf; Select sf such that Modifies(\"qbcvb1\",_)";
+    parser.parse(queryStr);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(0, parser.get_parse_errors());
+    out = "DECLARATIONS\n  stmtLst sf\nSELECT TUPLE\n  stmtLst sf\n";
+    out += "Modifies(\"qbcvb1\",_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Modifies(_,var)
+    queryStr = "  variable gvbcvb; Select gvbcvb such that  ";
+    queryStr += "Modifies(_,gvbcvb)";
+    parser.parse(queryStr);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(0, parser.get_parse_errors());
+    out = "DECLARATIONS\n  variable gvbcvb\nSELECT TUPLE\n  variable gvbcvb\n";
+    out += "Modifies(_,gvbcvb)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Modifies(_,string)
+    queryStr = " assign a; Select a such that Modifies(_,  \"bmcvkb\" )";
+    parser.parse(queryStr);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(0, parser.get_parse_errors());
+    out = "DECLARATIONS\n  assign a\nSELECT TUPLE\n  assign a\n";
+    out += "Modifies(_,\"bmcvkb\")\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Modifies(_,_)
+    queryStr = "  variable sdfv1; Select sdfv1 such that Modifies(  _  , _ )";
+    parser.parse(queryStr);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(0, parser.get_parse_errors());
+    out = "DECLARATIONS\n  variable sdfv1\nSELECT TUPLE\n  variable sdfv1\n";
+    out += "Modifies(_,_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Modifies(assign,var) and Modifies(proc,var)
+    queryStr = "assign Asd1; variable bv1; procedure eh1ty; ";
+    queryStr += "Select bv1 such that Modifies(Asd1,bv1) and Modifies(eh1ty,bv1)";
+    parser.parse(queryStr);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(0, parser.get_parse_errors());
+    out = "DECLARATIONS\n  assign Asd1\n  variable bv1\n  procedure eh1ty\n";
+    out += "SELECT TUPLE\n  variable bv1\nModifies(Asd1,bv1)\n";
+    out += "Modifies(eh1ty,bv1)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Modifies(while,var) and Modifies(if,var) and Modifies(_,"string")
+    queryStr = "variable nfbg1; while dxfg1; if bv1hda; Select <bv1hda,dxfg1>";
+    queryStr += " such that Modifies(dxfg1,nfbg1)  \t  and \n\t  ";
+    queryStr += "Modifies(bv1hda,nfbg1)\n  and \n \t Modifies(_, \"hjs1\")";
+    parser.parse(queryStr);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(0, parser.get_parse_errors());
+    out = "DECLARATIONS\n  variable nfbg1\n  while dxfg1\n  if bv1hda\n";
+    out += "SELECT TUPLE\n  if bv1hda\n  while dxfg1\nModifies(dxfg1,nfbg1)\n";
+    out += "Modifies(bv1hda,nfbg1)\nModifies(_,\"hjs1\")\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    //////////////////////////////////////////////////////////////////
+    // Repeated Modifies clause (ie. equivalent clauses)
+    //////////////////////////////////////////////////////////////////
+    queryStr = " while w1, w2; assign a1, a2; procedure proc1, proc2; ";
+    queryStr += " stmt stmt1, stmt2; call call1, call2; if if1, if2; ";
+    queryStr += " variable var1, var2, var3; prog_line pl1, pl2, pl3 ; ";
+    queryStr += " Select   <w1,var2,pl1> such that Modifies(w1, var1) and ";
+    queryStr += " Modifies(a1, var1) and Modifies(w1, var2) and ";
+    queryStr += " Modifies(w1,var1)  and "; // R w1,var
+    queryStr += " Modifies(call1, var1) and Modifies (proc1, var2) and ";
+    queryStr += " Modifies(call1, var1)  and  "; // R call,var
+    queryStr += " Modifies(stmt1, var2) and Modifies(if2, var3) and";
+    queryStr += " Modifies(a1,var1) and "; // R assign,var
+    queryStr += " Modifies(a2, var3) and Modifies(pl3, var2) and ";
+    queryStr += " Modifies(stmt2, var2) and ";
+    queryStr += " Modifies(proc1,var2) and "; // R proc,var
+    queryStr += " Modifies(a1, \"strvar1\") and ";
+    queryStr += " Modifies(pl3,var2) and "; // R prog_line,var
+    queryStr += " Modifies(if2, var3) and "; // R if,var
+    queryStr += " Modifies(if1, \"strvar2\") and ";
+    queryStr += " Modifies(stmt2, var2) and ";  // R stmt,var
+    queryStr += " Modifies(a2, \"strvar1\") and ";
+    queryStr += " Modifies(a1, \"strvar1\") and "; // R syn,str
+    queryStr += " Modifies(call1, _) and Modifies(\"myproc\", var1) and ";
+    queryStr += " Modifies(stmt2, _) and Modifies(\"proc3\", var2) and ";
+    queryStr += " Modifies(stmt2, _) and "; // R syn,_
+    queryStr += " Modifies(\"myproc\", var1) and "; // R string,var
+    queryStr += " Modifies(61, var1) and Modifies(735, _) and ";
+    queryStr += " Modifies(\"doSmth\", \"avar\") and ";
+    queryStr += " Modifies(\"f\",\"v\") and Modifies(17, \"ch\") and ";
+    queryStr += " Modifies(61, var1) and "; // R int,var
+    queryStr += " Modifies(\"doSmth\",\"avar\") and "; // R string,string
+    queryStr += " Modifies(735,_) and "; // R int,_
+    queryStr += " Modifies(9, \"str\") and Modifies(\"pp1\", _) and ";
+    queryStr += " Modifies(23, \"blargh\") and Modifies(_, var2) and ";
+    queryStr += " Modifies(\"pp1\",_) and "; // R string,_
+    queryStr += " Modifies(23, \"blargh\") and "; // R int,string
+    queryStr += " Modifies(_, var3) and Modifies(_, \"ch\") and ";
+    queryStr += " Modifies(_, _) and Modifies(_, \"bleh\") and ";
+    queryStr += " Modifies(_,\"blargh\") and ";
+    queryStr += " Modifies(_,\"ch\") and "; // R _,string
+    queryStr += " Modifies(_,var3) and Modifies(_, _) "; // R _,syn; R _,_
+    parser.parse(queryStr);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(0, parser.get_parse_errors());
+    out = "DECLARATIONS\n  while w1\n  while w2\n  assign a1\n  assign a2\n";
+    out += "  procedure proc1\n  procedure proc2\n  stmt stmt1\n";
+    out += "  stmt stmt2\n  call call1\n  call call2\n  if if1\n  if if2\n";
+    out += "  variable var1\n  variable var2\n  variable var3\n";
+    out += "  prog_line pl1\n  prog_line pl2\n  prog_line pl3\nSELECT TUPLE\n";
+    out += "  while w1\n  variable var2\n  prog_line pl1\nModifies(w1,var1)\n";
+    out += "Modifies(a1,var1)\nModifies(w1,var2)\nModifies(call1,var1)\n";
+    out += "Modifies(proc1,var2)\nModifies(stmt1,var2)\nModifies(if2,var3)\n";
+    out += "Modifies(a2,var3)\nModifies(pl3,var2)\nModifies(stmt2,var2)\n";
+    out += "Modifies(a1,\"strvar1\")\nModifies(if1,\"strvar2\")\n";
+    out += "Modifies(a2,\"strvar1\")\nModifies(call1,_)\n";
+    out += "Modifies(\"myproc\",var1)\nModifies(stmt2,_)\n";
+    out += "Modifies(\"proc3\",var2)\nModifies(61,var1)\nModifies(735,_)\n";
+    out += "Modifies(\"doSmth\",\"avar\")\nModifies(\"f\",\"v\")\n";
+    out += "Modifies(17,\"ch\")\nModifies(9,\"str\")\nModifies(\"pp1\",_)\n";
+    out += "Modifies(23,\"blargh\")\nModifies(_,var2)\nModifies(_,var3)\n";
+    out += "Modifies(_,\"ch\")\nModifies(_,_)\nModifies(_,\"bleh\")\n";
+    out += "Modifies(_,\"blargh\")\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+}
