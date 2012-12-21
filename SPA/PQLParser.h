@@ -25,6 +25,8 @@
 #define PATTERN_STR "pattern"
 #define AND_STR     "and"
 #define SELECT_STR  "Select"
+#define SUCH_STR    "such"
+#define THAT_STR    "that"
 
 enum DesignEnt {
     ENT_PROC, ENT_STMTLST, ENT_STMT, ENT_ASSIGN, ENT_CALL,
@@ -117,6 +119,7 @@ private:
     bool eat_attrName(StringBuffer &sb);
     void eat_alpha(StringBuffer &sb);
     bool eat_alpha_string(StringBuffer &sb, const char *s);
+    bool eat_alpha_strings(StringBuffer &sb, int nrStrs, ...);
     void eat_ident(StringBuffer &sb);
     bool eat_ident_string(StringBuffer &sb, const char *s);
     bool eat_string_till_ws(StringBuffer &sb, const char *s);
@@ -124,6 +127,7 @@ private:
     bool eat_select_tuple(StringBuffer &sb);
     AttrRef eat_select_tuple_elem(StringBuffer &sb);
     bool eat_select_boolean(StringBuffer &sb);
+    bool eat_such_that(StringBuffer &sb);
     bool eat_with(StringBuffer &sb);
     bool eat_pattern(StringBuffer &sb);
     void eat_select_stwithpat(StringBuffer &sb);

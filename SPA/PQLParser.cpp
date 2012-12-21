@@ -239,6 +239,36 @@ bool PQLParser::eat_alpha_string(StringBuffer &sb, const char *str)
     }
 }
 
+bool PQLParser::eat_alpha_strings(StringBuffer &sb, int nrStrs, ...)
+{
+    if (nrStrs <= 0) {
+        return true;
+    }
+    int saveIdx = this->bufIdx;
+    const char *s;
+    va_list ap;
+    va_start(ap, nrStrs);
+    s = va_arg(ap, const char *);
+    this->eat_space();
+    if (!this->eat_alpha_string(sb, s)) {
+        va_end(ap);
+        RESTORE_AND_RET(false, saveIdx);
+    }
+    for (int i = 1; i < nrStrs; i++) {
+        s = va_arg(ap, const char *);
+        if (this->eat_space() <= 0) {
+            va_end(ap);
+            RESTORE_AND_RET(false, saveIdx);
+        }
+        if (!this->eat_alpha_string(sb, s)) {
+            va_end(ap);
+            RESTORE_AND_RET(false, saveIdx);
+        }
+    }
+    va_end(ap);
+    return true;
+}
+
 void PQLParser::eat_ident(StringBuffer &sb)
 {
     while (this->bufIdx < this->bufLen &&
@@ -528,6 +558,11 @@ bool PQLParser::eat_select_tuple(StringBuffer &sb)
         RESTORE_AND_RET(false, saveIdx);
     }
     return true;
+}
+
+bool PQLParser::eat_such_that(StringBuffer &sb)
+{
+    return this->eat_alpha_strings(sb, 2, SUCH_STR, THAT_STR);
 }
 
 bool PQLParser::eat_with(StringBuffer &sb)
