@@ -164,9 +164,9 @@ Token Tokenizer::get_token(){
         return Token(tokenString, KEYWORD);
     } else if (is_name(tokenString)) {
         if (tokenNo<=2) {
-            return Token(tokenString, PROCEDURE);
+            return Token(tokenString, PROC_NAME);
         } else {
-            return Token(tokenString, VARIABLE);
+            return Token(tokenString, VAR_NAME);
         }
     } else if (is_const(tokenString)) {
         return Token(tokenString, CONSTANT);
