@@ -19,7 +19,9 @@ Tokenizer::Tokenizer(string s, ReadMode mode)
     if (mode == 0) {
         pFile = fopen(s.c_str(),"r");
         printf("%s opened.\n",s.c_str());
-        if (pFile==NULL) perror ("Error opening file");
+        if (pFile == NULL) {
+            perror ("Error opening file");
+        }
     } else {
         inputString = s;
         qq = s.length();
@@ -47,6 +49,14 @@ char Tokenizer::myget()
         return EOF;
     }
     return inputString[pp++];
+}
+
+char Tokenizer::nextChar(){
+    if (fmode == 0) {
+    currChar = fgetc(pFile);
+    } else {
+    currChar = myget();
+    }
 }
 
 bool Tokenizer::is_name(string t){
@@ -80,7 +90,6 @@ bool Tokenizer::is_oper(string t){
     return (t.length() == 1 && (t[0] == '+' || t[0] == '-'
         || t[0] == '*' || t[0] == '/'));
 }
-
 
 bool Tokenizer::is_equalsign(string t){
     return (t.length() == 1 && t[0] == '=');
@@ -126,21 +135,13 @@ Token Tokenizer::get_token(){
             if (!isalnum(currChar)) {
                 strBuffer.append(currChar);
                 if (!flag) {
-                    if (fmode == 0) {
-                        currChar = fgetc(pFile);
-                    } else {
-                        currChar = myget();
-                    }
+                    nextChar();
                 }
             } else {
                 while(isalnum(currChar)) {
                     flag = true;
                     strBuffer.append(currChar);
-                    if (fmode == 0) {
-                        currChar = fgetc(pFile);
-                    } else {
-                        currChar = myget();
-                    }
+                    nextChar();
                 }
             }
 
@@ -148,11 +149,7 @@ Token Tokenizer::get_token(){
         }
     } else {
         strBuffer.append(currChar);
-        if (fmode == 0) {
-            currChar = fgetc(pFile);
-        } else {
-            currChar = myget();
-        }
+        nextChar();
     }
             
     tokenString = strBuffer.toString();
