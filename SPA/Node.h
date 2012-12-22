@@ -23,8 +23,9 @@ public:
     NodeType get_type() const;
     int get_stmtNo() const;
 
-    void add_leaf(Node* node);
+    void add_leaf(Node *node);
     Node* get_root();
+    void link_stmt(Node *n1, Node *n2); //helper to link stmt nodes
 
 private:
     // Node Fields
