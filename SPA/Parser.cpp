@@ -346,8 +346,12 @@ void Parser::check_pre(Node *op){
 
     if (!opStack.empty()) {
         Node *op2 = opStack.top();
-        if(op_pre[op->get_name()] <= op_pre[op2->get_name()]) {
+        while(op_pre[op->get_name()] <= op_pre[op2->get_name()]) {
             join();
+            if(opStack.empty()) {
+                break;
+            }
+            op2 = opStack.top();
         }
     }
      opStack.push(op);
