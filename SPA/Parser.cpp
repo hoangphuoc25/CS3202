@@ -1,6 +1,7 @@
 #include "Parser.h"
 
 
+
 Parser::Parser()
 {
 
@@ -20,6 +21,9 @@ Parser::Parser(string s, ReadMode mode)
     printer[BRACKETS] = "BRACKETS";
     printer[KEYWORD] = "KEYWORD";
     printer[NONE] = "NONE";
+    op_pre["+"] = 0;
+    op_pre["-"] = 0;
+    op_pre["*"] = 1;
 }
 
 
@@ -203,6 +207,7 @@ void Parser::while_stmt(){
     currNode->get_root()->add_leaf(nextNode);
     stmt_lst();
     match("}");
+    nextNode = nextNode->get_root();
 }
 
 void Parser::if_stmt(){
@@ -215,20 +220,37 @@ void Parser::if_stmt(){
     currNode->add_leaf(nextNode);
 
     match("then");
-
+    create_node("then", STMTLST);
+    currNode->get_root()->add_leaf(nextNode);
 
     match("{");
     stmt_lst();
     match("}");
     match("else");
+    create_node("else", STMTLST);
+    currNode->get_root()->add_leaf(nextNode);
+
     match("{");
     stmt_lst();
     match("}");
+    nextNode = nextNode->get_root();
 }
 void Parser::assign(){
     match(VAR_NAME);
+    tempNode = new Node(currToken.get_name(), VARIABLE_, stmtNo);
+    
     match("=");
+    create_node("=", ASSIGN_STMT);
+    currNode->link_stmt(nextNode);
+    nextNode->add_leaf(tempNode);
     expr();
+    while (!opStack.empty()) {
+
+
+
+    }
+    nextNode->add_leaf(outStack.top());
+    outStack.pop();
     match(";");
 }
 
@@ -272,6 +294,29 @@ void Parser::create_node(string name, NodeType type){
     nextNode = new Node(name, type, stmtNo);
 }
 
+// Shunting Yard
+
+void Parser::join(){
+    Node* right = outStack.top();
+    outStack.pop();
+    Node* left = outStack.top();
+    outStack.pop();
+    Node* op = opStack.top();
+    opStack.pop();
+    op->add_leaf(left);
+    op->add_leaf(right);
+    outStack.push(op);
+}
+
+void Parser::check_pre(Node *op){
+     if (!opStack.empty()) {
+         Node *op2 = opStack.top();
+         if(op_pre[op->get_name()] <= op_pre[op2->get_name()]) {
+             join();
+         }
+     }
+     opStack.push(op);
+}
 
 /**** Printer functions ***/
 

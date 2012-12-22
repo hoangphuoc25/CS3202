@@ -5,7 +5,7 @@
 #include <string>
 #include <cctype>
 #include <cstdarg>
-#include <queue>
+#include <stack>
 #include "Tokenizer.h"
 #include "Node.h"
 #include "VarTable.h"
@@ -14,6 +14,7 @@
 
 using std::map;
 using std::set;
+using std::stack;
 
 class Parser {
 public:
@@ -38,6 +39,9 @@ private:
     Node *nextNode;
     Node *tempNode;
     Node *assignNode;
+
+    stack<Node*> opStack;
+    stack<Node*> outStack;
 
     //Match functions
     void match(tokenType type);
@@ -64,6 +68,11 @@ private:
     
     //Helper
     void create_node(string name, NodeType type);
+
+    // Shunting Yard
+    void join();
+    void check_pre(Node *op);
+    map<string, int> op_pre;
 
 };
 
