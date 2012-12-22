@@ -63,7 +63,7 @@ private:
     void token_out();
     
     //Helper
-
+    void create_node(string name, NodeType type);
 
 };
 

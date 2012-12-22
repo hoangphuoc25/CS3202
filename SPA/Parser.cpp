@@ -149,18 +149,19 @@ void Parser::program(){
 void Parser::procedure(){
     match("procedure");
     match(PROC_NAME);
-    currNode = procRoot = new Node(currToken.get_name(), PROCEDURE, stmtNo);
+    nextNode = procRoot = new Node(currToken.get_name(), PROCEDURE, stmtNo);
     match("{");
-    nextNode = new Node("stmt_lst", STMTLST, stmtNo);
+    create_node("stmt_lst", STMTLST);
     stmt_lst();
     match("}");
 }
 
 void Parser::stmt_lst(){
     stmt();
-    if (nextToken.get_name().compare("}")) {
-        stmt_lst();
+    while (nextToken.get_name().compare("}")) {
+        stmt();
     }
+    nextNode = nextNode->get_root();
 }
 
 void Parser::stmt(){
@@ -183,24 +184,39 @@ void Parser::call_stmt(){
         nextToken = Token(nextToken.get_name(), PROC_NAME);
     }
     match(PROC_NAME);
-    currNode = nextNode;
-    nextNode = new Node(currToken.get_name(), CALL_STMT, stmtNo);
+    create_node(currToken.get_name(), CALL_STMT);
     currNode->link_stmt(nextNode);
     match(";");
 }
 
 void Parser::while_stmt(){
     match("while");
+    create_node(currToken.get_name(), WHILE_STMT);
+    currNode->link_stmt(nextNode);
+    
     match(VAR_NAME);
+    create_node(currToken.get_name(), VARIABLE_);
+    currNode->add_leaf(nextNode);
+
     match("{");
+    create_node("while_stmtLst", STMTLST);
+    currNode->get_root()->add_leaf(nextNode);
     stmt_lst();
     match("}");
 }
 
 void Parser::if_stmt(){
     match("if");
+    create_node(currToken.get_name(), IF_STMT);
+    currNode->link_stmt(nextNode);
+
     match(VAR_NAME);
+    create_node(currToken.get_name(), VARIABLE_);
+    currNode->add_leaf(nextNode);
+
     match("then");
+
+
     match("{");
     stmt_lst();
     match("}");
@@ -250,6 +266,11 @@ void Parser::factor(){
 }
 
 // Helpers
+
+void Parser::create_node(string name, NodeType type){
+    currNode = nextNode;
+    nextNode = new Node(name, type, stmtNo);
+}
 
 
 /**** Printer functions ***/
