@@ -29,15 +29,11 @@ private:
     Tokenizer tokenizer;
     Token nextToken;
     Token currToken;
-
-    std::queue<Node*> varQueue;
-    map<int,Node*> assignBank;
-    map<int,Node*> whileBank;
-    set<int> constTable;
     map<tokenType, string> printer; 
 
     int stmtNo;
 
+    Node *procRoot;
     Node *currNode;
     Node *nextNode;
     Node *tempNode;

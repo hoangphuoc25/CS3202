@@ -3,7 +3,7 @@
 #include <string>
 
 //Global definitions
-enum tokenType {PROCEDURE, VARIABLE, OPERATOR, EQUALSIGN, CONSTANT,
+enum tokenType {PROC_NAME, VAR_NAME, OPERATOR, EQUALSIGN, CONSTANT,
     BRACES, BRACKETS, KEYWORD, NONE}; 
 
 class Token {

@@ -3,8 +3,7 @@
 
 Parser::Parser()
 {
-    nextToken = tokenizer.get_token();
-    stmtNo = 0;
+
 }
 
 Parser::Parser(string s, ReadMode mode)
@@ -150,7 +149,9 @@ void Parser::program(){
 void Parser::procedure(){
     match("procedure");
     match(PROC_NAME);
+    currNode = procRoot = new Node(currToken.get_name(), PROCEDURE, stmtNo);
     match("{");
+    nextNode = new Node("stmt_lst", STMTLST, stmtNo);
     stmt_lst();
     match("}");
 }
@@ -163,6 +164,7 @@ void Parser::stmt_lst(){
 }
 
 void Parser::stmt(){
+    stmtNo++;
     string s = nextToken.get_name();
     if (s == "call") {
         call_stmt();
