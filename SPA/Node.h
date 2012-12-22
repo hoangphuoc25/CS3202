@@ -44,6 +44,7 @@ public:
     // Printer
     void dump(int n);
     void preorder(int n);
+    void dumpR();
 
 private:
     // Node Fields

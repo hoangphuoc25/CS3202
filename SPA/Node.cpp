@@ -8,6 +8,9 @@ Node::Node(string name, NodeType type, int stmtNo)
 	nodeName = name;
 	nodeType = type;
 	nodeStmtNo = stmtNo;
+    parent = NULL;
+    predecessor = NULL;
+    successor = NULL;
 }
 
 const string& Node::get_name() const
@@ -97,12 +100,58 @@ void Node::dump(int n){
         putchar(' ');
     }
     printf("%s\n", nodeName.c_str());
+
+    
+    if (predecessor != NULL) {
+        printf("Predecessor is: %s\n", predecessor->get_name().c_str());
+    }
+
+    if (successor != NULL) {
+        printf("Successor is: %s\n", successor->get_name().c_str());
+    }
+
+    if (parent != NULL) {
+        printf("Parent is: %s\n", parent->get_name().c_str());
+    } 
+
+    int len = children.size();
+    for (int i = 0; i < len; i++) {
+        printf("%d child is: %s\n", i, children[i]->get_name().c_str());
+    }
+
 }
 
 void Node::preorder(int n){
-    dump(n);
+    //dump(n);
+    dumpR();
     int len = leaves.size();
     for (int i = 0; i < len; i++) {
         leaves[i]->preorder(n+4);
     }
 }
+
+void Node::dumpR(){
+
+    printf("Current Node: (%s, %d)\n", nodeName.c_str(), nodeStmtNo);
+
+    if (predecessor != NULL) {
+        printf("Predecessor is: (%s, %d)\n", predecessor->get_name().c_str(), predecessor->get_stmtNo());
+    }
+
+    if (successor != NULL) {
+        printf("Successor is: (%s, %d)\n", successor->get_name().c_str(), successor->get_stmtNo());
+    }
+
+    if (parent != NULL) {
+        printf("Parent is: (%s, %d)\n", parent->get_name().c_str(), parent->get_stmtNo());
+    } 
+
+    int len = children.size();
+    for (int i = 0; i < len; i++) {
+        printf("%d child is: (%s, %d)\n", i, children[i]->get_name().c_str(), children[i]->get_stmtNo());
+    }
+
+    putchar('\n');
+}
+
+
