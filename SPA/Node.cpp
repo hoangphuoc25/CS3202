@@ -39,10 +39,10 @@ Node* Node::get_root(){
     return root;
 }
 
-void Node::link_stmt(Node *n1, Node *n2){
-    if (n1->get_type() == STMTLST) {
-        n1->add_leaf(n2);
+void Node::link_stmt(Node *n1){
+    if (nodeType == STMTLST) {
+        add_leaf(n1);
     } else {
-        n1->get_root()->add_leaf(n2);
+        root->add_leaf(n1);
     }
 }

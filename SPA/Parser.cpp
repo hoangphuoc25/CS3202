@@ -183,6 +183,9 @@ void Parser::call_stmt(){
         nextToken = Token(nextToken.get_name(), PROC_NAME);
     }
     match(PROC_NAME);
+    currNode = nextNode;
+    nextNode = new Node(currToken.get_name(), CALL_STMT, stmtNo);
+    currNode->link_stmt(nextNode);
     match(";");
 }
 
