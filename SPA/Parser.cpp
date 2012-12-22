@@ -24,6 +24,7 @@ Parser::Parser(string s, ReadMode mode)
     op_pre["+"] = 0;
     op_pre["-"] = 0;
     op_pre["*"] = 1;
+    op_pre["("] = -1;
 }
 
 
@@ -245,9 +246,7 @@ void Parser::assign(){
     nextNode->add_leaf(tempNode);
     expr();
     while (!opStack.empty()) {
-
-
-
+        join();
     }
     nextNode->add_leaf(outStack.top());
     outStack.pop();
@@ -259,9 +258,13 @@ void Parser::expr(){
     string s = nextToken.get_name();
     if (s == "+") {
         match("+");
+        tempNode = new Node("+", OPERATOR_, stmtNo);
+        check_pre(tempNode);
         expr();
     } else if (s == "-") {
         match("-");
+        tempNode = new Node("-", OPERATOR_, stmtNo);
+        check_pre(tempNode);
         expr();
     }
 }
@@ -270,6 +273,8 @@ void Parser::term(){
     factor();
     if (nextToken.get_name() == "*") {
         match("*");
+        tempNode = new Node("*", OPERATOR_, stmtNo);
+        check_pre(tempNode);
         term();
     }
 }
@@ -278,12 +283,20 @@ void Parser::factor(){
     tokenType t = nextToken.get_type();
     if (t == VAR_NAME) {
         match(VAR_NAME);
+        tempNode = new Node(nextToken.get_name(), VARIABLE_, stmtNo);
+        outStack.push(tempNode);
     } else if (t == CONSTANT) {
         match(CONSTANT);
+        tempNode = new Node(nextToken.get_name(), CONSTANT_, stmtNo);
+        outStack.push(tempNode);
     } else {
         match("(");
+        tempNode = new Node("(", BRACKETS_, stmtNo);
+        check_pre(tempNode);
         expr();
         match(")");
+        tempNode = new Node(")", BRACKETS_, stmtNo);
+        check_pre(tempNode);
     }
 }
 
@@ -309,12 +322,26 @@ void Parser::join(){
 }
 
 void Parser::check_pre(Node *op){
-     if (!opStack.empty()) {
-         Node *op2 = opStack.top();
-         if(op_pre[op->get_name()] <= op_pre[op2->get_name()]) {
-             join();
-         }
-     }
+
+    if(op->get_name() == ")") {
+        while (opStack.top()->get_name() != "(") {
+            join();
+        }
+        opStack.pop();
+        return;
+    }
+
+    if(op->get_name() == "(") {
+        opStack.push(op);
+        return;
+    }
+
+    if (!opStack.empty()) {
+        Node *op2 = opStack.top();
+        if(op_pre[op->get_name()] <= op_pre[op2->get_name()]) {
+            join();
+        }
+    }
      opStack.push(op);
 }
 
