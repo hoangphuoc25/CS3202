@@ -23,6 +23,7 @@ public:
 	VarTable varTable;
     void init();
     Node *get_ast_root();
+    Node *get_proc_root();
     Node* yard();
 
 

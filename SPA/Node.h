@@ -27,6 +27,9 @@ public:
     Node* get_root();
     void link_stmt(Node *n1); //helper to link stmt nodes
 
+    // Printer
+    void dump(int n);
+    void preorder(int n);
 
 private:
     // Node Fields

@@ -46,3 +46,19 @@ void Node::link_stmt(Node *n1){
         root->add_leaf(n1);
     }
 }
+
+// Printer
+void Node::dump(int n){
+    while (n--) {
+        putchar(' ');
+    }
+    printf("%s\n", nodeName.c_str());
+}
+
+void Node::preorder(int n){
+    dump(n);
+    int len = leaves.size();
+    for (int i = 0; i < len; i++) {
+        leaves[i]->preorder(n+4);
+    }
+}

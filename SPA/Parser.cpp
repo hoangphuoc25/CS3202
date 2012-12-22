@@ -41,6 +41,11 @@ Node *Parser::get_ast_root()
     return astRoot;
 }
 
+Node *Parser::get_proc_root()
+{
+    return procRoot;
+}
+
 
 /**** match functions ***/
 //match token type
@@ -159,6 +164,7 @@ void Parser::procedure(){
     nextNode = procRoot = new Node(currToken.get_name(), PROCEDURE, stmtNo);
     match("{");
     create_node("stmt_lst", STMTLST);
+    currNode->add_leaf(nextNode);
     stmt_lst();
     match("}");
 }
@@ -285,11 +291,11 @@ void Parser::factor(){
     tokenType t = nextToken.get_type();
     if (t == VAR_NAME) {
         match(VAR_NAME);
-        tempNode = new Node(nextToken.get_name(), VARIABLE_, stmtNo);
+        tempNode = new Node(currToken.get_name(), VARIABLE_, stmtNo);
         outStack.push(tempNode);
     } else if (t == CONSTANT) {
         match(CONSTANT);
-        tempNode = new Node(nextToken.get_name(), CONSTANT_, stmtNo);
+        tempNode = new Node(currToken.get_name(), CONSTANT_, stmtNo);
         outStack.push(tempNode);
     } else {
         match("(");
@@ -348,7 +354,9 @@ void Parser::check_pre(Node *op){
 }
 
 Node* Parser::yard(){
-    
+    if (nextToken.get_type() == PROC_NAME) {
+        nextToken = Token(nextToken.get_name(), VAR_NAME);
+    }
     match(VAR_NAME);
     tempNode = new Node(currToken.get_name(), VARIABLE_, stmtNo);
     match("=");
