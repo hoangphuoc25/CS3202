@@ -23,6 +23,7 @@ public:
 	VarTable varTable;
     void init();
     Node *get_ast_root();
+    Node* yard();
 
 
 private:

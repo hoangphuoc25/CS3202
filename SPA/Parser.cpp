@@ -12,6 +12,8 @@ Parser::Parser(string s, ReadMode mode)
     tokenizer = *new Tokenizer(s.c_str(), mode);
     nextToken = tokenizer.get_token();
     stmtNo = 0;
+    currNode = NULL;
+    nextNode = NULL;
     printer[PROC_NAME] = "PROC_NAME";
     printer[VAR_NAME] = "VAR_NAME";
     printer[OPERATOR] = "OPERATOR";
@@ -343,6 +345,22 @@ void Parser::check_pre(Node *op){
         }
     }
      opStack.push(op);
+}
+
+Node* Parser::yard(){
+    
+    match(VAR_NAME);
+    tempNode = new Node(currToken.get_name(), VARIABLE_, stmtNo);
+    match("=");
+    create_node("=", ASSIGN_STMT);
+    nextNode->add_leaf(tempNode);
+    expr();
+    while (!opStack.empty()) {
+        join();
+    }
+    nextNode->add_leaf(outStack.top());
+    outStack.pop();
+    return nextNode;
 }
 
 /**** Printer functions ***/
