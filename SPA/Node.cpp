@@ -78,11 +78,11 @@ void Node::set_successor(Node* n){
 }
 
 void Node::add_modifies(string var){
-    modifies.push_back(var);
+    modifies.insert(var);
 }
 
 void Node::add_uses(string var){
-    uses.push_back(var);
+    uses.insert(var);
 }
 
 // Helper
@@ -140,14 +140,14 @@ void Node::dumpR(){
         printf("%d child is: (%s, %d)\n", i, children[i]->get_name().c_str(), children[i]->get_stmtNo());
     }
 
-    len = modifies.size();
-    for (int i = 0; i< len ; i++) {
-        printf("Modifies: %s\n", modifies[i].c_str());
+    set<string>::iterator it;
+
+    for (it = modifies.begin(); it != modifies.end(); it++) {
+        printf("Modifies: %s\n", it->c_str());
     }
 
-    len = uses.size();
-    for (int i = 0; i< len ; i++) {
-        printf("Uses: %s\n", uses[i].c_str());
+    for (it = uses.begin(); it != uses.end(); it++) {
+        printf("Uses: %s\n", it->c_str());
     }
 
     putchar('\n');

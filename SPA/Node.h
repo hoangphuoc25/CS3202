@@ -3,9 +3,11 @@
 
 #include <string>
 #include <vector>
+#include <set>
 
 using std::vector;
 using std::string;
+using std::set;
 
 enum NodeType {
     PROGRAM, PROCEDURE, STMTLST, CALL_STMT, WHILE_STMT, 
@@ -64,8 +66,10 @@ private:
     vector<Node*> children;
     Node *predecessor;
     Node *successor;
-    vector<string> modifies;
-    vector<string> uses;
+    //vector<string> modifies;
+    //vector<string> uses;
+    set<string> modifies;
+    set<string> uses;
 
     void set_parent(Node* n);
     void set_predecessor(Node* n);
