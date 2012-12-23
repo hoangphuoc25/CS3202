@@ -1099,7 +1099,8 @@ void TestPQLParser::test_modifies()
     queryStr += " Modifies(_,\"blargh\") and ";
     queryStr += " Modifies(_,\"ch\") and "; // R _,string
     queryStr += " Modifies(_,var3) and Modifies(_, _) "; // R _,syn; R _,_
-    parser.parse(queryStr);
+    // Dont show warnings
+    parser.parse(queryStr, false);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(0, parser.get_parse_errors());
     out = "DECLARATIONS\n  while w1\n  while w2\n  assign a1\n  assign a2\n";

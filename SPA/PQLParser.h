@@ -144,7 +144,7 @@ class PQLParser {
 public:
     PQLParser();
     ~PQLParser();
-    void parse(const std::string &s);
+    void parse(const std::string &s, bool showWarnings_=true);
 
     QueryInfo *get_queryinfo() const;
 
@@ -239,6 +239,7 @@ private:
     std::vector<std::pair<DesignEnt, std::string> > entVec;
     int parseErrors;
     QueryInfo *qinfo;
+    bool showWarnings;
 
     std::map<std::string, DesignEnt> strToEnt;
     std::map<std::string, AttrType> strToAttrType;
