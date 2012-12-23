@@ -208,19 +208,25 @@ private:
     RelRefArgType eat_stmtRef(StringBuffer &sb);
     RelRefArgType eat_lineRef(StringBuffer &sb);
     RelRefArgType eat_varRef(StringBuffer &sb);
+    bool eat_entRef_varRef(RelRef &relRef, StringBuffer &sb, char **errorMsg);
     bool relRef_finalize(RelRef &relRef, char **errorMsg);
-    RelRef eat_relRef_modifies(StringBuffer &sb);
-    RelRef eat_relRef_uses(StringBuffer &sb);
-    RelRef eat_relRef_calls(StringBuffer &sb);
-    RelRef eat_relRef_calls_star(StringBuffer &sb);
-    RelRef eat_relRef_parent(StringBuffer &sb);
-    RelRef eat_relRef_parent_star(StringBuffer &sb);
-    RelRef eat_relRef_follows(StringBuffer &sb);
-    RelRef eat_relRef_follows_star(StringBuffer &sb);
-    RelRef eat_relRef_next(StringBuffer &sb);
-    RelRef eat_relRef_next_star(StringBuffer &sb);
-    RelRef eat_relRef_affects(StringBuffer &sb);
-    RelRef eat_relRef_affects_star(StringBuffer &sb);
+    bool PQLParser::eat_relRef_generic(RelRef &relRef, StringBuffer &sb,
+        bool (PQLParser::*eat_relRef_string_M) (StringBuffer &sb),
+        RelRefType relRefType,
+        bool (PQLParser::*eat_arg_M)
+            (RelRef &relRef, StringBuffer &sb, char **errorMsg));
+    bool eat_relRef_modifies(RelRef &relRef, StringBuffer &sb);
+    bool eat_relRef_uses(RelRef &relRef, StringBuffer &sb);
+    bool eat_relRef_calls(RelRef &relRef, StringBuffer &sb);
+    bool eat_relRef_calls_star(RelRef &relRef, StringBuffer &sb);
+    bool eat_relRef_parent(RelRef &relRef, StringBuffer &sb);
+    bool eat_relRef_parent_star(RelRef &relRef, StringBuffer &sb);
+    bool eat_relRef_follows(RelRef &relRef, StringBuffer &sb);
+    bool eat_relRef_follows_star(RelRef &relRef, StringBuffer &sb);
+    bool eat_relRef_next(RelRef &relRef, StringBuffer &sb);
+    bool eat_relRef_next_star(RelRef &relRef, StringBuffer &sb);
+    bool eat_relRef_affects(RelRef &relRef, StringBuffer &sb);
+    bool eat_relRef_affects_star(RelRef &relRef, StringBuffer &sb);
     RelRef eat_relRef(StringBuffer &sb);
     bool eat_relCond(StringBuffer &sb);
     void eat_select_stwithpat(StringBuffer &sb);

@@ -1143,165 +1143,195 @@ RelRefArgType PQLParser::eat_varRef(StringBuffer &sb)
     RESTORE_AND_RET(RELARG_INVALID, saveIdx);
 }
 
-RelRef PQLParser::eat_relRef_modifies(StringBuffer &sb)
+bool PQLParser::eat_entRef_varRef(RelRef &relRef, StringBuffer &sb,
+        char **errorMsg)
 {
-    RelRef relRef;
-    RelRefArgType argType;
-    char *errorMsg = NULL;
+    #define RAR_RELREF(ret, saveIdx) relRef = RelRef(); \
+        RESTORE_AND_RET(ret, saveIdx)
+
     int saveIdx = this->bufIdx;
-    sb.clear();
-    if (!this->eat_modifies(sb)) {
-        RESTORE_AND_RET(RelRef(), saveIdx);
-    }
-    relRef.relType = REL_MODIFIES;
-    this->eat_space();
-    if (!this->eat_lparen()) {
-        RESTORE_AND_RET(RelRef(), saveIdx);
-    }
+    RelRefArgType argType;
     this->eat_space();
     argType = this->eat_entRef(sb);
     if (argType == RELARG_INVALID) {
-        RESTORE_AND_RET(RelRef(), saveIdx);
+        RAR_RELREF(false, saveIdx);
     }
-    if (!relRef.set_arg_one(argType, sb, &errorMsg)) {
-        if (errorMsg) {
-            this->error(errorMsg);
-            free(errorMsg);
-            errorMsg = NULL;
-        }
-        RESTORE_AND_RET(RelRef(), saveIdx);
+    if (!relRef.set_arg_one(argType, sb, errorMsg)) {
+        RAR_RELREF(false, saveIdx);
     }
     this->eat_space();
     if (!this->eat_comma()) {
-        RESTORE_AND_RET(RelRef(), saveIdx);
+        RAR_RELREF(false, saveIdx);
     }
     this->eat_space();
     sb.clear();
     errorMsg = NULL;
     argType = this->eat_varRef(sb);
     if (argType == RELARG_INVALID) {
-        RESTORE_AND_RET(RelRef(), saveIdx);
+        RAR_RELREF(false, saveIdx);
     }
-    if (!relRef.set_arg_two(argType, sb, &errorMsg)) {
-        if (errorMsg) {
-            this->error(errorMsg);
-            free(errorMsg);
-            errorMsg = NULL;
+    if (!relRef.set_arg_two(argType, sb, errorMsg)) {
+        RAR_RELREF(false, saveIdx);
+    }
+    return true;
+
+    #undef RAR_RELREF
+}
+
+bool PQLParser::eat_relRef_generic(RelRef &relRef, StringBuffer &sb,
+        bool (PQLParser::*eat_relRef_string_M) (StringBuffer &sb),
+        RelRefType relRefType,
+        bool (PQLParser::*eat_arg_M)
+            (RelRef &relRef, StringBuffer &sb, char **errorMsg))
+{
+    #define RAR_RELREF(ret, saveIdx) relRef = RelRef();\
+        RESTORE_AND_RET(ret, saveIdx)
+
+    int saveIdx = this->bufIdx;
+    char *errorMsg = NULL;
+    if ((this->*eat_relRef_string_M)(sb)) {
+        relRef.relType = relRefType;
+        this->eat_space();
+        if (this->eat_lparen()) {
+            // point of no return. Definitely SomeRel(arg1,arg2)
+            // TODO: exception from here on is ok
+            if (!((this->*eat_arg_M)(relRef, sb, &errorMsg))) {
+                this->error(errorMsg);
+                free(errorMsg);
+                errorMsg = NULL;
+                RAR_RELREF(false, saveIdx);
+            }
+            this->eat_space();
+            if (!this->eat_rparen()) {
+                // TODO: Add exception here
+                RAR_RELREF(false, saveIdx);
+            }
+            if (RelRef::valid(relRef)) {
+                errorMsg = NULL;
+                if (!this->qinfo->add_relRef(relRef, &errorMsg)) {
+                    this->error(errorMsg);
+                    free(errorMsg);
+                    errorMsg = NULL;
+                    RAR_RELREF(false, saveIdx);
+                } else {
+                    if (errorMsg) {
+                        this->warning(errorMsg);
+                        free(errorMsg);
+                        errorMsg = NULL;
+                    }
+                }
+                return true;
+            }
         }
-        RESTORE_AND_RET(RelRef(), saveIdx);
     }
-    this->eat_space();
-    if (!this->eat_rparen()) {
-        RESTORE_AND_RET(RelRef(), saveIdx);
-    }
-    return relRef;
+
+    return false;
+    #undef RAR_RELREF
 }
 
-RelRef PQLParser::eat_relRef_uses(StringBuffer &sb)
+
+bool PQLParser::eat_relRef_modifies(RelRef &relRef, StringBuffer &sb)
 {
-    // TODO: Fill in
-    return RelRef();
+    return this->eat_relRef_generic(relRef, sb, &PQLParser::eat_modifies,
+                REL_MODIFIES, &PQLParser::eat_entRef_varRef);
 }
 
-RelRef PQLParser::eat_relRef_calls(StringBuffer &sb)
+bool PQLParser::eat_relRef_uses(RelRef &relRef, StringBuffer &sb)
 {
     // TODO: Fill in
-    return RelRef();
+    return false;
 }
 
-RelRef PQLParser::eat_relRef_calls_star(StringBuffer &sb)
+bool PQLParser::eat_relRef_calls(RelRef &relRef, StringBuffer &sb)
 {
     // TODO: Fill in
-    return RelRef();
+    return false;
 }
 
-RelRef PQLParser::eat_relRef_parent(StringBuffer &sb)
+bool PQLParser::eat_relRef_calls_star(RelRef &relRef, StringBuffer &sb)
 {
     // TODO: Fill in
-    return RelRef();
+    return false;
 }
 
-RelRef PQLParser::eat_relRef_parent_star(StringBuffer &sb)
+bool PQLParser::eat_relRef_parent(RelRef &relRef, StringBuffer &sb)
 {
     // TODO: Fill in
-    return RelRef();
+    return false;
 }
 
-RelRef PQLParser::eat_relRef_follows(StringBuffer &sb)
+bool PQLParser::eat_relRef_parent_star(RelRef &relRef, StringBuffer &sb)
 {
     // TODO: Fill in
-    return RelRef();
+    return false;
 }
 
-RelRef PQLParser::eat_relRef_follows_star(StringBuffer &sb)
+bool PQLParser::eat_relRef_follows(RelRef &relRef, StringBuffer &sb)
 {
     // TODO: Fill in
-    return RelRef();
+    return false;
 }
 
-RelRef PQLParser::eat_relRef_next(StringBuffer &sb)
+bool PQLParser::eat_relRef_follows_star(RelRef &relRef, StringBuffer &sb)
 {
     // TODO: Fill in
-    return RelRef();
+    return false;
 }
 
-RelRef PQLParser::eat_relRef_next_star(StringBuffer &sb)
+bool PQLParser::eat_relRef_next(RelRef &relRef, StringBuffer &sb)
 {
     // TODO: Fill in
-    return RelRef();
+    return false;
 }
 
-RelRef PQLParser::eat_relRef_affects(StringBuffer &sb)
+bool PQLParser::eat_relRef_next_star(RelRef &relRef, StringBuffer &sb)
 {
     // TODO: Fill in
-    return RelRef();
+    return false;
 }
 
-RelRef PQLParser::eat_relRef_affects_star(StringBuffer &sb)
+bool PQLParser::eat_relRef_affects(RelRef &relRef, StringBuffer &sb)
 {
     // TODO: Fill in
-    return RelRef();
+    return false;
+}
+
+bool PQLParser::eat_relRef_affects_star(RelRef &relRef, StringBuffer &sb)
+{
+    // TODO: Fill in
+    return false;
 }
 
 RelRef PQLParser::eat_relRef(StringBuffer &sb)
 {
-    #define EAT_RELREF_METHOD(method) do {\
-        this->bufIdx = saveIdx;\
-        relRef = this->method(sb);\
-        if (RelRef::valid(relRef)) {\
-            errorMsg = NULL;\
-            if (!this->qinfo->add_relRef(relRef, &errorMsg)) {\
-                this->error(errorMsg);\
-                free(errorMsg);\
-                RESTORE_AND_RET(RelRef(), saveIdx);\
-            } else {\
-                if (errorMsg) {\
-                    this->warning(errorMsg);\
-                    free(errorMsg);\
-                }\
-            }\
-            return relRef;\
-        }\
-    } while(0)
-
-    int saveIdx = this->bufIdx;
     RelRef relRef;
-    char *errorMsg;
-    EAT_RELREF_METHOD(eat_relRef_modifies);
-    EAT_RELREF_METHOD(eat_relRef_uses);
-    EAT_RELREF_METHOD(eat_relRef_calls_star);
-    EAT_RELREF_METHOD(eat_relRef_calls);
-    EAT_RELREF_METHOD(eat_relRef_parent_star);
-    EAT_RELREF_METHOD(eat_relRef_parent);
-    EAT_RELREF_METHOD(eat_relRef_follows_star);
-    EAT_RELREF_METHOD(eat_relRef_follows);
-    EAT_RELREF_METHOD(eat_relRef_next_star);
-    EAT_RELREF_METHOD(eat_relRef_next);
-    EAT_RELREF_METHOD(eat_relRef_affects_star);
-    EAT_RELREF_METHOD(eat_relRef_affects);
-    return RelRef();
-
-    #undef EAT_RELREF_METHOD
+    if (this->eat_relRef_modifies(relRef, sb)) {
+        return relRef;
+    } else if (this->eat_relRef_uses(relRef, sb)) {
+        return relRef;
+    } else if (this->eat_relRef_calls_star(relRef, sb)) {
+        return relRef;
+    } else if (this->eat_relRef_calls(relRef, sb)) {
+        return relRef;
+    } else if (this->eat_relRef_parent_star(relRef, sb)) {
+        return relRef;
+    } else if (this->eat_relRef_parent(relRef, sb)) {
+        return relRef;
+    } else if (this->eat_relRef_follows_star(relRef, sb)) {
+        return relRef;
+    } else if (this->eat_relRef_follows(relRef, sb)) {
+        return relRef;
+    } else if (this->eat_relRef_next_star(relRef, sb)) {
+        return relRef;
+    } else if (this->eat_relRef_next(relRef, sb)) {
+        return relRef;
+    } else if (this->eat_relRef_affects_star(relRef, sb)) {
+        return relRef;
+    } else if (this->eat_relRef_affects(relRef, sb)) {
+        return relRef;
+    } else {
+        return RelRef();
+    }
 }
 
 bool PQLParser::eat_relCond(StringBuffer &sb)
