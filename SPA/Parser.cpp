@@ -199,6 +199,8 @@ void Parser::call_stmt(){
     match(PROC_NAME);
     create_node(currToken.get_name(), CALL_STMT);
     currNode->link_stmt(nextNode);
+    directory[stmtNo] = CALLTYPE;
+    callBank[stmtNo] = nextNode;
     match(";");
 }
 
@@ -206,6 +208,8 @@ void Parser::while_stmt(){
     match("while");
     create_node(currToken.get_name(), WHILE_STMT);
     currNode->link_stmt(nextNode);
+    directory[stmtNo] = WHILETYPE;
+    whileBank[stmtNo] = nextNode;
     
     match(VAR_NAME);
     create_node(currToken.get_name(), VARIABLE_);
@@ -223,6 +227,8 @@ void Parser::if_stmt(){
     match("if");
     create_node(currToken.get_name(), IF_STMT);
     currNode->link_stmt(nextNode);
+    directory[stmtNo] = IFTYPE;
+    ifBank[stmtNo] = nextNode;
 
     match(VAR_NAME);
     create_node(currToken.get_name(), VARIABLE_);
@@ -252,6 +258,9 @@ void Parser::assign(){
     create_node("=", ASSIGN_STMT);
     currNode->link_stmt(nextNode);
     nextNode->add_leaf(tempNode);
+    directory[stmtNo] = ASSIGNTYPE;
+    assignBank[stmtNo] = nextNode;
+
     expr();
     while (!opStack.empty()) {
         join();
@@ -377,10 +386,34 @@ Node* Parser::yard(){
 
 /**** Printer functions ***/
 
-
 void Parser::token_out(){
     printf("Token parsed: (%s , %s)\n",nextToken.get_name().c_str(),printer[nextToken.get_type()].c_str());     
 
-}     
+}
+
+void Parser::dumpBank(){
+    map<int,stmtType>::iterator it;
+    for (it = directory.begin(); it!= directory.end(); it++) {
+        switch (it->second) {
+            case CALLTYPE:
+                callBank[it->first]->dumpR();
+                break;
+            case WHILETYPE:
+                whileBank[it->first]->dumpR();
+                break;
+            case IFTYPE:
+                ifBank[it->first]->dumpR();;
+                break;
+            case ASSIGNTYPE:
+                assignBank[it->first]->dumpR();
+                break;
+
+        }
+
+
+    }
+
+
+}
 
 

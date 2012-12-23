@@ -100,25 +100,6 @@ void Node::dump(int n){
         putchar(' ');
     }
     printf("%s\n", nodeName.c_str());
-
-    
-    if (predecessor != NULL) {
-        printf("Predecessor is: %s\n", predecessor->get_name().c_str());
-    }
-
-    if (successor != NULL) {
-        printf("Successor is: %s\n", successor->get_name().c_str());
-    }
-
-    if (parent != NULL) {
-        printf("Parent is: %s\n", parent->get_name().c_str());
-    } 
-
-    int len = children.size();
-    for (int i = 0; i < len; i++) {
-        printf("%d child is: %s\n", i, children[i]->get_name().c_str());
-    }
-
 }
 
 void Node::preorder(int n){

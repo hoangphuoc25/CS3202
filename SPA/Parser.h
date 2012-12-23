@@ -16,6 +16,8 @@ using std::map;
 using std::set;
 using std::stack;
 
+enum stmtType {CALLTYPE, WHILETYPE, IFTYPE, ASSIGNTYPE};
+
 class Parser {
 public:
     Parser();
@@ -26,24 +28,37 @@ public:
     Node *get_proc_root();
     Node* yard();
 
+    void dumpBank();
+
 
 private:
-    Node *astRoot;
+    // Tokens
     Tokenizer tokenizer;
     Token nextToken;
     Token currToken;
-    map<tokenType, string> printer; 
 
+    // AST info
+    Node *astRoot;
     int stmtNo;
+    map<int, stmtType> directory; 
+    map<int, Node*> callBank;
+    map<int, Node*> whileBank;
+    map<int, Node*> ifBank;
+    map<int, Node*> assignBank;
 
+    // AST builder nodes
     Node *procRoot;
     Node *currNode;
     Node *nextNode;
     Node *tempNode;
     Node *assignNode;
 
+    // Shunting yard stacks
     stack<Node*> opStack;
     stack<Node*> outStack;
+
+    // Printer data
+    map<tokenType, string> printer; 
 
     //Match functions
     void match(tokenType type);
@@ -67,6 +82,7 @@ private:
 
     //Printer functions
     void token_out();
+
     
     //Helper
     void create_node(string name, NodeType type);
