@@ -22,7 +22,6 @@ class Parser {
 public:
     Parser();
     Parser(string s ,ReadMode mode);
-	VarTable varTable;
     void init();
     Node *get_ast_root();
     Node *get_proc_root();
@@ -40,6 +39,7 @@ private:
     // AST info
     Node *astRoot;
     int stmtNo;
+    VarTable varTable;
     map<int, stmtType> directory; 
     map<int, Node*> callBank;
     map<int, Node*> whileBank;
@@ -86,6 +86,8 @@ private:
     
     //Helper
     void create_node(string name, NodeType type);
+    void add_modifies(Node* n, string var);
+    void add_uses(Node* n, string var);
 
     // Shunting Yard
     void join();

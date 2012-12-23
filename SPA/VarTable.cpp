@@ -19,8 +19,8 @@ VarElements::VarElements(const struct VarElements &other)
     if (this != &other) {
         index = other.index;
         var = other.var;
-        modifies = other.modifies;
-        uses = other.uses;
+        modifiedBy = other.modifiedBy;
+        usedBy = other.usedBy;
     }
 }
 
@@ -29,8 +29,8 @@ VarElements& VarElements::operator=(const struct VarElements &other)
     if (this != &other) {
         index = other.index;
         var = other.var;
-        modifies = other.modifies;
-        uses = other.uses;
+        modifiedBy = other.modifiedBy;
+        usedBy = other.usedBy;
     }
     return *this;
 }
@@ -89,57 +89,57 @@ string VarTable::get_varName(int index) const
     }
 }
 
-void VarTable::add_modifies(string var, int stmtNo)
+void VarTable::add_modified_by(string var, int stmtNo)
 {
 	int index = get_index(var);
     if (index >= 0) {
-        varTable[index].modifies.push_back(stmtNo);
+        varTable[index].modifiedBy.push_back(stmtNo);
     }
 }
 
-void VarTable::add_uses(string var, int stmtNo)
+void VarTable::add_used_by(string var, int stmtNo)
 {
 	int index = get_index(var);
     if (index >= 0) {
-	    varTable[index].uses.push_back(stmtNo);
+	    varTable[index].usedBy.push_back(stmtNo);
     }
 }
 
-const vector<int>& VarTable::get_modifies(string var) const
+const vector<int>& VarTable::get_modified_by(string var) const
 {
 	int index = get_index(var);
     if (index == -1) {
         return EMPTY_INTVEC;
     } else {
-	    return varTable[index].modifies;
+	    return varTable[index].modifiedBy;
     }
 }
 
-const vector<int>& VarTable::get_modifies(int index) const
+const vector<int>& VarTable::get_modified_by(int index) const
 {
     int sz = varTable.size();
     if (index < 0 || index >= sz) {
         return EMPTY_INTVEC;
     }
-	return varTable[index].modifies;
+	return varTable[index].modifiedBy;
 }
 
-const vector<int>& VarTable::get_uses(string var) const
+const vector<int>& VarTable::get_used_by(string var) const
 {
 	int index = get_index(var);
     if (index == -1) {
         return EMPTY_INTVEC;
     }
-	return varTable[index].uses;
+	return varTable[index].usedBy;
 }
 
-const vector<int>& VarTable::get_uses(int index) const
+const vector<int>& VarTable::get_used_by(int index) const
 {
     int sz = varTable.size();
     if (index < 0 || index >= sz) {
         return EMPTY_INTVEC;
     }
-	return varTable[index].uses;
+	return varTable[index].usedBy;
 }
 
 vector<string> VarTable::get_allVars() const

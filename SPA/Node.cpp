@@ -77,6 +77,14 @@ void Node::set_successor(Node* n){
     n->set_predecessor(this);
 }
 
+void Node::add_modifies(string var){
+    modifies.push_back(var);
+}
+
+void Node::add_uses(string var){
+    uses.push_back(var);
+}
+
 // Helper
 void Node::link_stmt(Node *n1){
     if (nodeType == STMTLST) {
@@ -103,8 +111,8 @@ void Node::dump(int n){
 }
 
 void Node::preorder(int n){
-    //dump(n);
-    dumpR();
+    dump(n);
+    //dumpR();
     int len = leaves.size();
     for (int i = 0; i < len; i++) {
         leaves[i]->preorder(n+4);
@@ -130,6 +138,16 @@ void Node::dumpR(){
     int len = children.size();
     for (int i = 0; i < len; i++) {
         printf("%d child is: (%s, %d)\n", i, children[i]->get_name().c_str(), children[i]->get_stmtNo());
+    }
+
+    len = modifies.size();
+    for (int i = 0; i< len ; i++) {
+        printf("Modifies: %s\n", modifies[i].c_str());
+    }
+
+    len = uses.size();
+    for (int i = 0; i< len ; i++) {
+        printf("Uses: %s\n", uses[i].c_str());
     }
 
     putchar('\n');

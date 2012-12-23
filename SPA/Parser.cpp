@@ -214,6 +214,7 @@ void Parser::while_stmt(){
     match(VAR_NAME);
     create_node(currToken.get_name(), VARIABLE_);
     currNode->add_leaf(nextNode);
+    add_uses(currNode, nextNode->get_name());
 
     match("{");
     create_node("while_stmtLst", STMTLST);
@@ -233,6 +234,7 @@ void Parser::if_stmt(){
     match(VAR_NAME);
     create_node(currToken.get_name(), VARIABLE_);
     currNode->add_leaf(nextNode);
+    add_uses(currNode, nextNode->get_name());
 
     match("then");
     create_node("then", STMTLST);
@@ -260,12 +262,14 @@ void Parser::assign(){
     nextNode->add_leaf(tempNode);
     directory[stmtNo] = ASSIGNTYPE;
     assignBank[stmtNo] = nextNode;
+    add_modifies(nextNode, tempNode->get_name());
 
+    assignNode = nextNode;
     expr();
     while (!opStack.empty()) {
         join();
     }
-    nextNode->add_leaf(outStack.top());
+    assignNode->add_leaf(outStack.top());
     outStack.pop();
     match(";");
 }
@@ -301,6 +305,7 @@ void Parser::factor(){
     if (t == VAR_NAME) {
         match(VAR_NAME);
         tempNode = new Node(currToken.get_name(), VARIABLE_, stmtNo);
+        add_uses(assignNode, tempNode->get_name());
         outStack.push(tempNode);
     } else if (t == CONSTANT) {
         match(CONSTANT);
@@ -323,6 +328,24 @@ void Parser::create_node(string name, NodeType type){
     currNode = nextNode;
     nextNode = new Node(name, type, stmtNo);
 }
+
+void Parser::add_modifies(Node* n, string var){
+    int stmt = n->get_stmtNo();
+    varTable.insert_var(var);
+    varTable.add_modified_by(var, stmt);
+    n->add_modifies(var);
+}
+
+void Parser::add_uses(Node* n, string var){
+    int stmt = n->get_stmtNo();
+    varTable.insert_var(var);
+    varTable.add_used_by(var, stmt);
+    n->add_uses(var);
+}
+
+
+
+
 
 // Shunting Yard
 

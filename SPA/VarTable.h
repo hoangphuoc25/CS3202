@@ -13,8 +13,8 @@ using std::string;
 struct VarElements {
 	int index;
 	string var;
-	vector<int> modifies;
-	vector<int> uses;
+	vector<int> modifiedBy;
+	vector<int> usedBy;
     VarElements();
 	VarElements(int id, string name);
     VarElements(const struct VarElements &other);
@@ -30,15 +30,15 @@ public:
     ~VarTable();
 	// #method for varTable#
 	int insert_var(string var);
-	void add_modifies(string var, int stmtNo);
-	void add_uses(string var, int stmtNo);
+	void add_modified_by(string var, int stmtNo);
+	void add_used_by(string var, int stmtNo);
 
 	int get_index(string var) const;
 	string get_varName(int index) const;
-	const vector<int>& get_modifies(string var) const;
-	const vector<int>& get_modifies(int index) const;
-	const vector<int>& get_uses(string var) const;
-	const vector<int>& get_uses(int index) const;
+	const vector<int>& get_modified_by(string var) const;
+	const vector<int>& get_modified_by(int index) const;
+	const vector<int>& get_used_by(string var) const;
+	const vector<int>& get_used_by(int index) const;
 	vector<string> get_allVars() const;
 
 private:

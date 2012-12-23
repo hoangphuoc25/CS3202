@@ -37,6 +37,8 @@ public:
 
     void add_child(Node* n);
     void set_successor(Node* n);
+    void add_modifies(string var);
+    void add_uses(string var);
 
     // Helper
     void link_stmt(Node *n1); //helper to link stmt nodes
@@ -62,12 +64,11 @@ private:
     vector<Node*> children;
     Node *predecessor;
     Node *successor;
+    vector<string> modifies;
+    vector<string> uses;
 
     void set_parent(Node* n);
     void set_predecessor(Node* n);
-
-
-
 
 
 
