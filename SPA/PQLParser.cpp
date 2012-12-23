@@ -75,7 +75,7 @@ RelRef::RelRef(const RelRef &o)
         case RELARG_STRING:
             this->argOneString = o.argOneString;
             break;
-        case REL_INT:
+        case RELARG_INT:
             this->argOneInt = o.argOneInt;
             break;
         }
@@ -87,7 +87,7 @@ RelRef::RelRef(const RelRef &o)
         case RELARG_STRING:
             this->argTwoString = o.argTwoString;
             break;
-        case REL_INT:
+        case RELARG_INT:
             this->argTwoInt = o.argTwoInt;
             break;
         }
@@ -106,7 +106,7 @@ RelRef& RelRef::operator=(const RelRef &o)
         case RELARG_STRING:
             this->argOneString = o.argOneString;
             break;
-        case REL_INT:
+        case RELARG_INT:
             this->argOneInt = o.argOneInt;
             break;
         }
@@ -118,7 +118,7 @@ RelRef& RelRef::operator=(const RelRef &o)
         case RELARG_STRING:
             this->argTwoString = o.argTwoString;
             break;
-        case REL_INT:
+        case RELARG_INT:
             this->argTwoInt = o.argTwoInt;
             break;
         }
@@ -159,7 +159,7 @@ bool RelRef::set_arg(int which, RelRefArgType argType, StringBuffer &sb,
             this->argTwoString = sb.toString();
         }
         break;
-    case REL_INT:
+    case RELARG_INT:
         if (which == 1) {
             if (!string_to_uint(sb.toString(), &argOneInt, errorMsg)) {
                 ret = false;
@@ -170,11 +170,11 @@ bool RelRef::set_arg(int which, RelRefArgType argType, StringBuffer &sb,
             }
         }
         break;
-    case REL_WILDCARD:
+    case RELARG_WILDCARD:
         if (which == 1) {
-            this->argOneType = REL_WILDCARD;
+            this->argOneType = RELARG_WILDCARD;
         } else {
-            this->argTwoType = REL_WILDCARD;
+            this->argTwoType = RELARG_WILDCARD;
         }
         break;
     case REL_INVALID:
@@ -212,10 +212,10 @@ string RelRef::dump(void) const
         sb.append(this->argOneString);
         sb.append('"');
         break;
-    case REL_INT:
+    case RELARG_INT:
         sb.append_int(this->argOneInt);
         break;
-    case REL_WILDCARD:
+    case RELARG_WILDCARD:
         sb.append('_');
         break;
     }
@@ -229,10 +229,10 @@ string RelRef::dump(void) const
         sb.append(this->argTwoString);
         sb.append('"');
         break;
-    case REL_INT:
+    case RELARG_INT:
         sb.append_int(this->argTwoInt);
         break;
-    case REL_WILDCARD:
+    case RELARG_WILDCARD:
         sb.append('_');
         break;
     }
@@ -250,7 +250,7 @@ bool RelRefCmp::operator()(const RelRef &a, const RelRef &b) const
             return a.argTwoString < b.argTwoString;\
         } else if (a.argTwoType == RELARG_STRING) {\
             return a.argTwoString < b.argTwoString;\
-        } else if (a.argTwoType == REL_INT) {\
+        } else if (a.argTwoType == RELARG_INT) {\
             return a.argTwoInt < b.argTwoInt;\
         } else {\
             return false;\
@@ -280,12 +280,12 @@ bool RelRefCmp::operator()(const RelRef &a, const RelRef &b) const
             return (cmp < 0);
         }
         RELREF_ARGTWO_CMP();
-    } else if (a.argOneType == REL_INT) {
+    } else if (a.argOneType == RELARG_INT) {
         if (a.argOneInt != b.argOneInt) {
             return a.argOneInt < b.argOneInt;
         }
         RELREF_ARGTWO_CMP();
-    } else if (a.argOneType == REL_WILDCARD) {
+    } else if (a.argOneType == RELARG_WILDCARD) {
         RELREF_ARGTWO_CMP();
     }
 
@@ -1075,7 +1075,7 @@ RelRefArgType PQLParser::eat_entRef(StringBuffer &sb)
     if (this->eat_synonym(sb)) {
         return RELARG_SYN;
     } else if (this->eat_underscore()) {
-        return REL_WILDCARD;
+        return RELARG_WILDCARD;
     } else if (this->eat_dquote()) {
         // TODO: Change eat_ident to return no. of chars ate
         sb.clear();
@@ -1087,7 +1087,7 @@ RelRefArgType PQLParser::eat_entRef(StringBuffer &sb)
     sb.clear();
     this->bufIdx = saveIdx;
     if (this->eat_int(sb) > 0) {
-        return REL_INT;
+        return RELARG_INT;
     }
     RESTORE_AND_RET(RELARG_INVALID, saveIdx);
 }
@@ -1099,9 +1099,9 @@ RelRefArgType PQLParser::eat_stmtRef(StringBuffer &sb)
     if (this->eat_synonym(sb)) {
         return RELARG_SYN;
     } else if (this->eat_underscore()) {
-        return REL_WILDCARD;
+        return RELARG_WILDCARD;
     } else if (this->eat_int(sb)) {
-        return REL_INT;
+        return RELARG_INT;
     }
     RESTORE_AND_RET(RELARG_INVALID, saveIdx);
 }
@@ -1118,7 +1118,7 @@ RelRefArgType PQLParser::eat_varRef(StringBuffer &sb)
     if (this->eat_synonym(sb)) {
         return RELARG_SYN;
     } else if (this->eat_underscore()) {
-        return REL_WILDCARD;
+        return RELARG_WILDCARD;
     } else if (this->eat_dquote()) {
         // TODO: Change eat_ident to return no. of chars ate
         sb.clear();
