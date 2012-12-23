@@ -66,8 +66,6 @@ private:
     vector<Node*> children;
     Node *predecessor;
     Node *successor;
-    //vector<string> modifies;
-    //vector<string> uses;
     set<string> modifies;
     set<string> uses;
 

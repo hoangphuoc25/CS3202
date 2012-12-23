@@ -416,6 +416,9 @@ void Parser::token_out(){
 
 void Parser::dumpBank(){
     map<int,stmtType>::iterator it;
+
+    printf("\n\n::::::::: Dumping Bank :::::::\n\n");
+
     for (it = directory.begin(); it!= directory.end(); it++) {
         switch (it->second) {
             case CALLTYPE:
@@ -430,12 +433,31 @@ void Parser::dumpBank(){
             case ASSIGNTYPE:
                 assignBank[it->first]->dumpR();
                 break;
-
         }
-
-
     }
+}
 
+void Parser::dumpTable(){
+    set<int>::iterator it;
+    vector<string>:: iterator varIt;
+    set<int> m;
+    set<int> u;
+
+    printf("\n\n::::::::: Dumping Table :::::::\n\n");
+
+    vector<string> var = varTable.get_allVars();
+    for (varIt = var.begin(); varIt != var.end(); varIt++){
+        printf("Variable: %s\n", varIt->c_str());
+        m = varTable.get_modified_by(*varIt);
+        for (it = m.begin(); it != m.end(); it++) {
+            printf("Modified by: %d\n", *it);
+        }
+        u = varTable.get_used_by(*varIt);
+        for (it = u.begin(); it != u.end(); it++) {
+            printf("Used by: %d\n", *it);
+        }
+        putchar('\n');
+    }
 
 }
 

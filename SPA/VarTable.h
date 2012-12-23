@@ -5,16 +5,18 @@
 #include <utility>
 #include <string>
 #include <map>
+#include <set>
 
 using std::vector;
 using std::pair;
 using std::string;
+using std::set;
 
 struct VarElements {
 	int index;
 	string var;
-	vector<int> modifiedBy;
-	vector<int> usedBy;
+	set<int> modifiedBy;
+	set<int> usedBy;
     VarElements();
 	VarElements(int id, string name);
     VarElements(const struct VarElements &other);
@@ -35,14 +37,14 @@ public:
 
 	int get_index(string var) const;
 	string get_varName(int index) const;
-	const vector<int>& get_modified_by(string var) const;
-	const vector<int>& get_modified_by(int index) const;
-	const vector<int>& get_used_by(string var) const;
-	const vector<int>& get_used_by(int index) const;
+	const set<int>& get_modified_by(string var) const;
+	const set<int>& get_modified_by(int index) const;
+	const set<int>& get_used_by(string var) const;
+	const set<int>& get_used_by(int index) const;
 	vector<string> get_allVars() const;
 
 private:
-    const vector<int> EMPTY_INTVEC;
+    const set<int> EMPTY_INTSET;
 	vector<VarElements> varTable;
 	std::map<string,int> nameToIndex;
 };

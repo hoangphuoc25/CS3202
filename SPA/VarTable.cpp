@@ -93,7 +93,7 @@ void VarTable::add_modified_by(string var, int stmtNo)
 {
 	int index = get_index(var);
     if (index >= 0) {
-        varTable[index].modifiedBy.push_back(stmtNo);
+        varTable[index].modifiedBy.insert(stmtNo);
     }
 }
 
@@ -101,43 +101,43 @@ void VarTable::add_used_by(string var, int stmtNo)
 {
 	int index = get_index(var);
     if (index >= 0) {
-	    varTable[index].usedBy.push_back(stmtNo);
+	    varTable[index].usedBy.insert(stmtNo);
     }
 }
 
-const vector<int>& VarTable::get_modified_by(string var) const
+const set<int>& VarTable::get_modified_by(string var) const
 {
 	int index = get_index(var);
     if (index == -1) {
-        return EMPTY_INTVEC;
+        return EMPTY_INTSET;
     } else {
 	    return varTable[index].modifiedBy;
     }
 }
 
-const vector<int>& VarTable::get_modified_by(int index) const
+const set<int>& VarTable::get_modified_by(int index) const
 {
     int sz = varTable.size();
     if (index < 0 || index >= sz) {
-        return EMPTY_INTVEC;
+        return EMPTY_INTSET;
     }
 	return varTable[index].modifiedBy;
 }
 
-const vector<int>& VarTable::get_used_by(string var) const
+const set<int>& VarTable::get_used_by(string var) const
 {
 	int index = get_index(var);
     if (index == -1) {
-        return EMPTY_INTVEC;
+        return EMPTY_INTSET;
     }
 	return varTable[index].usedBy;
 }
 
-const vector<int>& VarTable::get_used_by(int index) const
+const set<int>& VarTable::get_used_by(int index) const
 {
     int sz = varTable.size();
     if (index < 0 || index >= sz) {
-        return EMPTY_INTVEC;
+        return EMPTY_INTSET;
     }
 	return varTable[index].usedBy;
 }

@@ -28,6 +28,7 @@ public:
     Node* yard();
 
     void dumpBank();
+    void dumpTable();
 
 
 private:
