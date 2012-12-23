@@ -7,6 +7,7 @@ using std::string;
 StringBuffer::StringBuffer()
 {
     buf = new char[START_SIZE+1];
+    memset(buf, 0, sizeof(buf));
     nrChars = 0;
     capacity = START_SIZE;
 }
@@ -17,6 +18,7 @@ StringBuffer::StringBuffer(int sz)
         sz = START_SIZE;
     }
     buf = new char[sz+1];
+    memset(buf, 0, sizeof(buf));
     nrChars = 0;
     capacity = sz;
 }
@@ -26,6 +28,7 @@ StringBuffer::StringBuffer(const StringBuffer &other)
     if (this != &other) {
         delete[] buf;
         buf = new char[other.capacity];
+        memset(buf, 0, sizeof(buf));
         capacity = other.capacity;
         nrChars = other.nrChars;
         for (int i = 0; i < nrChars; i++) {
@@ -39,6 +42,7 @@ StringBuffer& StringBuffer::operator=(const StringBuffer &other)
     if (this != &other) {
         delete[] buf;
         buf = new char[other.capacity];
+        memset(buf, 0, sizeof(buf));
         capacity = other.capacity;
         nrChars = other.nrChars;
         for (int i = 0; i < nrChars; i++) {
@@ -118,6 +122,7 @@ void StringBuffer::grow_buffer(int add)
     if (nrChars + add > capacity) {
         int newCap = capacity / 2 * 3;
         char *newbuf = new char[newCap+1];
+        memset(newbuf, 0, sizeof(newbuf));
         buf[nrChars] = 0;
         strcpy(newbuf, buf);
         delete[] buf;
@@ -130,6 +135,12 @@ string StringBuffer::toString(void)
 {
     buf[nrChars] = 0;
     return string(buf);
+}
+
+const char *StringBuffer::c_str(void)
+{
+    buf[nrChars] = 0;
+    return this->buf;
 }
 
 void StringBuffer::clear(void)

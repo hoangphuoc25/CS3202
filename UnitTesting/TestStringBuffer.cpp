@@ -162,6 +162,16 @@ void TestStringBuffer::testStrcmp()
     CPPUNIT_ASSERT_EQUAL(1, ret);
 }
 
+void TestStringBuffer::testCstr()
+{
+    StringBuffer sb;
+    sb.append('a');
+    sb.append(" big brown fox jumps over a gray dog");
+    const char *str = "a big brown fox jumps over a gray dog";
+    int ret = strcmp(str, sb.c_str());
+    CPPUNIT_ASSERT_EQUAL(0, ret);
+}
+
 void TestStringBuffer::testSize()
 {
     StringBuffer sb;

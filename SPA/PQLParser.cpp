@@ -978,7 +978,7 @@ bool PQLParser::eat_decl_one() throw(ParseError)
             } else {\
                 this->eat_till_ws(sb);\
                 this->error(PARSE_DECL_INVALID_SYN, false,\
-                    "Expected synonym, got \"%s\"", sb.toString().c_str());\
+                    "Expected synonym, got \"%s\"", sb.c_str());\
             }\
         }\
         this->insert_syn(entType, s);\
@@ -1086,7 +1086,7 @@ bool PQLParser::eat_select_tuple(StringBuffer &sb)
         sb.clear();
         this->eat_till_comma_space_gt(sb);
         this->error(PARSE_SELECT_INVALID_ATTR, false,
-            "Invalid select attribute \"%s\"", sb.toString().c_str());
+            "Invalid select attribute \"%s\"", sb.c_str());
     }
     this->qinfo->set_select_tuple();
     ret = this->qinfo->add_select_tuple(attrRef, &errorMsg);
@@ -1105,7 +1105,7 @@ bool PQLParser::eat_select_tuple(StringBuffer &sb)
             sb.clear();
             this->eat_till_comma_space_gt(sb);
             this->error(PARSE_SELECT_INVALID_ATTR, false,
-                "Invalid select attribute \"%s\"", sb.toString().c_str());
+                "Invalid select attribute \"%s\"", sb.c_str());
         }
         errorMsg = NULL;
         ret = this->qinfo->add_select_tuple(attrRef, &errorMsg);
@@ -1271,7 +1271,7 @@ void PQLParser::eat_entRef_varRef(RelRef &relRef, StringBuffer &sb,
         sb.clear();
         this->eat_till_comma_space(sb);
         this->error(PARSE_REL_ARGONE, false, "Invalid arg one \"%s\"",
-            sb.toString().c_str());
+            sb.c_str());
     }
     ret = relRef.set_arg_one(argType, sb, errorMsg);
     if (ret != PARSE_OK) {
@@ -1293,7 +1293,7 @@ void PQLParser::eat_entRef_varRef(RelRef &relRef, StringBuffer &sb,
         sb.clear();
         this->eat_till_comma_space_rparen(sb);
         this->error(PARSE_REL_ARGTWO, false, "Invalid arg two \"%s\"",
-            sb.toString().c_str());
+            sb.c_str());
     }
     ret = relRef.set_arg_two(argType, sb, errorMsg);
     if (ret != PARSE_OK) {
@@ -1486,7 +1486,7 @@ bool PQLParser::eat_relCond(StringBuffer &sb) throw(ParseError)
             sb.clear();
             this->eat_till_rparen(sb);
             this->error(PARSE_RELCOND_INVALID_RELREF, false,
-                "Expected RelRef, got \"%s\"", sb.toString().c_str());
+                "Expected RelRef, got \"%s\"", sb.c_str());
         }
     }
     return true;
@@ -1534,7 +1534,7 @@ void PQLParser::parse(const string &s, bool showWarnings_)
         if (!this->eat_select(sb)) {
             this->error(PARSE_NO_SELECT_AFTER_DECL, false,
                 "Expected \"Select\", got \"%s\"",
-                sb.toString().c_str());
+                sb.c_str());
             return;
         }
         if (this->eat_space() <= 0) {
@@ -1552,7 +1552,7 @@ void PQLParser::parse(const string &s, bool showWarnings_)
             } else {
                 this->error(PARSE_SELECT_NOTHING, false,
                     "Select clause: Expected tuple or BOOLEAN, got "
-                    "\"%s\"", sb.toString().c_str());
+                    "\"%s\"", sb.c_str());
                 return;
             }
         }

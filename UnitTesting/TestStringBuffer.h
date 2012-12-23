@@ -12,6 +12,7 @@ CPPUNIT_TEST(testAppendInt);
 CPPUNIT_TEST(testAppendMixed);
 CPPUNIT_TEST(testClear);
 CPPUNIT_TEST(testStrcmp);
+CPPUNIT_TEST(testCstr);
 CPPUNIT_TEST(testSize);
 CPPUNIT_TEST_SUITE_END();
 
@@ -27,6 +28,7 @@ private:
     void testAppendMixed();
     void testClear();
     void testStrcmp();
+    void testCstr();
     void testSize();
 };
 
