@@ -1115,7 +1115,6 @@ bool PQLParser::eat_select_tuple(StringBuffer &sb)
     }
     this->eat_space();
     if (!this->eat_gt()) {
-        printf("cur buf = %s\n", this->buf.c_str() + this->bufIdx);
         this->error(PARSE_SELECT_TUPLE_NO_CLOSE, false,
             "Missing '>' for Select tuple");
     }
