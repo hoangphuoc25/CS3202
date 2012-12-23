@@ -560,21 +560,27 @@ bool PQLParser::eat_one_char(char ch)
     }
 }
 
-void PQLParser::eat_nonws_token(StringBuffer &sb)
+int PQLParser::eat_nonws_token(StringBuffer &sb)
 {
     sb.clear();
+    int ate = 0;
     while (this->bufIdx < this->bufLen &&
             !isspace(this->buf[this->bufIdx])) {
         sb.append(this->buf[this->bufIdx++]);
+        ate++;
     }
+    return ate;
 }
 
-void PQLParser::eat_till_ws(StringBuffer &sb)
+int PQLParser::eat_till_ws(StringBuffer &sb)
 {
+    int ate = 0;
     while (this->bufIdx < this->bufLen &&
             !isspace(this->buf[this->bufIdx])) {
         sb.append(this->buf[this->bufIdx++]);
+        ate++;
     }
+    return ate;
 }
 
 bool PQLParser::eat_string_till_ws(StringBuffer &sb, const char *str)
@@ -589,12 +595,15 @@ bool PQLParser::eat_string_till_ws(StringBuffer &sb, const char *str)
     }
 }
 
-void PQLParser::eat_alpha(StringBuffer &sb)
+int PQLParser::eat_alpha(StringBuffer &sb)
 {
+    int ate = 0;
     while (this->bufIdx < this->bufLen &&
             isalpha(this->buf[this->bufIdx])) {
         sb.append(this->buf[this->bufIdx++]);
+        ate++;
     }
+    return ate;
 }
 
 bool PQLParser::eat_alpha_string(StringBuffer &sb, const char *str)
@@ -639,13 +648,16 @@ bool PQLParser::eat_alpha_strings(StringBuffer &sb, int nrStrs, ...)
     return true;
 }
 
-void PQLParser::eat_alpha_star(StringBuffer &sb)
+int PQLParser::eat_alpha_star(StringBuffer &sb)
 {
+    int ate = 0;
     while (this->bufIdx < this->bufLen &&
             (isalpha(this->buf[this->bufIdx]) ||
              this->buf[this->bufIdx] == '*')) {
         sb.append(this->buf[this->bufIdx++]);
+        ate++;
     }
+    return ate;
 }
 
 bool PQLParser::eat_alpha_star_string(StringBuffer &sb, const char *s)
@@ -660,13 +672,16 @@ bool PQLParser::eat_alpha_star_string(StringBuffer &sb, const char *s)
     }
 }
 
-void PQLParser::eat_ident(StringBuffer &sb)
+int PQLParser::eat_ident(StringBuffer &sb)
 {
+    int ate = 0;
     while (this->bufIdx < this->bufLen &&
             (isalnum(this->buf[this->bufIdx]) ||
              this->buf[this->bufIdx] == '#')) {
         sb.append(this->buf[this->bufIdx++]);
+        ate++;
     }
+    return ate;
 }
 
 bool PQLParser::eat_ident_string(StringBuffer &sb, const char *str)
@@ -1077,10 +1092,8 @@ RelRefArgType PQLParser::eat_entRef(StringBuffer &sb)
     } else if (this->eat_underscore()) {
         return RELARG_WILDCARD;
     } else if (this->eat_dquote()) {
-        // TODO: Change eat_ident to return no. of chars ate
         sb.clear();
-        this->eat_ident(sb);
-        if (sb.size() > 0 && this->eat_dquote()) {
+        if (this->eat_ident(sb) > 0 && this->eat_dquote()) {
             return RELARG_STRING;
         }
     }
@@ -1120,10 +1133,8 @@ RelRefArgType PQLParser::eat_varRef(StringBuffer &sb)
     } else if (this->eat_underscore()) {
         return RELARG_WILDCARD;
     } else if (this->eat_dquote()) {
-        // TODO: Change eat_ident to return no. of chars ate
         sb.clear();
-        this->eat_ident(sb);
-        if (sb.size() > 0 && this->eat_dquote()) {
+        if (this->eat_ident(sb) > 0 && this->eat_dquote()) {
             return RELARG_STRING;
         }
     }
