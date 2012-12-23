@@ -27,7 +27,7 @@ StringBuffer::StringBuffer(const StringBuffer &other)
 {
     if (this != &other) {
         delete[] buf;
-        buf = new char[other.capacity];
+        buf = new char[other.capacity+1];
         memset(buf, 0, sizeof(buf));
         capacity = other.capacity;
         nrChars = other.nrChars;
@@ -41,7 +41,7 @@ StringBuffer& StringBuffer::operator=(const StringBuffer &other)
 {
     if (this != &other) {
         delete[] buf;
-        buf = new char[other.capacity];
+        buf = new char[other.capacity+1];
         memset(buf, 0, sizeof(buf));
         capacity = other.capacity;
         nrChars = other.nrChars;
