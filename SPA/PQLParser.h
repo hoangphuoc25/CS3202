@@ -42,6 +42,13 @@
 #define AFFECTS_STR      "Affects"
 #define AFFECTS_STAR_STR "Affects*"
 
+#define ATTR_PROCNAME_STR "procName"
+#define ATTR_VARNAME_STR  "varName"
+#define ATTR_VALUE_STR    "value"
+#define ATTR_STMTNO_STR   "stmt#"
+#define ATTR_DEFAULT_STR  "default"
+#define ATTR_INVALID_STR  "invalid"
+
 #define S_TO_UINT_MAX 2147483647L
 #define S_TO_UINT_EMPTY_STRING "string_to_uint - String is empty"
 #define S_TO_UINT_WHITESPACE "string_to_uint - String consists of whitespace"
@@ -58,13 +65,6 @@ enum SelectType {
     SEL_TUPLE, SEL_BOOLEAN
 };
 
-#define ATTR_PROCNAME_STR "procName"
-#define ATTR_VARNAME_STR  "varName"
-#define ATTR_VALUE_STR    "value"
-#define ATTR_STMTNO_STR   "stmt#"
-#define ATTR_DEFAULT_STR  "default"
-#define ATTR_INVALID_STR  "invalid"
-
 enum AttrType {
     ATTR_PROCNAME, ATTR_VARNAME, ATTR_VALUE, ATTR_STMTNO,
     ATTR_INVALID, ATTR_DEFAULT
@@ -77,6 +77,15 @@ enum RelRefType {
     REL_INVALID
 };
 
+enum ClauseType {
+    SUCHTHAT_CLAUSE, WITH_CLAUSE, PATTERN_CLAUSE
+};
+
+enum RelRefArgType {
+    RELARG_SYN, RELARG_STRING, REL_INT, REL_WILDCARD,
+    RELARG_INVALID
+};
+
 // Helper functions
 const char *relRefType_to_string(RelRefType relType);
 const char *entity_type_to_string(DesignEnt entType);
@@ -87,39 +96,13 @@ struct AttrRef {
     std::string syn;
     DesignEnt entType;
     AttrType attr;
-    AttrRef(): syn(""), entType(ENT_INVALID), attr(ATTR_INVALID) {}
-    AttrRef(std::string s, DesignEnt et, AttrType a)
-        : syn(s), entType(et), attr(a) {}
-    void dump_to_sb(StringBuffer &sb) const {
-        sb.append(entity_type_to_string(entType));
-        sb.append(' ');
-        sb.append(syn);
-        if (attr != ATTR_DEFAULT) {
-            sb.append(' ');
-            sb.append(attrType_to_string(attr));
-        }
-    }
+    AttrRef();
+    AttrRef(std::string s, DesignEnt et, AttrType a);
+    void dump_to_sb(StringBuffer &sb) const;
 };
 
 struct AttrRefCmp {
-    bool operator()(const AttrRef &a, const AttrRef &b) const {
-        if (a.syn != b.syn) {
-            return a.syn < b.syn;
-        } else if (a.entType != b.entType) {
-            return a.entType < b.entType;
-        } else {
-            return a.attr < b.attr;
-        }
-    }
-};
-
-enum ClauseType {
-    SUCHTHAT_CLAUSE, WITH_CLAUSE, PATTERN_CLAUSE
-};
-
-enum RelRefArgType {
-    RELARG_SYN, RELARG_STRING, REL_INT, REL_WILDCARD,
-    RELARG_INVALID
+    bool operator()(const AttrRef &a, const AttrRef &b) const;
 };
 
 struct RelRef {
@@ -133,241 +116,25 @@ struct RelRef {
     std::string argTwoString;
     int argTwoInt;
 
-    RelRef(): relType(REL_INVALID), argOneType(RELARG_INVALID),
-                argOneSyn(ENT_INVALID), argOneString(), argOneInt(0),
-                argTwoType(RELARG_INVALID), argTwoSyn(ENT_INVALID),
-                argTwoString(), argTwoInt(0) {}
-
-    RelRef(const RelRef &o) {
-        if (this != &o) {
-            this->relType = o.relType;
-            this->argOneType = o.argOneType;
-            switch (this->argOneType) {
-            case RELARG_SYN:
-                this->argOneSyn = o.argOneSyn;
-                // fall through
-            case RELARG_STRING:
-                this->argOneString = o.argOneString;
-                break;
-            case REL_INT:
-                this->argOneInt = o.argOneInt;
-                break;
-            }
-            this->argTwoType = o.argTwoType;
-            switch (this->argTwoType) {
-            case RELARG_SYN:
-                this->argTwoSyn = o.argTwoSyn;
-                // fall through
-            case RELARG_STRING:
-                this->argTwoString = o.argTwoString;
-                break;
-            case REL_INT:
-                this->argTwoInt = o.argTwoInt;
-                break;
-            }
-        }
-    }
-
-    RelRef &operator=(const RelRef &o) {
-        if (this != &o) {
-            this->relType = o.relType;
-            this->argOneType = o.argOneType;
-            switch (this->argOneType) {
-            case RELARG_SYN:
-                this->argOneSyn = o.argOneSyn;
-                // fall through
-            case RELARG_STRING:
-                this->argOneString = o.argOneString;
-                break;
-            case REL_INT:
-                this->argOneInt = o.argOneInt;
-                break;
-            }
-            this->argTwoType = o.argTwoType;
-            switch (this->argTwoType) {
-            case RELARG_SYN:
-                this->argTwoSyn = o.argTwoSyn;
-                // fall through
-            case RELARG_STRING:
-                this->argTwoString = o.argTwoString;
-                break;
-            case REL_INT:
-                this->argTwoInt = o.argTwoInt;
-                break;
-            }
-        }
-        return *this;
-    }
-
-    ~RelRef() {}
-
+    RelRef();
+    RelRef(const RelRef &o);
+    RelRef &operator=(const RelRef &o);
+    ~RelRef();
     bool set_arg_one(RelRefArgType argType, StringBuffer &sb,
-            char **errorMsg) {
-        return this->set_arg(1, argType, sb, errorMsg);
-    }
-
+            char **errorMsg);
     bool set_arg_two(RelRefArgType argType, StringBuffer &sb,
-            char **errorMsg) {
-        return this->set_arg(2, argType, sb, errorMsg);
-    }
-
+            char **errorMsg);
     bool set_arg(int which, RelRefArgType argType, StringBuffer &sb,
-            char **errorMsg) {
-        bool ret = true;
-        switch (argType) {
-        case RELARG_SYN:
-            if (which == 1) {
-                this->argOneSyn = ENT_INVALID;
-            } else {
-                this->argTwoSyn = ENT_INVALID;
-            }
-            // fall through
-        case RELARG_STRING:
-            if (which == 1) {
-                this->argOneString = sb.toString();
-            } else {
-                this->argTwoString = sb.toString();
-            }
-            break;
-        case REL_INT:
-            if (which == 1) {
-                if (!string_to_uint(sb.toString(), &argOneInt, errorMsg)) {
-                    ret = false;
-                }
-            } else {
-                if (!string_to_uint(sb.toString(), &argTwoInt, errorMsg)) {
-                    ret = false;
-                }
-            }
-            break;
-        case REL_WILDCARD:
-            if (which == 1) {
-                this->argOneType = REL_WILDCARD;
-            } else {
-                this->argTwoType = REL_WILDCARD;
-            }
-            break;
-        case REL_INVALID:
-            ret = false;
-            if (errorMsg) {
-                if (which == 1) {
-                    *errorMsg = strdup(SET_ARG_ONE_INVALID);
-                } else {
-                    *errorMsg = strdup(SET_ARG_TWO_INVALID);
-                }
-            }
-            break;
-        }
-        if (ret) {
-            if (which == 1) {
-                this->argOneType = argType;
-            } else {
-                this->argTwoType = argType;
-            }
-        }
-        return ret;
-    }
-
-    std::string dump(void) const {
-        StringBuffer sb;
-        sb.append(relRefType_to_string(this->relType));
-        sb.append('(');
-        switch (this->argOneType) {
-        case RELARG_SYN:
-            sb.append(this->argOneString);
-            break;
-        case RELARG_STRING:
-            sb.append('"');
-            sb.append(this->argOneString);
-            sb.append('"');
-            break;
-        case REL_INT:
-            sb.append_int(this->argOneInt);
-            break;
-        case REL_WILDCARD:
-            sb.append('_');
-            break;
-        }
-        sb.append(',');
-        switch (this->argTwoType) {
-        case RELARG_SYN:
-            sb.append(this->argTwoString);
-            break;
-        case RELARG_STRING:
-            sb.append('"');
-            sb.append(this->argTwoString);
-            sb.append('"');
-            break;
-        case REL_INT:
-            sb.append_int(this->argTwoInt);
-            break;
-        case REL_WILDCARD:
-            sb.append('_');
-            break;
-        }
-        sb.append(')');
-        return sb.toString();
-    }
-
-    static bool valid(const struct RelRef &r) {
-        return r.relType != REL_INVALID;
-    }
+            char **errorMsg);
+    std::string dump(void) const;
+    static bool valid(const struct RelRef &r);
     static const char *SET_ARG_ONE_INVALID;
     static const char *SET_ARG_TWO_INVALID;
 };
 
 // For comparing RelRef so that we will not insert repeated relref
 struct RelRefCmp {
-    bool operator()(const RelRef &a, const RelRef &b) const {
-        #define RELREF_ARGTWO_CMP() do {\
-            if (a.argTwoType == RELARG_SYN) {\
-                if (a.argTwoSyn != b.argTwoSyn) {\
-                    return a.argTwoSyn < b.argTwoSyn;\
-                }\
-                return a.argTwoString < b.argTwoString;\
-            } else if (a.argTwoType == RELARG_STRING) {\
-                return a.argTwoString < b.argTwoString;\
-            } else if (a.argTwoType == REL_INT) {\
-                return a.argTwoInt < b.argTwoInt;\
-            } else {\
-                return false;\
-            }\
-        } while(0)
-
-        int cmp;
-        if (a.relType != b.relType) {
-            return a.relType < b.relType;
-        } else if (a.argOneType != b.argOneType) {
-            return a.argOneType < b.argOneType;
-        } else if (a.argTwoType != b.argTwoType) {
-            return a.argTwoType < b.argTwoType;
-        } else if (a.argOneType == RELARG_SYN) {
-            if (a.argOneSyn != b.argOneSyn) {
-                return a.argOneSyn < b.argOneSyn;
-            }
-            cmp = a.argOneString.compare(b.argOneString);
-            if (cmp != 0) {
-                return (cmp < 0);
-            }
-            RELREF_ARGTWO_CMP();
-
-        } else if (a.argOneType == RELARG_STRING) {
-            cmp = a.argOneString.compare(b.argOneString);
-            if (cmp != 0) {
-                return (cmp < 0);
-            }
-            RELREF_ARGTWO_CMP();
-        } else if (a.argOneType == REL_INT) {
-            if (a.argOneInt != b.argOneInt) {
-                return a.argOneInt < b.argOneInt;
-            }
-            RELREF_ARGTWO_CMP();
-        } else if (a.argOneType == REL_WILDCARD) {
-            RELREF_ARGTWO_CMP();
-        }
-
-        #undef RELREF_ARGTWO_CMP
-    }
+    bool operator()(const RelRef &a, const RelRef &b) const;
 };
 
 // forward declaration
