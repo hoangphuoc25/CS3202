@@ -86,6 +86,23 @@ enum RelRefArgType {
     RELARG_INVALID
 };
 
+enum ParseError {
+    PARSE_OK,
+    PARSE_DECL_EMPTY_SYN, PARSE_DECL_REPEATED_SYN, PARSE_DECL_INVALID_SYN,
+    PARSE_DECL_ENT_SYN_NOSEP, PARSE_DECL_NO_TERMINATOR,
+    PARSE_NO_SELECT_AFTER_DECL, PARSE_NO_SEP_AFTER_SELECT,
+    PARSE_SELECT_UNKNOWN, PARSE_SELECT_REPEATED, PARSE_SELECT_INVALID_ATTR,
+    PARSE_SELECT_TUPLE_NO_CLOSE, PARSE_SELECT_NOTHING,
+    PARSE_REL_ARGONE, PARSE_REL_ARGTWO, PARSE_REL_ARG_INT_INVALID,
+    PARSE_REL_ARG_INVALID, PARSE_REL_ARG_UNDECLARED, PARSE_REL_ARG_TYPE_ERROR,
+    PARSE_REL_NO_COMMA, PARSE_REL_NO_RPAREN,
+    PARSE_RELREF_INVALID,
+    PARSE_RELCOND_AND_NOSEP, PARSE_RELCOND_INVALID_RELREF,
+    PARSE_QINFO_INSERT_INVALID_RELREF,
+    PARSE_END_OF_QUERY_ERROR,
+    PARSE_UNKNOWN
+};
+
 // Helper functions
 const char *relRefType_to_string(RelRefType relType);
 const char *entity_type_to_string(DesignEnt entType);
@@ -120,11 +137,11 @@ struct RelRef {
     RelRef(const RelRef &o);
     RelRef &operator=(const RelRef &o);
     ~RelRef();
-    bool set_arg_one(RelRefArgType argType, StringBuffer &sb,
+    ParseError set_arg_one(RelRefArgType argType, StringBuffer &sb,
             char **errorMsg);
-    bool set_arg_two(RelRefArgType argType, StringBuffer &sb,
+    ParseError set_arg_two(RelRefArgType argType, StringBuffer &sb,
             char **errorMsg);
-    bool set_arg(int which, RelRefArgType argType, StringBuffer &sb,
+    ParseError set_arg(int which, RelRefArgType argType, StringBuffer &sb,
             char **errorMsg);
     std::string dump(void) const;
     static bool valid(const struct RelRef &r);
@@ -157,7 +174,7 @@ private:
     PQLParser& operator=(const PQLParser &o);
 
     void eat_decls();
-    bool eat_decl_one();
+    bool eat_decl_one() throw(ParseError);
     int eat_space();
     int eat_nonws_token(StringBuffer &sb);
     bool eat_one_char(char ch);
@@ -171,6 +188,10 @@ private:
     bool eat_underscore();
     bool eat_dquote();
     int eat_till_ws(StringBuffer &sb);
+    int eat_till_rparen(StringBuffer &sb);
+    int eat_till_comma_space(StringBuffer &sb);
+    int eat_till_comma_space_gt(StringBuffer &sb);
+    int eat_till_comma_space_rparen(StringBuffer &sb);
     bool eat_synonym(StringBuffer &sb);
     AttrRef eat_attrRef(StringBuffer &sb);
     bool eat_attrName(StringBuffer &sb);
@@ -208,12 +229,13 @@ private:
     RelRefArgType eat_stmtRef(StringBuffer &sb);
     RelRefArgType eat_lineRef(StringBuffer &sb);
     RelRefArgType eat_varRef(StringBuffer &sb);
-    bool eat_entRef_varRef(RelRef &relRef, StringBuffer &sb, char **errorMsg);
+    void eat_entRef_varRef(RelRef &relRef, StringBuffer &sb, char **errorMsg)
+            throw(ParseError);
     bool relRef_finalize(RelRef &relRef, char **errorMsg);
     bool PQLParser::eat_relRef_generic(RelRef &relRef, StringBuffer &sb,
         bool (PQLParser::*eat_relRef_string_M) (StringBuffer &sb),
         RelRefType relRefType,
-        bool (PQLParser::*eat_arg_M)
+        void (PQLParser::*eat_arg_M)
             (RelRef &relRef, StringBuffer &sb, char **errorMsg));
     bool eat_relRef_modifies(RelRef &relRef, StringBuffer &sb);
     bool eat_relRef_uses(RelRef &relRef, StringBuffer &sb);
@@ -228,15 +250,18 @@ private:
     bool eat_relRef_affects(RelRef &relRef, StringBuffer &sb);
     bool eat_relRef_affects_star(RelRef &relRef, StringBuffer &sb);
     RelRef eat_relRef(StringBuffer &sb);
-    bool eat_relCond(StringBuffer &sb);
+    bool eat_relCond(StringBuffer &sb) throw(ParseError);
     void eat_select_stwithpat(StringBuffer &sb);
-    bool insert_syn(DesignEnt ent, const std::string &s);
+    bool insert_syn(DesignEnt ent, const std::string &s) throw(ParseError);
     DesignEnt retrieve_syn_type(const std::string& s) const;
     DesignEnt string_to_entity(const std::string &s);
     AttrType string_to_attrType(const std::string &s) const;
-    void error(const char *s, ...);
+    void error(ParseError parseErr_, bool freeFmtStr, const char *s, ...)
+        throw(ParseError);
     void warning(const char *s, ...) const;
-    void valist_print(const char *pfx, const char *fmt, va_list ap) const;
+    void valist_print(const char *pfx, const char *fmt, va_list ap)
+            const throw();
+    void print_error(void) const throw();
 
     int bufIdx;
     int bufLen;
@@ -244,6 +269,7 @@ private:
     std::map<std::string, DesignEnt> entTable;
     std::vector<std::pair<DesignEnt, std::string> > entVec;
     int parseErrors;
+    ParseError parseErr;
     QueryInfo *qinfo;
     bool showWarnings;
 
@@ -264,8 +290,8 @@ public:
         const std::vector<std::pair<DesignEnt, std::string> >& eVec);
     void set_select_boolean();
     void set_select_tuple();
-    bool add_select_tuple(AttrRef attrRef, char **errorMsg);
-    bool add_relRef(RelRef& relRef, char **errorMsg);
+    ParseError add_select_tuple(AttrRef attrRef, char **errorMsg);
+    ParseError add_relRef(RelRef& relRef, char **errorMsg);
     void dump(void) const;
     void dump(FILE *f) const;
     std::string dump_to_string() const;
@@ -285,13 +311,13 @@ private:
 
     void insert_relRef(const RelRef &relRef, char **errorMsg);
     DesignEnt retrieve_syn_type(const std::string &s) const;
-    bool add_modifies_relRef(RelRef &relRef, char **errorMsg);
-    bool add_uses_relRef(RelRef &relRef, char **errorMsg);
-    bool add_calls_relRef(RelRef &relRef, char **errorMsg);
-    bool add_parent_relRef(RelRef &relRef, char **errorMsg);
-    bool add_follows_relRef(RelRef &relRef, char **errorMsg);
-    bool add_next_relRef(RelRef &relRef, char **errorMsg);
-    bool add_affects_relRef(RelRef &relRef, char **errorMsg);
+    ParseError add_modifies_relRef(RelRef &relRef, char **errorMsg);
+    ParseError add_uses_relRef(RelRef &relRef, char **errorMsg);
+    ParseError add_calls_relRef(RelRef &relRef, char **errorMsg);
+    ParseError add_parent_relRef(RelRef &relRef, char **errorMsg);
+    ParseError add_follows_relRef(RelRef &relRef, char **errorMsg);
+    ParseError add_next_relRef(RelRef &relRef, char **errorMsg);
+    ParseError add_affects_relRef(RelRef &relRef, char **errorMsg);
 };
 
 #endif
