@@ -74,24 +74,34 @@ void TestStringBuffer::testAppendString()
 void TestStringBuffer::testAppendInt()
 {
     StringBuffer sb;
+    int cnt;
     sb.append_int(0);
     string s = "0";
     CPPUNIT_ASSERT_EQUAL(s, sb.toString());
-    sb.append_int(5);
+    cnt = sb.append_int(5);
     s += "5";
     CPPUNIT_ASSERT_EQUAL(s, sb.toString());
-    sb.append_int(74);
+    CPPUNIT_ASSERT_EQUAL(1, cnt);
+    cnt = sb.append_int(0);
+    s += "0";
+    CPPUNIT_ASSERT_EQUAL(s, sb.toString());
+    CPPUNIT_ASSERT_EQUAL(1, cnt);
+    cnt = sb.append_int(74);
     s += "74";
     CPPUNIT_ASSERT_EQUAL(s, sb.toString());
-    sb.append_int(100);
+    CPPUNIT_ASSERT_EQUAL(2, cnt);
+    cnt = sb.append_int(100);
     s += "100";
     CPPUNIT_ASSERT_EQUAL(s, sb.toString());
-    sb.append_int(999);
+    CPPUNIT_ASSERT_EQUAL(3, cnt);
+    cnt = sb.append_int(999);
     s += "999";
     CPPUNIT_ASSERT_EQUAL(s, sb.toString());
-    sb.append_int(524138);
+    CPPUNIT_ASSERT_EQUAL(3, cnt);
+    cnt = sb.append_int(524138);
     s += "524138";
     CPPUNIT_ASSERT_EQUAL(s, sb.toString());
+    CPPUNIT_ASSERT_EQUAL(6, cnt);
 }
 
 void TestStringBuffer::testAppendMixed()
@@ -170,6 +180,23 @@ void TestStringBuffer::testCstr()
     const char *str = "a big brown fox jumps over a gray dog";
     int ret = strcmp(str, sb.c_str());
     CPPUNIT_ASSERT_EQUAL(0, ret);
+}
+
+void TestStringBuffer::testSprintf()
+{
+    StringBuffer sb;
+    const char *fmt = "this is %% just a %d %s%% %c";
+    int cnt = sb.sprintf(fmt, 13, "test", '!');
+    string s = "this is % just a 13 test% !";
+    CPPUNIT_ASSERT_EQUAL(s, sb.toString());
+    CPPUNIT_ASSERT_EQUAL(27, cnt);
+    // invalid %v
+    const char *fmt2 = "%s%d%s%d%s%d%c block%v%d";
+    cnt += sb.sprintf(fmt2, " hi Agent ", 17, ", welcome ", 2,
+                    " your new home. ", 25, 'C', 721);
+    s += " hi Agent 17, welcome 2 your new home. 25C block%v721";
+    CPPUNIT_ASSERT_EQUAL(s, sb.toString());
+    CPPUNIT_ASSERT_EQUAL(80, cnt);
 }
 
 void TestStringBuffer::testSize()

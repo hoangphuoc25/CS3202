@@ -1,6 +1,7 @@
 #include "StringBuffer.h"
 
 #include <cstring>
+#include <cstdarg>
 
 using std::string;
 
@@ -81,18 +82,19 @@ void StringBuffer::append(string s)
     }
 }
 
-void StringBuffer::append_int(int x)
+int StringBuffer::append_int(int x)
 {
     long long r = x;
     long long tpow = 10;
     int digits = 2;
-    int d;
+    int d, ret;
     while (tpow <= r) {
         tpow *= 10;
         digits++;
     }
     tpow /= 10;
     digits--;
+    ret = digits;
     if (r == 0) {
         grow_buffer(1);
         buf[nrChars++] = '0';
@@ -105,6 +107,7 @@ void StringBuffer::append_int(int x)
             tpow /= 10;
         }
     }
+    return ret;
 }
 
 int StringBuffer::strcmp(const char *s)
@@ -141,6 +144,63 @@ const char *StringBuffer::c_str(void)
 {
     buf[nrChars] = 0;
     return this->buf;
+}
+
+int StringBuffer::sprintf(const char *fmt, ...)
+{
+    int len = strlen(fmt);
+    int cnt = 0;
+    int d, slen;
+    const char *s;
+    va_list ap;
+    va_start(ap, fmt);
+    grow_buffer(len);
+    for (int i = 0; i < len; i++) {
+        if (fmt[i] == '%' && i+1 < len) {
+            switch (fmt[i+1]) {
+            case '%':
+                grow_buffer(1);
+                buf[nrChars++] = '%';
+                cnt++;
+                i++;
+                break;
+            case 's':
+                s = va_arg(ap, const char *);
+                slen = strlen(s);
+                grow_buffer(slen);
+                buf[nrChars] = 0;
+                strncat(&buf[nrChars], s, slen);
+                nrChars += slen;
+                cnt += slen;
+                i++;
+                break;
+            case 'd':
+                d = va_arg(ap, int);
+                cnt += this->append_int(d);
+                i++;
+                break;
+            case 'c':
+                grow_buffer(1);
+                d = va_arg(ap, char);
+                buf[nrChars++] = d;
+                cnt++;
+                i++;
+                break;
+            default:
+                // let it slide
+                grow_buffer(1);
+                buf[nrChars++] = '%';
+                cnt++;
+                break;
+            }
+        } else {
+            grow_buffer(1);
+            buf[nrChars++] = fmt[i];
+            cnt++;
+        }
+    }
+    va_end(ap);
+    return cnt;
 }
 
 void StringBuffer::clear(void)

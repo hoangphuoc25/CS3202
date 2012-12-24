@@ -13,7 +13,7 @@ public:
     void append(char c);
     void append(const char *s);
     void append(std::string s);
-    void append_int(int x);
+    int append_int(int x);
     int strcmp(const char *s);
     std::string toString(void);
     // NOTE: Dont pass c_str's return value to StringBuffer::append
@@ -22,6 +22,7 @@ public:
     //     ... // append some stuff
     //     sb.append(sb.c_str()); // Infinite loop
     const char *c_str(void);
+    int sprintf(const char *fmt, ...);
     void clear(void);
     int size(void) const;
 private:
