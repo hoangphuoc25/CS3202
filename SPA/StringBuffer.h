@@ -1,6 +1,7 @@
 #ifndef T11_STRINGBUFFER_H
 #define T11_STRINGBUFFER_H
 
+#include <cstdarg>
 #include <string>
 
 class StringBuffer {
@@ -23,6 +24,7 @@ public:
     //     sb.append(sb.c_str()); // Infinite loop
     const char *c_str(void);
     int sprintf(const char *fmt, ...);
+    int vsprintf(const char *fmt, va_list ap);
     void clear(void);
     int size(void) const;
 private:

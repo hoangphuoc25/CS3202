@@ -148,12 +148,19 @@ const char *StringBuffer::c_str(void)
 
 int StringBuffer::sprintf(const char *fmt, ...)
 {
+    va_list ap;
+    va_start(ap, fmt);
+    int ret = this->vsprintf(fmt, ap);
+    va_end(ap);
+    return ret;
+}
+
+int StringBuffer::vsprintf(const char *fmt, va_list ap)
+{
     int len = strlen(fmt);
     int cnt = 0;
     int d, slen;
     const char *s;
-    va_list ap;
-    va_start(ap, fmt);
     grow_buffer(len);
     for (int i = 0; i < len; i++) {
         if (fmt[i] == '%' && i+1 < len) {
@@ -199,7 +206,6 @@ int StringBuffer::sprintf(const char *fmt, ...)
             cnt++;
         }
     }
-    va_end(ap);
     return cnt;
 }
 
