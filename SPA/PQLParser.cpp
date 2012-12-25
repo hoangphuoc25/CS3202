@@ -717,18 +717,6 @@ bool PQLParser::eat_one_char(char ch)
     }
 }
 
-int PQLParser::eat_nonws_token(StringBuffer &sb)
-{
-    sb.clear();
-    int ate = 0;
-    while (this->bufIdx < this->bufLen &&
-            !isspace(this->buf[this->bufIdx])) {
-        sb.append(this->buf[this->bufIdx++]);
-        ate++;
-    }
-    return ate;
-}
-
 int PQLParser::eat_till_ws(StringBuffer &sb)
 {
     int ate = 0;
@@ -889,6 +877,45 @@ bool PQLParser::eat_alpha_star_string(StringBuffer &sb, const char *s)
     } else {
         RESTORE_AND_RET(false, saveIdx);
     }
+}
+
+int PQLParser::eat_alpha_underscore(StringBuffer &sb)
+{
+    int ate = 0;
+    while (this->bufIdx < this->bufLen &&
+            (isalpha(this->buf[this->bufIdx]) ||
+             this->buf[this->bufIdx] == '_')) {
+        sb.append(this->buf[this->bufIdx++]);
+        ate++;
+    }
+    return ate;
+}
+
+bool PQLParser::eat_alpha_underscore_string(StringBuffer &sb, const char *s)
+{
+    int saveIdx = this->bufIdx;
+    sb.clear();
+    this->eat_alpha_underscore(sb);
+    if (!sb.strcmp(s)) {
+        return true;
+    } else {
+        RESTORE_AND_RET(false, saveIdx);
+    }
+}
+
+bool PQLParser::eat_design_entity(StringBuffer &sb)
+{
+    return (this->eat_alpha_string(sb, ENT_ASSIGN_STR) ||
+            this->eat_alpha_string(sb, ENT_STMT_STR) ||
+            this->eat_alpha_string(sb, ENT_VAR_STR) ||
+            this->eat_alpha_string(sb, ENT_IF_STR) ||
+            this->eat_alpha_string(sb, ENT_WHILE_STR) ||
+            this->eat_alpha_string(sb, ENT_PROC_STR) ||
+            this->eat_alpha_string(sb, ENT_CALL_STR) ||
+            this->eat_alpha_string(sb, ENT_CONST_STR) ||
+            this->eat_alpha_underscore_string(sb, ENT_PROGLINE_STR) ||
+            this->eat_alpha_string(sb, ENT_STMTLST_STR) ||
+            false);
 }
 
 int PQLParser::eat_ident(StringBuffer &sb)
@@ -1090,12 +1117,11 @@ bool PQLParser::eat_decl_one() throw(ParseError)
     int saveIdx;
     this->eat_space();
     saveIdx = this->bufIdx;
-    this->eat_nonws_token(sb);
-    string entStr = sb.toString();
-    DesignEnt entType = string_to_entity(entStr);
-    if (entType == ENT_INVALID) {
+    if (!this->eat_design_entity(sb)) {
         RESTORE_AND_RET(false, saveIdx);
     }
+    string entStr = sb.toString();
+    DesignEnt entType = string_to_entity(entStr);
     if (this->eat_space() <= 0) {
         this->error(PARSE_DECL_ENT_SYN_NOSEP);
     }

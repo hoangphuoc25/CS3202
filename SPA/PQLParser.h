@@ -271,7 +271,6 @@ private:
     void eat_decls();
     bool eat_decl_one() throw(ParseError);
     int eat_space();
-    int eat_nonws_token(StringBuffer &sb);
     bool eat_one_char(char ch);
     bool eat_comma();
     bool eat_semicolon();
@@ -296,6 +295,9 @@ private:
     bool eat_alpha_strings(StringBuffer &sb, int nrStrs, ...);
     int eat_alpha_star(StringBuffer &sb);
     bool eat_alpha_star_string(StringBuffer &sb, const char *s);
+    int eat_alpha_underscore(StringBuffer &sb);
+    bool eat_alpha_underscore_string(StringBuffer &sb, const char *s);
+    bool eat_design_entity(StringBuffer &sb);
     int eat_ident(StringBuffer &sb);
     bool eat_ident_string(StringBuffer &sb, const char *s);
     bool eat_dquoted_ident(StringBuffer &sb);
