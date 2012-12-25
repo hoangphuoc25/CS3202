@@ -140,7 +140,7 @@ string StringBuffer::toString(void)
     return string(buf);
 }
 
-const char *StringBuffer::c_str(void)
+const char *StringBuffer::c_str(void) const
 {
     buf[nrChars] = 0;
     return this->buf;

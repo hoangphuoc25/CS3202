@@ -1339,7 +1339,7 @@ void PQLParser::eat_entRef_varRef(RelRef &relRef, StringBuffer &sb,
 }
 
 void PQLParser::error_set_relRef_arg(ParseError parseErr_,
-        const RelRef& relRef, const char *which, StringBuffer &sb,
+        const RelRef& relRef, const char *which, const StringBuffer &sb,
         char **errorMsg) throw(ParseError)
 {
     StringBuffer errBuf;
@@ -1406,7 +1406,7 @@ bool PQLParser::eat_relRef_generic(RelRef &relRef, StringBuffer &sb,
 }
 
 void PQLParser::error_add_relRef(ParseError parseErr_, const RelRef &relRef,
-        StringBuffer &sb, char *errorMsg) throw(ParseError)
+        const StringBuffer &sb, char *errorMsg) throw(ParseError)
 {
     StringBuffer errBuf;
     if (errorMsg) {

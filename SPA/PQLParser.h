@@ -231,10 +231,10 @@ private:
     RelRefArgType eat_stmtRef(StringBuffer &sb);
     RelRefArgType eat_lineRef(StringBuffer &sb);
     RelRefArgType eat_varRef(StringBuffer &sb);
-    void eat_entRef_varRef(RelRef &relRef, StringBuffer &sb, char **errorMsg)
-            throw(ParseError);
+    void eat_entRef_varRef(RelRef &relRef, StringBuffer &sb,
+            char **errorMsg) throw(ParseError);
     void error_set_relRef_arg(ParseError parseErr_, const RelRef &relRef,
-            const char *which, StringBuffer &sb, char **errorMsg)
+            const char *which, const StringBuffer &sb, char **errorMsg)
                 throw(ParseError);
     bool relRef_finalize(RelRef &relRef, char **errorMsg);
     bool eat_relRef_generic(RelRef &relRef, StringBuffer &sb,
@@ -243,7 +243,7 @@ private:
         void (PQLParser::*eat_arg_M)
             (RelRef &relRef, StringBuffer &sb, char **errorMsg));
     void error_add_relRef(ParseError parseErr_, const RelRef &relRef,
-            StringBuffer &sb, char *errorMsg) throw(ParseError);
+            const StringBuffer &sb, char *errorMsg) throw(ParseError);
     bool eat_relRef_modifies(RelRef &relRef, StringBuffer &sb);
     bool eat_relRef_uses(RelRef &relRef, StringBuffer &sb);
     bool eat_relRef_calls(RelRef &relRef, StringBuffer &sb);

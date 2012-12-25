@@ -22,7 +22,7 @@ public:
     //     StringBuffer sb;
     //     ... // append some stuff
     //     sb.append(sb.c_str()); // Infinite loop
-    const char *c_str(void);
+    const char *c_str(void) const;
     int sprintf(const char *fmt, ...);
     int vsprintf(const char *fmt, va_list ap);
     void clear(void);
