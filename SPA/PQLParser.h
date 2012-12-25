@@ -287,6 +287,7 @@ private:
     int eat_till_comma_space(StringBuffer &sb);
     int eat_till_comma_space_gt(StringBuffer &sb);
     int eat_till_comma_space_rparen(StringBuffer &sb);
+    int eat_till_comma_space_semicolon(StringBuffer &sb);
     bool eat_synonym(StringBuffer &sb);
     AttrRef eat_attrRef(StringBuffer &sb);
     bool eat_attrName(StringBuffer &sb);

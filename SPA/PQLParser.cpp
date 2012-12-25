@@ -789,6 +789,19 @@ int PQLParser::eat_till_comma_space_rparen(StringBuffer &sb)
     return ate;
 }
 
+int PQLParser::eat_till_comma_space_semicolon(StringBuffer &sb)
+{
+    int ate = 0;
+    while (this->bufIdx < this->bufLen &&
+            (this->buf[this->bufIdx] != ',' &&
+             !isspace(this->buf[this->bufIdx]) &&
+             this->buf[this->bufIdx] != ';')) {
+        sb.append(this->buf[this->bufIdx++]);
+        ate++;
+    }
+    return ate;
+}
+
 bool PQLParser::eat_string_till_ws(StringBuffer &sb, const char *str)
 {
     int saveIdx = this->bufIdx;
@@ -1059,17 +1072,16 @@ AttrRef PQLParser::eat_attrRef(StringBuffer &sb)
 bool PQLParser::eat_decl_one() throw(ParseError)
 {
     #define EAT_SYN() do {\
-        ret = this->eat_synonym(sb);\
-        s = sb.toString();\
-        if (!ret) {\
-            if (s.size() == 0) {\
+        if (!this->eat_synonym(sb)) {\
+            sb.clear();\
+            if (this->eat_till_comma_space_semicolon(sb) <= 0) {\
                 this->error(PARSE_DECL_EMPTY_SYN, entStr.c_str());\
             } else {\
-                this->eat_till_ws(sb);\
                 this->error(PARSE_DECL_INVALID_SYN, sb.c_str());\
             }\
+        } else {\
+            this->insert_syn(entType, sb.toString());\
         }\
-        this->insert_syn(entType, s);\
     } while(0)
 
     StringBuffer sb;
