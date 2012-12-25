@@ -307,7 +307,8 @@ bool RelRefCmp::operator()(const RelRef &a, const RelRef &b) const
     return retVal;\
 } while(0)
 
-PQLParser::PQLParser(): parseErr(PARSE_OK), showWarnings(true)
+PQLParser::PQLParser():
+        parseErr(PARSE_OK), showWarnings(true), showErrors(true)
 {
     strToEnt[ENT_PROC_STR] = ENT_PROC;
     strToEnt[ENT_STMTLST_STR] = ENT_STMTLST;
@@ -520,7 +521,9 @@ void PQLParser::error(ParseError parseErr_, ...) throw(ParseError)
     this->parseErr = parseErr_;
     va_list ap;
     va_start(ap, parseErr_);
-    this->print_error(ap);
+    if (this->showErrors) {
+        this->print_error(ap);
+    }
     va_end(ap);
     throw this->parseErr;
 }
@@ -1597,13 +1600,14 @@ void PQLParser::eat_select_stwithpat(StringBuffer &sb)
     }
 }
 
-void PQLParser::parse(const string &s, bool showWarnings_)
+void PQLParser::parse(const string &s, bool showErrors_, bool showWarnings_)
 {
     StringBuffer sb;
     int saveIdx;
     this->bufIdx = 0;
     this->buf = s;
     this->bufLen = this->buf.size();
+    this->showErrors = showErrors_;
     this->showWarnings = showWarnings_;
     this->entTable.clear();
     this->entVec.clear();
