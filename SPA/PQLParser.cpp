@@ -14,6 +14,24 @@ using std::set;
 using std::pair;
 using std::make_pair;
 
+#define TYPE_ERROR_ARRAY_SZ 2
+
+const char *TYPE_ERROR_EMPTY[TYPE_ERROR_ARRAY_SZ] = {
+    "", ""
+};
+
+const char *TYPE_ERROR_MODIFIES[TYPE_ERROR_ARRAY_SZ] = {
+    "Modifies: arg one must be a synonym of type" \
+    " assign, stmt, if, while, procedure, call, prog_line;" \
+    " or the name of a procedure enclosed in double quotes;" \
+    " or an underscore",
+
+    "Modifies: arg two must be a synonym of type" \
+    " variable;" \
+    " or the name of a variable enclosed in double quotes;" \
+    " or an underscore"
+};
+
 //////////////////////////////////////////////////////////////////////
 // AttrRef
 //////////////////////////////////////////////////////////////////////
@@ -48,11 +66,6 @@ bool AttrRefCmp::operator()(const AttrRef &a, const AttrRef &b) const
 //////////////////////////////////////////////////////////////////////
 // RelRef
 //////////////////////////////////////////////////////////////////////
-
-const char *RelRef::SET_ARG_ONE_INVALID =
-    "RelRef::set_arg_one - arg one has invalid type";
-const char *RelRef::SET_ARG_TWO_INVALID =
-    "RelRef::set_arg_two - arg two has invalid type";
 
 bool RelRef::valid(const struct RelRef &r) {
     return r.relType != REL_INVALID;
@@ -179,13 +192,6 @@ ParseError RelRef::set_arg(int which, RelRefArgType argType, StringBuffer &sb,
         break;
     case REL_INVALID:
         ret = PARSE_REL_ARG_INVALID;
-        if (errorMsg) {
-            if (which == 1) {
-                *errorMsg = strdup(SET_ARG_ONE_INVALID);
-            } else {
-                *errorMsg = strdup(SET_ARG_TWO_INVALID);
-            }
-        }
         break;
     }
     if (ret == PARSE_OK) {
@@ -366,17 +372,14 @@ bool PQLParser::insert_syn(DesignEnt entType, const std::string &s)
         throw(ParseError)
 {
     if (s.size() <= 0) {
-        this->error(PARSE_DECL_EMPTY_SYN, false,
-            "Zero length entity of type %s", entity_type_to_string(entType));
+        this->error(PARSE_DECL_EMPTY_SYN, entity_type_to_string(entType));
     }
     map<string, DesignEnt>::iterator it = this->entTable.find(s);
     if (it != this->entTable.end()) {
         const char *tmpS = s.c_str();
-        this->error(PARSE_DECL_REPEATED_SYN, false,
-            "design entity \"%s\" of type \"%s\" was previously declared ",
-            "(%s %s)",
+        this->error(PARSE_DECL_REPEATED_SYN, tmpS,
             entity_type_to_string(entType),
-            tmpS, entity_type_to_string(it->second), tmpS);
+            entity_type_to_string(it->second));
     } else {
         this->entTable[s] = entType;
         this->entVec.push_back(pair<DesignEnt, string>(entType, s));
@@ -512,19 +515,14 @@ bool string_to_uint(const string& s, int *res, char **errorMsg)
     return true;
 }
 
-void PQLParser::error(ParseError parseErr_, bool freeFmtStr,
-        const char *s, ...) throw(ParseError)
+void PQLParser::error(ParseError parseErr_, ...) throw(ParseError)
 {
     this->parseErr = parseErr_;
     this->parseErrors++;
-    this->print_error();
     va_list ap;
-    va_start(ap, s);
-    this->valist_print("Error: ", s, ap);
+    va_start(ap, parseErr_);
+    this->print_error(ap);
     va_end(ap);
-    if (freeFmtStr) {
-        free((char *)s);
-    }
     throw this->parseErr;
 }
 
@@ -546,62 +544,99 @@ void PQLParser::valist_print(const char *pfx, const char *fmt,
     fprintf(stderr, "\n");
 }
 
-void PQLParser::print_error(void) const throw()
+void PQLParser::print_error(va_list ap) const throw()
 {
+    StringBuffer sb;
     switch (this->parseErr) {
     case PARSE_DECL_EMPTY_SYN:
+        sb.vsprintf("Missing synonym of type \"%s\"", ap);
         break;
     case PARSE_DECL_REPEATED_SYN:
+        sb.vsprintf("synonym \"%s\" of type \"%s\" was previously declared"
+            " as \"%s\"", ap);
         break;
     case PARSE_DECL_INVALID_SYN:
+        sb.vsprintf("Expected synonym, got \"%s\"", ap);
         break;
     case PARSE_DECL_ENT_SYN_NOSEP:
+        sb.vsprintf("Expected whitespace between design entity and synonym",
+            ap);
         break;
     case PARSE_DECL_NO_TERMINATOR:
+        sb.vsprintf("Missing terminator ';'", ap);
         break;
     case PARSE_NO_SELECT_AFTER_DECL:
+        sb.vsprintf("Expected \"Select\", got \"%s\"", ap);
         break;
     case PARSE_SELECT_UNKNOWN:
+        sb.vsprintf("Unknown entity \"%s\"", ap);
         break;
     case PARSE_SELECT_REPEATED:
+        sb.vsprintf("Select element \"%s\" already exists", ap);
         break;
     case PARSE_SELECT_INVALID_ATTR:
+        sb.vsprintf("Invalid select attribute \"%s\"", ap);
         break;
     case PARSE_SELECT_TUPLE_NO_CLOSE:
+        sb.vsprintf("Missing '>' for Select tuple", ap);
         break;
     case PARSE_SELECT_NOTHING:
+        sb.vsprintf("Select clause: Expected tuple or BOOLEAN, got \"%s\"",
+            ap);
         break;
     case PARSE_REL_ARGONE:
+        sb.vsprintf("%s: invalid arg one \"%s\"", ap);
         break;
     case PARSE_REL_ARGTWO:
+        sb.vsprintf("%s: invalid arg two \"%s\"", ap);
         break;
     case PARSE_REL_ARG_INT_INVALID:
+        sb.vsprintf("%s: Invalid integer arg %s \"%s\" [%s]", ap);
         break;
     case PARSE_REL_ARG_INVALID:
+        sb.vsprintf("%s: setting arg %s to arg of invalid type", ap);
         break;
-    case PARSE_REL_ARG_UNDECLARED:
+    case PARSE_REL_ARGONE_UNDECLARED:
+        sb.vsprintf("%s: arg one is an undeclared synonym \"%s\"", ap);
         break;
-    case PARSE_REL_ARG_TYPE_ERROR:
+    case PARSE_REL_ARGONE_TYPE_ERROR:
+        sb.vsprintf("%s", ap);
+        break;
+    case PARSE_REL_ARGTWO_UNDECLARED:
+        sb.vsprintf("%s: arg two is an undeclared synonym \"%s\"", ap);
+        break;
+    case PARSE_REL_ARGTWO_TYPE_ERROR:
+        sb.vsprintf("%s", ap);
         break;
     case PARSE_REL_NO_COMMA:
+        sb.vsprintf("%s: Expected comma between arguments", ap);
         break;
     case PARSE_REL_NO_RPAREN:
+        sb.vsprintf("%s: Expected ')' [%s]", ap);
         break;
     case PARSE_RELREF_INVALID:
+        sb.vsprintf("Invalid RelRef \"%s\"", ap);
         break;
     case PARSE_RELCOND_AND_NOSEP:
+        sb.vsprintf("relCond: expect whitespace after \"and\"", ap);
         break;
     case PARSE_RELCOND_INVALID_RELREF:
+        sb.vsprintf("Expected RelRef, got \"%s\"", ap);
         break;
     case PARSE_QINFO_INSERT_INVALID_RELREF:
+        sb.vsprintf("QueryInfo::add_relRef - Trying to insert invalid relRef",
+            ap);
         break;
     case PARSE_END_OF_QUERY_ERROR:
+        sb.vsprintf("Expected end of query, got \"%s\"", ap);
         break;
     case PARSE_UNKNOWN:
+        sb.vsprintf("Unknown error", ap);
         break;
     default:
         break;
     }
+    fprintf(stderr, "%s\n", sb.c_str());
 }
 
 int PQLParser::eat_space()
@@ -973,12 +1008,10 @@ bool PQLParser::eat_decl_one() throw(ParseError)
         s = sb.toString();\
         if (!ret) {\
             if (s.size() == 0) {\
-                this->error(PARSE_DECL_EMPTY_SYN, false,\
-                    "Missing design entity for \"%s\"", entStr.c_str());\
+                this->error(PARSE_DECL_EMPTY_SYN, entStr.c_str());\
             } else {\
                 this->eat_till_ws(sb);\
-                this->error(PARSE_DECL_INVALID_SYN, false,\
-                    "Expected synonym, got \"%s\"", sb.c_str());\
+                this->error(PARSE_DECL_INVALID_SYN, sb.c_str());\
             }\
         }\
         this->insert_syn(entType, s);\
@@ -997,8 +1030,7 @@ bool PQLParser::eat_decl_one() throw(ParseError)
         RESTORE_AND_RET(false, saveIdx);
     }
     if (this->eat_space() <= 0) {
-        this->error(PARSE_DECL_ENT_SYN_NOSEP, false,
-            "Expected whitespace between design entity and synonym");
+        this->error(PARSE_DECL_ENT_SYN_NOSEP);
     }
     EAT_SYN();
     while (1) {
@@ -1011,8 +1043,7 @@ bool PQLParser::eat_decl_one() throw(ParseError)
     }
     this->eat_space();
     if (!this->eat_semicolon()) {
-        this->error(PARSE_DECL_NO_TERMINATOR, false,
-            "Missing terminator ';'");
+        this->error(PARSE_DECL_NO_TERMINATOR);
     }
     return true;
 
@@ -1061,16 +1092,15 @@ bool PQLParser::eat_select_tuple(StringBuffer &sb)
 {
     this->eat_space();
     int saveIdx = this->bufIdx;
-    char *errorMsg = NULL;
     ParseError ret;
     sb.clear();
     // 1 element
     AttrRef attrRef = this->eat_select_tuple_elem(sb);
     if (attrRef.attr != ATTR_INVALID) {
         this->qinfo->set_select_tuple();
-        ret = this->qinfo->add_select_tuple(attrRef, &errorMsg);
+        ret = this->qinfo->add_select_tuple(attrRef);
         if (ret != PARSE_OK) {
-            this->error(ret, true, errorMsg);
+            this->error_add_select_tuple(ret, attrRef);
         }
         return true;
     }
@@ -1085,13 +1115,12 @@ bool PQLParser::eat_select_tuple(StringBuffer &sb)
         // "Select <" - Must be selecting tuple. OK to call error() here
         sb.clear();
         this->eat_till_comma_space_gt(sb);
-        this->error(PARSE_SELECT_INVALID_ATTR, false,
-            "Invalid select attribute \"%s\"", sb.c_str());
+        this->error(PARSE_SELECT_INVALID_ATTR, sb.c_str());
     }
     this->qinfo->set_select_tuple();
-    ret = this->qinfo->add_select_tuple(attrRef, &errorMsg);
+    ret = this->qinfo->add_select_tuple(attrRef);
     if (ret != PARSE_OK) {
-        this->error(ret, true, errorMsg);
+        this->error_add_select_tuple(ret, attrRef);
     }
     while (1) {
         this->eat_space();
@@ -1104,21 +1133,33 @@ bool PQLParser::eat_select_tuple(StringBuffer &sb)
         if (attrRef.attr == ATTR_INVALID) {
             sb.clear();
             this->eat_till_comma_space_gt(sb);
-            this->error(PARSE_SELECT_INVALID_ATTR, false,
-                "Invalid select attribute \"%s\"", sb.c_str());
+            this->error(PARSE_SELECT_INVALID_ATTR, sb.c_str());
         }
-        errorMsg = NULL;
-        ret = this->qinfo->add_select_tuple(attrRef, &errorMsg);
+        ret = this->qinfo->add_select_tuple(attrRef);
         if (ret != PARSE_OK) {
-            this->error(ret, true, errorMsg);
+            this->error_add_select_tuple(ret, attrRef);
         }
     }
     this->eat_space();
     if (!this->eat_gt()) {
-        this->error(PARSE_SELECT_TUPLE_NO_CLOSE, false,
-            "Missing '>' for Select tuple");
+        this->error(PARSE_SELECT_TUPLE_NO_CLOSE);
     }
     return true;
+}
+
+void PQLParser::error_add_select_tuple(ParseError parseErr_,
+        const AttrRef &attrRef) throw(ParseError)
+{
+    StringBuffer sb;
+    switch (parseErr_) {
+    case PARSE_SELECT_UNKNOWN:
+        this->error(parseErr_, attrRef.syn.c_str());
+        break;
+    case PARSE_SELECT_REPEATED:
+        attrRef.dump_to_sb(sb);
+        this->error(parseErr_, sb.c_str());
+        break;
+    }
 }
 
 bool PQLParser::eat_such_that(StringBuffer &sb)
@@ -1270,20 +1311,16 @@ void PQLParser::eat_entRef_varRef(RelRef &relRef, StringBuffer &sb,
     if (argType == RELARG_INVALID) {
         sb.clear();
         this->eat_till_comma_space(sb);
-        this->error(PARSE_REL_ARGONE, false, "Invalid arg one \"%s\"",
+        this->error(PARSE_REL_ARGONE, relRefType_to_string(relRef.relType),
             sb.c_str());
     }
     ret = relRef.set_arg_one(argType, sb, errorMsg);
     if (ret != PARSE_OK) {
-        if (*errorMsg) {
-            this->error(ret, true, *errorMsg);
-        } else {
-            this->error(ret, false, "");
-        }
+        this->error_set_relRef_arg(ret, relRef, "one", sb, errorMsg);
     }
     this->eat_space();
     if (!this->eat_comma()) {
-        this->error(PARSE_REL_NO_COMMA, false, "");
+        this->error(PARSE_REL_NO_COMMA, relRefType_to_string(relRef.relType));
     }
     this->eat_space();
     sb.clear();
@@ -1292,16 +1329,33 @@ void PQLParser::eat_entRef_varRef(RelRef &relRef, StringBuffer &sb,
     if (argType == RELARG_INVALID) {
         sb.clear();
         this->eat_till_comma_space_rparen(sb);
-        this->error(PARSE_REL_ARGTWO, false, "Invalid arg two \"%s\"",
+        this->error(PARSE_REL_ARGTWO, relRefType_to_string(relRef.relType),
             sb.c_str());
     }
     ret = relRef.set_arg_two(argType, sb, errorMsg);
     if (ret != PARSE_OK) {
-        if (*errorMsg) {
-            this->error(ret, true, *errorMsg);
-        } else {
-            this->error(ret, false, "");
+        this->error_set_relRef_arg(ret, relRef, "two", sb, errorMsg);
+    }
+}
+
+void PQLParser::error_set_relRef_arg(ParseError parseErr_,
+        const RelRef& relRef, const char *which, StringBuffer &sb,
+        char **errorMsg) throw(ParseError)
+{
+    StringBuffer errBuf;
+    switch (parseErr_) {
+    case PARSE_REL_ARG_INT_INVALID:
+        if (errorMsg && *errorMsg) {
+            errBuf.append((const char *)*errorMsg);
+            free(*errorMsg);
+            *errorMsg = NULL;
         }
+        this->error(parseErr_, relRefType_to_string(relRef.relType),
+                which, sb.c_str(), errBuf.c_str());
+        break;
+    case PARSE_REL_ARG_INVALID:
+        this->error(parseErr_, relRefType_to_string(relRef.relType), which);
+        break;
     }
 }
 
@@ -1325,13 +1379,15 @@ bool PQLParser::eat_relRef_generic(RelRef &relRef, StringBuffer &sb,
             (this->*eat_arg_M)(relRef, sb, &errorMsg);
             this->eat_space();
             if (!this->eat_rparen()) {
-                this->error(PARSE_REL_NO_RPAREN, false, "");
+                this->error(PARSE_REL_NO_RPAREN,
+                    relRefType_to_string(relRef.relType),
+                    relRef.dump().c_str());
             }
             if (RelRef::valid(relRef)) {
                 errorMsg = NULL;
                 ret = this->qinfo->add_relRef(relRef, &errorMsg);
                 if (ret != PARSE_OK) {
-                    this->error(ret, true, errorMsg);
+                    this->error_add_relRef(ret, relRef, sb, errorMsg);
                 } else if (errorMsg) {
                     this->warning(errorMsg);
                     free(errorMsg);
@@ -1340,8 +1396,7 @@ bool PQLParser::eat_relRef_generic(RelRef &relRef, StringBuffer &sb,
                 return true;
             } else {
                 // invalid RelRef
-                this->error(PARSE_RELREF_INVALID, false,
-                    "Invalid RelRef \"%s\"", relRef.dump().c_str());
+                this->error(PARSE_RELREF_INVALID, relRef.dump().c_str());
             }
         }
     }
@@ -1350,6 +1405,36 @@ bool PQLParser::eat_relRef_generic(RelRef &relRef, StringBuffer &sb,
     #undef RAR_RELREF
 }
 
+void PQLParser::error_add_relRef(ParseError parseErr_, const RelRef &relRef,
+        StringBuffer &sb, char *errorMsg) throw(ParseError)
+{
+    StringBuffer errBuf;
+    if (errorMsg) {
+        errBuf.append(errorMsg);
+        free(errorMsg);
+    }
+    const char *relRefStr = relRefType_to_string(relRef.relType);
+    const char **typeErrorArray = TYPE_ERROR_EMPTY;
+    switch (relRef.relType) {
+    case REL_MODIFIES:
+        typeErrorArray = TYPE_ERROR_MODIFIES;
+        break;
+    }
+    switch (parseErr_) {
+    case PARSE_REL_ARGONE_UNDECLARED:
+        this->error(parseErr_, relRefStr, sb.c_str());
+        break;
+    case PARSE_REL_ARGONE_TYPE_ERROR:
+        this->error(parseErr_, typeErrorArray[0]);
+        break;
+    case PARSE_REL_ARGTWO_UNDECLARED:
+        this->error(parseErr_, relRefStr, sb.c_str());
+        break;
+    case PARSE_REL_ARGTWO_TYPE_ERROR:
+        this->error(parseErr_, typeErrorArray[1]);
+        break;
+    }
+}
 
 bool PQLParser::eat_relRef_modifies(RelRef &relRef, StringBuffer &sb)
 {
@@ -1479,14 +1564,13 @@ bool PQLParser::eat_relCond(StringBuffer &sb) throw(ParseError)
         if (this->eat_space() <= 0) {
             sb.clear();
             this->eat_till_ws(sb);
-            this->error(PARSE_RELCOND_AND_NOSEP, false, "");
+            this->error(PARSE_RELCOND_AND_NOSEP);
         }
         relRef = this->eat_relRef(sb);
         if (!RelRef::valid(relRef)) {
             sb.clear();
             this->eat_till_rparen(sb);
-            this->error(PARSE_RELCOND_INVALID_RELREF, false,
-                "Expected RelRef, got \"%s\"", sb.c_str());
+            this->error(PARSE_RELCOND_INVALID_RELREF, sb.c_str());
         }
     }
     return true;
@@ -1532,9 +1616,7 @@ void PQLParser::parse(const string &s, bool showWarnings_)
         }
         qinfo->reset(this->entTable, this->entVec);
         if (!this->eat_select(sb)) {
-            this->error(PARSE_NO_SELECT_AFTER_DECL, false,
-                "Expected \"Select\", got \"%s\"",
-                sb.c_str());
+            this->error(PARSE_NO_SELECT_AFTER_DECL, sb.c_str());
             return;
         }
         if (this->eat_space() <= 0) {
@@ -1550,9 +1632,7 @@ void PQLParser::parse(const string &s, bool showWarnings_)
             if (this->eat_select_boolean(sb)) {
                 this->qinfo->set_select_boolean();
             } else {
-                this->error(PARSE_SELECT_NOTHING, false,
-                    "Select clause: Expected tuple or BOOLEAN, got "
-                    "\"%s\"", sb.c_str());
+                this->error(PARSE_SELECT_NOTHING, sb.c_str());
                 return;
             }
         }
@@ -1560,8 +1640,7 @@ void PQLParser::parse(const string &s, bool showWarnings_)
         this->eat_select_stwithpat(sb);
         this->eat_space();
         if (this->bufIdx != this->bufLen) {
-            this->error(PARSE_END_OF_QUERY_ERROR, false,
-                "Expected end of query, got \"%s\"",
+            this->error(PARSE_END_OF_QUERY_ERROR,
                 this->buf.c_str() + this->bufIdx);
         }
     } catch (ParseError err_) {
@@ -1611,27 +1690,13 @@ void QueryInfo::set_select_tuple()
     this->selectTable.clear();
 }
 
-ParseError QueryInfo::add_select_tuple(AttrRef attrRef, char **errorMsg)
+ParseError QueryInfo::add_select_tuple(AttrRef attrRef)
 {
     const std::string& syn = attrRef.syn;
     if (this->entTable.find(syn) == this->entTable.end()) {
-        if (errorMsg) {
-            _snprintf_s(this->errorBuf, QINFO_ERROR_LEN, QINFO_ERROR_LEN,
-                "Unknown entity \"%s\"", syn.c_str());
-            *errorMsg = _strdup(this->errorBuf);
-        }
         return PARSE_SELECT_UNKNOWN;
     }
     if (this->selectTable.find(attrRef) != this->selectTable.end()) {
-        StringBuffer sb;
-        string s;
-        if (errorMsg) {
-            attrRef.dump_to_sb(sb);
-            s = sb.toString();
-            _snprintf_s(this->errorBuf, QINFO_ERROR_LEN, QINFO_ERROR_LEN,
-                "Select element \"%s\" already exists", s.c_str());
-            *errorMsg = _strdup(this->errorBuf);
-        }
         return PARSE_SELECT_REPEATED;
     } else {
         this->selectTable.insert(attrRef);
@@ -1679,24 +1744,10 @@ ParseError QueryInfo::add_modifies_relRef(RelRef &relRef, char **errorMsg)
             relRef.argOneSyn = entType;
             break;
         case ENT_INVALID:
-            if (errorMsg) {
-                _snprintf_s(this->errorBuf, QINFO_ERROR_LEN, QINFO_ERROR_LEN,
-                    "Modifies - arg one is an undeclared synonym \"%s\"",
-                    relRef.argOneString.c_str());
-                *errorMsg = strdup(this->errorBuf);
-            }
-            return PARSE_REL_ARG_UNDECLARED;
+            return PARSE_REL_ARGONE_UNDECLARED;
         default:
             // all other types fail
-            if (errorMsg) {
-                _snprintf_s(this->errorBuf, QINFO_ERROR_LEN, QINFO_ERROR_LEN,
-                    "Modifies - arg one must be a synonym of type assign, "
-                    "stmt, if, while, procedure, call, prog_line"
-                    "; or the name of a procedure enclosed in double quotes"
-                    "; or an underscore");
-                *errorMsg = strdup(this->errorBuf);
-            }
-            return PARSE_REL_ARG_TYPE_ERROR;
+            return PARSE_REL_ARGONE_TYPE_ERROR;
         }
     }
     if (relRef.argTwoType == RELARG_SYN) {
@@ -1706,22 +1757,9 @@ ParseError QueryInfo::add_modifies_relRef(RelRef &relRef, char **errorMsg)
             relRef.argTwoSyn = entType;
             break;
         case ENT_INVALID:
-            if (errorMsg) {
-                _snprintf_s(this->errorBuf, QINFO_ERROR_LEN, QINFO_ERROR_LEN,
-                    "Modifies - arg two is an undeclared synonym \"%s\"",
-                    relRef.argTwoString.c_str());
-                *errorMsg = strdup(this->errorBuf);
-            }
-            return PARSE_REL_ARG_UNDECLARED;
+            return PARSE_REL_ARGTWO_UNDECLARED;
         default:
-            if (errorMsg) {
-                _snprintf_s(this->errorBuf, QINFO_ERROR_LEN, QINFO_ERROR_LEN,
-                    "Modifies - arg two must be a synonym of type variable"
-                    "; or the name of a variable enclosed in double quotes"
-                    "; or an underscore");
-                *errorMsg = strdup(this->errorBuf);
-            }
-            return PARSE_REL_ARG_TYPE_ERROR;
+            return PARSE_REL_ARGTWO_TYPE_ERROR;
         }
     }
     this->insert_relRef(relRef, errorMsg);

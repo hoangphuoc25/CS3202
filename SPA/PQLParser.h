@@ -94,7 +94,9 @@ enum ParseError {
     PARSE_SELECT_UNKNOWN, PARSE_SELECT_REPEATED, PARSE_SELECT_INVALID_ATTR,
     PARSE_SELECT_TUPLE_NO_CLOSE, PARSE_SELECT_NOTHING,
     PARSE_REL_ARGONE, PARSE_REL_ARGTWO, PARSE_REL_ARG_INT_INVALID,
-    PARSE_REL_ARG_INVALID, PARSE_REL_ARG_UNDECLARED, PARSE_REL_ARG_TYPE_ERROR,
+    PARSE_REL_ARG_INVALID,
+    PARSE_REL_ARGONE_UNDECLARED, PARSE_REL_ARGONE_TYPE_ERROR,
+    PARSE_REL_ARGTWO_UNDECLARED, PARSE_REL_ARGTWO_TYPE_ERROR,
     PARSE_REL_NO_COMMA, PARSE_REL_NO_RPAREN,
     PARSE_RELREF_INVALID,
     PARSE_RELCOND_AND_NOSEP, PARSE_RELCOND_INVALID_RELREF,
@@ -145,8 +147,6 @@ struct RelRef {
             char **errorMsg);
     std::string dump(void) const;
     static bool valid(const struct RelRef &r);
-    static const char *SET_ARG_ONE_INVALID;
-    static const char *SET_ARG_TWO_INVALID;
 };
 
 // For comparing RelRef so that we will not insert repeated relref
@@ -208,6 +208,8 @@ private:
     bool eat_select(StringBuffer &sb);
     bool eat_select_tuple(StringBuffer &sb);
     AttrRef eat_select_tuple_elem(StringBuffer &sb);
+    void error_add_select_tuple(ParseError parseErr_, const AttrRef &attrRef)
+        throw(ParseError);
     bool eat_select_boolean(StringBuffer &sb);
     bool eat_such_that(StringBuffer &sb);
     bool eat_with(StringBuffer &sb);
@@ -231,12 +233,17 @@ private:
     RelRefArgType eat_varRef(StringBuffer &sb);
     void eat_entRef_varRef(RelRef &relRef, StringBuffer &sb, char **errorMsg)
             throw(ParseError);
+    void error_set_relRef_arg(ParseError parseErr_, const RelRef &relRef,
+            const char *which, StringBuffer &sb, char **errorMsg)
+                throw(ParseError);
     bool relRef_finalize(RelRef &relRef, char **errorMsg);
-    bool PQLParser::eat_relRef_generic(RelRef &relRef, StringBuffer &sb,
+    bool eat_relRef_generic(RelRef &relRef, StringBuffer &sb,
         bool (PQLParser::*eat_relRef_string_M) (StringBuffer &sb),
         RelRefType relRefType,
         void (PQLParser::*eat_arg_M)
             (RelRef &relRef, StringBuffer &sb, char **errorMsg));
+    void error_add_relRef(ParseError parseErr_, const RelRef &relRef,
+            StringBuffer &sb, char *errorMsg) throw(ParseError);
     bool eat_relRef_modifies(RelRef &relRef, StringBuffer &sb);
     bool eat_relRef_uses(RelRef &relRef, StringBuffer &sb);
     bool eat_relRef_calls(RelRef &relRef, StringBuffer &sb);
@@ -256,12 +263,11 @@ private:
     DesignEnt retrieve_syn_type(const std::string& s) const;
     DesignEnt string_to_entity(const std::string &s);
     AttrType string_to_attrType(const std::string &s) const;
-    void error(ParseError parseErr_, bool freeFmtStr, const char *s, ...)
-        throw(ParseError);
+    void error(ParseError parseErr_, ...) throw(ParseError);
     void warning(const char *s, ...) const;
     void valist_print(const char *pfx, const char *fmt, va_list ap)
             const throw();
-    void print_error(void) const throw();
+    void print_error(va_list ap) const throw();
 
     int bufIdx;
     int bufLen;
@@ -290,7 +296,7 @@ public:
         const std::vector<std::pair<DesignEnt, std::string> >& eVec);
     void set_select_boolean();
     void set_select_tuple();
-    ParseError add_select_tuple(AttrRef attrRef, char **errorMsg);
+    ParseError add_select_tuple(AttrRef attrRef);
     ParseError add_relRef(RelRef& relRef, char **errorMsg);
     void dump(void) const;
     void dump(FILE *f) const;
