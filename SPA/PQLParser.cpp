@@ -608,89 +608,85 @@ void PQLParser::print_error(va_list ap)
     StringBuffer sb;
     switch (this->parseErr) {
     case PARSE_DECL_EMPTY_SYN:
-        sb.vsprintf("Missing synonym of type \"%s\"", ap);
+        sb.vsprintf(PARSE_DECL_EMPTY_SYN_STR, ap);
         break;
     case PARSE_DECL_REPEATED_SYN:
-        sb.vsprintf("synonym \"%s\" of type \"%s\" was previously declared"
-            " as \"%s\"", ap);
+        sb.vsprintf(PARSE_DECL_REPEATED_SYN_STR, ap);
         break;
     case PARSE_DECL_INVALID_SYN:
-        sb.vsprintf("Expected synonym, got \"%s\"", ap);
+        sb.vsprintf(PARSE_DECL_INVALID_SYN_STR, ap);
         break;
     case PARSE_DECL_ENT_SYN_NOSEP:
-        sb.vsprintf("Expected whitespace between design entity and synonym",
-            ap);
+        sb.vsprintf(PARSE_DECL_ENT_SYN_NOSEP_STR, ap);
         break;
     case PARSE_DECL_NO_TERMINATOR:
-        sb.vsprintf("Missing terminator ';'", ap);
+        sb.vsprintf(PARSE_DECL_NO_TERMINATOR_STR, ap);
         break;
     case PARSE_NO_SELECT_AFTER_DECL:
-        sb.vsprintf("Expected \"Select\", got \"%s\"", ap);
+        sb.vsprintf(PARSE_NO_SELECT_AFTER_DECL_STR, ap);
         break;
     case PARSE_SELECT_UNKNOWN:
-        sb.vsprintf("Unknown entity \"%s\"", ap);
+        sb.vsprintf(PARSE_SELECT_UNKNOWN_STR, ap);
         break;
     case PARSE_SELECT_REPEATED:
-        sb.vsprintf("Select element \"%s\" already exists", ap);
+        sb.vsprintf(PARSE_SELECT_REPEATED_STR, ap);
         break;
     case PARSE_SELECT_INVALID_ATTR:
-        sb.vsprintf("Invalid select attribute \"%s\"", ap);
+        sb.vsprintf(PARSE_SELECT_INVALID_ATTR_STR, ap);
         break;
     case PARSE_SELECT_TUPLE_NO_CLOSE:
-        sb.vsprintf("Missing '>' for Select tuple", ap);
+        sb.vsprintf(PARSE_SELECT_TUPLE_NO_CLOSE_STR, ap);
         break;
     case PARSE_SELECT_NOTHING:
-        sb.vsprintf("Select clause: Expected tuple or BOOLEAN, got \"%s\"",
-            ap);
+        sb.vsprintf(PARSE_SELECT_NOTHING_STR, ap);
         break;
     case PARSE_REL_ARGONE:
-        sb.vsprintf("%s: invalid arg one \"%s\"", ap);
+        sb.vsprintf(PARSE_REL_ARGONE_STR, ap);
         break;
     case PARSE_REL_ARGTWO:
-        sb.vsprintf("%s: invalid arg two \"%s\"", ap);
+        sb.vsprintf(PARSE_REL_ARGTWO_STR, ap);
         break;
     case PARSE_REL_ARG_INT_INVALID:
-        sb.vsprintf("%s: Invalid integer arg %s \"%s\" [%s]", ap);
+        sb.vsprintf(PARSE_REL_ARG_INT_INVALID_STR, ap);
         break;
     case PARSE_REL_ARG_INVALID:
-        sb.vsprintf("%s: setting arg %s to arg of invalid type", ap);
+        sb.vsprintf(PARSE_REL_ARG_INVALID_STR, ap);
         break;
     case PARSE_REL_ARGONE_UNDECLARED:
-        sb.vsprintf("%s: arg one is an undeclared synonym \"%s\"", ap);
+        sb.vsprintf(PARSE_REL_ARGONE_UNDECLARED_STR, ap);
         break;
     case PARSE_REL_ARGONE_TYPE_ERROR:
-        sb.vsprintf("%s", ap);
+        sb.vsprintf(PARSE_REL_ARGONE_TYPE_ERROR_STR, ap);
         break;
     case PARSE_REL_ARGTWO_UNDECLARED:
-        sb.vsprintf("%s: arg two is an undeclared synonym \"%s\"", ap);
+        sb.vsprintf(PARSE_REL_ARGTWO_UNDECLARED_STR, ap);
         break;
     case PARSE_REL_ARGTWO_TYPE_ERROR:
-        sb.vsprintf("%s", ap);
+        sb.vsprintf(PARSE_REL_ARGTWO_TYPE_ERROR_STR, ap);
         break;
     case PARSE_REL_NO_COMMA:
-        sb.vsprintf("%s: Expected comma between arguments", ap);
+        sb.vsprintf(PARSE_REL_NO_COMMA_STR, ap);
         break;
     case PARSE_REL_NO_RPAREN:
-        sb.vsprintf("%s: Expected ')' [%s]", ap);
+        sb.vsprintf(PARSE_REL_NO_RPAREN_STR, ap);
         break;
     case PARSE_RELREF_INVALID:
-        sb.vsprintf("Invalid RelRef \"%s\"", ap);
+        sb.vsprintf(PARSE_RELREF_INVALID_STR, ap);
         break;
     case PARSE_RELCOND_AND_NOSEP:
-        sb.vsprintf("relCond: expect whitespace after \"and\"", ap);
+        sb.vsprintf(PARSE_RELCOND_AND_NOSEP_STR, ap);
         break;
     case PARSE_RELCOND_INVALID_RELREF:
-        sb.vsprintf("Expected RelRef, got \"%s\"", ap);
+        sb.vsprintf(PARSE_RELCOND_INVALID_RELREF_STR, ap);
         break;
     case PARSE_QINFO_INSERT_INVALID_RELREF:
-        sb.vsprintf("QueryInfo::add_relRef - Trying to insert invalid relRef",
-            ap);
+        sb.vsprintf(PARSE_QINFO_INSERT_INVALID_RELREF_STR, ap);
         break;
     case PARSE_END_OF_QUERY_ERROR:
-        sb.vsprintf("Expected end of query, got \"%s\"", ap);
+        sb.vsprintf(PARSE_END_OF_QUERY_ERROR_STR, ap);
         break;
     case PARSE_UNKNOWN:
-        sb.vsprintf("Unknown error", ap);
+        sb.vsprintf(PARSE_UNKNOWN_STR, ap);
         break;
     default:
         break;

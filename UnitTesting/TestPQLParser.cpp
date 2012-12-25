@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <string>
 #include <map>
 #include <sstream>
@@ -1128,6 +1129,9 @@ void TestPQLParser::test_modifies()
 
 void TestPQLParser::test_err_parse_decl_empty_syn()
 {
+    const int TEST_BUFLEN = 10000;
+    char *tmpBuf = new char[TEST_BUFLEN];
+    memset(tmpBuf, 0, sizeof(tmpBuf));
     string queryStr = "assign ";
     string out;
     PQLParser parser;
@@ -1135,14 +1139,17 @@ void TestPQLParser::test_err_parse_decl_empty_syn()
     parser.parse(os, queryStr, true, false);
     out = os->str();
     CPPUNIT_ASSERT_EQUAL(PARSE_DECL_EMPTY_SYN, parser.get_parse_result());
-    CPPUNIT_ASSERT_EQUAL(
-        string("Missing synonym of type \"assign\""), out);
+    _snprintf_s(tmpBuf, TEST_BUFLEN, TEST_BUFLEN,
+        PARSE_DECL_EMPTY_SYN_STR, entity_type_to_string(ENT_ASSIGN));
+    CPPUNIT_ASSERT_EQUAL(string(tmpBuf), out);
 
     queryStr = "procedure p1, p2; stmt s1; call ; Select s1  ";
     os = new ostringstream;
     parser.parse(os, queryStr, true, false);
     out = os->str();
     CPPUNIT_ASSERT_EQUAL(PARSE_DECL_EMPTY_SYN, parser.get_parse_result());
-    CPPUNIT_ASSERT_EQUAL(
-        string("Missing synonym of type \"call\""), out);
+    _snprintf_s(tmpBuf, TEST_BUFLEN, TEST_BUFLEN,
+        PARSE_DECL_EMPTY_SYN_STR, entity_type_to_string(ENT_CALL));
+    CPPUNIT_ASSERT_EQUAL(string(tmpBuf), out);
+    delete[] tmpBuf;
 }

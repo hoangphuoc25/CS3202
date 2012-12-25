@@ -57,6 +57,78 @@
 #define S_TO_UINT_TOO_LONG  "string_to_uint - String is too long (max 10 char)"
 #define S_TO_UINT_OVERFLOW "string_to_uint - integer overflow. Max 2147483647"
 
+// arg: synonym type
+#define PARSE_DECL_EMPTY_SYN_STR \
+    "Missing synonym of type \"%s\""
+// args: synonym, new type, previous type
+#define PARSE_DECL_REPEATED_SYN_STR \
+    "synonym \"%s\" of type \"%s\" was previously declared as \"%s\""
+// arg: PQLParser::eat_till_ws(sb) --> sb.c_str()
+#define PARSE_DECL_INVALID_SYN_STR \
+    "Expected synonym, got \"%s\""
+#define PARSE_DECL_ENT_SYN_NOSEP_STR \
+    "Expected whitespace between design entity and synonym"
+#define PARSE_DECL_NO_TERMINATOR_STR \
+    "Missing terminator ';'"
+// arg: StringBuffer contents
+#define PARSE_NO_SELECT_AFTER_DECL_STR \
+    "Expected \"Select\", got \"%s\""
+// arg: undeclared synonym
+#define PARSE_SELECT_UNKNOWN_STR \
+    "Unknown entity \"%s\""
+// arg: repeated synonym
+#define PARSE_SELECT_REPEATED_STR \
+    "Select element \"%s\" already exists"
+// arg: PQLParser::eat_till_comma_space_gt(sb) --> sb.c_str()
+#define PARSE_SELECT_INVALID_ATTR_STR \
+    "Invalid select attribute \"%s\""
+#define PARSE_SELECT_TUPLE_NO_CLOSE_STR \
+    "Missing '>' for Select tuple"
+// arg: StringBuffer contents
+#define PARSE_SELECT_NOTHING_STR \
+    "Select clause: Expected tuple or BOOLEAN, got \"%s\""
+// args: relRef string rep, relRef arg one
+#define PARSE_REL_ARGONE_STR \
+    "%s: invalid arg one \"%s\""
+// args: relRef string rep, relRef arg two
+#define PARSE_REL_ARGTWO_STR \
+    "%s: invalid arg two \"%s\""
+// args: relRef string rep, "one" / "two", synonym name, other error msg
+#define PARSE_REL_ARG_INT_INVALID_STR \
+    "%s: Invalid integer arg %s \"%s\" [%s]"
+// args: relRef string rep, "one" / "two"
+#define PARSE_REL_ARG_INVALID_STR \
+    "%s: setting arg %s to arg of invalid type"
+// args: relRef string rep, synonym
+#define PARSE_REL_ARGONE_UNDECLARED_STR \
+    "%s: arg one is an undeclared synonym \"%s\""
+// arg: generated error string
+#define PARSE_REL_ARGONE_TYPE_ERROR_STR "%s"
+// args: relRef string rep, synonym
+#define PARSE_REL_ARGTWO_UNDECLARED_STR \
+     "%s: arg two is an undeclared synonym \"%s\""
+// arg: generated error string
+#define PARSE_REL_ARGTWO_TYPE_ERROR_STR "%s"
+// arg: relRef string rep
+#define PARSE_REL_NO_COMMA_STR "%s: Expected comma between arguments"
+// args: relRef string rep, relRef.dump()
+#define PARSE_REL_NO_RPAREN_STR \
+    "%s: Expected ')' [%s]"
+// arg: relRef.dump()
+#define PARSE_RELREF_INVALID_STR \
+    "Invalid RelRef \"%s\""
+#define PARSE_RELCOND_AND_NOSEP_STR \
+    "relCond: expect whitespace after \"and\""
+// arg: PQLParser::eat_till_rparen(sb) --> sb.c_str()
+#define PARSE_RELCOND_INVALID_RELREF_STR \
+    "Expected RelRef, got \"%s\""
+#define PARSE_QINFO_INSERT_INVALID_RELREF_STR \
+    "QueryInfo::add_relRef - Trying to insert invalid relRef"
+// arg: StringBuffer contents
+#define PARSE_END_OF_QUERY_ERROR_STR \
+    "Expected end of query, got \"%s\""
+#define PARSE_UNKNOWN_STR "Unknown error"
+
 enum DesignEnt {
     ENT_PROC, ENT_STMTLST, ENT_STMT, ENT_ASSIGN, ENT_CALL,
     ENT_WHILE, ENT_IF, ENT_VAR, ENT_CONST, ENT_PROGLINE,
