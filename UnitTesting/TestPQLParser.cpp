@@ -9,8 +9,15 @@ using std::string;
 using std::map;
 using std::ostringstream;
 
-void TestPQLParser::setUp() {}
-void TestPQLParser::tearDown() {}
+void TestPQLParser::setUp()
+{
+    this->buf = new char[TestPQLParser::BUFLEN+5];
+}
+
+void TestPQLParser::tearDown()
+{
+    delete[] this->buf;
+}
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestPQLParser);
 
@@ -1129,9 +1136,6 @@ void TestPQLParser::test_modifies()
 
 void TestPQLParser::test_err_parse_decl_empty_syn()
 {
-    const int TEST_BUFLEN = 10000;
-    char *tmpBuf = new char[TEST_BUFLEN];
-    memset(tmpBuf, 0, sizeof(tmpBuf));
     string queryStr = "assign ";
     string out;
     PQLParser parser;
@@ -1139,26 +1143,22 @@ void TestPQLParser::test_err_parse_decl_empty_syn()
     parser.parse(os, queryStr, true, false);
     out = os->str();
     CPPUNIT_ASSERT_EQUAL(PARSE_DECL_EMPTY_SYN, parser.get_parse_result());
-    _snprintf_s(tmpBuf, TEST_BUFLEN, TEST_BUFLEN,
+    _snprintf_s(this->buf, BUFLEN, BUFLEN,
         PARSE_DECL_EMPTY_SYN_STR, entity_type_to_string(ENT_ASSIGN));
-    CPPUNIT_ASSERT_EQUAL(string(tmpBuf), out);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 
     queryStr = "procedure p1, p2; stmt s1; call ; Select s1  ";
     os = new ostringstream;
     parser.parse(os, queryStr, true, false);
     out = os->str();
     CPPUNIT_ASSERT_EQUAL(PARSE_DECL_EMPTY_SYN, parser.get_parse_result());
-    _snprintf_s(tmpBuf, TEST_BUFLEN, TEST_BUFLEN,
+    _snprintf_s(this->buf, BUFLEN, BUFLEN,
         PARSE_DECL_EMPTY_SYN_STR, entity_type_to_string(ENT_CALL));
-    CPPUNIT_ASSERT_EQUAL(string(tmpBuf), out);
-    delete[] tmpBuf;
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
 
 void TestPQLParser::test_err_parse_decl_repeated_syn()
 {
-    const int TEST_BUFLEN = 10000;
-    char *tmpBuf = new char[TEST_BUFLEN+5];
-    memset(tmpBuf, 0, sizeof(tmpBuf));
     string queryStr = "assign g; stmt s; call g; Select s";
     string out;
     PQLParser parser;
@@ -1166,9 +1166,8 @@ void TestPQLParser::test_err_parse_decl_repeated_syn()
     parser.parse(os, queryStr, true, false);
     out = os->str();
     CPPUNIT_ASSERT_EQUAL(PARSE_DECL_REPEATED_SYN, parser.get_parse_result());
-    _snprintf_s(tmpBuf, TEST_BUFLEN, TEST_BUFLEN, PARSE_DECL_REPEATED_SYN_STR,
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_DECL_REPEATED_SYN_STR,
         "g", entity_type_to_string(ENT_CALL),
         entity_type_to_string(ENT_ASSIGN));
-    CPPUNIT_ASSERT_EQUAL(string(tmpBuf), out);
-    delete[] tmpBuf;
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }

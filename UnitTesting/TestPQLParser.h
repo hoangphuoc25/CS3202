@@ -23,6 +23,9 @@ public:
     void tearDown();
 
 private:
+    char *buf;
+    static const int BUFLEN = 10000;
+
     void test_one_decl_one();
     void test_one_decl();
     void test_mult_decl();
