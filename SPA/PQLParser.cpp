@@ -307,7 +307,7 @@ bool RelRefCmp::operator()(const RelRef &a, const RelRef &b) const
     return retVal;\
 } while(0)
 
-PQLParser::PQLParser(): parseErrors(0), showWarnings(true)
+PQLParser::PQLParser(): parseErr(PARSE_OK), showWarnings(true)
 {
     strToEnt[ENT_PROC_STR] = ENT_PROC;
     strToEnt[ENT_STMTLST_STR] = ENT_STMTLST;
@@ -334,9 +334,9 @@ PQLParser::~PQLParser()
     }
 }
 
-int PQLParser::get_parse_errors() const
+ParseError PQLParser::get_parse_result() const
 {
-    return this->parseErrors;
+    return this->parseErr;
 }
 
 map<string, DesignEnt> PQLParser::get_ent_table() const
@@ -518,7 +518,6 @@ bool string_to_uint(const string& s, int *res, char **errorMsg)
 void PQLParser::error(ParseError parseErr_, ...) throw(ParseError)
 {
     this->parseErr = parseErr_;
-    this->parseErrors++;
     va_list ap;
     va_start(ap, parseErr_);
     this->print_error(ap);
@@ -1608,12 +1607,9 @@ void PQLParser::parse(const string &s, bool showWarnings_)
     this->showWarnings = showWarnings_;
     this->entTable.clear();
     this->entVec.clear();
-    this->parseErrors = 0;
+    this->parseErr = PARSE_OK;
     try {
         this->eat_decls();
-        if (this->parseErrors > 0) {
-            return;
-        }
         qinfo->reset(this->entTable, this->entVec);
         if (!this->eat_select(sb)) {
             this->error(PARSE_NO_SELECT_AFTER_DECL, sb.c_str());

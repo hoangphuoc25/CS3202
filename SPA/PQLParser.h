@@ -166,7 +166,7 @@ public:
     QueryInfo *get_queryinfo() const;
 
     // For testing purposes
-    int get_parse_errors() const;
+    ParseError get_parse_result() const;
     std::map<std::string, DesignEnt> get_ent_table() const;
 
 private:
@@ -274,7 +274,6 @@ private:
     std::string buf;
     std::map<std::string, DesignEnt> entTable;
     std::vector<std::pair<DesignEnt, std::string> > entVec;
-    int parseErrors;
     ParseError parseErr;
     QueryInfo *qinfo;
     bool showWarnings;
