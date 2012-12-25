@@ -63,7 +63,7 @@
 // args: synonym, new type, previous type
 #define PARSE_DECL_REPEATED_SYN_STR \
     "synonym \"%s\" of type \"%s\" was previously declared as \"%s\""
-// arg: PQLParser::eat_till_ws(sb) --> sb.c_str()
+// arg: PQLParser::eat_while<not_space>(sb) --> sb.c_str()
 #define PARSE_DECL_INVALID_SYN_STR \
     "Expected synonym, got \"%s\""
 #define PARSE_DECL_ENT_SYN_NOSEP_STR \
@@ -79,7 +79,7 @@
 // arg: repeated synonym
 #define PARSE_SELECT_REPEATED_STR \
     "Select element \"%s\" already exists"
-// arg: PQLParser::eat_till_comma_space_gt(sb) --> sb.c_str()
+// arg: PQLParser::eat_while<not_comma_space_gt>(sb) --> sb.c_str()
 #define PARSE_SELECT_INVALID_ATTR_STR \
     "Invalid select attribute \"%s\""
 #define PARSE_SELECT_TUPLE_NO_CLOSE_STR \
@@ -119,7 +119,7 @@
     "Invalid RelRef \"%s\""
 #define PARSE_RELCOND_AND_NOSEP_STR \
     "relCond: expect whitespace after \"and\""
-// arg: PQLParser::eat_till_rparen(sb) --> sb.c_str()
+// arg: PQLParser::eat_while<not_rparen>(sb) --> sb.c_str()
 #define PARSE_RELCOND_INVALID_RELREF_STR \
     "Expected RelRef, got \"%s\""
 #define PARSE_QINFO_INSERT_INVALID_RELREF_STR \
@@ -281,24 +281,16 @@ private:
     bool eat_rparen();
     bool eat_underscore();
     bool eat_dquote();
-    int eat_till_ws(StringBuffer &sb);
-    int eat_till_rparen(StringBuffer &sb);
-    int eat_till_comma_space(StringBuffer &sb);
-    int eat_till_comma_space_gt(StringBuffer &sb);
-    int eat_till_comma_space_rparen(StringBuffer &sb);
-    int eat_till_comma_space_semicolon(StringBuffer &sb);
+    template<bool (*fn)(char ch)>
+        int eat_while(StringBuffer &sb);
     bool eat_synonym(StringBuffer &sb);
     AttrRef eat_attrRef(StringBuffer &sb);
     bool eat_attrName(StringBuffer &sb);
-    int eat_alpha(StringBuffer &sb);
     bool eat_alpha_string(StringBuffer &sb, const char *s);
     bool eat_alpha_strings(StringBuffer &sb, int nrStrs, ...);
-    int eat_alpha_star(StringBuffer &sb);
     bool eat_alpha_star_string(StringBuffer &sb, const char *s);
-    int eat_alpha_underscore(StringBuffer &sb);
     bool eat_alpha_underscore_string(StringBuffer &sb, const char *s);
     bool eat_design_entity(StringBuffer &sb);
-    int eat_ident(StringBuffer &sb);
     bool eat_ident_string(StringBuffer &sb, const char *s);
     bool eat_dquoted_ident(StringBuffer &sb);
     bool eat_string_till_ws(StringBuffer &sb, const char *s);

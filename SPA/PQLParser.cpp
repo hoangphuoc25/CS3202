@@ -717,73 +717,65 @@ bool PQLParser::eat_one_char(char ch)
     }
 }
 
-int PQLParser::eat_till_ws(StringBuffer &sb)
+//////////////////////////////////////////////////////////////////////
+// functions for eat_while<bool (*fn)(char ch)> specialization
+//////////////////////////////////////////////////////////////////////
+
+bool not_comma_space(char ch)
 {
-    int ate = 0;
-    while (this->bufIdx < this->bufLen &&
-            !isspace(this->buf[this->bufIdx])) {
-        sb.append(this->buf[this->bufIdx++]);
-        ate++;
-    }
-    return ate;
+    return (!isspace(ch) && ch != ',');
 }
 
-int PQLParser::eat_till_rparen(StringBuffer &sb)
+bool not_comma_space_gt(char ch)
 {
-    int ate = 0;
-    while (this->bufIdx < this->bufLen &&
-            this->buf[this->bufIdx] != ')') {
-        sb.append(this->buf[this->bufIdx++]);
-        ate++;
-    }
-    return ate;
+    return (!isspace(ch) && ch != ',' && ch != '>');
 }
 
-int PQLParser::eat_till_comma_space(StringBuffer &sb)
+bool not_comma_space_rparen(char ch)
 {
-    int ate = 0;
-    while (this->bufIdx < this->bufLen &&
-            (!isspace(this->buf[this->bufIdx]) &&
-             this->buf[this->bufIdx] != ',')) {
-        sb.append(this->buf[this->bufIdx++]);
-        ate++;
-    }
-    return ate;
+    return (!isspace(ch) && ch != ',' && ch != ')');
 }
 
-int PQLParser::eat_till_comma_space_gt(StringBuffer &sb)
+bool not_comma_space_semicolon(char ch)
 {
-    int ate = 0;
-    while (this->bufIdx < this->bufLen &&
-            (this->buf[this->bufIdx] != ',' &&
-             !isspace(this->buf[this->bufIdx]) &&
-             this->buf[this->bufIdx] != '>')) {
-        sb.append(this->buf[this->bufIdx++]);
-        ate++;
-    }
-    return ate;
+    return (!isspace(ch) && ch != ',' && ch != ';');
 }
 
-int PQLParser::eat_till_comma_space_rparen(StringBuffer &sb)
+bool not_space(char ch)
 {
-    int ate = 0;
-    while (this->bufIdx < this->bufLen &&
-            (this->buf[this->bufIdx] != ',' &&
-             !isspace(this->buf[this->bufIdx]) &&
-             this->buf[this->bufIdx] != ')')) {
-        sb.append(this->buf[this->bufIdx++]);
-        ate++;
-    }
-    return ate;
+    return !isspace(ch);
 }
 
-int PQLParser::eat_till_comma_space_semicolon(StringBuffer &sb)
+bool not_rparen(char ch)
+{
+    return ch != ')';
+}
+
+bool is_alpha(char ch)
+{
+    return isalpha(ch);
+}
+
+bool is_alpha_star(char ch)
+{
+    return (isalpha(ch) || ch == '*');
+}
+
+bool is_alpha_underscore(char ch)
+{
+    return (isalpha(ch) || ch == '_');
+}
+
+bool is_ident(char ch)
+{
+    return (isalnum(ch) || ch == '#');
+}
+
+template<bool (*fn)(char ch)>
+int PQLParser::eat_while(StringBuffer &sb)
 {
     int ate = 0;
-    while (this->bufIdx < this->bufLen &&
-            (this->buf[this->bufIdx] != ',' &&
-             !isspace(this->buf[this->bufIdx]) &&
-             this->buf[this->bufIdx] != ';')) {
+    while (this->bufIdx < this->bufLen && fn(this->buf[this->bufIdx])) {
         sb.append(this->buf[this->bufIdx++]);
         ate++;
     }
@@ -794,7 +786,7 @@ bool PQLParser::eat_string_till_ws(StringBuffer &sb, const char *str)
 {
     int saveIdx = this->bufIdx;
     sb.clear();
-    this->eat_till_ws(sb);
+    this->eat_while<not_space>(sb);
     if (!sb.strcmp(str)) {
         return true;
     } else {
@@ -802,22 +794,11 @@ bool PQLParser::eat_string_till_ws(StringBuffer &sb, const char *str)
     }
 }
 
-int PQLParser::eat_alpha(StringBuffer &sb)
-{
-    int ate = 0;
-    while (this->bufIdx < this->bufLen &&
-            isalpha(this->buf[this->bufIdx])) {
-        sb.append(this->buf[this->bufIdx++]);
-        ate++;
-    }
-    return ate;
-}
-
 bool PQLParser::eat_alpha_string(StringBuffer &sb, const char *str)
 {
     int saveIdx = this->bufIdx;
     sb.clear();
-    this->eat_alpha(sb);
+    this->eat_while<is_alpha>(sb);
     if (!sb.strcmp(str)) {
         return true;
     } else {
@@ -855,23 +836,11 @@ bool PQLParser::eat_alpha_strings(StringBuffer &sb, int nrStrs, ...)
     return true;
 }
 
-int PQLParser::eat_alpha_star(StringBuffer &sb)
-{
-    int ate = 0;
-    while (this->bufIdx < this->bufLen &&
-            (isalpha(this->buf[this->bufIdx]) ||
-             this->buf[this->bufIdx] == '*')) {
-        sb.append(this->buf[this->bufIdx++]);
-        ate++;
-    }
-    return ate;
-}
-
 bool PQLParser::eat_alpha_star_string(StringBuffer &sb, const char *s)
 {
     int saveIdx = this->bufIdx;
     sb.clear();
-    this->eat_alpha_star(sb);
+    this->eat_while<is_alpha_star>(sb);
     if (!sb.strcmp(s)) {
         return true;
     } else {
@@ -879,23 +848,11 @@ bool PQLParser::eat_alpha_star_string(StringBuffer &sb, const char *s)
     }
 }
 
-int PQLParser::eat_alpha_underscore(StringBuffer &sb)
-{
-    int ate = 0;
-    while (this->bufIdx < this->bufLen &&
-            (isalpha(this->buf[this->bufIdx]) ||
-             this->buf[this->bufIdx] == '_')) {
-        sb.append(this->buf[this->bufIdx++]);
-        ate++;
-    }
-    return ate;
-}
-
 bool PQLParser::eat_alpha_underscore_string(StringBuffer &sb, const char *s)
 {
     int saveIdx = this->bufIdx;
     sb.clear();
-    this->eat_alpha_underscore(sb);
+    this->eat_while<is_alpha_underscore>(sb);
     if (!sb.strcmp(s)) {
         return true;
     } else {
@@ -934,7 +891,7 @@ bool PQLParser::eat_ident_string(StringBuffer &sb, const char *str)
 {
     int saveIdx = this->bufIdx;
     sb.clear();
-    this->eat_ident(sb);
+    this->eat_while<is_ident>(sb);
     if (!sb.strcmp(str)) {
         return true;
     } else {
@@ -1101,7 +1058,7 @@ bool PQLParser::eat_decl_one() throw(ParseError)
     #define EAT_SYN() do {\
         if (!this->eat_synonym(sb)) {\
             sb.clear();\
-            if (this->eat_till_comma_space_semicolon(sb) <= 0) {\
+            if (this->eat_while<not_comma_space_semicolon>(sb) <= 0) {\
                 this->error(PARSE_DECL_EMPTY_SYN, entStr.c_str());\
             } else {\
                 this->error(PARSE_DECL_INVALID_SYN, sb.c_str());\
@@ -1207,7 +1164,7 @@ bool PQLParser::eat_select_tuple(StringBuffer &sb)
     if (attrRef.attr == ATTR_INVALID) {
         // "Select <" - Must be selecting tuple. OK to call error() here
         sb.clear();
-        this->eat_till_comma_space_gt(sb);
+        this->eat_while<not_comma_space_gt>(sb);
         this->error(PARSE_SELECT_INVALID_ATTR, sb.c_str());
     }
     this->qinfo->set_select_tuple();
@@ -1225,7 +1182,7 @@ bool PQLParser::eat_select_tuple(StringBuffer &sb)
         attrRef = this->eat_select_tuple_elem(sb);
         if (attrRef.attr == ATTR_INVALID) {
             sb.clear();
-            this->eat_till_comma_space_gt(sb);
+            this->eat_while<not_comma_space_gt>(sb);
             this->error(PARSE_SELECT_INVALID_ATTR, sb.c_str());
         }
         ret = this->qinfo->add_select_tuple(attrRef);
@@ -1345,7 +1302,7 @@ RelRefArgType PQLParser::eat_entRef(StringBuffer &sb)
         return RELARG_WILDCARD;
     } else if (this->eat_dquote()) {
         sb.clear();
-        if (this->eat_ident(sb) > 0 && this->eat_dquote()) {
+        if (this->eat_while<is_ident>(sb) > 0 && this->eat_dquote()) {
             return RELARG_STRING;
         }
     }
@@ -1386,7 +1343,7 @@ RelRefArgType PQLParser::eat_varRef(StringBuffer &sb)
         return RELARG_WILDCARD;
     } else if (this->eat_dquote()) {
         sb.clear();
-        if (this->eat_ident(sb) > 0 && this->eat_dquote()) {
+        if (this->eat_while<is_ident>(sb) > 0 && this->eat_dquote()) {
             return RELARG_STRING;
         }
     }
@@ -1403,7 +1360,7 @@ void PQLParser::eat_entRef_varRef(RelRef &relRef, StringBuffer &sb,
     argType = this->eat_entRef(sb);
     if (argType == RELARG_INVALID) {
         sb.clear();
-        this->eat_till_comma_space(sb);
+        this->eat_while<not_comma_space>(sb);
         this->error(PARSE_REL_ARGONE, relRefType_to_string(relRef.relType),
             sb.c_str());
     }
@@ -1421,7 +1378,7 @@ void PQLParser::eat_entRef_varRef(RelRef &relRef, StringBuffer &sb,
     argType = this->eat_varRef(sb);
     if (argType == RELARG_INVALID) {
         sb.clear();
-        this->eat_till_comma_space_rparen(sb);
+        this->eat_while<not_comma_space_rparen>(sb);
         this->error(PARSE_REL_ARGTWO, relRefType_to_string(relRef.relType),
             sb.c_str());
     }
@@ -1656,13 +1613,13 @@ bool PQLParser::eat_relCond(StringBuffer &sb) throw(ParseError)
         }
         if (this->eat_space() <= 0) {
             sb.clear();
-            this->eat_till_ws(sb);
+            this->eat_while<not_space>(sb);
             this->error(PARSE_RELCOND_AND_NOSEP);
         }
         relRef = this->eat_relRef(sb);
         if (!RelRef::valid(relRef)) {
             sb.clear();
-            this->eat_till_rparen(sb);
+            this->eat_while<not_rparen>(sb);
             this->error(PARSE_RELCOND_INVALID_RELREF, sb.c_str());
         }
     }
