@@ -4,6 +4,8 @@
 #include <string>
 #include <map>
 #include <utility>
+#include <memory>
+#include <fstream>
 #include "PQLParser.h"
 #include "StringBuffer.h"
 
@@ -13,6 +15,10 @@ using std::vector;
 using std::set;
 using std::pair;
 using std::make_pair;
+using std::auto_ptr;
+using std::ostream;
+using std::ofstream;
+using std::ios_base;
 
 #define TYPE_ERROR_ARRAY_SZ 2
 
@@ -298,6 +304,56 @@ bool RelRefCmp::operator()(const RelRef &a, const RelRef &b) const
     #undef RELREF_ARGTWO_CMP
 }
 
+
+//////////////////////////////////////////////////////////////////////
+// PQLParseErrorStream
+//////////////////////////////////////////////////////////////////////
+
+PQLParseErrorStream::PQLParseErrorStream():
+            useStderr(true), os(NULL)
+{
+}
+
+PQLParseErrorStream::PQLParseErrorStream(ostream *os_):
+        useStderr(false), os(os_) {}
+
+PQLParseErrorStream::PQLParseErrorStream(PQLParseErrorStream &other)
+{
+    if (this != &other) {
+        this->useStderr = other.useStderr;
+        this->os = other.os;
+    }
+}
+
+void PQLParseErrorStream::swap(PQLParseErrorStream &other) throw()
+{
+    bool tmpUseStderr = this->useStderr;
+    this->useStderr = other.useStderr;
+    other.useStderr = tmpUseStderr;
+    auto_ptr<ostream> tmpOs = this->os;
+    this->os = other.os;
+    other.os = tmpOs;
+}
+
+PQLParseErrorStream& PQLParseErrorStream::operator=
+        (PQLParseErrorStream &other)
+{
+    PQLParseErrorStream tmpStream(other);
+    this->swap(tmpStream);
+    return *this;
+}
+
+PQLParseErrorStream::~PQLParseErrorStream() {}
+
+void PQLParseErrorStream::print(const char *s)
+{
+    if (this->useStderr) {
+        fprintf(stderr, "%s", s);
+    } else {
+        (*(this->os)) << s;
+    }
+}
+
 //////////////////////////////////////////////////////////////////////
 // PQL Parser
 //////////////////////////////////////////////////////////////////////
@@ -308,7 +364,8 @@ bool RelRefCmp::operator()(const RelRef &a, const RelRef &b) const
 } while(0)
 
 PQLParser::PQLParser():
-        parseErr(PARSE_OK), showWarnings(true), showErrors(true)
+        parseErr(PARSE_OK), showWarnings(true), showErrors(true),
+        parseErrorStream()
 {
     strToEnt[ENT_PROC_STR] = ENT_PROC;
     strToEnt[ENT_STMTLST_STR] = ENT_STMTLST;
@@ -546,7 +603,7 @@ void PQLParser::valist_print(const char *pfx, const char *fmt,
     fprintf(stderr, "\n");
 }
 
-void PQLParser::print_error(va_list ap) const throw()
+void PQLParser::print_error(va_list ap)
 {
     StringBuffer sb;
     switch (this->parseErr) {
@@ -638,7 +695,7 @@ void PQLParser::print_error(va_list ap) const throw()
     default:
         break;
     }
-    fprintf(stderr, "%s\n", sb.c_str());
+    this->parseErrorStream.print(sb.c_str());
 }
 
 int PQLParser::eat_space()
@@ -1601,6 +1658,18 @@ void PQLParser::eat_select_stwithpat(StringBuffer &sb)
 }
 
 void PQLParser::parse(const string &s, bool showErrors_, bool showWarnings_)
+{
+    this->_parse(s, showErrors_, showWarnings_);
+}
+
+void PQLParser::parse(ostream *os, const string &s, bool showErrors_,
+        bool showWarnings_)
+{
+    this->parseErrorStream = PQLParseErrorStream(os);
+    this->_parse(s, showErrors_, showWarnings_);
+}
+
+void PQLParser::_parse(const string &s, bool showErrors_, bool showWarnings_)
 {
     StringBuffer sb;
     int saveIdx;

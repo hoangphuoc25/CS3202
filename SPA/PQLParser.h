@@ -7,6 +7,8 @@
 #include <vector>
 #include <utility>
 #include <set>
+#include <memory>
+#include <fstream>
 #include "StringBuffer.h"
 
 #define ENT_PROC_STR     "procedure"
@@ -154,6 +156,22 @@ struct RelRefCmp {
     bool operator()(const RelRef &a, const RelRef &b) const;
 };
 
+// For printing out parse error
+class PQLParseErrorStream {
+public:
+    PQLParseErrorStream();
+    PQLParseErrorStream(std::ostream *os_);
+    PQLParseErrorStream(PQLParseErrorStream &o);
+    void swap(PQLParseErrorStream &o) throw();
+    PQLParseErrorStream& operator=(PQLParseErrorStream &o);
+    ~PQLParseErrorStream();
+    void print(const char *s);
+
+private:
+    bool useStderr;
+    std::auto_ptr<std::ostream> os;
+};
+
 // forward declaration
 class QueryInfo;
 
@@ -163,6 +181,8 @@ public:
     ~PQLParser();
     void parse(const std::string &s, bool showErrors_=true,
             bool showWarnings_=true);
+    void parse(std::ostream *os, const std::string &s,
+            bool showErrors_=true, bool showWarnings_=true);
 
     QueryInfo *get_queryinfo() const;
 
@@ -174,6 +194,8 @@ private:
     PQLParser(const PQLParser &o);
     PQLParser& operator=(const PQLParser &o);
 
+    void _parse(const std::string &s, bool showErrors_=true,
+            bool showWarnings_=true);
     void eat_decls();
     bool eat_decl_one() throw(ParseError);
     int eat_space();
@@ -268,7 +290,7 @@ private:
     void warning(const char *s, ...) const;
     void valist_print(const char *pfx, const char *fmt, va_list ap)
             const throw();
-    void print_error(va_list ap) const throw();
+    void print_error(va_list ap);
 
     int bufIdx;
     int bufLen;
@@ -279,6 +301,7 @@ private:
     QueryInfo *qinfo;
     bool showWarnings;
     bool showErrors;
+    PQLParseErrorStream parseErrorStream;
 
     std::map<std::string, DesignEnt> strToEnt;
     std::map<std::string, AttrType> strToAttrType;
