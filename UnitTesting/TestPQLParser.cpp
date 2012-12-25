@@ -1,10 +1,12 @@
 #include <string>
 #include <map>
+#include <sstream>
 #include "TestPQLParser.h"
 #include "../SPA/PQLParser.h"
 
 using std::string;
 using std::map;
+using std::ostringstream;
 
 void TestPQLParser::setUp() {}
 void TestPQLParser::tearDown() {}
@@ -1122,4 +1124,25 @@ void TestPQLParser::test_modifies()
     out += "Modifies(_,\"ch\")\nModifies(_,_)\nModifies(_,\"bleh\")\n";
     out += "Modifies(_,\"blargh\")\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+}
+
+void TestPQLParser::test_err_parse_decl_empty_syn()
+{
+    string queryStr = "assign ";
+    string out;
+    PQLParser parser;
+    ostringstream *os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_DECL_EMPTY_SYN, parser.get_parse_result());
+    CPPUNIT_ASSERT_EQUAL(
+        string("Missing synonym of type \"assign\""), out);
+
+    queryStr = "procedure p1, p2; stmt s1; call ; Select s1  ";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_DECL_EMPTY_SYN, parser.get_parse_result());
+    CPPUNIT_ASSERT_EQUAL(
+        string("Missing synonym of type \"call\""), out);
 }

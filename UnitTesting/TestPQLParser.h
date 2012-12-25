@@ -14,6 +14,7 @@ CPPUNIT_TEST(test_select_bool);
 CPPUNIT_TEST(test_select_tuple);
 CPPUNIT_TEST(test_select_attrRef);
 CPPUNIT_TEST(test_modifies);
+CPPUNIT_TEST(test_err_parse_decl_empty_syn);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -28,6 +29,7 @@ private:
     void test_select_tuple();
     void test_select_attrRef();
     void test_modifies();
+    void test_err_parse_decl_empty_syn();
 };
 
 #endif
