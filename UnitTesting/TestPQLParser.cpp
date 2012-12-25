@@ -1171,3 +1171,17 @@ void TestPQLParser::test_err_parse_decl_repeated_syn()
         entity_type_to_string(ENT_ASSIGN));
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
+
+void TestPQLParser::test_err_parse_decl_invalid_syn()
+{
+    string queryStr = "assign a; stmt 1dkm14; Select a";
+    string out;
+    PQLParser parser;
+    ostringstream *os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_DECL_INVALID_SYN, parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_DECL_INVALID_SYN_STR,
+        "1dkm14");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
