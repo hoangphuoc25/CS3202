@@ -1200,3 +1200,17 @@ void TestPQLParser::test_err_parse_decl_ent_syn_invalid_sep()
         "*blt;");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
+
+void TestPQLParser::test_err_parse_decl_no_terminator()
+{
+    string queryStr = "stmt b1; prog_line pl1, pl2, pl3; call p Select b1";
+    string out;
+    PQLParser parser;
+    ostringstream *os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_DECL_NO_TERMINATOR, parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_DECL_NO_TERMINATOR_STR,
+        ENT_CALL_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}

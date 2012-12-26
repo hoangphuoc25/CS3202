@@ -1083,7 +1083,7 @@ bool PQLParser::eat_decl_one() throw(ParseError)
     }
     this->eat_space();
     if (!this->eat_semicolon()) {
-        this->error(PARSE_DECL_NO_TERMINATOR);
+        this->error(PARSE_DECL_NO_TERMINATOR, entStr.c_str());
     }
     return true;
 

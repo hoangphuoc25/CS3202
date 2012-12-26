@@ -69,8 +69,9 @@
 // arg: PQLParser::eat_while<is_space>(sb) --> sb.c_str()
 #define PARSE_DECL_ENT_SYN_INVALID_SEP_STR \
     "Expected whitespace between design entity and synonym, got \"%s\""
+// arg: entity type
 #define PARSE_DECL_NO_TERMINATOR_STR \
-    "Missing terminator ';'"
+    "Missing terminator ';' for entity type \"%s\""
 // arg: StringBuffer contents
 #define PARSE_NO_SELECT_AFTER_DECL_STR \
     "Expected \"Select\", got \"%s\""
