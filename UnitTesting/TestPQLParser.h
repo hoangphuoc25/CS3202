@@ -29,6 +29,7 @@ CPPUNIT_TEST(test_err_select_tuple_no_close);
 CPPUNIT_TEST(test_err_select_nothing);
 CPPUNIT_TEST(test_err_rel_argone);
 CPPUNIT_TEST(test_err_rel_no_comma);
+CPPUNIT_TEST(test_err_rel_argtwo);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -61,6 +62,7 @@ private:
     void test_err_select_nothing();
     void test_err_rel_argone();
     void test_err_rel_no_comma();
+    void test_err_rel_argtwo();
 };
 
 #endif
