@@ -94,6 +94,9 @@
 // arg: StringBuffer contents
 #define PARSE_SELECT_NOTHING_STR \
     "Select clause: Expected tuple or BOOLEAN, got \"%s\""
+// args: attrRef.toPeriodString().c_str(), attrName, design entity
+#define PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR \
+    "AttrRef \"%s\": attrName \"%s\" is not defined for synonyms of type %s"
 // args: relRef string rep, relRef arg one
 #define PARSE_REL_ARGONE_STR \
     "%s: invalid arg one \"%s\""
@@ -176,6 +179,7 @@ enum ParseError {
     PARSE_SELECT_UNDEF_ATTRNAME, PARSE_SELECT_UNDECLARED_ATTRREF,
     PARSE_SELECT_INVALID_ATTRREF,
     PARSE_SELECT_TUPLE_NO_CLOSE, PARSE_SELECT_NOTHING,
+    PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
     PARSE_REL_ARGONE, PARSE_REL_ARGTWO, PARSE_REL_ARG_INT_INVALID,
     PARSE_REL_ARG_INVALID,
     PARSE_REL_ARGONE_UNDECLARED, PARSE_REL_ARGONE_TYPE_ERROR,

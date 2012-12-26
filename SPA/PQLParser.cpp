@@ -655,6 +655,9 @@ void PQLParser::print_error(va_list ap)
     case PARSE_SELECT_NOTHING:
         sb.vsprintf(PARSE_SELECT_NOTHING_STR, ap);
         break;
+    case PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR:
+        sb.vsprintf(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR, ap);
+        break;
     case PARSE_REL_ARGONE:
         sb.vsprintf(PARSE_REL_ARGONE_STR, ap);
         break;
@@ -1007,7 +1010,7 @@ AttrRef PQLParser::eat_attrRef(StringBuffer &sb)
 {
     sb.clear();
     int saveIdx = this->bufIdx;
-    string syn;
+    string syn, attr;
     bool ok;
     if (this->eat_synonym(sb)) {
         syn = sb.toString();
@@ -1021,7 +1024,8 @@ AttrRef PQLParser::eat_attrRef(StringBuffer &sb)
             this->eat_while<is_ident>(sb);
             this->error(PARSE_SELECT_UNDEF_ATTRNAME, sb.c_str(), syn.c_str());
         }
-        AttrType attrType = this->string_to_attrType(sb.toString());
+        attr = sb.toString();
+        AttrType attrType = this->string_to_attrType(attr);
         AttrRef attrRef = AttrRef(syn, ENT_INVALID, attrType);
         // "type check"
         DesignEnt entType = this->retrieve_syn_type(syn);
@@ -1050,7 +1054,9 @@ AttrRef PQLParser::eat_attrRef(StringBuffer &sb)
         if (ok) {
             return AttrRef(syn, entType, attrType);
         } else {
-            RESTORE_AND_RET(AttrRef(), saveIdx);
+            this->error(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+                attrRef.toPeriodString().c_str(), attr.c_str(),
+                entity_type_to_string(entType));
         }
     } else {
         RESTORE_AND_RET(AttrRef(), saveIdx);

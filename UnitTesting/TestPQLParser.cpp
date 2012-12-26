@@ -1283,3 +1283,20 @@ void TestPQLParser::test_err_select_undeclared_attrRef()
         AttrRef("s", ENT_INVALID, ATTR_STMTNO).toPeriodString().c_str());
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
+
+void TestPQLParser::test_err_select_attrRef_syn_attrName_type_error()
+{
+    string queryStr = "assign a; Select a.varName";
+    string out;
+    PQLParser parser;
+    ostringstream *os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+        parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN,
+        PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+        AttrRef("a", ENT_ASSIGN, ATTR_VARNAME).toPeriodString().c_str(),
+        "varName", ENT_ASSIGN_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
