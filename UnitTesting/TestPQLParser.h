@@ -17,6 +17,7 @@ CPPUNIT_TEST(test_modifies);
 CPPUNIT_TEST(test_err_parse_decl_empty_syn);
 CPPUNIT_TEST(test_err_parse_decl_repeated_syn);
 CPPUNIT_TEST(test_err_parse_decl_invalid_syn);
+CPPUNIT_TEST(test_err_parse_decl_ent_syn_invalid_sep);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -37,6 +38,7 @@ private:
     void test_err_parse_decl_empty_syn();
     void test_err_parse_decl_repeated_syn();
     void test_err_parse_decl_invalid_syn();
+    void test_err_parse_decl_ent_syn_invalid_sep();
 };
 
 #endif

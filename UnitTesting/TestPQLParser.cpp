@@ -1185,3 +1185,18 @@ void TestPQLParser::test_err_parse_decl_invalid_syn()
         "1dkm14");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
+
+void TestPQLParser::test_err_parse_decl_ent_syn_invalid_sep()
+{
+    string queryStr = "assign a; stmt*blt; Select a";
+    string out;
+    PQLParser parser;
+    ostringstream *os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_DECL_ENT_SYN_INVALID_SEP,
+        parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_DECL_ENT_SYN_INVALID_SEP_STR,
+        "*blt;");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}

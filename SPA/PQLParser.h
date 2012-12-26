@@ -66,8 +66,9 @@
 // arg: PQLParser::eat_while<not_space>(sb) --> sb.c_str()
 #define PARSE_DECL_INVALID_SYN_STR \
     "Expected synonym, got \"%s\""
-#define PARSE_DECL_ENT_SYN_NOSEP_STR \
-    "Expected whitespace between design entity and synonym"
+// arg: PQLParser::eat_while<is_space>(sb) --> sb.c_str()
+#define PARSE_DECL_ENT_SYN_INVALID_SEP_STR \
+    "Expected whitespace between design entity and synonym, got \"%s\""
 #define PARSE_DECL_NO_TERMINATOR_STR \
     "Missing terminator ';'"
 // arg: StringBuffer contents
@@ -163,7 +164,7 @@ enum RelRefArgType {
 enum ParseError {
     PARSE_OK,
     PARSE_DECL_EMPTY_SYN, PARSE_DECL_REPEATED_SYN, PARSE_DECL_INVALID_SYN,
-    PARSE_DECL_ENT_SYN_NOSEP, PARSE_DECL_NO_TERMINATOR,
+    PARSE_DECL_ENT_SYN_INVALID_SEP, PARSE_DECL_NO_TERMINATOR,
     PARSE_NO_SELECT_AFTER_DECL, PARSE_NO_SEP_AFTER_SELECT,
     PARSE_SELECT_UNKNOWN, PARSE_SELECT_REPEATED, PARSE_SELECT_INVALID_ATTR,
     PARSE_SELECT_TUPLE_NO_CLOSE, PARSE_SELECT_NOTHING,

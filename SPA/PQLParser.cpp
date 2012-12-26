@@ -616,8 +616,8 @@ void PQLParser::print_error(va_list ap)
     case PARSE_DECL_INVALID_SYN:
         sb.vsprintf(PARSE_DECL_INVALID_SYN_STR, ap);
         break;
-    case PARSE_DECL_ENT_SYN_NOSEP:
-        sb.vsprintf(PARSE_DECL_ENT_SYN_NOSEP_STR, ap);
+    case PARSE_DECL_ENT_SYN_INVALID_SEP:
+        sb.vsprintf(PARSE_DECL_ENT_SYN_INVALID_SEP_STR, ap);
         break;
     case PARSE_DECL_NO_TERMINATOR:
         sb.vsprintf(PARSE_DECL_NO_TERMINATOR_STR, ap);
@@ -1068,7 +1068,9 @@ bool PQLParser::eat_decl_one() throw(ParseError)
     string entStr = sb.toString();
     DesignEnt entType = string_to_entity(entStr);
     if (this->eat_space() <= 0) {
-        this->error(PARSE_DECL_ENT_SYN_NOSEP);
+        sb.clear();
+        this->eat_while<not_space>(sb);
+        this->error(PARSE_DECL_ENT_SYN_INVALID_SEP, sb.c_str());
     }
     EAT_SYN();
     while (1) {
