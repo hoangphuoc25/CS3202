@@ -2,8 +2,10 @@
 
 #include <cstring>
 #include <cstdarg>
+#include <algorithm>
 
 using std::string;
+using std::max;
 
 StringBuffer::StringBuffer()
 {
@@ -124,6 +126,7 @@ void StringBuffer::grow_buffer(int add)
     }
     if (nrChars + add > capacity) {
         int newCap = capacity / 2 * 3;
+        newCap = max(newCap, capacity + add + 5);
         char *newbuf = new char[newCap+1];
         memset(newbuf, 0, sizeof(newbuf));
         buf[nrChars] = 0;
@@ -174,7 +177,7 @@ int StringBuffer::vsprintf(const char *fmt, va_list ap)
             case 's':
                 s = va_arg(ap, const char *);
                 slen = strlen(s);
-                grow_buffer(slen);
+                grow_buffer(slen+1);
                 buf[nrChars] = 0;
                 strncat(&buf[nrChars], s, slen);
                 nrChars += slen;
