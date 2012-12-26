@@ -85,7 +85,7 @@
     "Select: invalid attrRef \"%s\""
 #define PARSE_SELECT_TUPLE_NO_CLOSE_STR \
     "Missing '>' for Select tuple"
-// arg: StringBuffer contents
+// arg: eat_while<not_comma_space>(sb) ---> sb.c_str()
 #define PARSE_SELECT_NOTHING_STR \
     "Select clause: Expected tuple or BOOLEAN, got \"%s\""
 // args: attrName, synonym

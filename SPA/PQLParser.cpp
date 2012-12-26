@@ -1705,6 +1705,8 @@ void PQLParser::_parse(const string &s, bool showErrors_, bool showWarnings_)
         } else if (this->eat_select_tuple(sb)) {
             // nothing
         } else {
+            sb.clear();
+            this->eat_while<not_comma_space>(sb);
             this->error(PARSE_SELECT_NOTHING, sb.c_str());
         }
 
