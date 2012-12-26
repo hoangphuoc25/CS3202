@@ -20,7 +20,7 @@ CPPUNIT_TEST(test_err_parse_decl_invalid_syn);
 CPPUNIT_TEST(test_err_parse_decl_ent_syn_invalid_sep);
 CPPUNIT_TEST(test_err_parse_decl_no_terminator);
 CPPUNIT_TEST(test_err_parse_no_select_after_decl);
-CPPUNIT_TEST(test_err_select_unknown);
+CPPUNIT_TEST(test_err_select_undeclared);
 CPPUNIT_TEST(test_err_select_undef_attrname);
 CPPUNIT_TEST(test_err_select_undeclared_attrRef);
 CPPUNIT_TEST(test_err_select_attrRef_syn_attrName_type_error);
@@ -48,7 +48,7 @@ private:
     void test_err_parse_decl_ent_syn_invalid_sep();
     void test_err_parse_decl_no_terminator();
     void test_err_parse_no_select_after_decl();
-    void test_err_select_unknown();
+    void test_err_select_undeclared();
     void test_err_select_undef_attrname();
     void test_err_select_undeclared_attrRef();
     void test_err_select_attrRef_syn_attrName_type_error();

@@ -1230,7 +1230,7 @@ void TestPQLParser::test_err_parse_no_select_after_decl()
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
 
-void TestPQLParser::test_err_select_unknown()
+void TestPQLParser::test_err_select_undeclared()
 {
     string queryStr = "stmt s; Select a";
     string out;
