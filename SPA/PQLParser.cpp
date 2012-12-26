@@ -875,18 +875,6 @@ bool PQLParser::eat_design_entity(StringBuffer &sb)
             false);
 }
 
-int PQLParser::eat_ident(StringBuffer &sb)
-{
-    int ate = 0;
-    while (this->bufIdx < this->bufLen &&
-            (isalnum(this->buf[this->bufIdx]) ||
-             this->buf[this->bufIdx] == '#')) {
-        sb.append(this->buf[this->bufIdx++]);
-        ate++;
-    }
-    return ate;
-}
-
 bool PQLParser::eat_ident_string(StringBuffer &sb, const char *str)
 {
     int saveIdx = this->bufIdx;
