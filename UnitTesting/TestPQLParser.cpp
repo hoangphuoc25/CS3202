@@ -1343,3 +1343,17 @@ void TestPQLParser::test_err_select_nothing()
             "13t");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
+
+void TestPQLParser::test_err_rel_argone()
+{
+    string queryStr = "stmt s; Select s such that Modifies(^5123,s)";
+    string out;
+    PQLParser parser;
+    ostringstream *os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE, parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGONE_STR,
+            relRefType_to_string(REL_MODIFIES), "^5123");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
