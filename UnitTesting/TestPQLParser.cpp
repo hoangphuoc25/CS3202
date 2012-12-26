@@ -1357,3 +1357,17 @@ void TestPQLParser::test_err_rel_argone()
             relRefType_to_string(REL_MODIFIES), "^5123");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
+
+void TestPQLParser::test_err_rel_no_comma()
+{
+    string queryStr = "assign a;variable v;Select a such that Modifies(a v)";
+    string out;
+    PQLParser parser;
+    ostringstream *os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REL_NO_COMMA, parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_NO_COMMA_STR,
+            relRefType_to_string(REL_MODIFIES));
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
