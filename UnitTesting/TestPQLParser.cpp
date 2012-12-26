@@ -1315,3 +1315,17 @@ void TestPQLParser::test_err_select_invalid_attrRef()
             "123za");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
+
+void TestPQLParser::test_err_select_tuple_no_close()
+{
+    string queryStr = "stmt s; assign a; Select <s,a  ";
+    string out;
+    PQLParser parser;
+    ostringstream *os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_SELECT_TUPLE_NO_CLOSE,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_SELECT_TUPLE_NO_CLOSE_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
