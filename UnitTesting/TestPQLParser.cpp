@@ -1242,3 +1242,28 @@ void TestPQLParser::test_err_select_unknown()
     _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_SELECT_UNDECLARED_STR, "a");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
+
+void TestPQLParser::test_err_select_undef_attrname()
+{
+    string queryStr = "stmt s; Select s.myName";
+    string out;
+    PQLParser parser;
+    ostringstream *os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_SELECT_UNDEF_ATTRNAME,
+        parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_SELECT_UNDEF_ATTRNAME_STR,
+        "myName", "s");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = "assign a; variable v; stmt g; Select <a, v.nonEx>";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_SELECT_UNDEF_ATTRNAME,
+        parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_SELECT_UNDEF_ATTRNAME_STR,
+        "nonEx", "v");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}

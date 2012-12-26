@@ -631,8 +631,11 @@ void PQLParser::print_error(va_list ap)
     case PARSE_SELECT_REPEATED:
         sb.vsprintf(PARSE_SELECT_REPEATED_STR, ap);
         break;
-    case PARSE_SELECT_INVALID_ATTR:
-        sb.vsprintf(PARSE_SELECT_INVALID_ATTR_STR, ap);
+    case PARSE_SELECT_UNDEF_ATTRNAME:
+        sb.vsprintf(PARSE_SELECT_UNDEF_ATTRNAME_STR, ap);
+        break;
+    case PARSE_SELECT_INVALID_ATTRREF:
+        sb.vsprintf(PARSE_SELECT_INVALID_ATTRREF_STR, ap);
         break;
     case PARSE_SELECT_TUPLE_NO_CLOSE:
         sb.vsprintf(PARSE_SELECT_TUPLE_NO_CLOSE_STR, ap);
@@ -1000,14 +1003,17 @@ AttrRef PQLParser::eat_attrRef(StringBuffer &sb)
             RESTORE_AND_RET(AttrRef(), saveIdx);
         }
         sb.clear();
+        // synonym and period ate, ok to error out
         if (!this->eat_attrName(sb)) {
-            RESTORE_AND_RET(AttrRef(), saveIdx);
+            sb.clear();
+            this->eat_while<is_ident>(sb);
+            this->error(PARSE_SELECT_UNDEF_ATTRNAME, sb.c_str(), syn.c_str());
         }
         attr = sb.toString();
         // "type check"
         DesignEnt entType = this->retrieve_syn_type(syn);
         if (entType == ENT_INVALID) {
-            RESTORE_AND_RET(AttrRef(), saveIdx);;
+            RESTORE_AND_RET(AttrRef(), saveIdx);
         }
         AttrType attrType = this->string_to_attrType(attr);
         if (attrType == ATTR_INVALID) {
@@ -1157,7 +1163,7 @@ bool PQLParser::eat_select_tuple(StringBuffer &sb) throw(ParseError)
         // "Select <" - Must be selecting tuple. OK to call error() here
         sb.clear();
         this->eat_while<not_comma_space_gt>(sb);
-        this->error(PARSE_SELECT_INVALID_ATTR, sb.c_str());
+        this->error(PARSE_SELECT_INVALID_ATTRREF, sb.c_str());
     }
     this->qinfo->set_select_tuple();
     ret = this->qinfo->add_select_tuple(attrRef);
@@ -1175,7 +1181,7 @@ bool PQLParser::eat_select_tuple(StringBuffer &sb) throw(ParseError)
         if (attrRef.attr == ATTR_INVALID) {
             sb.clear();
             this->eat_while<not_comma_space_gt>(sb);
-            this->error(PARSE_SELECT_INVALID_ATTR, sb.c_str());
+            this->error(PARSE_SELECT_INVALID_ATTRREF, sb.c_str());
         }
         ret = this->qinfo->add_select_tuple(attrRef);
         if (ret != PARSE_OK) {
