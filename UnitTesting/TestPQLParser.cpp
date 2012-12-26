@@ -1300,3 +1300,18 @@ void TestPQLParser::test_err_select_attrRef_syn_attrName_type_error()
         "varName", ENT_ASSIGN_STR);
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
+
+void TestPQLParser::test_err_select_invalid_attrRef()
+{
+    string queryStr = "stmt s; Select <s, 123za>";
+    string out;
+    PQLParser parser;
+    ostringstream *os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_SELECT_INVALID_ATTRREF,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_SELECT_INVALID_ATTRREF_STR,
+            "123za");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}

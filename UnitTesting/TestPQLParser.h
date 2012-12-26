@@ -24,6 +24,7 @@ CPPUNIT_TEST(test_err_select_unknown);
 CPPUNIT_TEST(test_err_select_undef_attrname);
 CPPUNIT_TEST(test_err_select_undeclared_attrRef);
 CPPUNIT_TEST(test_err_select_attrRef_syn_attrName_type_error);
+CPPUNIT_TEST(test_err_select_invalid_attrRef);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -51,6 +52,7 @@ private:
     void test_err_select_undef_attrname();
     void test_err_select_undeclared_attrRef();
     void test_err_select_attrRef_syn_attrName_type_error();
+    void test_err_select_invalid_attrRef();
 };
 
 #endif
