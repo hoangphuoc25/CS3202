@@ -1229,3 +1229,16 @@ void TestPQLParser::test_err_parse_no_select_after_decl()
         "bleh");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
+
+void TestPQLParser::test_err_select_unknown()
+{
+    string queryStr = "stmt s; Select a";
+    string out;
+    PQLParser parser;
+    ostringstream *os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_SELECT_UNDECLARED, parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_SELECT_UNDECLARED_STR, "a");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}

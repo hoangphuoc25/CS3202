@@ -625,8 +625,8 @@ void PQLParser::print_error(va_list ap)
     case PARSE_NO_SELECT_AFTER_DECL:
         sb.vsprintf(PARSE_NO_SELECT_AFTER_DECL_STR, ap);
         break;
-    case PARSE_SELECT_UNKNOWN:
-        sb.vsprintf(PARSE_SELECT_UNKNOWN_STR, ap);
+    case PARSE_SELECT_UNDECLARED:
+        sb.vsprintf(PARSE_SELECT_UNDECLARED_STR, ap);
         break;
     case PARSE_SELECT_REPEATED:
         sb.vsprintf(PARSE_SELECT_REPEATED_STR, ap);
@@ -1107,7 +1107,7 @@ bool PQLParser::eat_select_boolean(StringBuffer &sb)
     RESTORE_AND_RET(false, saveIdx);
 }
 
-AttrRef PQLParser::eat_select_tuple_elem(StringBuffer &sb)
+AttrRef PQLParser::eat_select_tuple_elem(StringBuffer &sb) throw(ParseError)
 {
     this->eat_space();
     int saveIdx = this->bufIdx;
@@ -1123,12 +1123,14 @@ AttrRef PQLParser::eat_select_tuple_elem(StringBuffer &sb)
         DesignEnt entType = this->retrieve_syn_type(syn);
         if (entType != ENT_INVALID) {
             return AttrRef(syn, entType, ATTR_DEFAULT);
+        } else {
+            this->error(PARSE_SELECT_UNDECLARED, syn.c_str());
         }
     }
     RESTORE_AND_RET(AttrRef(), saveIdx);
 }
 
-bool PQLParser::eat_select_tuple(StringBuffer &sb)
+bool PQLParser::eat_select_tuple(StringBuffer &sb) throw(ParseError)
 {
     this->eat_space();
     int saveIdx = this->bufIdx;
@@ -1192,7 +1194,7 @@ void PQLParser::error_add_select_tuple(ParseError parseErr_,
 {
     StringBuffer sb;
     switch (parseErr_) {
-    case PARSE_SELECT_UNKNOWN:
+    case PARSE_SELECT_UNDECLARED:
         this->error(parseErr_, attrRef.syn.c_str());
         break;
     case PARSE_SELECT_REPEATED:
@@ -1675,16 +1677,12 @@ void PQLParser::_parse(const string &s, bool showErrors_, bool showWarnings_)
             return;
         }
         saveIdx = this->bufIdx;
-        if (this->eat_select_tuple(sb)) {
+        if (this->eat_select_boolean(sb)) {
+            this->qinfo->set_select_boolean();
+        } else if (this->eat_select_tuple(sb)) {
             // nothing
         } else {
-            this->bufIdx = saveIdx;
-            if (this->eat_select_boolean(sb)) {
-                this->qinfo->set_select_boolean();
-            } else {
-                this->error(PARSE_SELECT_NOTHING, sb.c_str());
-                return;
-            }
+            this->error(PARSE_SELECT_NOTHING, sb.c_str());
         }
 
         this->eat_select_stwithpat(sb);
@@ -1744,7 +1742,7 @@ ParseError QueryInfo::add_select_tuple(AttrRef attrRef)
 {
     const std::string& syn = attrRef.syn;
     if (this->entTable.find(syn) == this->entTable.end()) {
-        return PARSE_SELECT_UNKNOWN;
+        return PARSE_SELECT_UNDECLARED;
     }
     if (this->selectTable.find(attrRef) != this->selectTable.end()) {
         return PARSE_SELECT_REPEATED;

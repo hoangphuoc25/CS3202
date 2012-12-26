@@ -76,8 +76,8 @@
 #define PARSE_NO_SELECT_AFTER_DECL_STR \
     "Expected \"Select\", got \"%s\""
 // arg: undeclared synonym
-#define PARSE_SELECT_UNKNOWN_STR \
-    "Unknown entity \"%s\""
+#define PARSE_SELECT_UNDECLARED_STR \
+    "Selecting undeclared entity \"%s\""
 // arg: repeated synonym
 #define PARSE_SELECT_REPEATED_STR \
     "Select element \"%s\" already exists"
@@ -167,7 +167,7 @@ enum ParseError {
     PARSE_DECL_EMPTY_SYN, PARSE_DECL_REPEATED_SYN, PARSE_DECL_INVALID_SYN,
     PARSE_DECL_ENT_SYN_INVALID_SEP, PARSE_DECL_NO_TERMINATOR,
     PARSE_NO_SELECT_AFTER_DECL, PARSE_NO_SEP_AFTER_SELECT,
-    PARSE_SELECT_UNKNOWN, PARSE_SELECT_REPEATED, PARSE_SELECT_INVALID_ATTR,
+    PARSE_SELECT_UNDECLARED, PARSE_SELECT_REPEATED, PARSE_SELECT_INVALID_ATTR,
     PARSE_SELECT_TUPLE_NO_CLOSE, PARSE_SELECT_NOTHING,
     PARSE_REL_ARGONE, PARSE_REL_ARGTWO, PARSE_REL_ARG_INT_INVALID,
     PARSE_REL_ARG_INVALID,
@@ -298,8 +298,8 @@ private:
     bool eat_string_till_ws(StringBuffer &sb, const char *s);
     int eat_int(StringBuffer &sb);
     bool eat_select(StringBuffer &sb);
-    bool eat_select_tuple(StringBuffer &sb);
-    AttrRef eat_select_tuple_elem(StringBuffer &sb);
+    bool eat_select_tuple(StringBuffer &sb) throw(ParseError);
+    AttrRef eat_select_tuple_elem(StringBuffer &sb) throw(ParseError);
     void error_add_select_tuple(ParseError parseErr_, const AttrRef &attrRef)
         throw(ParseError);
     bool eat_select_boolean(StringBuffer &sb);

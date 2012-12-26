@@ -20,6 +20,7 @@ CPPUNIT_TEST(test_err_parse_decl_invalid_syn);
 CPPUNIT_TEST(test_err_parse_decl_ent_syn_invalid_sep);
 CPPUNIT_TEST(test_err_parse_decl_no_terminator);
 CPPUNIT_TEST(test_err_parse_no_select_after_decl);
+CPPUNIT_TEST(test_err_select_unknown);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -43,6 +44,7 @@ private:
     void test_err_parse_decl_ent_syn_invalid_sep();
     void test_err_parse_decl_no_terminator();
     void test_err_parse_no_select_after_decl();
+    void test_err_select_unknown();
 };
 
 #endif
