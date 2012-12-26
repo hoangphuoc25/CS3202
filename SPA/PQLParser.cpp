@@ -565,6 +565,7 @@ bool string_to_uint(const string& s, int *res, char **errorMsg)
         if (errorMsg) {
             *errorMsg = strdup(S_TO_UINT_TOO_LONG);
         }
+        return false;
     }
     long long tmp = 0;
     while (idx < len && isdigit(s[idx])) {
