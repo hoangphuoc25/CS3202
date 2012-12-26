@@ -1276,10 +1276,10 @@ void TestPQLParser::test_err_select_undeclared_attrRef()
     ostringstream *os = new ostringstream;
     parser.parse(os, queryStr, true, false);
     out = os->str();
-    CPPUNIT_ASSERT_EQUAL(PARSE_SELECT_UNDECLARED_ATTRREF,
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_UNDECLARED,
         parser.get_parse_result());
     _snprintf_s(this->buf, BUFLEN, BUFLEN,
-        PARSE_SELECT_UNDECLARED_ATTRREF_STR, "s",
+        PARSE_ATTRREF_UNDECLARED_STR, "s",
         AttrRef("s", ENT_INVALID, ATTR_STMTNO).toPeriodString().c_str());
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }

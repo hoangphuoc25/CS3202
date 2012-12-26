@@ -81,9 +81,6 @@
 // arg: repeated synonym
 #define PARSE_SELECT_REPEATED_STR \
     "Select element \"%s\" already exists"
-// args: synonym, attrRef.c_str(false)
-#define PARSE_SELECT_UNDECLARED_ATTRREF_STR \
-    "Select: undefined synonym \"%s\" for attrRef \"%s\""
 #define PARSE_SELECT_INVALID_ATTRREF_STR \
     "Select: invalid attrRef \"%s\""
 #define PARSE_SELECT_TUPLE_NO_CLOSE_STR \
@@ -94,6 +91,9 @@
 // args: attrName, synonym
 #define PARSE_ATTRREF_UNDEF_ATTRNAME_STR \
     "AttrRef: undefined attrName \"%s\" for synonym \"%s\""
+// args: synonym, attrRef.c_str(false)
+#define PARSE_ATTRREF_UNDECLARED_STR \
+    "Select: undefined synonym \"%s\" for attrRef \"%s\""
 // args: attrRef.toPeriodString().c_str(), attrName, design entity
 #define PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR \
     "AttrRef \"%s\": attrName \"%s\" is not defined for synonyms of type %s"
@@ -176,10 +176,9 @@ enum ParseError {
     PARSE_DECL_ENT_SYN_INVALID_SEP, PARSE_DECL_NO_TERMINATOR,
     PARSE_NO_SELECT_AFTER_DECL, PARSE_NO_SEP_AFTER_SELECT,
     PARSE_SELECT_UNDECLARED, PARSE_SELECT_REPEATED,
-    PARSE_SELECT_UNDECLARED_ATTRREF,
     PARSE_SELECT_INVALID_ATTRREF,
     PARSE_SELECT_TUPLE_NO_CLOSE, PARSE_SELECT_NOTHING,
-    PARSE_ATTRREF_UNDEF_ATTRNAME,
+    PARSE_ATTRREF_UNDEF_ATTRNAME, PARSE_ATTRREF_UNDECLARED,
     PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
     PARSE_REL_ARGONE, PARSE_REL_ARGTWO, PARSE_REL_ARG_INT_INVALID,
     PARSE_REL_ARG_INVALID,

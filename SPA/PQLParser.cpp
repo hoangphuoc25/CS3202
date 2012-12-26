@@ -640,8 +640,8 @@ void PQLParser::print_error(va_list ap)
     case PARSE_SELECT_REPEATED:
         sb.vsprintf(PARSE_SELECT_REPEATED_STR, ap);
         break;
-    case PARSE_SELECT_UNDECLARED_ATTRREF:
-        sb.vsprintf(PARSE_SELECT_UNDECLARED_ATTRREF_STR, ap);
+    case PARSE_ATTRREF_UNDECLARED:
+        sb.vsprintf(PARSE_ATTRREF_UNDECLARED_STR, ap);
         break;
     case PARSE_SELECT_INVALID_ATTRREF:
         sb.vsprintf(PARSE_SELECT_INVALID_ATTRREF_STR, ap);
@@ -1031,7 +1031,7 @@ AttrRef PQLParser::eat_attrRef(StringBuffer &sb)
         // "type check"
         DesignEnt entType = this->retrieve_syn_type(syn);
         if (entType == ENT_INVALID) {
-            this->error(PARSE_SELECT_UNDECLARED_ATTRREF,
+            this->error(PARSE_ATTRREF_UNDECLARED,
                 syn.c_str(), attrRef.toPeriodString().c_str());
         }
         ok = false;
