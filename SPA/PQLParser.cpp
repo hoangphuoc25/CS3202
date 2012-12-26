@@ -640,9 +640,6 @@ void PQLParser::print_error(va_list ap)
     case PARSE_SELECT_REPEATED:
         sb.vsprintf(PARSE_SELECT_REPEATED_STR, ap);
         break;
-    case PARSE_SELECT_UNDEF_ATTRNAME:
-        sb.vsprintf(PARSE_SELECT_UNDEF_ATTRNAME_STR, ap);
-        break;
     case PARSE_SELECT_UNDECLARED_ATTRREF:
         sb.vsprintf(PARSE_SELECT_UNDECLARED_ATTRREF_STR, ap);
         break;
@@ -654,6 +651,9 @@ void PQLParser::print_error(va_list ap)
         break;
     case PARSE_SELECT_NOTHING:
         sb.vsprintf(PARSE_SELECT_NOTHING_STR, ap);
+        break;
+    case PARSE_ATTRREF_UNDEF_ATTRNAME:
+        sb.vsprintf(PARSE_ATTRREF_UNDEF_ATTRNAME_STR, ap);
         break;
     case PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR:
         sb.vsprintf(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR, ap);
@@ -1022,7 +1022,8 @@ AttrRef PQLParser::eat_attrRef(StringBuffer &sb)
         if (!this->eat_attrName(sb)) {
             sb.clear();
             this->eat_while<is_ident>(sb);
-            this->error(PARSE_SELECT_UNDEF_ATTRNAME, sb.c_str(), syn.c_str());
+            this->error(PARSE_ATTRREF_UNDEF_ATTRNAME, sb.c_str(),
+                    syn.c_str());
         }
         attr = sb.toString();
         AttrType attrType = this->string_to_attrType(attr);

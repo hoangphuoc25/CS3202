@@ -1251,9 +1251,9 @@ void TestPQLParser::test_err_select_undef_attrname()
     ostringstream *os = new ostringstream;
     parser.parse(os, queryStr, true, false);
     out = os->str();
-    CPPUNIT_ASSERT_EQUAL(PARSE_SELECT_UNDEF_ATTRNAME,
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_UNDEF_ATTRNAME,
         parser.get_parse_result());
-    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_SELECT_UNDEF_ATTRNAME_STR,
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_ATTRREF_UNDEF_ATTRNAME_STR,
         "myName", "s");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 
@@ -1261,9 +1261,9 @@ void TestPQLParser::test_err_select_undef_attrname()
     os = new ostringstream;
     parser.parse(os, queryStr, true, false);
     out = os->str();
-    CPPUNIT_ASSERT_EQUAL(PARSE_SELECT_UNDEF_ATTRNAME,
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_UNDEF_ATTRNAME,
         parser.get_parse_result());
-    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_SELECT_UNDEF_ATTRNAME_STR,
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_ATTRREF_UNDEF_ATTRNAME_STR,
         "nonEx", "v");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
