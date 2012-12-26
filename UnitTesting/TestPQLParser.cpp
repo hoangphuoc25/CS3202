@@ -1267,3 +1267,19 @@ void TestPQLParser::test_err_select_undef_attrname()
         "nonEx", "v");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
+
+void TestPQLParser::test_err_select_undeclared_attrRef()
+{
+    string queryStr = "assign a; Select s.stmt#";
+    string out;
+    PQLParser parser;
+    ostringstream *os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_SELECT_UNDECLARED_ATTRREF,
+        parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN,
+        PARSE_SELECT_UNDECLARED_ATTRREF_STR, "s",
+        AttrRef("s", ENT_INVALID, ATTR_STMTNO).toPeriodString().c_str());
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}

@@ -58,6 +58,15 @@ void AttrRef::dump_to_sb(StringBuffer &sb) const
     }
 }
 
+string AttrRef::toPeriodString() const
+{
+    StringBuffer sb;
+    sb.append(syn);
+    sb.append('.');
+    sb.append(attrType_to_string(attr));
+    return sb.toString();
+}
+
 bool AttrRefCmp::operator()(const AttrRef &a, const AttrRef &b) const
 {
     if (a.syn != b.syn) {
@@ -634,6 +643,9 @@ void PQLParser::print_error(va_list ap)
     case PARSE_SELECT_UNDEF_ATTRNAME:
         sb.vsprintf(PARSE_SELECT_UNDEF_ATTRNAME_STR, ap);
         break;
+    case PARSE_SELECT_UNDECLARED_ATTRREF:
+        sb.vsprintf(PARSE_SELECT_UNDECLARED_ATTRREF_STR, ap);
+        break;
     case PARSE_SELECT_INVALID_ATTRREF:
         sb.vsprintf(PARSE_SELECT_INVALID_ATTRREF_STR, ap);
         break;
@@ -995,7 +1007,7 @@ AttrRef PQLParser::eat_attrRef(StringBuffer &sb)
 {
     sb.clear();
     int saveIdx = this->bufIdx;
-    string syn, attr;
+    string syn;
     bool ok;
     if (this->eat_synonym(sb)) {
         syn = sb.toString();
@@ -1009,15 +1021,13 @@ AttrRef PQLParser::eat_attrRef(StringBuffer &sb)
             this->eat_while<is_ident>(sb);
             this->error(PARSE_SELECT_UNDEF_ATTRNAME, sb.c_str(), syn.c_str());
         }
-        attr = sb.toString();
+        AttrType attrType = this->string_to_attrType(sb.toString());
+        AttrRef attrRef = AttrRef(syn, ENT_INVALID, attrType);
         // "type check"
         DesignEnt entType = this->retrieve_syn_type(syn);
         if (entType == ENT_INVALID) {
-            RESTORE_AND_RET(AttrRef(), saveIdx);
-        }
-        AttrType attrType = this->string_to_attrType(attr);
-        if (attrType == ATTR_INVALID) {
-            RESTORE_AND_RET(AttrRef(), saveIdx);
+            this->error(PARSE_SELECT_UNDECLARED_ATTRREF,
+                syn.c_str(), attrRef.toPeriodString().c_str());
         }
         ok = false;
         switch (attrType) {

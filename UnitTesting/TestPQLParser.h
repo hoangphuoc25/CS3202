@@ -22,6 +22,7 @@ CPPUNIT_TEST(test_err_parse_decl_no_terminator);
 CPPUNIT_TEST(test_err_parse_no_select_after_decl);
 CPPUNIT_TEST(test_err_select_unknown);
 CPPUNIT_TEST(test_err_select_undef_attrname);
+CPPUNIT_TEST(test_err_select_undeclared_attrRef);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -47,6 +48,7 @@ private:
     void test_err_parse_no_select_after_decl();
     void test_err_select_unknown();
     void test_err_select_undef_attrname();
+    void test_err_select_undeclared_attrRef();
 };
 
 #endif

@@ -84,6 +84,9 @@
 // args: attrName, synonym
 #define PARSE_SELECT_UNDEF_ATTRNAME_STR \
     "Select: undefined attrName \"%s\" for synonym \"%s\""
+// args: synonym, attrRef.c_str(false)
+#define PARSE_SELECT_UNDECLARED_ATTRREF_STR \
+    "Select: undefined synonym \"%s\" for attrRef \"%s\""
 #define PARSE_SELECT_INVALID_ATTRREF_STR \
     "Select: invalid attrRef \"%s\""
 #define PARSE_SELECT_TUPLE_NO_CLOSE_STR \
@@ -170,7 +173,7 @@ enum ParseError {
     PARSE_DECL_ENT_SYN_INVALID_SEP, PARSE_DECL_NO_TERMINATOR,
     PARSE_NO_SELECT_AFTER_DECL, PARSE_NO_SEP_AFTER_SELECT,
     PARSE_SELECT_UNDECLARED, PARSE_SELECT_REPEATED,
-    PARSE_SELECT_UNDEF_ATTRNAME,
+    PARSE_SELECT_UNDEF_ATTRNAME, PARSE_SELECT_UNDECLARED_ATTRREF,
     PARSE_SELECT_INVALID_ATTRREF,
     PARSE_SELECT_TUPLE_NO_CLOSE, PARSE_SELECT_NOTHING,
     PARSE_REL_ARGONE, PARSE_REL_ARGTWO, PARSE_REL_ARG_INT_INVALID,
@@ -198,6 +201,7 @@ struct AttrRef {
     AttrRef();
     AttrRef(std::string s, DesignEnt et, AttrType a);
     void dump_to_sb(StringBuffer &sb) const;
+    std::string toPeriodString() const;
 };
 
 struct AttrRefCmp {
