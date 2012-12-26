@@ -1214,3 +1214,18 @@ void TestPQLParser::test_err_parse_decl_no_terminator()
         ENT_CALL_STR);
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
+
+void TestPQLParser::test_err_parse_no_select_after_decl()
+{
+    string queryStr = "stmt s; assign a; bleh";
+    string out;
+    PQLParser parser;
+    ostringstream *os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_NO_SELECT_AFTER_DECL,
+        parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_NO_SELECT_AFTER_DECL_STR,
+        "bleh");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
