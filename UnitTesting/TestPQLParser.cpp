@@ -1473,3 +1473,17 @@ void TestPQLParser::test_err_rel_argtwo_type_error()
             TYPE_ERROR_MODIFIES[1]);
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
+
+void TestPQLParser::test_err_rel_no_rparen()
+{
+    string queryStr = "assign a; variable v; Select a such that Modifies(a,v";
+    string out;
+    PQLParser parser;
+    ostringstream *os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REL_NO_RPAREN, parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_NO_RPAREN_STR,
+            relRefType_to_string(REL_MODIFIES), "Modifies(a,v)");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
