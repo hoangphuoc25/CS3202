@@ -1451,7 +1451,7 @@ bool PQLParser::eat_relRef_generic(RelRef &relRef, StringBuffer &sb,
                 errorMsg = NULL;
                 ret = this->qinfo->add_relRef(relRef, &errorMsg);
                 if (ret != PARSE_OK) {
-                    this->error_add_relRef(ret, relRef, sb, errorMsg);
+                    this->error_add_relRef(ret, relRef, errorMsg);
                 } else if (errorMsg) {
                     this->warning(errorMsg);
                     free(errorMsg);
@@ -1470,7 +1470,7 @@ bool PQLParser::eat_relRef_generic(RelRef &relRef, StringBuffer &sb,
 }
 
 void PQLParser::error_add_relRef(ParseError parseErr_, const RelRef &relRef,
-        const StringBuffer &sb, char *errorMsg) throw(ParseError)
+        char *errorMsg) throw(ParseError)
 {
     StringBuffer errBuf;
     if (errorMsg) {
@@ -1492,7 +1492,7 @@ void PQLParser::error_add_relRef(ParseError parseErr_, const RelRef &relRef,
         this->error(parseErr_, typeErrorArray[0]);
         break;
     case PARSE_REL_ARGTWO_UNDECLARED:
-        this->error(parseErr_, relRefStr, sb.c_str());
+        this->error(parseErr_, relRefStr, relRef.argTwoString.c_str());
         break;
     case PARSE_REL_ARGTWO_TYPE_ERROR:
         this->error(parseErr_, typeErrorArray[1]);

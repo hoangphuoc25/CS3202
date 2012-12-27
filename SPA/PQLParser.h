@@ -353,7 +353,7 @@ private:
         void (PQLParser::*eat_arg_M)
             (RelRef &relRef, StringBuffer &sb, char **errorMsg));
     void error_add_relRef(ParseError parseErr_, const RelRef &relRef,
-            const StringBuffer &sb, char *errorMsg) throw(ParseError);
+            char *errorMsg) throw(ParseError);
     bool eat_relRef_modifies(RelRef &relRef, StringBuffer &sb);
     bool eat_relRef_uses(RelRef &relRef, StringBuffer &sb);
     bool eat_relRef_calls(RelRef &relRef, StringBuffer &sb);
