@@ -1518,3 +1518,18 @@ void TestPQLParser::test_err_relcond_invalid_relRef()
             "Nonsense(s1,s2)", "Modifies(g1,_)");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
+
+void TestPQLParser::test_err_end_of_query_error()
+{
+    string queryStr = "procedure p1, p2; variable v1, v2; ";
+    queryStr += "Select p1 such that Modifies(p1,v1) and Modifies(p2,v2) sdf1";
+    string out;
+    PQLParser parser;
+    ostringstream *os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_END_OF_QUERY_ERROR, parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_END_OF_QUERY_ERROR_STR,
+            "sdf1");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
