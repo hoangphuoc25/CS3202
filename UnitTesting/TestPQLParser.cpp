@@ -1413,3 +1413,18 @@ void TestPQLParser::test_err_rel_arg_int_invalid()
             S_TO_UINT_OVERFLOW);
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
+
+void TestPQLParser::test_err_rel_argone_undeclared()
+{
+    string queryStr = "variable v; Select v such that Modifies(a,v)";
+    string out;
+    PQLParser parser;
+    ostringstream *os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE_UNDECLARED,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGONE_UNDECLARED_STR,
+            relRefType_to_string(REL_MODIFIES), "a");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}

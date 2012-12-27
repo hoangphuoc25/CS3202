@@ -1488,7 +1488,7 @@ void PQLParser::error_add_relRef(ParseError parseErr_, const RelRef &relRef,
     }
     switch (parseErr_) {
     case PARSE_REL_ARGONE_UNDECLARED:
-        this->error(parseErr_, relRefStr, sb.c_str());
+        this->error(parseErr_, relRefStr, relRef.argOneString.c_str());
         break;
     case PARSE_REL_ARGONE_TYPE_ERROR:
         this->error(parseErr_, typeErrorArray[0]);
