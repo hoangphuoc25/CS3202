@@ -1502,3 +1502,19 @@ void TestPQLParser::test_err_relcond_and_nosep()
             "Modifies(a1,v1)");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
+
+void TestPQLParser::test_err_relcond_invalid_relRef()
+{
+    string queryStr = "stmt g1, g2; ";
+    queryStr += "Select g1 such that Modifies(g1,_) and Nonsense(s1,s2)";
+    string out;
+    PQLParser parser;
+    ostringstream *os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_RELCOND_INVALID_RELREF,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_RELCOND_INVALID_RELREF_STR,
+            "Nonsense(s1,s2)", "Modifies(g1,_)");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}

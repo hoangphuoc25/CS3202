@@ -1621,7 +1621,9 @@ bool PQLParser::eat_relCond(StringBuffer &sb) throw(ParseError)
         if (!RelRef::valid(relRef)) {
             sb.clear();
             this->eat_while<not_rparen>(sb);
-            this->error(PARSE_RELCOND_INVALID_RELREF, sb.c_str());
+            sb.append(')');
+            this->error(PARSE_RELCOND_INVALID_RELREF, sb.c_str(),
+                    prevRelRef.dump().c_str());
         }
         prevRelRef = relRef;
     }

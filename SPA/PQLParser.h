@@ -124,9 +124,10 @@
 // arg: relRef.dump().c_str()
 #define PARSE_RELCOND_AND_NOSEP_STR \
     "relCond: expect whitespace after \"and\" [after %s]"
-// arg: PQLParser::eat_while<not_rparen>(sb) --> sb.c_str()
+// args: PQLParser::eat_while<not_rparen>(sb) --> sb.c_str(),
+//       prevRelRef.dump().c_str()
 #define PARSE_RELCOND_INVALID_RELREF_STR \
-    "Expected RelRef, got \"%s\""
+    "Expected RelRef, got \"%s\" [after %s]"
 #define PARSE_QINFO_INSERT_INVALID_RELREF_STR \
     "QueryInfo::add_relRef - Trying to insert invalid relRef"
 // arg: StringBuffer contents
