@@ -1723,6 +1723,24 @@ void PQLParser::_parse(const string &s, bool showErrors_, bool showWarnings_)
 
 /* class QueryInfo */
 
+DesignEnt QueryInfo::MODIFIES_ARGONE_TYPES_ARR[7] = {
+    ENT_ASSIGN, ENT_STMT, ENT_IF,
+    ENT_WHILE, ENT_PROC, ENT_CALL,
+    ENT_PROGLINE
+};
+
+DesignEnt QueryInfo::MODIFIES_ARGTWO_TYPES_ARR[1] = {
+    ENT_VAR
+};
+
+set<DesignEnt> QueryInfo::MODIFIES_ARGONE_TYPES(
+        QueryInfo::MODIFIES_ARGONE_TYPES_ARR,
+        QueryInfo::MODIFIES_ARGONE_TYPES_ARR+7);
+
+set<DesignEnt> QueryInfo::MODIFIES_ARGTWO_TYPES(
+        QueryInfo::MODIFIES_ARGTWO_TYPES_ARR,
+        QueryInfo::MODIFIES_ARGTWO_TYPES_ARR+1);
+
 QueryInfo::QueryInfo() {}
 
 QueryInfo::QueryInfo(const map<string, DesignEnt>& etab,
@@ -1803,38 +1821,39 @@ void QueryInfo::insert_relRef(const RelRef &relRef, char **errorMsg)
     }
 }
 
-ParseError QueryInfo::add_modifies_relRef(RelRef &relRef, char **errorMsg)
+ParseError QueryInfo::add_X_relRef(const set<DesignEnt>& argOneTypes,
+        const set<DesignEnt>& argTwoTypes,
+        RelRef &relRef, char **errorMsg)
 {
     DesignEnt entType;
     if (relRef.argOneType == RELARG_SYN) {
         entType = this->retrieve_syn_type(relRef.argOneString);
-        switch (entType) {
-        case ENT_ASSIGN: case ENT_STMT: case ENT_IF:
-        case ENT_WHILE: case ENT_PROC: case ENT_CALL:
-        case ENT_PROGLINE:
-            relRef.argOneSyn = entType;
-            break;
-        case ENT_INVALID:
+        if (entType == ENT_INVALID) {
             return PARSE_REL_ARGONE_UNDECLARED;
-        default:
-            // all other types fail
+        } else if (argOneTypes.find(entType) != argOneTypes.end()) {
+            relRef.argOneSyn = entType;
+        } else {
             return PARSE_REL_ARGONE_TYPE_ERROR;
         }
     }
     if (relRef.argTwoType == RELARG_SYN) {
         entType = this->retrieve_syn_type(relRef.argTwoString);
-        switch (entType) {
-        case ENT_VAR:
-            relRef.argTwoSyn = entType;
-            break;
-        case ENT_INVALID:
+        if (entType == ENT_INVALID) {
             return PARSE_REL_ARGTWO_UNDECLARED;
-        default:
+        } else if (argTwoTypes.find(entType) != argTwoTypes.end()) {
+            relRef.argTwoSyn = entType;
+        } else {
             return PARSE_REL_ARGTWO_TYPE_ERROR;
         }
     }
     this->insert_relRef(relRef, errorMsg);
     return PARSE_OK;
+}
+
+ParseError QueryInfo::add_modifies_relRef(RelRef &relRef, char **errorMsg)
+{
+    return this->add_X_relRef(QueryInfo::MODIFIES_ARGONE_TYPES,
+                    QueryInfo::MODIFIES_ARGTWO_TYPES, relRef, errorMsg);
 }
 
 ParseError QueryInfo::add_uses_relRef(RelRef &relRef, char **errorMsg)

@@ -426,6 +426,9 @@ private:
 
     void insert_relRef(const RelRef &relRef, char **errorMsg);
     DesignEnt retrieve_syn_type(const std::string &s) const;
+    ParseError add_X_relRef(const std::set<DesignEnt> &argOneTypes,
+            const std::set<DesignEnt> &argTwoTypes,
+            RelRef &relRef, char **errorMsg);
     ParseError add_modifies_relRef(RelRef &relRef, char **errorMsg);
     ParseError add_uses_relRef(RelRef &relRef, char **errorMsg);
     ParseError add_calls_relRef(RelRef &relRef, char **errorMsg);
@@ -433,6 +436,11 @@ private:
     ParseError add_follows_relRef(RelRef &relRef, char **errorMsg);
     ParseError add_next_relRef(RelRef &relRef, char **errorMsg);
     ParseError add_affects_relRef(RelRef &relRef, char **errorMsg);
+
+    static DesignEnt MODIFIES_ARGONE_TYPES_ARR[7];
+    static DesignEnt MODIFIES_ARGTWO_TYPES_ARR[1];
+    static std::set<DesignEnt> MODIFIES_ARGONE_TYPES;
+    static std::set<DesignEnt> MODIFIES_ARGTWO_TYPES;
 };
 
 #endif
