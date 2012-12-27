@@ -140,6 +140,7 @@
 
 extern const char *TYPE_ERROR_EMPTY[TYPE_ERROR_ARRAY_SZ];
 extern const char *TYPE_ERROR_MODIFIES[TYPE_ERROR_ARRAY_SZ];
+extern const char *TYPE_ERROR_USES[TYPE_ERROR_ARRAY_SZ];
 
 enum DesignEnt {
     ENT_PROC, ENT_STMTLST, ENT_STMT, ENT_ASSIGN, ENT_CALL,
@@ -439,8 +440,12 @@ private:
 
     static DesignEnt MODIFIES_ARGONE_TYPES_ARR[7];
     static DesignEnt MODIFIES_ARGTWO_TYPES_ARR[1];
+    static DesignEnt USES_ARGONE_TYPES_ARR[7];
+    static DesignEnt USES_ARGTWO_TYPES_ARR[1];
     static std::set<DesignEnt> MODIFIES_ARGONE_TYPES;
     static std::set<DesignEnt> MODIFIES_ARGTWO_TYPES;
+    static std::set<DesignEnt> USES_ARGONE_TYPES;
+    static std::set<DesignEnt> USES_ARGTWO_TYPES;
 };
 
 #endif

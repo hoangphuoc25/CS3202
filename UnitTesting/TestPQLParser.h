@@ -38,6 +38,8 @@ CPPUNIT_TEST(test_err_rel_argtwo_type_error);
 CPPUNIT_TEST(test_err_rel_no_rparen);
 CPPUNIT_TEST(test_err_relcond_invalid_relRef);
 CPPUNIT_TEST(test_err_end_of_query_error);
+CPPUNIT_TEST(test_uses);
+CPPUNIT_TEST(test_err_uses_argtypes);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -80,6 +82,8 @@ private:
     void test_err_relcond_and_nosep();
     void test_err_relcond_invalid_relRef();
     void test_err_end_of_query_error();
+    void test_uses();
+    void test_err_uses_argtypes();
 };
 
 #endif

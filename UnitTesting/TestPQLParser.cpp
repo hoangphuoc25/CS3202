@@ -1533,3 +1533,380 @@ void TestPQLParser::test_err_end_of_query_error()
             "sdf1");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
+
+void TestPQLParser::test_uses()
+{
+    // Uses(assign,var)
+    string queryStr = "assign a; variable v; Select a such that Uses(a,v)";
+    string out;
+    PQLParser parser;
+    QueryInfo *qinfo;
+    parser.parse(queryStr, false, false);
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    qinfo = parser.get_queryinfo();
+    out = "DECLARATIONS\n  assign a\n  variable v\nSELECT TUPLE\n";
+    out += "  assign a\nUses(a,v)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Uses(if,var)
+    queryStr = "if ivb1; variable sdf1; ";
+    queryStr += "Select sdf1 such that Uses(ivb1,sdf1)";
+    parser.parse(queryStr, false, false);
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    qinfo = parser.get_queryinfo();
+    out = "DECLARATIONS\n  if ivb1\n  variable sdf1\nSELECT TUPLE\n";
+    out += "  variable sdf1\nUses(ivb1,sdf1)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Uses(while,var)
+    queryStr = "while fdg1; variable hd1bd#; ";
+    queryStr += "Select fdg1 such that Uses(fdg1, hd1bd#)";
+    parser.parse(queryStr, false, false);
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    qinfo = parser.get_queryinfo();
+    out = "DECLARATIONS\n  while fdg1\n  variable hd1bd#\nSELECT TUPLE\n";
+    out += "  while fdg1\nUses(fdg1,hd1bd#)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Uses(procedure,var)
+    queryStr = " variable mmmsdf1; procedure pfdgy; ";
+    queryStr += "Select mmmsdf1 such that Uses(pfdgy, mmmsdf1)";
+    parser.parse(queryStr, false, false);
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    qinfo = parser.get_queryinfo();
+    out = "DECLARATIONS\n  variable mmmsdf1\n  procedure pfdgy\n";
+    out += "SELECT TUPLE\n  variable mmmsdf1\nUses(pfdgy,mmmsdf1)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Uses(call,var)
+    queryStr = " call cvfh; variable tr14531; ";
+    queryStr += " Select cvfh such that Uses(cvfh, tr14531)";
+    parser.parse(queryStr, false, false);
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    qinfo = parser.get_queryinfo();
+    out = "DECLARATIONS\n  call cvfh\n  variable tr14531\nSELECT TUPLE\n";
+    out += "  call cvfh\nUses(cvfh,tr14531)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Uses(stmt,var)
+    queryStr = " stmt sfsdf1; variable mbv; ";
+    queryStr += "Select mbv such that Uses(sfsdf1,  mbv)";
+    parser.parse(queryStr, false, false);
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    qinfo = parser.get_queryinfo();
+    out = "DECLARATIONS\n  stmt sfsdf1\n  variable mbv\nSELECT TUPLE\n";
+    out += "  variable mbv\nUses(sfsdf1,mbv)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Uses(prog_line,var)
+    queryStr = " variable ywert1; prog_line pldg1; ";
+    queryStr += "Select pldg1 such that Uses(pldg1, ywert1)";
+    parser.parse(queryStr, false, false);
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    qinfo = parser.get_queryinfo();
+    out = "DECLARATIONS\n  variable ywert1\n  prog_line pldg1\n";
+    out += "SELECT TUPLE\n  prog_line pldg1\nUses(pldg1,ywert1)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Uses(synonym,"string")
+    queryStr = " stmt fg1; Select fg1 such that Uses(fg1, \"bleh\")";
+    parser.parse(queryStr, false, false);
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    qinfo = parser.get_queryinfo();
+    out = "DECLARATIONS\n  stmt fg1\nSELECT TUPLE\n  stmt fg1\n";
+    out += "Uses(fg1,\"bleh\")\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Uses(synonym,_)
+    queryStr = " procedure qwey1b; Select BOOLEAN such that Uses(qwey1b,_)";
+    parser.parse(queryStr, false, false);
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    qinfo = parser.get_queryinfo();
+    out = "DECLARATIONS\n  procedure qwey1b\nSELECT BOOLEAN\n";
+    out += "Uses(qwey1b,_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Uses("string",var)
+    queryStr = "variable v1, v2; Select v1 such that Uses(\"proc\",v1)";
+    parser.parse(queryStr, false, false);
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    qinfo = parser.get_queryinfo();
+    out = "DECLARATIONS\n  variable v1\n  variable v2\nSELECT TUPLE\n";
+    out += "  variable v1\nUses(\"proc\",v1)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Uses("string","string")
+    queryStr = " assign db1; Select db1 such that Uses(\"bxcv1\",\"mmn1\")";
+    parser.parse(queryStr, false, false);
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    qinfo = parser.get_queryinfo();
+    out = "DECLARATIONS\n  assign db1\nSELECT TUPLE\n  assign db1\n";
+    out += "Uses(\"bxcv1\",\"mmn1\")\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Uses("string",_)
+    queryStr = " while sfg1; Select sfg1 such that Uses(\"uydr\",_)";
+    parser.parse(queryStr, false, false);
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    qinfo = parser.get_queryinfo();
+    out = "DECLARATIONS\n  while sfg1\nSELECT TUPLE\n  while sfg1\n";
+    out += "Uses(\"uydr\",_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Uses(int,var)
+    queryStr = " while sd;variable bm1; Select sd such that Uses(634, bm1)";
+    parser.parse(queryStr, false, false);
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    qinfo = parser.get_queryinfo();
+    out = "DECLARATIONS\n  while sd\n  variable bm1\nSELECT TUPLE\n";
+    out += "  while sd\nUses(634,bm1)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Uses(int,"string")
+    queryStr = " prog_line pl1; Select pl1 such that Uses(83, \"warf\")";
+    parser.parse(queryStr, false, false);
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    qinfo = parser.get_queryinfo();
+    out = "DECLARATIONS\n  prog_line pl1\nSELECT TUPLE\n  prog_line pl1\n";
+    out += "Uses(83,\"warf\")\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Uses(int,_)
+    queryStr = "Select BOOLEAN such that Uses(58542,_)";
+    parser.parse(queryStr, false, false);
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    qinfo = parser.get_queryinfo();
+    out = "DECLARATIONS\nSELECT BOOLEAN\nUses(58542,_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Uses(_,var)
+    queryStr = " call cl13; variable x; Select cl13 such that Uses(_, x)";
+    parser.parse(queryStr, false, false);
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    qinfo = parser.get_queryinfo();
+    out = "DECLARATIONS\n  call cl13\n  variable x\nSELECT TUPLE\n";
+    out += "  call cl13\nUses(_,x)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Uses(_,"string")
+    queryStr = " constant m2; Select m2 such that Uses(_, \"hohoho\")";
+    parser.parse(queryStr, false, false);
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    qinfo = parser.get_queryinfo();
+    out = "DECLARATIONS\n  constant m2\nSELECT TUPLE\n  constant m2\n";
+    out += "Uses(_,\"hohoho\")\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Uses(_,_)
+    queryStr = " assign a3; variable sdf1; Select <a3,sdf1> such that ";
+    queryStr += " Uses(_,_)";
+    parser.parse(queryStr, false, false);
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    qinfo = parser.get_queryinfo();
+    out = "DECLARATIONS\n  assign a3\n  variable sdf1\nSELECT TUPLE\n";
+    out += "  assign a3\n  variable sdf1\nUses(_,_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Multiple Uses
+    queryStr = " assign a; variable v, v2; procedure p; ";
+    queryStr += "Select <a,p> such that Uses(a,v) and Uses(p,v2)";
+    parser.parse(queryStr, false, false);
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    qinfo = parser.get_queryinfo();
+    out = "DECLARATIONS\n  assign a\n  variable v\n  variable v2\n";
+    out += "  procedure p\nSELECT TUPLE\n  assign a\n  procedure p\n";
+    out += "Uses(a,v)\nUses(p,v2)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Repeated Uses
+    queryStr = "assign a1, a2, a3; if i1, i2, i3; while w1, w2, w3; ";
+    queryStr += "procedure p1, p2, p3; call c1, c2, c3; stmt s1, s2, s3; ";
+    queryStr += "prog_line pl1, pl2, pl3; variable v1, v2, v3; ";
+    queryStr += "Select <a1,a1.stmt#,i1,i1.stmt#,w1,w1.stmt#,p2,p2.procName,";
+    queryStr += "c1,c2.procName,s1,s1.stmt#,pl1> such that ";
+    queryStr += " Uses(a1,v1) and Uses(i1, v2) and Uses(w1, v1) and ";
+    queryStr += " Uses(p1, v1) and Uses(c1, v2) and Uses(s2, v2) and ";
+    queryStr += " Uses(pl1, v3) and ";
+    // Repeated Uses(synonym,var)
+    queryStr += " Uses(a1,v1) and Uses(i1,v2) and Uses(w1,v1) and ";
+    queryStr += " Uses(p1,v1) and Uses(c1,v2) and Uses(s2,v2) and ";
+    queryStr += " Uses(pl1,v3) and ";
+    // Uses(syn,"string"), Uses(syn,_)
+    queryStr += " Uses(c2, \"avar\") and Uses(i3,_) and ";
+    // Repeated Uses(syn,"string") and Uses(syn,_)
+    queryStr += " Uses(c2, \"avar\") and Uses(i3,_) and ";
+    // Uses(string,*)
+    queryStr += " Uses(\"proc1\",v3) and Uses(\"someProc\", \"x\") and ";
+    queryStr += " Uses(\"vsd\", _) and ";
+    // Repeated Uses(string,*)
+    queryStr += " Uses(\"proc1\", v3) and Uses(\"someProc\",\"x\") and ";
+    queryStr += " Uses(\"vsd\",_) and ";
+    // Uses(int, *)
+    queryStr += " Uses(51, v2) and Uses(7351, \"bvar\") and ";
+    queryStr += " Uses(26434, _) and ";
+    // Repeated Uses(int, *)
+    queryStr += " Uses(51, v2) and Uses(7351, \"bvar\") and ";
+    queryStr += " Uses(26434, _) and ";
+    // Uses(_,*)
+    queryStr += " Uses(_, v1) and Uses(_, \"hsfg\") and Uses(_,_) and ";
+    // Repeated Uses(_,*)
+    queryStr += " Uses(_,v1) and Uses(_,\"hsfg\") and Uses(_,_)";
+    parser.parse(queryStr, true, false);
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    qinfo = parser.get_queryinfo();
+    out = "DECLARATIONS\n  assign a1\n  assign a2\n  assign a3\n";
+    out += "  if i1\n  if i2\n  if i3\n  while w1\n  while w2\n  while w3\n";
+    out += "  procedure p1\n  procedure p2\n  procedure p3\n  call c1\n";
+    out += "  call c2\n  call c3\n  stmt s1\n  stmt s2\n  stmt s3\n";
+    out += "  prog_line pl1\n  prog_line pl2\n  prog_line pl3\n";
+    out += "  variable v1\n  variable v2\n  variable v3\n";
+    out += "SELECT TUPLE\n  assign a1\n  assign a1 stmt#\n  if i1\n";
+    out += "  if i1 stmt#\n  while w1\n  while w1 stmt#\n  procedure p2\n";
+    out += "  procedure p2 procName\n  call c1\n  call c2 procName\n";
+    out += "  stmt s1\n  stmt s1 stmt#\n  prog_line pl1\n";
+    out += "Uses(a1,v1)\nUses(i1,v2)\nUses(w1,v1)\nUses(p1,v1)\n";
+    out += "Uses(c1,v2)\nUses(s2,v2)\nUses(pl1,v3)\nUses(c2,\"avar\")\n";
+    out += "Uses(i3,_)\nUses(\"proc1\",v3)\nUses(\"someProc\",\"x\")\n";
+    out += "Uses(\"vsd\",_)\nUses(51,v2)\nUses(7351,\"bvar\")\n";
+    out += "Uses(26434,_)\nUses(_,v1)\nUses(_,\"hsfg\")\nUses(_,_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+}
+
+void TestPQLParser::test_err_uses_argtypes()
+{
+    string queryStr = " stmtLst vf; variable g; ";
+    queryStr += " Select vf such that Uses(vf,g)";
+    string out;
+    PQLParser parser;
+    ostringstream *os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGONE_TYPE_ERROR_STR,
+            TYPE_ERROR_USES[0]);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = " variable v1, v2; Select v1 such that Uses(v1, v2)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGONE_TYPE_ERROR_STR,
+            TYPE_ERROR_USES[0]);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = " variable bdf; constant c1; ";
+    queryStr += " Select c1 such that Uses(c1, bdf)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGONE_TYPE_ERROR_STR,
+            TYPE_ERROR_USES[0]);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // arg two
+    queryStr = "  procedure p1; Select p1 such that Uses(_,p1)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
+            TYPE_ERROR_USES[1]);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = " stmtLst s1; Select s1 such that Uses(_,s1)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
+            TYPE_ERROR_USES[1]);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = "stmt sdf1; Select BOOLEAN such that Uses(_,sdf1)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
+            TYPE_ERROR_USES[1]);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = "assign bdf1; Select bdf1 such that Uses(_, bdf1)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
+            TYPE_ERROR_USES[1]);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = "call fb1; Select fb1 such that Uses(_, fb1)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
+            TYPE_ERROR_USES[1]);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = "while w123; Select w123 such that Uses(_, w123)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
+            TYPE_ERROR_USES[1]);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = "if iy35; Select iy35 such that Uses(_,iy35)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
+            TYPE_ERROR_USES[1]);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = "constant mbd1; Select mbd1 such that Uses(_,mbd1)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
+            TYPE_ERROR_USES[1]);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = "prog_line pl67; Select pl67 such that Uses(_,pl67)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
+            TYPE_ERROR_USES[1]);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // arg two int
+    queryStr = "stmt dfg1; Select dfg1 such that Uses(_,3452)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_STR,
+            relRefType_to_string(REL_USES), "3452");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}

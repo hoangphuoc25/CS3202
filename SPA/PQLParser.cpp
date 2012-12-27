@@ -37,6 +37,18 @@ const char *TYPE_ERROR_MODIFIES[TYPE_ERROR_ARRAY_SZ] = {
     " or an underscore"
 };
 
+const char *TYPE_ERROR_USES[TYPE_ERROR_ARRAY_SZ] = {
+    "Uses: arg one must be a synonym of type" \
+    " assign, stmt, if, while, procedure, call, prog_line;" \
+    " or the name of a procedure enclosed in double quotes;" \
+    " or an underscore",
+
+    "Modifies: arg two must be a synonym of type" \
+    " variable;" \
+    " or the name of a variable enclosed in double quotes;" \
+    " or an underscore"
+};
+
 //////////////////////////////////////////////////////////////////////
 // AttrRef
 //////////////////////////////////////////////////////////////////////
@@ -1478,6 +1490,9 @@ void PQLParser::error_add_relRef(ParseError parseErr_, const RelRef &relRef,
     case REL_MODIFIES:
         typeErrorArray = TYPE_ERROR_MODIFIES;
         break;
+    case REL_USES:
+        typeErrorArray = TYPE_ERROR_USES;
+        break;
     }
     switch (parseErr_) {
     case PARSE_REL_ARGONE_UNDECLARED:
@@ -1503,8 +1518,8 @@ bool PQLParser::eat_relRef_modifies(RelRef &relRef, StringBuffer &sb)
 
 bool PQLParser::eat_relRef_uses(RelRef &relRef, StringBuffer &sb)
 {
-    // TODO: Fill in
-    return false;
+    return this->eat_relRef_generic(relRef, sb, &PQLParser::eat_uses,
+            REL_USES, &PQLParser::eat_entRef_varRef);
 }
 
 bool PQLParser::eat_relRef_calls(RelRef &relRef, StringBuffer &sb)
@@ -1733,6 +1748,15 @@ DesignEnt QueryInfo::MODIFIES_ARGTWO_TYPES_ARR[1] = {
     ENT_VAR
 };
 
+DesignEnt QueryInfo::USES_ARGONE_TYPES_ARR[7] = {
+    ENT_ASSIGN, ENT_IF, ENT_WHILE, ENT_PROC,
+    ENT_CALL, ENT_STMT, ENT_PROGLINE
+};
+
+DesignEnt QueryInfo::USES_ARGTWO_TYPES_ARR[1] = {
+    ENT_VAR
+};
+
 set<DesignEnt> QueryInfo::MODIFIES_ARGONE_TYPES(
         QueryInfo::MODIFIES_ARGONE_TYPES_ARR,
         QueryInfo::MODIFIES_ARGONE_TYPES_ARR+7);
@@ -1740,6 +1764,14 @@ set<DesignEnt> QueryInfo::MODIFIES_ARGONE_TYPES(
 set<DesignEnt> QueryInfo::MODIFIES_ARGTWO_TYPES(
         QueryInfo::MODIFIES_ARGTWO_TYPES_ARR,
         QueryInfo::MODIFIES_ARGTWO_TYPES_ARR+1);
+
+set<DesignEnt> QueryInfo::USES_ARGONE_TYPES(
+        QueryInfo::USES_ARGONE_TYPES_ARR,
+        QueryInfo::USES_ARGONE_TYPES_ARR+7);
+
+set<DesignEnt> QueryInfo::USES_ARGTWO_TYPES(
+        QueryInfo::USES_ARGTWO_TYPES_ARR,
+        QueryInfo::USES_ARGTWO_TYPES_ARR+1);
 
 QueryInfo::QueryInfo() {}
 
@@ -1858,8 +1890,8 @@ ParseError QueryInfo::add_modifies_relRef(RelRef &relRef, char **errorMsg)
 
 ParseError QueryInfo::add_uses_relRef(RelRef &relRef, char **errorMsg)
 {
-    // TODO: fill in
-    return PARSE_UNKNOWN;
+    return this->add_X_relRef(QueryInfo::USES_ARGONE_TYPES,
+                    QueryInfo::USES_ARGTWO_TYPES, relRef, errorMsg);
 }
 
 ParseError QueryInfo::add_calls_relRef(RelRef &relRef, char **errorMsg)
