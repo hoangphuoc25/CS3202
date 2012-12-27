@@ -1357,14 +1357,16 @@ RelRefArgType PQLParser::eat_varRef(StringBuffer &sb)
     RESTORE_AND_RET(RELARG_INVALID, saveIdx);
 }
 
-void PQLParser::eat_entRef_varRef(RelRef &relRef, StringBuffer &sb,
-        char **errorMsg) throw(ParseError)
+void PQLParser::eat_XRef_YRef(
+        RelRefArgType (PQLParser::*eat_XRef)(StringBuffer &sb),
+        RelRefArgType (PQLParser::*eat_YRef)(StringBuffer &sb),
+        RelRef &relRef, StringBuffer &sb, char **errorMsg) throw(ParseError)
 {
     int saveIdx = this->bufIdx;
     RelRefArgType argType;
     ParseError ret;
     this->eat_space();
-    argType = this->eat_entRef(sb);
+    argType = (this->*eat_XRef)(sb);
     if (argType == RELARG_INVALID) {
         sb.clear();
         this->eat_while<not_comma_space>(sb);
@@ -1382,7 +1384,7 @@ void PQLParser::eat_entRef_varRef(RelRef &relRef, StringBuffer &sb,
     this->eat_space();
     sb.clear();
     errorMsg = NULL;
-    argType = this->eat_varRef(sb);
+    argType = (this->*eat_YRef)(sb);
     if (argType == RELARG_INVALID) {
         sb.clear();
         this->eat_while<not_comma_space_rparen>(sb);
@@ -1411,6 +1413,13 @@ void PQLParser::error_set_relRef_arg(ParseError parseErr_,
                 which, sb.c_str(), errBuf.c_str());
         break;
     }
+}
+
+void PQLParser::eat_entRef_varRef(RelRef &relRef, StringBuffer &sb,
+        char **errorMsg) throw(ParseError)
+{
+    this->eat_XRef_YRef(&PQLParser::eat_entRef,
+            &PQLParser::eat_varRef, relRef, sb, errorMsg);
 }
 
 bool PQLParser::eat_relRef_generic(RelRef &relRef, StringBuffer &sb,

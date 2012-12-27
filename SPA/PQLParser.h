@@ -335,11 +335,15 @@ private:
     RelRefArgType eat_stmtRef(StringBuffer &sb);
     RelRefArgType eat_lineRef(StringBuffer &sb);
     RelRefArgType eat_varRef(StringBuffer &sb);
-    void eat_entRef_varRef(RelRef &relRef, StringBuffer &sb,
-            char **errorMsg) throw(ParseError);
+    void eat_XRef_YRef(RelRefArgType (PQLParser::*eat_XRef)(StringBuffer &sb),
+            RelRefArgType (PQLParser::*eat_YRef)(StringBuffer &sb),
+            RelRef &relRef, StringBuffer &sb, char **errorMsg)
+                throw(ParseError);
     void error_set_relRef_arg(ParseError parseErr_, const RelRef &relRef,
             const char *which, const StringBuffer &sb, char **errorMsg)
                 throw(ParseError);
+    void eat_entRef_varRef(RelRef &relRef, StringBuffer &sb, char **errorMsg)
+            throw(ParseError);
     bool relRef_finalize(RelRef &relRef, char **errorMsg);
     bool eat_relRef_generic(RelRef &relRef, StringBuffer &sb,
         bool (PQLParser::*eat_relRef_string_M) (StringBuffer &sb),
