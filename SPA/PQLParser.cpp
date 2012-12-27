@@ -1593,7 +1593,7 @@ RelRef PQLParser::eat_relRef(StringBuffer &sb)
 bool PQLParser::eat_relCond(StringBuffer &sb) throw(ParseError)
 {
     int saveIdx = this->bufIdx;
-    RelRef relRef;
+    RelRef relRef, prevRelRef;
     if (this->eat_space() <= 0) {
         RESTORE_AND_RET(false, saveIdx);
     }
@@ -1601,6 +1601,7 @@ bool PQLParser::eat_relCond(StringBuffer &sb) throw(ParseError)
     if (!RelRef::valid(relRef)) {
         RESTORE_AND_RET(false, saveIdx);
     }
+    prevRelRef = relRef;
     while (1) {
         saveIdx = this->bufIdx;
         if (this->eat_space() <= 0) {
@@ -1614,7 +1615,7 @@ bool PQLParser::eat_relCond(StringBuffer &sb) throw(ParseError)
         if (this->eat_space() <= 0) {
             sb.clear();
             this->eat_while<not_space>(sb);
-            this->error(PARSE_RELCOND_AND_NOSEP);
+            this->error(PARSE_RELCOND_AND_NOSEP, relRef.dump().c_str());
         }
         relRef = this->eat_relRef(sb);
         if (!RelRef::valid(relRef)) {
@@ -1622,6 +1623,7 @@ bool PQLParser::eat_relCond(StringBuffer &sb) throw(ParseError)
             this->eat_while<not_rparen>(sb);
             this->error(PARSE_RELCOND_INVALID_RELREF, sb.c_str());
         }
+        prevRelRef = relRef;
     }
     return true;
 }

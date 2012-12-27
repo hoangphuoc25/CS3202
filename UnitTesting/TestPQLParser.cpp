@@ -1487,3 +1487,18 @@ void TestPQLParser::test_err_rel_no_rparen()
             relRefType_to_string(REL_MODIFIES), "Modifies(a,v)");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
+
+void TestPQLParser::test_err_relcond_and_nosep()
+{
+    string queryStr = "assign a1, a2; variable v1, v2;";
+    queryStr += " Select a1 such that Modifies(a1,v1) and# Modifies(a2,v2)";
+    string out;
+    PQLParser parser;
+    ostringstream *os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_RELCOND_AND_NOSEP, parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_RELCOND_AND_NOSEP_STR,
+            "Modifies(a1,v1)");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}

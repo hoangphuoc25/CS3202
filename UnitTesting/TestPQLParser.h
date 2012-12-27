@@ -75,6 +75,7 @@ private:
     void test_err_rel_argtwo_undeclared();
     void test_err_rel_argtwo_type_error();
     void test_err_rel_no_rparen();
+    void test_err_relcond_and_nosep();
 };
 
 #endif
