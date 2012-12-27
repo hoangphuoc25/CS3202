@@ -1615,7 +1615,7 @@ bool PQLParser::eat_relCond(StringBuffer &sb) throw(ParseError)
         if (this->eat_space() <= 0) {
             sb.clear();
             this->eat_while<not_space>(sb);
-            this->error(PARSE_RELCOND_AND_NOSEP, relRef.dump().c_str());
+            this->error(PARSE_RELCOND_AND_NOSEP, prevRelRef.dump().c_str());
         }
         relRef = this->eat_relRef(sb);
         if (!RelRef::valid(relRef)) {
