@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cctype>
 #include <cstdarg>
+#include <cassert>
 #include <string>
 #include <map>
 #include <utility>
@@ -686,9 +687,6 @@ void PQLParser::print_error(va_list ap)
         break;
     case PARSE_REL_NO_RPAREN:
         sb.vsprintf(PARSE_REL_NO_RPAREN_STR, ap);
-        break;
-    case PARSE_RELREF_INVALID:
-        sb.vsprintf(PARSE_RELREF_INVALID_STR, ap);
         break;
     case PARSE_RELCOND_AND_NOSEP:
         sb.vsprintf(PARSE_RELCOND_AND_NOSEP_STR, ap);
@@ -1447,21 +1445,17 @@ bool PQLParser::eat_relRef_generic(RelRef &relRef, StringBuffer &sb,
                     relRefType_to_string(relRef.relType),
                     relRef.dump().c_str());
             }
-            if (RelRef::valid(relRef)) {
+            assert(RelRef::valid(relRef));
+            errorMsg = NULL;
+            ret = this->qinfo->add_relRef(relRef, &errorMsg);
+            if (ret != PARSE_OK) {
+                this->error_add_relRef(ret, relRef, errorMsg);
+            } else if (errorMsg) {
+                this->warning(errorMsg);
+                free(errorMsg);
                 errorMsg = NULL;
-                ret = this->qinfo->add_relRef(relRef, &errorMsg);
-                if (ret != PARSE_OK) {
-                    this->error_add_relRef(ret, relRef, errorMsg);
-                } else if (errorMsg) {
-                    this->warning(errorMsg);
-                    free(errorMsg);
-                    errorMsg = NULL;
-                }
-                return true;
-            } else {
-                // invalid RelRef
-                this->error(PARSE_RELREF_INVALID, relRef.dump().c_str());
             }
+            return true;
         }
     }
 

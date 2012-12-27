@@ -124,9 +124,6 @@
 // args: relRef string rep, relRef.dump()
 #define PARSE_REL_NO_RPAREN_STR \
     "%s: Expected ')' [%s]"
-// arg: relRef.dump()
-#define PARSE_RELREF_INVALID_STR \
-    "Invalid RelRef \"%s\""
 #define PARSE_RELCOND_AND_NOSEP_STR \
     "relCond: expect whitespace after \"and\""
 // arg: PQLParser::eat_while<not_rparen>(sb) --> sb.c_str()
@@ -191,7 +188,6 @@ enum ParseError {
     PARSE_REL_ARGONE_UNDECLARED, PARSE_REL_ARGONE_TYPE_ERROR,
     PARSE_REL_ARGTWO_UNDECLARED, PARSE_REL_ARGTWO_TYPE_ERROR,
     PARSE_REL_NO_COMMA, PARSE_REL_NO_RPAREN,
-    PARSE_RELREF_INVALID,
     PARSE_RELCOND_AND_NOSEP, PARSE_RELCOND_INVALID_RELREF,
     PARSE_QINFO_INSERT_INVALID_RELREF,
     PARSE_END_OF_QUERY_ERROR,
