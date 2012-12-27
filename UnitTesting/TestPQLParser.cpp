@@ -1385,3 +1385,31 @@ void TestPQLParser::test_err_rel_argtwo()
             relRefType_to_string(REL_MODIFIES), "#53");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
+
+void TestPQLParser::test_err_rel_arg_int_invalid()
+{
+    string queryStr = "variable v; ";
+    queryStr += "Select BOOLEAN such that Modifies(551234567890, v)";
+    string out;
+    PQLParser parser;
+    ostringstream *os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARG_INT_INVALID,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARG_INT_INVALID_STR,
+            relRefType_to_string(REL_MODIFIES), "one", "551234567890",
+            S_TO_UINT_TOO_LONG);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = "stmt s; Select s such that Modifies(3234567890, _)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARG_INT_INVALID,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARG_INT_INVALID_STR,
+            relRefType_to_string(REL_MODIFIES), "one", "3234567890",
+            S_TO_UINT_OVERFLOW);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
