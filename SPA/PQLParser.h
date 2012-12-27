@@ -106,9 +106,6 @@
 // args: relRef string rep, "one" / "two", synonym name, other error msg
 #define PARSE_REL_ARG_INT_INVALID_STR \
     "%s: Invalid integer arg %s \"%s\" [%s]"
-// args: relRef string rep, "one" / "two"
-#define PARSE_REL_ARG_INVALID_STR \
-    "%s: setting arg %s to arg of invalid type"
 // args: relRef string rep, synonym
 #define PARSE_REL_ARGONE_UNDECLARED_STR \
     "%s: arg one is an undeclared synonym \"%s\""
@@ -184,7 +181,6 @@ enum ParseError {
     PARSE_ATTRREF_UNDEF_ATTRNAME, PARSE_ATTRREF_UNDECLARED,
     PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
     PARSE_REL_ARGONE, PARSE_REL_ARGTWO, PARSE_REL_ARG_INT_INVALID,
-    PARSE_REL_ARG_INVALID, // TODO: shouldn't occur. remove this?
     PARSE_REL_ARGONE_UNDECLARED, PARSE_REL_ARGONE_TYPE_ERROR,
     PARSE_REL_ARGTWO_UNDECLARED, PARSE_REL_ARGTWO_TYPE_ERROR,
     PARSE_REL_NO_COMMA, PARSE_REL_NO_RPAREN,

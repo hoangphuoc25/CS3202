@@ -171,6 +171,7 @@ ParseError RelRef::set_arg(int which, RelRefArgType argType, StringBuffer &sb,
         char **errorMsg)
 {
     ParseError ret = PARSE_OK;
+    assert(argType != RELARG_INVALID);
     switch (argType) {
     case RELARG_SYN:
         if (which == 1) {
@@ -203,9 +204,6 @@ ParseError RelRef::set_arg(int which, RelRefArgType argType, StringBuffer &sb,
         } else {
             this->argTwoType = RELARG_WILDCARD;
         }
-        break;
-    case REL_INVALID:
-        ret = PARSE_REL_ARG_INVALID;
         break;
     }
     if (ret == PARSE_OK) {
@@ -666,9 +664,6 @@ void PQLParser::print_error(va_list ap)
         break;
     case PARSE_REL_ARG_INT_INVALID:
         sb.vsprintf(PARSE_REL_ARG_INT_INVALID_STR, ap);
-        break;
-    case PARSE_REL_ARG_INVALID:
-        sb.vsprintf(PARSE_REL_ARG_INVALID_STR, ap);
         break;
     case PARSE_REL_ARGONE_UNDECLARED:
         sb.vsprintf(PARSE_REL_ARGONE_UNDECLARED_STR, ap);
@@ -1414,9 +1409,6 @@ void PQLParser::error_set_relRef_arg(ParseError parseErr_,
         }
         this->error(parseErr_, relRefType_to_string(relRef.relType),
                 which, sb.c_str(), errBuf.c_str());
-        break;
-    case PARSE_REL_ARG_INVALID:
-        this->error(parseErr_, relRefType_to_string(relRef.relType), which);
         break;
     }
 }
