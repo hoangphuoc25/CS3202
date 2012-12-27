@@ -102,6 +102,10 @@ void Node::link_stmt(Node *n1){
     }
 }
 
+void Node::set_control_var(string var){
+    control_var = var;
+}
+
 // Printer
 void Node::dump(int n){
     while (n--) {

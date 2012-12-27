@@ -41,6 +41,7 @@ public:
     void set_successor(Node* n);
     void add_modifies(string var);
     void add_uses(string var);
+    void set_control_var(string var);
 
     // Helper
     void link_stmt(Node *n1); //helper to link stmt nodes
@@ -68,6 +69,7 @@ private:
     Node *successor;
     set<string> modifies;
     set<string> uses;
+    string control_var;
 
     void set_parent(Node* n);
     void set_predecessor(Node* n);

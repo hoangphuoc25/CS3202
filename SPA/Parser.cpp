@@ -214,9 +214,11 @@ void Parser::while_stmt(){
     whileBank[stmtNo] = nextNode;*/
     
     match(VAR_NAME);
-    create_node(currToken.get_name(), VARIABLE_);
+    string varName = currToken.get_name();
+    create_node(varName, VARIABLE_);
     currNode->add_leaf(nextNode);
-    add_uses(currNode, nextNode->get_name());
+    add_uses(currNode, varName);
+    currNode->set_control_var(varName);
 
     match("{");
     create_node("while_stmtLst", STMTLST);
@@ -235,9 +237,11 @@ void Parser::if_stmt(){
     ifBank[stmtNo] = nextNode;*/
 
     match(VAR_NAME);
-    create_node(currToken.get_name(), VARIABLE_);
+    string varName = currToken.get_name();
+    create_node(varName, VARIABLE_);
     currNode->add_leaf(nextNode);
-    add_uses(currNode, nextNode->get_name());
+    add_uses(currNode, varName);
+    currNode->set_control_var(varName);
 
     match("then");
     create_node("then", STMTLST);
