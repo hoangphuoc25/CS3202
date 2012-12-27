@@ -1458,3 +1458,18 @@ void TestPQLParser::test_err_rel_argtwo_undeclared()
             relRefType_to_string(REL_MODIFIES), "someVar");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
+
+void TestPQLParser::test_err_rel_argtwo_type_error()
+{
+    string queryStr = "assign a; stmt s; Select s such that Modifies(a,s)";
+    string out;
+    PQLParser parser;
+    ostringstream *os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
+            TYPE_ERROR_MODIFIES[1]);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
