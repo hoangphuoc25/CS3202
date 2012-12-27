@@ -1428,3 +1428,18 @@ void TestPQLParser::test_err_rel_argone_undeclared()
             relRefType_to_string(REL_MODIFIES), "a");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
+
+void TestPQLParser::test_err_rel_argone_type_error()
+{
+    string queryStr = "variable v, v2; Select v such that Modifies(v,v2)";
+    string out;
+    PQLParser parser;
+    ostringstream *os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGONE_TYPE_ERROR_STR,
+            TYPE_ERROR_MODIFIES[0]);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}

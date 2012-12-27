@@ -32,6 +32,7 @@ CPPUNIT_TEST(test_err_rel_no_comma);
 CPPUNIT_TEST(test_err_rel_argtwo);
 CPPUNIT_TEST(test_err_rel_arg_int_invalid);
 CPPUNIT_TEST(test_err_rel_argone_undeclared);
+CPPUNIT_TEST(test_err_rel_argone_type_error);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -67,6 +68,7 @@ private:
     void test_err_rel_argtwo();
     void test_err_rel_arg_int_invalid();
     void test_err_rel_argone_undeclared();
+    void test_err_rel_argone_type_error();
 };
 
 #endif
