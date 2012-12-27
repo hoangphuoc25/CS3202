@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClCompile Include="Node.cpp" />
     <ClCompile Include="Parser.cpp" />
+    <ClCompile Include="PKB.cpp" />
     <ClCompile Include="PQLParser.cpp" />
     <ClCompile Include="ResultsGraph.cpp" />
     <ClCompile Include="StringBuffer.cpp" />
@@ -23,6 +24,7 @@
   <ItemGroup>
     <ClInclude Include="Node.h" />
     <ClInclude Include="Parser.h" />
+    <ClInclude Include="PKB.h" />
     <ClInclude Include="PQLParser.h" />
     <ClInclude Include="ResultsGraph.h" />
     <ClInclude Include="StringBuffer.h" />

@@ -31,12 +31,14 @@ public:
     VarTable& operator=(const VarTable &other);
     ~VarTable();
 	// #method for varTable#
+
+    int get_index(string var) const;
+	string get_varName(int index) const;
+
 	int insert_var(string var);
 	void add_modified_by(string var, int stmtNo);
 	void add_used_by(string var, int stmtNo);
 
-	int get_index(string var) const;
-	string get_varName(int index) const;
 	const set<int>& get_modified_by(string var) const;
 	const set<int>& get_modified_by(int index) const;
 	const set<int>& get_used_by(string var) const;
