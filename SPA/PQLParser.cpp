@@ -49,6 +49,30 @@ const char *TYPE_ERROR_USES[TYPE_ERROR_ARRAY_SZ] = {
     " or an underscore"
 };
 
+const char *TYPE_ERROR_CALLS[TYPE_ERROR_ARRAY_SZ] = {
+    "Calls: arg one must be a synonym of type" \
+    " procedure;" \
+    " or the name of a procedure enclosed in double quotes;" \
+    " or an underscore",
+
+    "Calls: arg two must be a synonym of type" \
+    " procedure;" \
+    " or the name of a procedure enclosed in double quotes;" \
+    " or an underscore"
+};
+
+const char *TYPE_ERROR_CALLS_STAR[TYPE_ERROR_ARRAY_SZ] = {
+    "Calls*: arg one must be a synonym of type" \
+    " procedure;" \
+    " or the name of a procedure enclosed in double quotes;" \
+    " or an underscore",
+
+    "Calls*: arg two must be a synonym of type" \
+    " procedure;" \
+    " or the name of a procedure enclosed in double quotes;" \
+    " or an underscore"
+};
+
 //////////////////////////////////////////////////////////////////////
 // AttrRef
 //////////////////////////////////////////////////////////////////////
@@ -1369,6 +1393,11 @@ RelRefArgType PQLParser::eat_varRef(StringBuffer &sb)
     RESTORE_AND_RET(RELARG_INVALID, saveIdx);
 }
 
+RelRefArgType PQLParser::eat_callRef(StringBuffer &sb)
+{
+    return this->eat_varRef(sb);
+}
+
 void PQLParser::eat_XRef_YRef(
         RelRefArgType (PQLParser::*eat_XRef)(StringBuffer &sb),
         RelRefArgType (PQLParser::*eat_YRef)(StringBuffer &sb),
@@ -1434,6 +1463,13 @@ void PQLParser::eat_entRef_varRef(RelRef &relRef, StringBuffer &sb,
             &PQLParser::eat_varRef, relRef, sb, errorMsg);
 }
 
+void PQLParser::eat_callRef_callRef(RelRef &relRef, StringBuffer &sb,
+        char **errorMsg) throw(ParseError)
+{
+    this->eat_XRef_YRef(&PQLParser::eat_callRef, &PQLParser::eat_callRef,
+                relRef, sb, errorMsg);
+}
+
 bool PQLParser::eat_relRef_generic(RelRef &relRef, StringBuffer &sb,
         bool (PQLParser::*eat_relRef_string_M) (StringBuffer &sb),
         RelRefType relRefType,
@@ -1493,6 +1529,11 @@ void PQLParser::error_add_relRef(ParseError parseErr_, const RelRef &relRef,
     case REL_USES:
         typeErrorArray = TYPE_ERROR_USES;
         break;
+    case REL_CALLS:
+        typeErrorArray = TYPE_ERROR_CALLS;
+        break;
+    case REL_CALLS_STAR:
+        typeErrorArray = TYPE_ERROR_CALLS_STAR;
     }
     switch (parseErr_) {
     case PARSE_REL_ARGONE_UNDECLARED:
@@ -1524,14 +1565,14 @@ bool PQLParser::eat_relRef_uses(RelRef &relRef, StringBuffer &sb)
 
 bool PQLParser::eat_relRef_calls(RelRef &relRef, StringBuffer &sb)
 {
-    // TODO: Fill in
-    return false;
+    return this->eat_relRef_generic(relRef, sb, &PQLParser::eat_calls,
+                   REL_CALLS, &PQLParser::eat_callRef_callRef);
 }
 
 bool PQLParser::eat_relRef_calls_star(RelRef &relRef, StringBuffer &sb)
 {
-    // TODO: Fill in
-    return false;
+    return this->eat_relRef_generic(relRef, sb, &PQLParser::eat_calls_star,
+                   REL_CALLS_STAR, &PQLParser::eat_callRef_callRef);
 }
 
 bool PQLParser::eat_relRef_parent(RelRef &relRef, StringBuffer &sb)
@@ -1757,6 +1798,14 @@ DesignEnt QueryInfo::USES_ARGTWO_TYPES_ARR[1] = {
     ENT_VAR
 };
 
+DesignEnt QueryInfo::CALLS_ARGONE_TYPES_ARR[CALLS_ARGONE_TYPES_ARR_SZ] = {
+    ENT_PROC
+};
+
+DesignEnt QueryInfo::CALLS_ARGTWO_TYPES_ARR[CALLS_ARGTWO_TYPES_ARR_SZ] = {
+    ENT_PROC
+};
+
 set<DesignEnt> QueryInfo::MODIFIES_ARGONE_TYPES(
         QueryInfo::MODIFIES_ARGONE_TYPES_ARR,
         QueryInfo::MODIFIES_ARGONE_TYPES_ARR+7);
@@ -1772,6 +1821,14 @@ set<DesignEnt> QueryInfo::USES_ARGONE_TYPES(
 set<DesignEnt> QueryInfo::USES_ARGTWO_TYPES(
         QueryInfo::USES_ARGTWO_TYPES_ARR,
         QueryInfo::USES_ARGTWO_TYPES_ARR+1);
+
+set<DesignEnt> QueryInfo::CALLS_ARGONE_TYPES(
+        QueryInfo::CALLS_ARGONE_TYPES_ARR,
+        QueryInfo::CALLS_ARGONE_TYPES_ARR+CALLS_ARGONE_TYPES_ARR_SZ);
+
+set<DesignEnt> QueryInfo::CALLS_ARGTWO_TYPES(
+        QueryInfo::CALLS_ARGTWO_TYPES_ARR,
+        QueryInfo::CALLS_ARGTWO_TYPES_ARR+CALLS_ARGTWO_TYPES_ARR_SZ);
 
 QueryInfo::QueryInfo() {}
 
@@ -1896,8 +1953,8 @@ ParseError QueryInfo::add_uses_relRef(RelRef &relRef, char **errorMsg)
 
 ParseError QueryInfo::add_calls_relRef(RelRef &relRef, char **errorMsg)
 {
-    // TODO: fill in
-    return PARSE_UNKNOWN;
+    return this->add_X_relRef(QueryInfo::CALLS_ARGONE_TYPES,
+                   QueryInfo::CALLS_ARGTWO_TYPES, relRef, errorMsg);
 }
 
 ParseError QueryInfo::add_parent_relRef(RelRef &relRef, char **errorMsg)

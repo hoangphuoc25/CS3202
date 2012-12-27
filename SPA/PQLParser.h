@@ -141,6 +141,8 @@
 extern const char *TYPE_ERROR_EMPTY[TYPE_ERROR_ARRAY_SZ];
 extern const char *TYPE_ERROR_MODIFIES[TYPE_ERROR_ARRAY_SZ];
 extern const char *TYPE_ERROR_USES[TYPE_ERROR_ARRAY_SZ];
+extern const char *TYPE_ERROR_CALLS[TYPE_ERROR_ARRAY_SZ];
+extern const char *TYPE_ERROR_CALLS_STAR[TYPE_ERROR_ARRAY_SZ];
 
 enum DesignEnt {
     ENT_PROC, ENT_STMTLST, ENT_STMT, ENT_ASSIGN, ENT_CALL,
@@ -336,6 +338,7 @@ private:
     RelRefArgType eat_stmtRef(StringBuffer &sb);
     RelRefArgType eat_lineRef(StringBuffer &sb);
     RelRefArgType eat_varRef(StringBuffer &sb);
+    RelRefArgType eat_callRef(StringBuffer &sb);
     void eat_XRef_YRef(RelRefArgType (PQLParser::*eat_XRef)(StringBuffer &sb),
             RelRefArgType (PQLParser::*eat_YRef)(StringBuffer &sb),
             RelRef &relRef, StringBuffer &sb, char **errorMsg)
@@ -345,6 +348,8 @@ private:
                 throw(ParseError);
     void eat_entRef_varRef(RelRef &relRef, StringBuffer &sb, char **errorMsg)
             throw(ParseError);
+    void eat_callRef_callRef(RelRef &relRef, StringBuffer &sb,
+            char **errorMsg) throw(ParseError);
     bool relRef_finalize(RelRef &relRef, char **errorMsg);
     bool eat_relRef_generic(RelRef &relRef, StringBuffer &sb,
         bool (PQLParser::*eat_relRef_string_M) (StringBuffer &sb),
@@ -438,14 +443,21 @@ private:
     ParseError add_next_relRef(RelRef &relRef, char **errorMsg);
     ParseError add_affects_relRef(RelRef &relRef, char **errorMsg);
 
+    #define CALLS_ARGONE_TYPES_ARR_SZ 1
+    #define CALLS_ARGTWO_TYPES_ARR_SZ 1
+
     static DesignEnt MODIFIES_ARGONE_TYPES_ARR[7];
     static DesignEnt MODIFIES_ARGTWO_TYPES_ARR[1];
     static DesignEnt USES_ARGONE_TYPES_ARR[7];
     static DesignEnt USES_ARGTWO_TYPES_ARR[1];
+    static DesignEnt CALLS_ARGONE_TYPES_ARR[CALLS_ARGONE_TYPES_ARR_SZ];
+    static DesignEnt CALLS_ARGTWO_TYPES_ARR[CALLS_ARGTWO_TYPES_ARR_SZ];
     static std::set<DesignEnt> MODIFIES_ARGONE_TYPES;
     static std::set<DesignEnt> MODIFIES_ARGTWO_TYPES;
     static std::set<DesignEnt> USES_ARGONE_TYPES;
     static std::set<DesignEnt> USES_ARGTWO_TYPES;
+    static std::set<DesignEnt> CALLS_ARGONE_TYPES;
+    static std::set<DesignEnt> CALLS_ARGTWO_TYPES;
 };
 
 #endif
