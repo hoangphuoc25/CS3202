@@ -43,7 +43,7 @@ const char *TYPE_ERROR_USES[TYPE_ERROR_ARRAY_SZ] = {
     " or the name of a procedure enclosed in double quotes;" \
     " or an underscore",
 
-    "Modifies: arg two must be a synonym of type" \
+    "Uses: arg two must be a synonym of type" \
     " variable;" \
     " or the name of a variable enclosed in double quotes;" \
     " or an underscore"
