@@ -1263,7 +1263,7 @@ bool PQLParser::eat_uses(StringBuffer &sb)
 
 bool PQLParser::eat_calls(StringBuffer &sb)
 {
-    return this->eat_alpha_string(sb, CALLS_STAR_STR);
+    return this->eat_alpha_string(sb, CALLS_STR);
 }
 
 bool PQLParser::eat_calls_star(StringBuffer &sb)
