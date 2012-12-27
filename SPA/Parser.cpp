@@ -199,8 +199,9 @@ void Parser::call_stmt(){
     match(PROC_NAME);
     create_node(currToken.get_name(), CALL_STMT);
     currNode->link_stmt(nextNode);
-    directory[stmtNo] = CALLTYPE;
-    callBank[stmtNo] = nextNode;
+    pkb.add_node_entry(stmtNo, CALLTYPE, nextNode);
+    /*directory[stmtNo] = CALLTYPE;
+    callBank[stmtNo] = nextNode;*/
     match(";");
 }
 
@@ -208,8 +209,9 @@ void Parser::while_stmt(){
     match("while");
     create_node(currToken.get_name(), WHILE_STMT);
     currNode->link_stmt(nextNode);
-    directory[stmtNo] = WHILETYPE;
-    whileBank[stmtNo] = nextNode;
+    pkb.add_node_entry(stmtNo, WHILETYPE, nextNode);
+    /*directory[stmtNo] = WHILETYPE;
+    whileBank[stmtNo] = nextNode;*/
     
     match(VAR_NAME);
     create_node(currToken.get_name(), VARIABLE_);
@@ -228,8 +230,9 @@ void Parser::if_stmt(){
     match("if");
     create_node(currToken.get_name(), IF_STMT);
     currNode->link_stmt(nextNode);
-    directory[stmtNo] = IFTYPE;
-    ifBank[stmtNo] = nextNode;
+    pkb.add_node_entry(stmtNo, IFTYPE, nextNode);
+    /*directory[stmtNo] = IFTYPE;
+    ifBank[stmtNo] = nextNode;*/
 
     match(VAR_NAME);
     create_node(currToken.get_name(), VARIABLE_);
@@ -260,8 +263,9 @@ void Parser::assign(){
     create_node("=", ASSIGN_STMT);
     currNode->link_stmt(nextNode);
     nextNode->add_leaf(tempNode);
-    directory[stmtNo] = ASSIGNTYPE;
-    assignBank[stmtNo] = nextNode;
+    pkb.add_node_entry(stmtNo, ASSIGNTYPE, nextNode);
+    /*directory[stmtNo] = ASSIGNTYPE;
+    assignBank[stmtNo] = nextNode;*/
     add_modifies(nextNode, tempNode->get_name());
 
     assignNode = nextNode;
@@ -331,15 +335,17 @@ void Parser::create_node(string name, NodeType type){
 
 void Parser::add_modifies(Node* n, string var){
     int stmt = n->get_stmtNo();
-    varTable.insert_var(var);
-    varTable.add_modified_by(var, stmt);
+    pkb.add_modifies(var, stmt);
+    /*varTable.insert_var(var);
+    varTable.add_modified_by(var, stmt);*/
     n->add_modifies(var);
 }
 
 void Parser::add_uses(Node* n, string var){
     int stmt = n->get_stmtNo();
-    varTable.insert_var(var);
-    varTable.add_used_by(var, stmt);
+    pkb.add_modifies(var, stmt);
+    /*varTable.insert_var(var);
+    varTable.add_used_by(var, stmt);*/
     n->add_uses(var);
 }
 

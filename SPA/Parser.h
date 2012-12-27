@@ -9,6 +9,7 @@
 #include "Tokenizer.h"
 #include "Node.h"
 #include "VarTable.h"
+#include "PKB.h"
 #include <map>
 #include <set>
 
@@ -16,7 +17,7 @@ using std::map;
 using std::set;
 using std::stack;
 
-enum stmtType {CALLTYPE, WHILETYPE, IFTYPE, ASSIGNTYPE};
+
 
 class Parser {
 public:
@@ -40,6 +41,7 @@ private:
     // AST info
     Node *astRoot;
     int stmtNo;
+    PKB pkb;
     VarTable varTable;
     map<int, stmtType> directory; 
     map<int, Node*> callBank;
