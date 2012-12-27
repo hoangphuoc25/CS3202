@@ -20,8 +20,6 @@ using std::ostream;
 using std::ofstream;
 using std::ios_base;
 
-#define TYPE_ERROR_ARRAY_SZ 2
-
 const char *TYPE_ERROR_EMPTY[TYPE_ERROR_ARRAY_SZ] = {
     "", ""
 };

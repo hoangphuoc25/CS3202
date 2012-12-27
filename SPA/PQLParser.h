@@ -139,6 +139,12 @@
     "Expected end of query, got \"%s\""
 #define PARSE_UNKNOWN_STR "Unknown error"
 
+// type error stuff
+#define TYPE_ERROR_ARRAY_SZ 2
+
+extern const char *TYPE_ERROR_EMPTY[TYPE_ERROR_ARRAY_SZ];
+extern const char *TYPE_ERROR_MODIFIES[TYPE_ERROR_ARRAY_SZ];
+
 enum DesignEnt {
     ENT_PROC, ENT_STMTLST, ENT_STMT, ENT_ASSIGN, ENT_CALL,
     ENT_WHILE, ENT_IF, ENT_VAR, ENT_CONST, ENT_PROGLINE,
