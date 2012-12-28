@@ -25,6 +25,7 @@ public:
     const char *c_str(void) const;
     int sprintf(const char *fmt, ...);
     int vsprintf(const char *fmt, va_list ap);
+    int substitutef(const char *fmt, const char *sub);
     void clear(void);
     int size(void) const;
 private:

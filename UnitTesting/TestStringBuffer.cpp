@@ -199,6 +199,28 @@ void TestStringBuffer::testSprintf()
     CPPUNIT_ASSERT_EQUAL(80, cnt);
 }
 
+void TestStringBuffer::testSubstitutef()
+{
+    StringBuffer sb;
+    const char *fmt = "this is %s just %% a %d test %s%s\n";
+    const char *sub = "wow";
+    string out = "this is wow just %% a %d test wowwow\n";
+    int ate = sb.substitutef(fmt, sub);
+    CPPUNIT_ASSERT_EQUAL(37, ate);
+    CPPUNIT_ASSERT_EQUAL(out, sb.toString());
+
+    StringBuffer strbuf;
+    const char *fmt2 = "this is %s %s %s %s %s %s %s";
+    const char *sub2 = "hard or easy to dish of wash in bath it";
+    ate = strbuf.substitutef(fmt2, sub2);
+    CPPUNIT_ASSERT_EQUAL(287, ate);
+    out = "this is";
+    for (int i = 0; i < 7; i++) {
+        out += " hard or easy to dish of wash in bath it";
+    }
+    CPPUNIT_ASSERT_EQUAL(out, strbuf.toString());
+}
+
 void TestStringBuffer::testSize()
 {
     StringBuffer sb;

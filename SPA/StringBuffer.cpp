@@ -212,6 +212,31 @@ int StringBuffer::vsprintf(const char *fmt, va_list ap)
     return cnt;
 }
 
+int StringBuffer::substitutef(const char *fmt, const char *sub)
+{
+    int ate = 0;
+    int len = strlen(fmt);
+    int subLen = strlen(sub);
+    this->grow_buffer(len+1);
+    for (int i = 0; i < len; i++) {
+        if (fmt[i] == '%' && i+1 < len && fmt[i+1] == 's') {
+            if (subLen > 2) {
+                this->grow_buffer(subLen-2);
+            }
+            this->buf[this->nrChars] = 0;
+            strncat(&this->buf[this->nrChars], sub, subLen);
+            this->nrChars += subLen;
+            ate += subLen;
+            i++;
+        } else {
+            this->grow_buffer(1);
+            this->buf[this->nrChars++] = fmt[i];
+            ate++;
+        }
+    }
+    return ate;
+}
+
 void StringBuffer::clear(void)
 {
     this->nrChars = 0;
