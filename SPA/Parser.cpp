@@ -455,7 +455,7 @@ void Parser::dumpTable(){
 
     printf("\n\n::::::::: Dumping Table :::::::\n\n");
 
-    vector<string> var = varTable.get_allVars();
+    vector<string> var = varTable.get_all_vars();
     for (varIt = var.begin(); varIt != var.end(); varIt++){
         printf("Variable: %s\n", varIt->c_str());
         m = varTable.get_modified_by(*varIt);

@@ -16,6 +16,7 @@
     <ClCompile Include="PKB.cpp" />
     <ClCompile Include="PQLParser.cpp" />
     <ClCompile Include="ResultsGraph.cpp" />
+    <ClCompile Include="ProcTable.cpp" />
     <ClCompile Include="StringBuffer.cpp" />
     <ClCompile Include="Token.cpp" />
     <ClCompile Include="Tokenizer.cpp" />
@@ -27,6 +28,7 @@
     <ClInclude Include="PKB.h" />
     <ClInclude Include="PQLParser.h" />
     <ClInclude Include="ResultsGraph.h" />
+    <ClInclude Include="ProcTable.h" />
     <ClInclude Include="StringBuffer.h" />
     <ClInclude Include="Token.h" />
     <ClInclude Include="Tokenizer.h" />

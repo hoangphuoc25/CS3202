@@ -2,11 +2,13 @@
 #define T11_PKB_H
 #include <map>
 #include <set>
+#include <string>
 #include "VarTable.h"
 #include "Node.h"
 
 using std::map;
 using std::set;
+using std::string;
 
 enum stmtType {CALLTYPE, WHILETYPE, IFTYPE, ASSIGNTYPE};
 

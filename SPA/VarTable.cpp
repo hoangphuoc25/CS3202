@@ -79,7 +79,7 @@ int VarTable::get_index(string var) const
     }
 }
 
-string VarTable::get_varName(int index) const
+string VarTable::get_var_name(int index) const
 {
     int sz = varTable.size();
     if (index < 0 || index >= sz) {
@@ -142,7 +142,7 @@ const set<int>& VarTable::get_used_by(int index) const
 	return varTable[index].usedBy;
 }
 
-vector<string> VarTable::get_allVars() const
+vector<string> VarTable::get_all_vars() const
 {
 	vector<string> result;
     int len = varTable.size();
