@@ -124,7 +124,7 @@ void StringBuffer::grow_buffer(int add)
     if (add <= 0) {
         return;
     }
-    if (nrChars + add > capacity) {
+    if (nrChars + add >= capacity) {
         int newCap = capacity / 2 * 3;
         newCap = max(newCap, capacity + add + 5);
         char *newbuf = new char[newCap+1];
