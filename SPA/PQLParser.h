@@ -443,13 +443,17 @@ private:
     ParseError add_next_relRef(RelRef &relRef, char **errorMsg);
     ParseError add_affects_relRef(RelRef &relRef, char **errorMsg);
 
+    #define MODIFIES_ARGONE_TYPES_ARR_SZ 7
+    #define MODIFIES_ARGTWO_TYPES_ARR_SZ 1
+    #define USES_ARGONE_TYPES_ARR_SZ 7
+    #define USES_ARGTWO_TYPES_ARR_SZ 1
     #define CALLS_ARGONE_TYPES_ARR_SZ 1
     #define CALLS_ARGTWO_TYPES_ARR_SZ 1
 
-    static DesignEnt MODIFIES_ARGONE_TYPES_ARR[7];
-    static DesignEnt MODIFIES_ARGTWO_TYPES_ARR[1];
-    static DesignEnt USES_ARGONE_TYPES_ARR[7];
-    static DesignEnt USES_ARGTWO_TYPES_ARR[1];
+    static DesignEnt MODIFIES_ARGONE_TYPES_ARR[MODIFIES_ARGONE_TYPES_ARR_SZ];
+    static DesignEnt MODIFIES_ARGTWO_TYPES_ARR[MODIFIES_ARGTWO_TYPES_ARR_SZ];
+    static DesignEnt USES_ARGONE_TYPES_ARR[USES_ARGONE_TYPES_ARR_SZ];
+    static DesignEnt USES_ARGTWO_TYPES_ARR[USES_ARGTWO_TYPES_ARR_SZ];
     static DesignEnt CALLS_ARGONE_TYPES_ARR[CALLS_ARGONE_TYPES_ARR_SZ];
     static DesignEnt CALLS_ARGTWO_TYPES_ARR[CALLS_ARGTWO_TYPES_ARR_SZ];
     static std::set<DesignEnt> MODIFIES_ARGONE_TYPES;

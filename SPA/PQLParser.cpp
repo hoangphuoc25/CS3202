@@ -1779,22 +1779,24 @@ void PQLParser::_parse(const string &s, bool showErrors_, bool showWarnings_)
 
 /* class QueryInfo */
 
-DesignEnt QueryInfo::MODIFIES_ARGONE_TYPES_ARR[7] = {
+DesignEnt QueryInfo::MODIFIES_ARGONE_TYPES_ARR
+                [MODIFIES_ARGONE_TYPES_ARR_SZ] = {
     ENT_ASSIGN, ENT_STMT, ENT_IF,
     ENT_WHILE, ENT_PROC, ENT_CALL,
     ENT_PROGLINE
 };
 
-DesignEnt QueryInfo::MODIFIES_ARGTWO_TYPES_ARR[1] = {
+DesignEnt QueryInfo::MODIFIES_ARGTWO_TYPES_ARR
+                [MODIFIES_ARGTWO_TYPES_ARR_SZ] = {
     ENT_VAR
 };
 
-DesignEnt QueryInfo::USES_ARGONE_TYPES_ARR[7] = {
+DesignEnt QueryInfo::USES_ARGONE_TYPES_ARR[USES_ARGONE_TYPES_ARR_SZ] = {
     ENT_ASSIGN, ENT_IF, ENT_WHILE, ENT_PROC,
     ENT_CALL, ENT_STMT, ENT_PROGLINE
 };
 
-DesignEnt QueryInfo::USES_ARGTWO_TYPES_ARR[1] = {
+DesignEnt QueryInfo::USES_ARGTWO_TYPES_ARR[USES_ARGTWO_TYPES_ARR_SZ] = {
     ENT_VAR
 };
 
@@ -1808,19 +1810,19 @@ DesignEnt QueryInfo::CALLS_ARGTWO_TYPES_ARR[CALLS_ARGTWO_TYPES_ARR_SZ] = {
 
 set<DesignEnt> QueryInfo::MODIFIES_ARGONE_TYPES(
         QueryInfo::MODIFIES_ARGONE_TYPES_ARR,
-        QueryInfo::MODIFIES_ARGONE_TYPES_ARR+7);
+        QueryInfo::MODIFIES_ARGONE_TYPES_ARR+MODIFIES_ARGONE_TYPES_ARR_SZ);
 
 set<DesignEnt> QueryInfo::MODIFIES_ARGTWO_TYPES(
         QueryInfo::MODIFIES_ARGTWO_TYPES_ARR,
-        QueryInfo::MODIFIES_ARGTWO_TYPES_ARR+1);
+        QueryInfo::MODIFIES_ARGTWO_TYPES_ARR+MODIFIES_ARGTWO_TYPES_ARR_SZ);
 
 set<DesignEnt> QueryInfo::USES_ARGONE_TYPES(
         QueryInfo::USES_ARGONE_TYPES_ARR,
-        QueryInfo::USES_ARGONE_TYPES_ARR+7);
+        QueryInfo::USES_ARGONE_TYPES_ARR+USES_ARGONE_TYPES_ARR_SZ);
 
 set<DesignEnt> QueryInfo::USES_ARGTWO_TYPES(
         QueryInfo::USES_ARGTWO_TYPES_ARR,
-        QueryInfo::USES_ARGTWO_TYPES_ARR+1);
+        QueryInfo::USES_ARGTWO_TYPES_ARR+USES_ARGTWO_TYPES_ARR_SZ);
 
 set<DesignEnt> QueryInfo::CALLS_ARGONE_TYPES(
         QueryInfo::CALLS_ARGONE_TYPES_ARR,
