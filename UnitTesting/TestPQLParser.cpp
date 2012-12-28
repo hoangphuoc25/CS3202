@@ -2,12 +2,15 @@
 #include <string>
 #include <map>
 #include <sstream>
+#include <set>
 #include "TestPQLParser.h"
 #include "../SPA/PQLParser.h"
 
 using std::string;
 using std::map;
 using std::ostringstream;
+using std::set;
+using std::pair;
 
 void TestPQLParser::setUp()
 {
@@ -1911,353 +1914,484 @@ void TestPQLParser::test_err_uses_argtypes()
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
 
-void TestPQLParser::test_calls()
+void TestPQLParser::test_calls_and_star()
 {
-    // Calls(proc,proc)
-    string queryStr = " procedure p1, p2; Select p1 such that Calls(p1,p2)";
-    string out;
+    set<const char*> S;
+    S.insert(CALLS_STR);
+    S.insert(CALLS_STAR_STR);
+    StringBuffer sb;
+    string queryStr, out;
     PQLParser parser;
-    ostringstream *os = new ostringstream;
+    ostringstream *os;
     QueryInfo *qinfo;
-    parser.parse(os, queryStr, true, false);
-    qinfo = parser.get_queryinfo();
-    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  procedure p1\n  procedure p2\nSELECT TUPLE\n";
-    out += "  procedure p1\nCalls(p1,p2)\n";
-    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
-    // Calls(proc,"string")
-    queryStr = "procedure fv1; Select fv1 such that Calls(fv1, \"proc2\")";
-    os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    qinfo = parser.get_queryinfo();
-    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  procedure fv1\nSELECT TUPLE\n  procedure fv1\n";
-    out += "Calls(fv1,\"proc2\")\n";
-    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+    for (set<const char*>::const_iterator it = S.begin(); it != S.end();
+            it++) {
+        // Calls(proc,proc)
+        sb.clear();
+        sb.substitutef(" procedure p1, p2; Select p1 such that %s(p1,p2)",
+                *it);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  procedure p1\n  procedure p2\n");
+        sb.append("SELECT TUPLE\n  procedure p1\n");
+        sb.substitutef("%s(p1,p2)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
-    // Calls(proc,_)
-    queryStr = "procedure bfg1; assign a123; ";
-    queryStr += " Select a123 such that Calls(bfg1,_)";
-    os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    qinfo = parser.get_queryinfo();
-    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  procedure bfg1\n  assign a123\nSELECT TUPLE\n";
-    out += "  assign a123\nCalls(bfg1,_)\n";
-    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+        // Calls(proc,"string")
+        sb.clear();
+        sb.substitutef(
+            "procedure fv1; Select fv1 such that %s(fv1, \"proc2\")", *it);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append(
+            "DECLARATIONS\n  procedure fv1\nSELECT TUPLE\n  procedure fv1\n");
+        sb.substitutef("%s(fv1,\"proc2\")\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
-    // Calls("string",proc)
-    queryStr = "procedure s1; Select s1 such that Calls(\"myProc\",s1)";
-    os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    qinfo = parser.get_queryinfo();
-    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  procedure s1\nSELECT TUPLE\n  procedure s1\n";
-    out += "Calls(\"myProc\",s1)\n";
-    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+        // Calls(proc,_)
+        sb.clear();
+        sb.append("procedure bfg1; assign a123; ");
+        sb.substitutef(" Select a123 such that %s(bfg1,_)", *it);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append(
+            "DECLARATIONS\n  procedure bfg1\n  assign a123\nSELECT TUPLE\n");
+        sb.substitutef("  assign a123\n%s(bfg1,_)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
-    // Calls("string","string")
-    queryStr = "procedure f; Select f such that Calls(\"a1\",\"b2s\")";
-    os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    qinfo = parser.get_queryinfo();
-    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  procedure f\nSELECT TUPLE\n  procedure f\n";
-    out += "Calls(\"a1\",\"b2s\")\n";
-    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+        // Calls("string",proc)
+        sb.clear();
+        sb.substitutef(
+            "procedure s1; Select s1 such that %s(\"myProc\",s1)", *it);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append(
+            "DECLARATIONS\n  procedure s1\nSELECT TUPLE\n  procedure s1\n");
+        sb.substitutef("%s(\"myProc\",s1)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
-    // Calls("string",_)
-    queryStr = " assign sd1; Select sd1 such that Calls(\"blah\",_)";
-    os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    qinfo = parser.get_queryinfo();
-    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  assign sd1\nSELECT TUPLE\n  assign sd1\n";
-    out += "Calls(\"blah\",_)\n";
-    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+        // Calls("string","string")
+        sb.clear();
+        sb.substitutef(
+            "procedure f; Select f such that %s(\"a1\",\"b2s\")", *it);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append(
+            "DECLARATIONS\n  procedure f\nSELECT TUPLE\n  procedure f\n");
+        sb.substitutef("%s(\"a1\",\"b2s\")\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
-    // Calls(_,proc)
-    queryStr = "while w1; procedure s; Select <w1, s> such that ";
-    queryStr += " Calls(_,s)";
-    os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    qinfo = parser.get_queryinfo();
-    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  while w1\n  procedure s\nSELECT TUPLE\n";
-    out += "  while w1\n  procedure s\nCalls(_,s)\n";
-    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+        // Calls("string",_)
+        sb.clear();
+        sb.substitutef(" assign sd1; Select sd1 such that %s(\"blah\",_)",
+                *it);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  assign sd1\nSELECT TUPLE\n  assign sd1\n");
+        sb.substitutef("%s(\"blah\",_)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
-    // Calls(_,"string")
-    queryStr = "stmt s1; Select s1 such that Calls(_,\"df1\")";
-    os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    qinfo = parser.get_queryinfo();
-    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  stmt s1\nSELECT TUPLE\n  stmt s1\n";
-    out += "Calls(_,\"df1\")\n";
-    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+        // Calls(_,proc)
+        sb.clear();
+        sb.append("while w1; procedure s; Select <w1, s> such that ");
+        sb.substitutef("%s(_,s)", *it);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  while w1\n  procedure s\nSELECT TUPLE\n");
+        sb.substitutef("  while w1\n  procedure s\n%s(_,s)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
-    // Calls(_,_)
-    queryStr = "assign asb; Select asb such that Calls(_,_)";
-    os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    qinfo = parser.get_queryinfo();
-    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  assign asb\nSELECT TUPLE\n  assign asb\n";
-    out += "Calls(_,_)\n";
-    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+        // Calls(_,"string")
+        sb.clear();
+        sb.substitutef("stmt s1; Select s1 such that %s(_,\"df1\")", *it);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  stmt s1\nSELECT TUPLE\n  stmt s1\n");
+        sb.substitutef("%s(_,\"df1\")\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
-    // Multiple calls
-    queryStr = "procedure p1, p2; ";
-    queryStr += " Select p1 such that Calls(p1,p2) and Calls(p2, \"tig\")";
-    os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    qinfo = parser.get_queryinfo();
-    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  procedure p1\n  procedure p2\n";
-    out += "SELECT TUPLE\n  procedure p1\nCalls(p1,p2)\nCalls(p2,\"tig\")\n";
-    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+        // Calls(_,_)
+        sb.clear();
+        sb.substitutef("assign asb; Select asb such that %s(_,_)", *it);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  assign asb\nSELECT TUPLE\n  assign asb\n");
+        sb.substitutef("%s(_,_)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
-    // Repeated clauses
-    queryStr = "procedure p1, p2, p3, p4, p5; while w1; assign a2; ";
-    queryStr += "Select <p1.procName, p1, a2, w1, p2.procName> such that ";
-    queryStr += " Calls(p1,p2) and Calls(p3,\"aproc\") and Calls(p4,_) and ";
-    // Repeated Calls(proc,*)
-    queryStr += " Calls(p1,p2) and Calls(p3,\"aproc\") and Calls(p4,_) and ";
-    // Calls("string",*)
-    queryStr += " Calls(\"a\",p3) and Calls(\"bs\",\"sdf\") and ";
-    queryStr += " Calls(\"jfgh\", _) and ";
-    // Repeated Calls("string",*)
-    queryStr += " Calls(\"a\",p3) and Calls(\"bs\",\"sdf\") and ";
-    queryStr += " Calls(\"jfgh\", _) and ";
-    // Calls(_,*)
-    queryStr += " Calls(_,p4) and Calls(_,\"someProc\") and Calls(_,_) and ";
-    // Repeated Calls(_,*)
-    queryStr += " Calls(_,p4) and Calls(_,\"someProc\") and Calls(_,_) ";
-    os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  procedure p1\n  procedure p2\n  procedure p3\n";
-    out += "  procedure p4\n  procedure p5\n  while w1\n  assign a2\n";
-    out += "SELECT TUPLE\n  procedure p1 procName\n  procedure p1\n";
-    out += "  assign a2\n  while w1\n  procedure p2 procName\n";
-    out += "Calls(p1,p2)\nCalls(p3,\"aproc\")\nCalls(p4,_)\n";
-    out += "Calls(\"a\",p3)\nCalls(\"bs\",\"sdf\")\nCalls(\"jfgh\",_)\n";
-    out += "Calls(_,p4)\nCalls(_,\"someProc\")\nCalls(_,_)\n";
-    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+        // Multiple calls
+        sb.clear();
+        sb.append("procedure p1, p2; ");
+        sb.substitutef(" Select p1 such that %s(p1,p2) and %s(p2, \"tig\")",
+                *it);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  procedure p1\n  procedure p2\n");
+        sb.substitutef(
+            "SELECT TUPLE\n  procedure p1\n%s(p1,p2)\n%s(p2,\"tig\")\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+        // Repeated clauses
+        sb.clear();
+        sb.append("procedure p1, p2, p3, p4, p5; while w1; assign a2; ");
+        sb.append("Select <p1.procName, p1, a2, w1, p2.procName> such that ");
+        sb.substitutef(" %s(p1,p2) and %s(p3,\"aproc\") and %s(p4,_) and ",
+                *it);
+        // Repeated Calls(proc,*)
+        sb.substitutef(" %s(p1,p2) and %s(p3,\"aproc\") and %s(p4,_) and ",
+                *it);
+        // Calls("string",*)
+        sb.substitutef(" %s(\"a\",p3) and %s(\"bs\",\"sdf\") and ", *it);
+        sb.substitutef(" %s(\"jfgh\", _) and ", *it);
+        // Repeated Calls("string",*)
+        sb.substitutef(" %s(\"a\",p3) and %s(\"bs\",\"sdf\") and ", *it);
+        sb.substitutef(" %s(\"jfgh\", _) and ", *it);
+        // Calls(_,*)
+        sb.substitutef(" %s(_,p4) and %s(_,\"someProc\") and %s(_,_) and ",
+                *it);
+        // Repeated Calls(_,*)
+        sb.substitutef(" %s(_,p4) and %s(_,\"someProc\") and %s(_,_) ", *it);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  procedure p1\n  procedure p2\n");
+        sb.append("  procedure p3\n  procedure p4\n  procedure p5\n");
+        sb.append("  while w1\n  assign a2\n");
+        sb.append("SELECT TUPLE\n  procedure p1 procName\n  procedure p1\n");
+        sb.append("  assign a2\n  while w1\n  procedure p2 procName\n");
+        sb.substitutef("%s(p1,p2)\n%s(p3,\"aproc\")\n%s(p4,_)\n", *it);
+        sb.substitutef("%s(\"a\",p3)\n%s(\"bs\",\"sdf\")\n%s(\"jfgh\",_)\n",
+                *it);
+        sb.substitutef("%s(_,p4)\n%s(_,\"someProc\")\n%s(_,_)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+    }
 }
 
-void TestPQLParser::test_err_calls_argtypes()
+void TestPQLParser::test_err_calls_and_star_argtypes()
 {
-    // Calls(stmtLst,_)
-    string queryStr = "stmtLst s; Select s such that Calls(s,_)";
-    string out;
+    set<pair<const char*, const char **> > S;
+    S.insert(pair<const char *, const char**>(CALLS_STR, TYPE_ERROR_CALLS));
+    S.insert(pair<const char *, const char **>
+                (CALLS_STAR_STR, TYPE_ERROR_CALLS_STAR));
+    StringBuffer sb;
+    string queryStr, out;
     PQLParser parser;
-    ostringstream *os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    out = os->str();
-    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE_TYPE_ERROR,
-            parser.get_parse_result());
-    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGONE_TYPE_ERROR_STR,
-            TYPE_ERROR_CALLS[0]);
-    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    ostringstream *os;
+    QueryInfo *qinfo;
 
-    // Calls(stmt,_)
-    queryStr = "stmt s; Select s such that Calls(s,_)";
-    os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    out = os->str();
-    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE_TYPE_ERROR,
-            parser.get_parse_result());
-    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGONE_TYPE_ERROR_STR,
-            TYPE_ERROR_CALLS[0]);
-    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    for (set<pair<const char*, const char **> >::const_iterator
+            it = S.begin(); it != S.end(); it++) {
+        // Calls(stmtLst,_)
+        sb.clear();
+        sb.substitutef("stmtLst s; Select s such that %s(s,_)", it->first);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        out = os->str();
+        CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE_TYPE_ERROR,
+                parser.get_parse_result());
+        _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGONE_TYPE_ERROR_STR,
+                it->second[0]);
+        CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 
-    // Calls(assign,_)
-    queryStr = "assign a; Select a such that Calls(a,_)";
-    os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    out = os->str();
-    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE_TYPE_ERROR,
-            parser.get_parse_result());
-    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGONE_TYPE_ERROR_STR,
-            TYPE_ERROR_CALLS[0]);
-    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+        // Calls(stmt,_)
+        sb.clear();
+        sb.substitutef("stmt s; Select s such that %s(s,_)", it->first);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        out = os->str();
+        CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE_TYPE_ERROR,
+                parser.get_parse_result());
+        _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGONE_TYPE_ERROR_STR,
+                it->second[0]);
+        CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 
-    // Calls(call,_)
-    queryStr = "call df; Select df such that Calls(df,_)";
-    os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    out = os->str();
-    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE_TYPE_ERROR,
-            parser.get_parse_result());
-    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGONE_TYPE_ERROR_STR,
-            TYPE_ERROR_CALLS[0]);
-    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+        // Calls(assign,_)
+        sb.clear();
+        sb.substitutef("assign a; Select a such that %s(a,_)", it->first);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        out = os->str();
+        CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE_TYPE_ERROR,
+                parser.get_parse_result());
+        _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGONE_TYPE_ERROR_STR,
+                it->second[0]);
+        CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 
-    // Calls(while,_)
-    queryStr = "while fsdf; Select fsdf such that Calls(fsdf,_)";
-    os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    out = os->str();
-    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE_TYPE_ERROR,
-            parser.get_parse_result());
-    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGONE_TYPE_ERROR_STR,
-            TYPE_ERROR_CALLS[0]);
-    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+        // Calls(call,_)
+        sb.clear();
+        sb.substitutef("call df; Select df such that %s(df,_)", it->first);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        out = os->str();
+        CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE_TYPE_ERROR,
+                parser.get_parse_result());
+        _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGONE_TYPE_ERROR_STR,
+                it->second[0]);
+        CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 
-    // Calls(if,_)
-    queryStr = " if bda; Select bda such that Calls(bda,_)";
-    os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    out = os->str();
-    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE_TYPE_ERROR,
-            parser.get_parse_result());
-    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGONE_TYPE_ERROR_STR,
-            TYPE_ERROR_CALLS[0]);
-    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+        // Calls(while,_)
+        sb.clear();
+        sb.substitutef("while fsdf; Select fsdf such that %s(fsdf,_)",
+                it->first);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        out = os->str();
+        CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE_TYPE_ERROR,
+                parser.get_parse_result());
+        _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGONE_TYPE_ERROR_STR,
+                it->second[0]);
+        CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 
-    // Calls(variable,_)
-    queryStr = "variable fgdf; Select fgdf such that Calls(fgdf,_)";
-    os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    out = os->str();
-    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE_TYPE_ERROR,
-            parser.get_parse_result());
-    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGONE_TYPE_ERROR_STR,
-            TYPE_ERROR_CALLS[0]);
-    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+        // Calls(if,_)
+        sb.clear();
+        sb.substitutef(" if bda; Select bda such that %s(bda,_)",
+                it->first);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        out = os->str();
+        CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE_TYPE_ERROR,
+                parser.get_parse_result());
+        _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGONE_TYPE_ERROR_STR,
+                it->second[0]);
+        CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 
-    // Calls(constant,_)
-    queryStr = "constant As1; Select As1 such that Calls(As1,_)";
-    os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    out = os->str();
-    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE_TYPE_ERROR,
-            parser.get_parse_result());
-    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGONE_TYPE_ERROR_STR,
-            TYPE_ERROR_CALLS[0]);
-    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+        // Calls(variable,_)
+        sb.clear();
+        sb.substitutef("variable fgdf; Select fgdf such that %s(fgdf,_)",
+                it->first);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        out = os->str();
+        CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE_TYPE_ERROR,
+                parser.get_parse_result());
+        _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGONE_TYPE_ERROR_STR,
+                it->second[0]);
+        CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 
-    // Calls(prog_line,_)
-    queryStr = "prog_line bs; Select bs such that Calls(bs,_)";
-    os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    out = os->str();
-    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE_TYPE_ERROR,
-            parser.get_parse_result());
-    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGONE_TYPE_ERROR_STR,
-            TYPE_ERROR_CALLS[0]);
-    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+        // Calls(constant,_)
+        sb.clear();
+        sb.substitutef("constant As1; Select As1 such that %s(As1,_)",
+                it->first);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        out = os->str();
+        CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE_TYPE_ERROR,
+                parser.get_parse_result());
+        _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGONE_TYPE_ERROR_STR,
+                it->second[0]);
+        CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+        // Calls(prog_line,_)
+        sb.clear();
+        sb.substitutef("prog_line bs; Select bs such that %s(bs,_)",
+                it->first);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        out = os->str();
+        CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE_TYPE_ERROR,
+                parser.get_parse_result());
+        _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGONE_TYPE_ERROR_STR,
+                it->second[0]);
+        CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+        // Calls(_,stmtLst)
+        sb.clear();
+        sb.substitutef("stmtLst gs123; Select gs123 such that %s(_,gs123)",
+                it->first);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        out = os->str();
+        CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
+                parser.get_parse_result());
+        _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
+                it->second[1]);
+        CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+        // Calls(_,stmt)
+        sb.clear();
+        sb.substitutef("stmt mfw; Select mfw such that %s(_,mfw)",
+                it->first);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        out = os->str();
+        CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
+                parser.get_parse_result());
+        _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
+                it->second[1]);
+        CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+        // Calls(_,assign)
+        sb.clear();
+        sb.substitutef("assign sdg1; Select sdg1 such that %s(_,sdg1)",
+                it->first);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        out = os->str();
+        CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
+                parser.get_parse_result());
+        _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
+                it->second[1]);
+        CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+        // Calls(_,call)
+        sb.clear();
+        sb.substitutef("call bdf1; Select bdf1 such that %s(_,bdf1)",
+                it->first);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        out = os->str();
+        CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
+                parser.get_parse_result());
+        _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
+                it->second[1]);
+        CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+        // Calls(_,while)
+        sb.clear();
+        sb.substitutef("while Kdf1; Select Kdf1 such that %s(_,Kdf1)",
+                it->first);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        out = os->str();
+        CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
+                parser.get_parse_result());
+        _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
+                it->second[1]);
+        CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+        // Calls(_,if)
+        sb.clear();
+        sb.substitutef("if jms1; Select jms1 such that %s(_,jms1)",
+                it->first);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        out = os->str();
+        CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
+                parser.get_parse_result());
+        _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
+                it->second[1]);
+        CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+        // Calls(_,variable)
+        sb.clear();
+        sb.substitutef("variable yof; Select yof such that %s(_,yof)",
+                it->first);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        out = os->str();
+        CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
+                parser.get_parse_result());
+        _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
+                it->second[1]);
+        CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+        // Calls(_,constant)
+        sb.clear();
+        sb.substitutef("constant g2d; Select g2d such that %s(_,g2d)",
+                it->first);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        out = os->str();
+        CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
+                parser.get_parse_result());
+        _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
+                it->second[1]);
+        CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+        // Calls(_,prog_line)
+        sb.clear();
+        sb.substitutef("prog_line mbn8; Select mbn8 such that %s(_,mbn8)",
+                it->first);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        out = os->str();
+        CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
+                parser.get_parse_result());
+        _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
+                it->second[1]);
+        CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    }
 
     // Calls(Int,_)
-    queryStr = "constant ng1; Select ng1 such that Calls(52,_)";
+    queryStr = "constant ng1; Select ng1 such that Calls(52,_)",
     os = new ostringstream;
     parser.parse(os, queryStr, true, false);
     out = os->str();
     CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE, parser.get_parse_result());
     _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGONE_STR,
             relRefType_to_string(REL_CALLS), "52");
-    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
-
-    // Calls(_,stmtLst)
-    queryStr = "stmtLst gs123; Select gs123 such that Calls(_,gs123)";
-    os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    out = os->str();
-    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
-            parser.get_parse_result());
-    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
-            TYPE_ERROR_CALLS[1]);
-    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
-
-    // Calls(_,stmt)
-    queryStr = "stmt mfw; Select mfw such that Calls(_,mfw)";
-    os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    out = os->str();
-    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
-            parser.get_parse_result());
-    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
-            TYPE_ERROR_CALLS[1]);
-    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
-
-    // Calls(_,assign)
-    queryStr = "assign sdg1; Select sdg1 such that Calls(_,sdg1)";
-    os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    out = os->str();
-    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
-            parser.get_parse_result());
-    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
-            TYPE_ERROR_CALLS[1]);
-    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
-
-    // Calls(_,call)
-    queryStr = "call bdf1; Select bdf1 such that Calls(_,bdf1)";
-    os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    out = os->str();
-    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
-            parser.get_parse_result());
-    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
-            TYPE_ERROR_CALLS[1]);
-    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
-
-    // Calls(_,while)
-    queryStr = "while Kdf1; Select Kdf1 such that Calls(_,Kdf1)";
-    os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    out = os->str();
-    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
-            parser.get_parse_result());
-    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
-            TYPE_ERROR_CALLS[1]);
-    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
-
-    // Calls(_,if)
-    queryStr = "if jms1; Select jms1 such that Calls(_,jms1)";
-    os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    out = os->str();
-    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
-            parser.get_parse_result());
-    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
-            TYPE_ERROR_CALLS[1]);
-    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
-
-    // Calls(_,variable)
-    queryStr = "variable yof; Select yof such that Calls(_,yof)";
-    os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    out = os->str();
-    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
-            parser.get_parse_result());
-    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
-            TYPE_ERROR_CALLS[1]);
-    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
-
-    // Calls(_,constant)
-    queryStr = "constant g2d; Select g2d such that Calls(_,g2d)";
-    os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    out = os->str();
-    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
-            parser.get_parse_result());
-    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
-            TYPE_ERROR_CALLS[1]);
-    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
-
-    // Calls(_,prog_line)
-    queryStr = "prog_line mbn8; Select mbn8 such that Calls(_,mbn8)";
-    os = new ostringstream;
-    parser.parse(os, queryStr, true, false);
-    out = os->str();
-    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
-            parser.get_parse_result());
-    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_TYPE_ERROR_STR,
-            TYPE_ERROR_CALLS[1]);
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 
     // Calls(_,Int)
@@ -2268,5 +2402,25 @@ void TestPQLParser::test_err_calls_argtypes()
     CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO, parser.get_parse_result());
     _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_STR,
             relRefType_to_string(REL_CALLS), "731");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // Calls*(Int,_)
+    queryStr = "constant ng1; Select ng1 such that Calls*(52,_)",
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE, parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGONE_STR,
+            relRefType_to_string(REL_CALLS_STAR), "52");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // Calls*(_,Int)
+    queryStr = "assign iupc; Select iupc such that Calls*(_,731)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO, parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_STR,
+            relRefType_to_string(REL_CALLS_STAR), "731");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
