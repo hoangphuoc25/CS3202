@@ -1534,6 +1534,7 @@ void PQLParser::error_add_relRef(ParseError parseErr_, const RelRef &relRef,
         break;
     case REL_CALLS_STAR:
         typeErrorArray = TYPE_ERROR_CALLS_STAR;
+        break;
     }
     switch (parseErr_) {
     case PARSE_REL_ARGONE_UNDECLARED:
