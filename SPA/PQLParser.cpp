@@ -73,6 +73,30 @@ const char *TYPE_ERROR_CALLS_STAR[TYPE_ERROR_ARRAY_SZ] = {
     " or an underscore"
 };
 
+const char *TYPE_ERROR_PARENT[TYPE_ERROR_ARRAY_SZ] = {
+    "Parent: arg one must be a synonym of type" \
+    " stmt, while, if, prog_line;" \
+    " or an integer;" \
+    " or an underscore",
+
+    "Parent: arg two must be a synonym of type" \
+    " stmt, assign, call, while, if, prog_line;" \
+    " or an integer;"\
+    " or an underscore"
+};
+
+const char *TYPE_ERROR_PARENT_STAR[TYPE_ERROR_ARRAY_SZ] = {
+    "Parent*: arg one must be a synonym of type" \
+    " stmt, while, if, prog_line;" \
+    " or an integer;" \
+    " or an underscore",
+
+    "Parent*: arg two must be a synonym of type" \
+    " stmt, assign, call, while, if, prog_line;" \
+    " or an integer;"\
+    " or an underscore"
+};
+
 //////////////////////////////////////////////////////////////////////
 // AttrRef
 //////////////////////////////////////////////////////////////////////
@@ -1470,6 +1494,13 @@ void PQLParser::eat_callRef_callRef(RelRef &relRef, StringBuffer &sb,
                 relRef, sb, errorMsg);
 }
 
+void PQLParser::eat_stmtRef_stmtRef(RelRef &relRef, StringBuffer &sb,
+        char **errorMsg) throw(ParseError)
+{
+    this->eat_XRef_YRef(&PQLParser::eat_stmtRef, &PQLParser::eat_stmtRef,
+                relRef, sb, errorMsg);
+}
+
 bool PQLParser::eat_relRef_generic(RelRef &relRef, StringBuffer &sb,
         bool (PQLParser::*eat_relRef_string_M) (StringBuffer &sb),
         RelRefType relRefType,
@@ -1535,6 +1566,12 @@ void PQLParser::error_add_relRef(ParseError parseErr_, const RelRef &relRef,
     case REL_CALLS_STAR:
         typeErrorArray = TYPE_ERROR_CALLS_STAR;
         break;
+    case REL_PARENT:
+        typeErrorArray = TYPE_ERROR_PARENT;
+        break;
+    case REL_PARENT_STAR:
+        typeErrorArray = TYPE_ERROR_PARENT_STAR;
+        break;
     }
     switch (parseErr_) {
     case PARSE_REL_ARGONE_UNDECLARED:
@@ -1578,14 +1615,14 @@ bool PQLParser::eat_relRef_calls_star(RelRef &relRef, StringBuffer &sb)
 
 bool PQLParser::eat_relRef_parent(RelRef &relRef, StringBuffer &sb)
 {
-    // TODO: Fill in
-    return false;
+    return this->eat_relRef_generic(relRef, sb, &PQLParser::eat_parent,
+                   REL_PARENT, &PQLParser::eat_stmtRef_stmtRef);
 }
 
 bool PQLParser::eat_relRef_parent_star(RelRef &relRef, StringBuffer &sb)
 {
-    // TODO: Fill in
-    return false;
+    return this->eat_relRef_generic(relRef, sb, &PQLParser::eat_parent_star,
+                   REL_PARENT_STAR, &PQLParser::eat_stmtRef_stmtRef);
 }
 
 bool PQLParser::eat_relRef_follows(RelRef &relRef, StringBuffer &sb)
@@ -1809,6 +1846,14 @@ DesignEnt QueryInfo::CALLS_ARGTWO_TYPES_ARR[CALLS_ARGTWO_TYPES_ARR_SZ] = {
     ENT_PROC
 };
 
+DesignEnt QueryInfo::PARENT_ARGONE_TYPES_ARR[PARENT_ARGONE_TYPES_ARR_SZ] = {
+    ENT_STMT, ENT_WHILE, ENT_IF, ENT_PROGLINE
+};
+
+DesignEnt QueryInfo::PARENT_ARGTWO_TYPES_ARR[PARENT_ARGTWO_TYPES_ARR_SZ] = {
+    ENT_STMT, ENT_ASSIGN, ENT_CALL, ENT_WHILE, ENT_IF, ENT_PROGLINE
+};
+
 set<DesignEnt> QueryInfo::MODIFIES_ARGONE_TYPES(
         QueryInfo::MODIFIES_ARGONE_TYPES_ARR,
         QueryInfo::MODIFIES_ARGONE_TYPES_ARR+MODIFIES_ARGONE_TYPES_ARR_SZ);
@@ -1832,6 +1877,14 @@ set<DesignEnt> QueryInfo::CALLS_ARGONE_TYPES(
 set<DesignEnt> QueryInfo::CALLS_ARGTWO_TYPES(
         QueryInfo::CALLS_ARGTWO_TYPES_ARR,
         QueryInfo::CALLS_ARGTWO_TYPES_ARR+CALLS_ARGTWO_TYPES_ARR_SZ);
+
+set<DesignEnt> QueryInfo::PARENT_ARGONE_TYPES(
+        QueryInfo::PARENT_ARGONE_TYPES_ARR,
+        QueryInfo::PARENT_ARGONE_TYPES_ARR+PARENT_ARGONE_TYPES_ARR_SZ);
+
+set<DesignEnt> QueryInfo::PARENT_ARGTWO_TYPES(
+        QueryInfo::PARENT_ARGTWO_TYPES_ARR,
+        QueryInfo::PARENT_ARGTWO_TYPES_ARR+PARENT_ARGTWO_TYPES_ARR_SZ);
 
 QueryInfo::QueryInfo() {}
 
@@ -1962,8 +2015,8 @@ ParseError QueryInfo::add_calls_relRef(RelRef &relRef, char **errorMsg)
 
 ParseError QueryInfo::add_parent_relRef(RelRef &relRef, char **errorMsg)
 {
-    // TODO: fill in
-    return PARSE_UNKNOWN;
+    return this->add_X_relRef(QueryInfo::PARENT_ARGONE_TYPES,
+                    QueryInfo::PARENT_ARGTWO_TYPES, relRef, errorMsg);
 }
 
 ParseError QueryInfo::add_follows_relRef(RelRef &relRef, char **errorMsg)

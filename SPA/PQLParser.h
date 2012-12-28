@@ -143,6 +143,8 @@ extern const char *TYPE_ERROR_MODIFIES[TYPE_ERROR_ARRAY_SZ];
 extern const char *TYPE_ERROR_USES[TYPE_ERROR_ARRAY_SZ];
 extern const char *TYPE_ERROR_CALLS[TYPE_ERROR_ARRAY_SZ];
 extern const char *TYPE_ERROR_CALLS_STAR[TYPE_ERROR_ARRAY_SZ];
+extern const char *TYPE_ERROR_PARENT[TYPE_ERROR_ARRAY_SZ];
+extern const char *TYPE_ERROR_PARENT_STAR[TYPE_ERROR_ARRAY_SZ];
 
 enum DesignEnt {
     ENT_PROC, ENT_STMTLST, ENT_STMT, ENT_ASSIGN, ENT_CALL,
@@ -350,6 +352,8 @@ private:
             throw(ParseError);
     void eat_callRef_callRef(RelRef &relRef, StringBuffer &sb,
             char **errorMsg) throw(ParseError);
+    void eat_stmtRef_stmtRef(RelRef &relRef, StringBuffer &sb,
+            char **errorMsg) throw(ParseError);
     bool relRef_finalize(RelRef &relRef, char **errorMsg);
     bool eat_relRef_generic(RelRef &relRef, StringBuffer &sb,
         bool (PQLParser::*eat_relRef_string_M) (StringBuffer &sb),
@@ -449,6 +453,8 @@ private:
     #define USES_ARGTWO_TYPES_ARR_SZ 1
     #define CALLS_ARGONE_TYPES_ARR_SZ 1
     #define CALLS_ARGTWO_TYPES_ARR_SZ 1
+    #define PARENT_ARGONE_TYPES_ARR_SZ 4
+    #define PARENT_ARGTWO_TYPES_ARR_SZ 6
 
     static DesignEnt MODIFIES_ARGONE_TYPES_ARR[MODIFIES_ARGONE_TYPES_ARR_SZ];
     static DesignEnt MODIFIES_ARGTWO_TYPES_ARR[MODIFIES_ARGTWO_TYPES_ARR_SZ];
@@ -456,12 +462,16 @@ private:
     static DesignEnt USES_ARGTWO_TYPES_ARR[USES_ARGTWO_TYPES_ARR_SZ];
     static DesignEnt CALLS_ARGONE_TYPES_ARR[CALLS_ARGONE_TYPES_ARR_SZ];
     static DesignEnt CALLS_ARGTWO_TYPES_ARR[CALLS_ARGTWO_TYPES_ARR_SZ];
+    static DesignEnt PARENT_ARGONE_TYPES_ARR[PARENT_ARGONE_TYPES_ARR_SZ];
+    static DesignEnt PARENT_ARGTWO_TYPES_ARR[PARENT_ARGTWO_TYPES_ARR_SZ];
     static std::set<DesignEnt> MODIFIES_ARGONE_TYPES;
     static std::set<DesignEnt> MODIFIES_ARGTWO_TYPES;
     static std::set<DesignEnt> USES_ARGONE_TYPES;
     static std::set<DesignEnt> USES_ARGTWO_TYPES;
     static std::set<DesignEnt> CALLS_ARGONE_TYPES;
     static std::set<DesignEnt> CALLS_ARGTWO_TYPES;
+    static std::set<DesignEnt> PARENT_ARGONE_TYPES;
+    static std::set<DesignEnt> PARENT_ARGTWO_TYPES;
 };
 
 #endif

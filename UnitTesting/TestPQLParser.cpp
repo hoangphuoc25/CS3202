@@ -2424,3 +2424,419 @@ void TestPQLParser::test_err_calls_and_star_argtypes()
             relRefType_to_string(REL_CALLS_STAR), "731");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
+
+void TestPQLParser::test_parent_and_star()
+{
+    set<const char *> S;
+    S.insert(PARENT_STR);
+    S.insert(PARENT_STAR_STR);
+    StringBuffer sb;
+    string queryStr, out;
+    PQLParser parser;
+    QueryInfo *qinfo;
+
+    for (set<const char *>::const_iterator it = S.begin(); it != S.end();
+            it++) {
+        // Parent(stmt,stmt)
+        sb.clear();
+        sb.substitutef("stmt sg, jdg1; Select sg such that %s(sg, jdg1)",
+                *it);
+        queryStr = sb.toString();
+        parser.parse(queryStr, false, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  stmt sg\n  stmt jdg1\nSELECT TUPLE\n");
+        sb.substitutef("  stmt sg\n%s(sg,jdg1)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+        // Parent(while,stmt)
+        sb.clear();
+        sb.append("stmt bndf; while sdf; Select sdf such that ");
+        sb.substitutef("%s(sdf,bndf)", *it);
+        queryStr = sb.toString();
+        parser.parse(queryStr, false, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  stmt bndf\n  while sdf\nSELECT TUPLE\n");
+        sb.substitutef("  while sdf\n%s(sdf,bndf)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+        // Parent(if,stmt)
+        sb.clear();
+        sb.append(" if mkh1; stmt nf1; Select mkh1 such that ");
+        sb.substitutef("%s(mkh1, nf1)", *it);
+        queryStr = sb.toString();
+        parser.parse(queryStr, false, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  if mkh1\n  stmt nf1\nSELECT TUPLE\n");
+        sb.substitutef("  if mkh1\n%s(mkh1,nf1)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+        // Parent(prog_line,stmt)
+        sb.clear();
+        sb.append("stmt b1; prog_line ply1; Select ply1 such that ");
+        sb.substitutef("%s(ply1,b1)", *it);
+        queryStr = sb.toString();
+        parser.parse(queryStr, false, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  stmt b1\n  prog_line ply1\nSELECT TUPLE\n");
+        sb.substitutef("  prog_line ply1\n%s(ply1,b1)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+        // Parent(synonym, assign)
+        sb.clear();
+        sb.append("assign qw1; stmt jf; Select jf such that ");
+        sb.substitutef("%s(jf,qw1)", *it);
+        queryStr = sb.toString();
+        parser.parse(queryStr, false, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  assign qw1\n  stmt jf\nSELECT TUPLE\n");
+        sb.substitutef("  stmt jf\n%s(jf,qw1)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+        // Parent(synonym,call)
+        sb.clear();
+        sb.append(" stmt jhd; call cy; Select <jhd,cy> such that ");
+        sb.substitutef("%s(jhd,cy)", *it);
+        queryStr = sb.toString();
+        parser.parse(queryStr, false, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  stmt jhd\n  call cy\nSELECT TUPLE\n");
+        sb.substitutef("  stmt jhd\n  call cy\n%s(jhd,cy)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+        // Parent(synonym,while)
+        sb.clear();
+        sb.append("while hb1; stmt ksdfg; Select hb1 such that ");
+        sb.substitutef("%s(ksdfg,hb1)", *it);
+        queryStr = sb.toString();
+        parser.parse(queryStr, false, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  while hb1\n  stmt ksdfg\nSELECT TUPLE\n");
+        sb.substitutef("  while hb1\n%s(ksdfg,hb1)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+        // Parent(synonym,if)
+        sb.clear();
+        sb.append(" if kh1; stmt s123; Select kh1 such that ");
+        sb.substitutef("%s(s123,kh1)", *it);
+        queryStr = sb.toString();
+        parser.parse(queryStr, false, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  if kh1\n  stmt s123\nSELECT TUPLE\n");
+        sb.substitutef("  if kh1\n%s(s123,kh1)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+        // Parent(synonym, prog_line)
+        sb.clear();
+        sb.append(" stmt yrq; prog_line plb1; Select plb1 such that ");
+        sb.substitutef("%s(yrq,plb1)", *it);
+        queryStr = sb.toString();
+        parser.parse(queryStr, false, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  stmt yrq\n  prog_line plb1\n");
+        sb.append("SELECT TUPLE\n  prog_line plb1\n");
+        sb.substitutef("%s(yrq,plb1)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+        // Parent(synonym,Int)
+        sb.clear();
+        sb.append("while g1; Select g1 such that ");
+        sb.substitutef("%s(g1,6724)", *it);
+        queryStr = sb.toString();
+        parser.parse(queryStr, false, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  while g1\nSELECT TUPLE\n  while g1\n");
+        sb.substitutef("%s(g1,6724)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+        // Parent(synonym,_)
+        sb.clear();
+        sb.append("assign bd1; stmt uy7; Select bd1 such that ");
+        sb.substitutef("%s(uy7, _)", *it);
+        queryStr = sb.toString();
+        parser.parse(queryStr, false, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  assign bd1\n  stmt uy7\nSELECT TUPLE\n");
+        sb.substitutef("  assign bd1\n%s(uy7,_)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+        // Parent(Int,synonym)
+        sb.clear();
+        sb.append("stmt bhn1; Select bhn1 such that ");
+        sb.substitutef("%s(32, bhn1)", *it);
+        queryStr = sb.toString();
+        parser.parse(queryStr, false, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  stmt bhn1\nSELECT TUPLE\n  stmt bhn1\n");
+        sb.substitutef("%s(32,bhn1)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+        // Parent(Int,Int)
+        sb.clear();
+        sb.append("while ht1; Select ht1 such that ");
+        sb.substitutef("%s( 72, 3362)", *it);
+        queryStr = sb.toString();
+        parser.parse(queryStr, false, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  while ht1\nSELECT TUPLE\n  while ht1\n");
+        sb.substitutef("%s(72,3362)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+        // Parent(Int,_)
+        sb.clear();
+        sb.append("constant vb1; Select vb1 such that ");
+        sb.substitutef("%s(4,_)", *it);
+        queryStr = sb.toString();
+        parser.parse(queryStr, false, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  constant vb1\nSELECT TUPLE\n");
+        sb.substitutef("  constant vb1\n%s(4,_)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+        // Parent(_,synonym)
+        sb.clear();
+        sb.append("stmt khs; Select khs such that ");
+        sb.substitutef("%s(_,khs)", *it);
+        queryStr = sb.toString();
+        parser.parse(queryStr, false, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  stmt khs\nSELECT TUPLE\n  stmt khs\n");
+        sb.substitutef("%s(_,khs)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+        // Parent(_,Int)
+        sb.clear();
+        sb.append(" variable v; Select v such that ");
+        sb.substitutef("%s(_, 51)", *it);
+        queryStr = sb.toString();
+        parser.parse(queryStr, false, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  variable v\nSELECT TUPLE\n");
+        sb.substitutef("  variable v\n%s(_,51)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+        // Parent(_,_)
+        sb.clear();
+        sb.append(" stmt s; Select s such that ");
+        sb.substitutef("%s(_,_)", *it);
+        queryStr = sb.toString();
+        parser.parse(queryStr, false, false);
+        qinfo = parser.get_queryinfo();
+        sb.clear();
+        sb.append("DECLARATIONS\n  stmt s\nSELECT TUPLE\n  stmt s\n");
+        sb.substitutef("%s(_,_)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+        // Multiple Parent
+        sb.clear();
+        sb.append(" stmt s1; while w1; if i1; assign a1; Select <s1,w1> ");
+        sb.substitutef("such that %s(s1,i1) and %s(w1,a1)", *it);
+        queryStr = sb.toString();
+        parser.parse(queryStr, false, false);
+        qinfo = parser.get_queryinfo();
+        sb.clear();
+        sb.append("DECLARATIONS\n  stmt s1\n  while w1\n  if i1\n");
+        sb.append("  assign a1\nSELECT TUPLE\n  stmt s1\n  while w1\n");
+        sb.substitutef("%s(s1,i1)\n%s(w1,a1)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+        // Repeated clauses
+        sb.clear();
+        sb.append(" stmt s1, s2, s3; assign a1, a2, a3; call c1, c2, c3; ");
+        sb.append("while w1, w2, w3; if i1, i2, i3; variable v1, v2, v3;");
+        sb.append("constant const1, const2; prog_line pl1, pl2, pl3; ");
+        sb.append("Select <s1,s1.stmt#,s2,a1,a1.stmt#, c1, c1.procName,");
+        sb.append(" w1,w1.stmt#, w2, i1.stmt#, i2.stmt#, v1, v1.varName, ");
+        sb.append(" const1, const1.value, const2, pl1> such that ");
+        // Parent(syn,syn)
+        sb.substitutef("%s(s1,s3) and %s(w1, s3) and %s(i1, s3) and ", *it);
+        sb.substitutef("%s(pl1,s3) and %s(w1, a1) and %s(w1, c1) and ", *it);
+        sb.substitutef("%s(w1,w3) and %s(w2,i2) and %s(w2, pl3) and ", *it);
+        // Repeated Parent(syn,syn)
+        sb.substitutef("%s(s1,s3) and %s(w1, s3) and %s(i1, s3) and ", *it);
+        sb.substitutef("%s(pl1,s3) and %s(w1, a1) and %s(w1, c1) and ", *it);
+        sb.substitutef("%s(w1,w3) and %s(w2,i2) and %s(w2, pl3) and ", *it);
+        // Parent(syn,Int), Parent(syn,_)
+        sb.substitutef("%s(i1, 62) and %s(i1,_) and ", *it);
+        // Repeated Parent(syn,Int), Parent(syn,_)
+        sb.substitutef("%s(i1, 62) and %s(i1,_)  and ", *it);
+        // Parent(Int,*)
+        sb.substitutef("%s(84,pl2) and %s(1,9752) and %s(73515,_) and ", *it);
+        // Repeated Parent(Int,*)
+        sb.substitutef("%s(84,pl2) and %s(1,9752) and %s(73515,_) and ", *it);
+        // Parent(_,*)
+        sb.substitutef("%s(_,a2) and %s(_,723) and %s(_,_) and ", *it);
+        // Repeated Parent(_,*)
+        sb.substitutef("%s(_,a2) and %s(_,723) and %s(_,_) ", *it);
+        queryStr = sb.toString();
+        parser.parse(queryStr, false, false);
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        qinfo = parser.get_queryinfo();
+        sb.clear();
+        sb.append("DECLARATIONS\n  stmt s1\n  stmt s2\n  stmt s3\n");
+        sb.append("  assign a1\n  assign a2\n  assign a3\n  call c1\n");
+        sb.append("  call c2\n  call c3\n  while w1\n  while w2\n");
+        sb.append("  while w3\n  if i1\n  if i2\n  if i3\n  variable v1\n");
+        sb.append("  variable v2\n  variable v3\n  constant const1\n");
+        sb.append("  constant const2\n  prog_line pl1\n  prog_line pl2\n");
+        sb.append("  prog_line pl3\nSELECT TUPLE\n  stmt s1\n");
+        sb.append("  stmt s1 stmt#\n  stmt s2\n  assign a1\n");
+        sb.append("  assign a1 stmt#\n  call c1\n  call c1 procName\n");
+        sb.append("  while w1\n  while w1 stmt#\n  while w2\n  if i1 stmt#\n");
+        sb.append("  if i2 stmt#\n  variable v1\n  variable v1 varName\n");
+        sb.append("  constant const1\n  constant const1 value\n");
+        sb.append("  constant const2\n  prog_line pl1\n");
+        sb.substitutef("%s(s1,s3)\n%s(w1,s3)\n%s(i1,s3)\n", *it);
+        sb.substitutef("%s(pl1,s3)\n%s(w1,a1)\n%s(w1,c1)\n", *it);
+        sb.substitutef("%s(w1,w3)\n%s(w2,i2)\n%s(w2,pl3)\n", *it);
+        sb.substitutef("%s(i1,62)\n%s(i1,_)\n", *it);
+        sb.substitutef("%s(84,pl2)\n%s(1,9752)\n%s(73515,_)\n", *it);
+        sb.substitutef("%s(_,a2)\n%s(_,723)\n%s(_,_)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+    }
+}
+
+void TestPQLParser::test_err_parent_and_star_argtypes()
+{
+    set<pair<const char *, const char **> > RS;
+    RS.insert(pair<const char *, const char **>
+                (PARENT_STR, TYPE_ERROR_PARENT));
+    RS.insert(pair<const char *, const char **>
+                (PARENT_STAR_STR, TYPE_ERROR_PARENT_STAR));
+    StringBuffer sb;
+    string queryStr;
+    string out;
+    PQLParser parser;
+    ostringstream *os;
+
+    // invalid synonym types for arg 1
+    set<pair<const char *, const char *> > ESONE;
+    ESONE.insert(pair<const char *, const char *>(ENT_PROC_STR, "p"));
+    ESONE.insert(pair<const char *, const char *>(ENT_STMTLST_STR, "nd"));
+    ESONE.insert(pair<const char *, const char *>(ENT_ASSIGN_STR, "a"));
+    ESONE.insert(pair<const char *, const char *>(ENT_CALL_STR, "c"));
+    ESONE.insert(pair<const char *, const char *>(ENT_VAR_STR, "v"));
+    ESONE.insert(pair<const char *, const char *>(ENT_CONST_STR, "c1"));
+    // invalid synonym types for arg 2
+    set<pair<const char *, const char *> > ESTWO;
+    ESTWO.insert(pair<const char *, const char *>(ENT_PROC_STR, "p"));
+    ESTWO.insert(pair<const char *, const char *>(ENT_STMTLST_STR, "mn"));
+    ESTWO.insert(pair<const char *, const char *>(ENT_VAR_STR, "v"));
+    ESTWO.insert(pair<const char *, const char *>(ENT_CONST_STR, "c"));
+
+    for (set<pair<const char *, const char **> >::const_iterator
+            relIt = RS.begin(); relIt != RS.end(); relIt++) {
+        // arg one synonym errors
+        for (set<pair<const char *, const char *> >::const_iterator
+                entIt = ESONE.begin(); entIt != ESONE.end(); entIt++) {
+            sb.clear();
+            sb.sprintf("%s %s; Select %s such that %s(%s,_)",
+                    entIt->first, entIt->second, entIt->second,
+                    relIt->first, entIt->second);
+            queryStr = sb.toString();
+            os = new ostringstream;
+            parser.parse(os, queryStr, true, false);
+            out = os->str();
+            CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE_TYPE_ERROR,
+                    parser.get_parse_result());
+            _snprintf_s(this->buf, BUFLEN, BUFLEN,
+                    PARSE_REL_ARGONE_TYPE_ERROR_STR,
+                    relIt->second[0]);
+            CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+        }
+
+        // Parent("string",_)
+        sb.clear();
+        sb.sprintf("Select BOOLEAN such that %s(\"awhile\",_)",
+                relIt->first);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        out = os->str();
+        CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGONE, parser.get_parse_result());
+        _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGONE_STR,
+                relIt->first, "\"awhile\"");
+        CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+        // arg two synonym errors
+        for (set<pair<const char *, const char *> >::const_iterator
+                entIt = ESTWO.begin(); entIt != ESTWO.end(); entIt++) {
+            sb.clear();
+            sb.sprintf("%s %s; Select %s such that %s(_,%s)",
+                    entIt->first, entIt->second, entIt->second,
+                    relIt->first, entIt->second);
+            queryStr = sb.toString();
+            os = new ostringstream;
+            parser.parse(os, queryStr, true, false);
+            out = os->str();
+            CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO_TYPE_ERROR,
+                    parser.get_parse_result());
+            _snprintf_s(this->buf, BUFLEN, BUFLEN,
+                    PARSE_REL_ARGTWO_TYPE_ERROR_STR, relIt->second[1]);
+            CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+        }
+
+        // Parent(_,"string")
+        sb.clear();
+        sb.sprintf("Select BOOLEAN such that %s(_, \"line2\")",
+                relIt->first);
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        out = os->str();
+        CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARGTWO, parser.get_parse_result());
+        _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARGTWO_STR,
+                relIt->first, "\"line2\"");
+        CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    }
+}
