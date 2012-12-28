@@ -8,6 +8,7 @@ Tokenizer::Tokenizer()
     strBuffer.clear();
     tokenNo = 0;
     currChar = ' ';
+    done = false;
 }
 
 Tokenizer::Tokenizer(string s, ReadMode mode)
@@ -15,6 +16,7 @@ Tokenizer::Tokenizer(string s, ReadMode mode)
     strBuffer.clear();
     tokenNo = 0;
     currChar = ' ';
+    done = false;
     fmode = mode;
     if (mode == 0) {
         pFile = fopen(s.c_str(),"r");
@@ -155,6 +157,7 @@ Token Tokenizer::get_token(){
     tokenString = strBuffer.toString();
     strBuffer.clear();
     if (tokenString.empty()) {
+        done = true;
         return Token("Empty",NONE);
     }
 
@@ -182,3 +185,8 @@ Token Tokenizer::get_token(){
         return Token(tokenString, NONE);
     }
 }
+
+bool Tokenizer::is_done(){
+    return done;
+}
+

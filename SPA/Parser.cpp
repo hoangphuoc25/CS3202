@@ -154,8 +154,9 @@ void Parser::error()
 
 void Parser::program(){
 // handle multiple procedure
-
-    procedure();
+    while (tokenizer.is_done()){
+        procedure();
+    }
 }
 
 void Parser::procedure(){
@@ -317,6 +318,7 @@ void Parser::factor(){
         outStack.push(tempNode);
     } else if (t == CONSTANT) {
         match(CONSTANT);
+        pkb.add_constant(currToken.get_name());
         tempNode = new Node(currToken.get_name(), CONSTANT_, stmtNo);
         outStack.push(tempNode);
     } else {
@@ -339,17 +341,15 @@ void Parser::create_node(string name, NodeType type){
 
 void Parser::add_modifies(Node* n, string var){
     int stmt = n->get_stmtNo();
-    pkb.add_modifies(var, stmt);
-    /*varTable.insert_var(var);
-    varTable.add_modified_by(var, stmt);*/
+    varTable.insert_var(var);
+    varTable.add_modified_by(var, stmt);
     n->add_modifies(var);
 }
 
 void Parser::add_uses(Node* n, string var){
     int stmt = n->get_stmtNo();
-    pkb.add_modifies(var, stmt);
-    /*varTable.insert_var(var);
-    varTable.add_used_by(var, stmt);*/
+    varTable.insert_var(var);
+    varTable.add_used_by(var, stmt);
     n->add_uses(var);
 }
 

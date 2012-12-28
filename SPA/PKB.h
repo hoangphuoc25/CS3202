@@ -20,9 +20,13 @@ public:
     PKB(Node* root);
     
     // Builder methods
+    VarTable* add_proc(string proc, Node* proc_root); 
     void add_modifies(string var, int stmtNo);
     void add_uses(string var, int stmtNo);
     void add_node_entry(int stmtNo, stmtType type, Node* node);
+    void add_constant(string n);
+    void add_var(string proc, string var);
+
 
     // Design extractor
     void extract_design();
@@ -31,9 +35,16 @@ public:
     // varTable
     set<int> get_modifies_var(string var);
     set<int> get_uses_var(string var);
+    set<string> get_proc_modifies_var(string var);
+    set<string> get_proc_uses_var(string var);
+    set<string> get_var_by_proc(string proc);
+    set<string> get_modifies_var_by_proc(string proc);
+    set<string> get_uses_var_by_proc(string proc);
 
     // procTable
-  
+    set<string> get_calls(string proc);
+    set<string> get_called_by(string proc);
+
     // AST
     bool is_stmt_type(int stmtNo, stmtType type);
     bool is_stmt_modifies(int stmtNo);
@@ -49,13 +60,14 @@ public:
 
 private:
     Node* progRoot;
-    VarTable varTable;
+    VarTable globalVarTable;
     map<int, stmtType> directory; 
     map<int, Node*> callBank;
     map<int, Node*> whileBank;
     map<int, Node*> ifBank;
     map<int, Node*> assignBank;
-
+    map<string, vector<int> > varBank;
+    set<int> constBank;
 };
 
 

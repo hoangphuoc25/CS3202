@@ -7,13 +7,13 @@ PKB::PKB(Node* root){
 }
 
 void PKB::add_modifies(string var, int stmtNo){
-    varTable.insert_var(var);
-    varTable.add_modified_by(var, stmtNo);
+    //globalVarTable.insert_var(var);
+    //globalVarTable.add_modified_by(var, stmtNo);
 }
 
 void PKB::add_uses(string var, int stmtNo){
-    varTable.insert_var(var);
-    varTable.add_used_by(var, stmtNo);
+    //globalVarTable.insert_var(var);
+    //globalVarTable.add_used_by(var, stmtNo);
 }
 
 void PKB::add_node_entry(int stmtNo, stmtType type, Node* node){
@@ -32,4 +32,9 @@ void PKB::add_node_entry(int stmtNo, stmtType type, Node* node){
             assignBank[stmtNo] = node;
             break;
     }
+}
+
+void PKB::add_constant(string n){
+
+
 }

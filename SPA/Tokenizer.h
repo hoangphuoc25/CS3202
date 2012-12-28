@@ -22,6 +22,7 @@ public:
     ~Tokenizer();
     void closeInputFile();
     void reset();
+    bool is_done();
 
 private:
     StringBuffer strBuffer;
@@ -37,6 +38,7 @@ private:
     int end;
     ReadMode fmode;
     FILE *pFile;
+    bool done;
 
     bool is_name(string t);
     bool is_const(string t);
