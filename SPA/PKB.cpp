@@ -56,6 +56,9 @@ void PKB::extract_design(){
     for (it = s.begin(); it != s.end(); it++) {
         update_vars(*it);
     }
+    for (it = s.begin(); it != s.end(); it++) {
+        update_procVarTable(*it);
+    }
 }
 
 void PKB::update_vars(string procName){
@@ -66,12 +69,14 @@ void PKB::update_vars(string procName){
     set<int>::iterator iter;
     queue<int> q;
     int temp, stmtNo;
+    int index = procTable.get_index(procName);
     Node *node, *parent;
     s = v->get_all_vars();
     for (it = s.begin(); it != s.end(); it++) {
         n = v->get_modified_by(*it);
         if (!n.empty()){
             procTable.add_modifies(procName, *it);
+            procVarTable.add_modified_by(*it, index);
             for (iter = n.begin(); iter != n.end(); iter++) {
                 q.push(*iter);
             }
@@ -92,6 +97,7 @@ void PKB::update_vars(string procName){
         n = v->get_used_by(*it);
         if(!n.empty()) {
             procTable.add_uses(procName, *it);
+            procVarTable.add_used_by(*it, index);
             for (iter = n.begin(); iter != n.end(); iter++) {
                 q.push(*iter);
             }
@@ -111,19 +117,6 @@ void PKB::update_vars(string procName){
     }
 }
 
-void PKB::insert_procVarTable(string procName){
-    set<string> s;
-    set<string>::iterator it;
-    int index = procTable.get_index(procName);
-    s = procTable.get_modifies(procName);
-    for (it = s.begin(); it != s.end(); it++) {
-        procVarTable.add_modified_by(*it, index);
-    }
-    s = procTable.get_uses(procName);
-    for (it = s.begin(); it != s.end(); it++) {
-        procVarTable.add_used_by(*it, index);
-    }
-}
 
 void PKB::update_procVarTable(string procName){
     set<string> s,v;
@@ -145,6 +138,56 @@ void PKB::update_procVarTable(string procName){
 }
 
 
+set<int> PKB::get_modifies_var(string var){
+    set<int> s = procVarTable.get_modified_by(var);
+    set<int> temp, result;
+    set<int>::iterator p,it;
+    VarTable* v;
+    for (p = s.begin(); p != s.end(); p++) {
+        v = procTable.get_varTable(*p);
+        temp = v->get_modified_by(var);
+        for (it = temp.begin(); it != temp.end(); it++) {
+            result.insert(*it);
+        }
+    }
+    return result;
+}
+
+set<int> PKB::get_uses_var(string var){
+    set<int> s = procVarTable.get_used_by(var);
+    set<int> temp, result;
+    set<int>::iterator p,it;
+    VarTable* v;
+    for (p = s.begin(); p != s.end(); p++) {
+        v = procTable.get_varTable(*p);
+        temp = v->get_used_by(var);
+        for (it = temp.begin(); it != temp.end(); it++) {
+            result.insert(*it);
+        }
+    }
+    return result;
+}
+
+set<string> PKB::get_proc_modifies_var(string var){
+    set<string> result;
+    set<int> s = procVarTable.get_modified_by(var);
+    set<int>::iterator it;
+    for (it = s.begin(); it != s.end(); it++) {
+        result.insert(procTable.get_proc_name(*it));
+    }
+    return result;
+}
+
+set<string> PKB::get_proc_uses_var(string var){
+    set<string> result;
+    set<int> s = procVarTable.get_used_by(var);
+    set<int>::iterator it;
+    for (it = s.begin(); it != s.end(); it++) {
+        result.insert(procTable.get_proc_name(*it));
+    }
+    return result;
+}
+
 set<string> PKB::get_var_by_proc(string procName){
     int index = procTable.get_index(procName);
     if (index != -1) {
@@ -153,6 +196,18 @@ set<string> PKB::get_var_by_proc(string procName){
         return EMPTY_STRINGSET;
     }
 }
+
+set<string> PKB::get_modifies_var_by_proc(string procName){
+    return procTable.get_modifies(procName);
+}
+
+set<string> PKB::get_uses_var_by_proc(string procName){
+    return procTable.get_uses(procName);
+}
+
+
+
+
 
 //procTable
 set<string> PKB::get_calls(string procName){

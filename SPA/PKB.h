@@ -31,18 +31,17 @@ public:
     // Design extractor
     void extract_design();
     void update_vars(string procName);
-    void insert_procVarTable(string procName);
-    void update_procVarTable(string procName);
+    void update_procVarTable(string procName); //propagate calls info
 
     // Query methods
     // varTable
-    /*set<int> get_modifies_var(string var);
+    set<int> get_modifies_var(string var);
     set<int> get_uses_var(string var);
     set<string> get_proc_modifies_var(string var);
-    set<string> get_proc_uses_var(string var); */
+    set<string> get_proc_uses_var(string var); 
     set<string> get_var_by_proc(string procName);
-    //set<string> get_modifies_var_by_proc(string procName);
-    //set<string> get_uses_var_by_proc(string procName);
+    set<string> get_modifies_var_by_proc(string procName);
+    set<string> get_uses_var_by_proc(string procName);
 
     // procTable
     set<string> get_calls(string procNAme);
