@@ -44,6 +44,8 @@ CPPUNIT_TEST(test_calls_and_star);
 CPPUNIT_TEST(test_err_calls_and_star_argtypes);
 CPPUNIT_TEST(test_parent_and_star);
 CPPUNIT_TEST(test_err_parent_and_star_argtypes);
+CPPUNIT_TEST(test_follows_and_star);
+CPPUNIT_TEST(test_err_follows_and_star_argtypes);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -92,6 +94,8 @@ private:
     void test_err_calls_and_star_argtypes();
     void test_parent_and_star();
     void test_err_parent_and_star_argtypes();
+    void test_follows_and_star();
+    void test_err_follows_and_star_argtypes();
 };
 
 #endif
