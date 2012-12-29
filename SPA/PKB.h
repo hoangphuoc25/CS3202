@@ -3,6 +3,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include "ProcTable.h"
 #include "VarTable.h"
 #include "Node.h"
 
@@ -17,16 +18,19 @@ class PKB{
 
 public:
     PKB();
-    PKB(Node* root);
-    
+    PKB(Node *root);
+
     // Builder methods
     VarTable* add_proc(string proc, Node* proc_root); 
-    void add_modifies(string var, int stmtNo);
-    void add_uses(string var, int stmtNo);
     void add_node_entry(int stmtNo, stmtType type, Node* node);
     void add_constant(string n);
-    void add_var(string proc, string var);
+    void add_calls(string proc1, string proc2);
 
+    /* Global varTable
+    void add_modifies(string var, int stmtNo);
+    void add_uses(string var, int stmtNo);
+    void add_var(string proc, string var);
+    */
 
     // Design extractor
     void extract_design();
@@ -59,15 +63,16 @@ public:
     // Printers
 
 private:
-    Node* progRoot;
-    VarTable globalVarTable;
+    Node *progRoot;
+    ProcTable procTable;
     map<int, stmtType> directory; 
     map<int, Node*> callBank;
     map<int, Node*> whileBank;
     map<int, Node*> ifBank;
     map<int, Node*> assignBank;
     map<string, vector<int> > varBank;
-    set<int> constBank;
+    set<string> constBank;
+    VarTable globalVarTable;
 };
 
 
