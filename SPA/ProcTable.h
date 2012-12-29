@@ -44,7 +44,7 @@ public:
     VarTable* get_varTable(int index);
     Node* get_root(string procName);
     Node* get_root(int index);
-    vector<string> get_all_procs();
+    set<string> get_all_procs();
 
 private:
     void add_called_by(string proc1, string proc2); 

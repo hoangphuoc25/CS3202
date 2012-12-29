@@ -36,6 +36,9 @@ public:
     vector<Node*> get_children();
     Node* get_predecessor();
     Node* get_successor();
+    set<string> get_modifies();
+    set<string> get_uses();
+    string get_control_var();
 
     void add_child(Node* n);
     void set_successor(Node* n);

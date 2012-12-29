@@ -59,6 +59,18 @@ Node* Node::get_successor(){
     return successor;
 }
 
+set<string> Node::get_modifies(){
+    return modifies;
+}
+
+set<string> Node::get_uses(){
+    return uses;
+}
+
+string Node::get_control_var(){
+    return control_var;
+}
+
 void Node::set_parent(Node* n){
     parent = n;
 }

@@ -37,25 +37,25 @@ public:
 
     // Query methods
     // varTable
-    set<int> get_modifies_var(string var);
+    /*set<int> get_modifies_var(string var);
     set<int> get_uses_var(string var);
     set<string> get_proc_modifies_var(string var);
-    set<string> get_proc_uses_var(string var);
-    set<string> get_var_by_proc(string proc);
-    set<string> get_modifies_var_by_proc(string proc);
-    set<string> get_uses_var_by_proc(string proc);
+    set<string> get_proc_uses_var(string var); */
+    set<string> get_var_by_proc(string procName);
+    //set<string> get_modifies_var_by_proc(string procName);
+    //set<string> get_uses_var_by_proc(string procName);
 
     // procTable
-    set<string> get_calls(string proc);
-    set<string> get_called_by(string proc);
+    set<string> get_calls(string procNAme);
+    set<string> get_called_by(string procName);
 
     // AST
     bool is_stmt_type(int stmtNo, stmtType type);
-    bool is_stmt_modifies(int stmtNo);
-    bool is_stmt_uses(int stmtNo);
-    set<int> get_stmt_modifies(int stmtNo);
-    set<int> get_stmt_uses(int stmtNo);
-    int get_control_var(int stmtNo);
+    bool is_stmt_modifies(int stmtNo, string varName);
+    bool is_stmt_uses(int stmtNo, string varName);
+    set<string> get_stmt_modifies(int stmtNo);
+    set<string> get_stmt_uses(int stmtNo);
+    string get_control_var(int stmtNo);
 
     //Utility
     Node* get_node(int stmtNo);
@@ -73,6 +73,7 @@ private:
     map<string, vector<int> > varBank;
     set<string> constBank;
     VarTable globalVarTable;
+    const set<string> EMPTY_STRINGSET;
 };
 
 

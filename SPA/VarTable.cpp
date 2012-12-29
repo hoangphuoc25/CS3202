@@ -142,12 +142,12 @@ const set<int>& VarTable::get_used_by(int index) const
     return varTable[index].usedBy;
 }
 
-vector<string> VarTable::get_all_vars() const
+set<string> VarTable::get_all_vars() const
 {
-    vector<string> result;
+    set<string> result;
     int len = varTable.size();
     for(int i = 0; i < len; i ++) {
-        result.push_back(varTable[i].var);
+        result.insert(varTable[i].var);
     }
     return result;
 }

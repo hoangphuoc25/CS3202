@@ -43,7 +43,7 @@ public:
     const set<int>& get_modified_by(int index) const;
     const set<int>& get_used_by(string var) const;
     const set<int>& get_used_by(int index) const;
-    vector<string> get_all_vars() const;
+    set<string> get_all_vars() const;
 
 private:
     const set<int> EMPTY_INTSET;

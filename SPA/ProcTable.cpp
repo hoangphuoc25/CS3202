@@ -132,11 +132,11 @@ Node* ProcTable::get_root(int index){
     }
 }
 
-vector<string> ProcTable::get_all_procs(){
-    vector<string> result;
+set<string> ProcTable::get_all_procs(){
+    set<string> result;
     int sz = procTable.size();
     for (int i = 0; i < sz; i++) {
-        result.push_back(procTable[i].procName);
+        result.insert(procTable[i].procName);
     }
     return result;
 }
