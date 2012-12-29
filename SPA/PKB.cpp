@@ -38,3 +38,8 @@ void PKB::add_constant(string n){
 
 
 }
+
+VarTable* PKB::add_proc(string procName, Node *procRoot){
+    return new VarTable();
+
+}

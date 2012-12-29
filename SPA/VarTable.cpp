@@ -10,8 +10,8 @@ VarElements::VarElements() {}
 
 VarElements::VarElements(int id, string name)
 {
-	index = id;
-	var = name;
+    index = id;
+    var = name;
 }
 
 VarElements::VarElements(const struct VarElements &other)
@@ -58,15 +58,15 @@ VarTable::~VarTable() {}
 
 int VarTable::insert_var(string var)
 {
-	if (nameToIndex.find(var) != nameToIndex.end()) {
+    if (nameToIndex.find(var) != nameToIndex.end()) {
         return nameToIndex[var];
     }
 
-	int index = varTable.size();
-	nameToIndex[var] = index;
-	VarElements varEntry = VarElements(index, var);
-	varTable.push_back(varEntry);
-	return index;
+    int index = varTable.size();
+    nameToIndex[var] = index;
+    VarElements varEntry = VarElements(index, var);
+    varTable.push_back(varEntry);
+    return index;
 }
 
 int VarTable::get_index(string var) const
@@ -91,7 +91,7 @@ string VarTable::get_var_name(int index) const
 
 void VarTable::add_modified_by(string var, int stmtNo)
 {
-	int index = get_index(var);
+    int index = get_index(var);
     if (index >= 0) {
         varTable[index].modifiedBy.insert(stmtNo);
     }
@@ -99,19 +99,19 @@ void VarTable::add_modified_by(string var, int stmtNo)
 
 void VarTable::add_used_by(string var, int stmtNo)
 {
-	int index = get_index(var);
+    int index = get_index(var);
     if (index >= 0) {
-	    varTable[index].usedBy.insert(stmtNo);
+        varTable[index].usedBy.insert(stmtNo);
     }
 }
 
 const set<int>& VarTable::get_modified_by(string var) const
 {
-	int index = get_index(var);
+    int index = get_index(var);
     if (index == -1) {
         return EMPTY_INTSET;
     } else {
-	    return varTable[index].modifiedBy;
+        return varTable[index].modifiedBy;
     }
 }
 
@@ -121,16 +121,16 @@ const set<int>& VarTable::get_modified_by(int index) const
     if (index < 0 || index >= sz) {
         return EMPTY_INTSET;
     }
-	return varTable[index].modifiedBy;
+    return varTable[index].modifiedBy;
 }
 
 const set<int>& VarTable::get_used_by(string var) const
 {
-	int index = get_index(var);
+    int index = get_index(var);
     if (index == -1) {
         return EMPTY_INTSET;
     }
-	return varTable[index].usedBy;
+    return varTable[index].usedBy;
 }
 
 const set<int>& VarTable::get_used_by(int index) const
@@ -139,15 +139,15 @@ const set<int>& VarTable::get_used_by(int index) const
     if (index < 0 || index >= sz) {
         return EMPTY_INTSET;
     }
-	return varTable[index].usedBy;
+    return varTable[index].usedBy;
 }
 
 vector<string> VarTable::get_all_vars() const
 {
-	vector<string> result;
+    vector<string> result;
     int len = varTable.size();
-	for(int i = 0; i < len; i ++) {
-		result.push_back(varTable[i].var);
-	}
-	return result;
+    for(int i = 0; i < len; i ++) {
+        result.push_back(varTable[i].var);
+    }
+    return result;
 }

@@ -41,13 +41,16 @@ private:
     // AST info
     Node *astRoot;
     int stmtNo;
-    PKB pkb;
-    VarTable varTable;
+    string procName;
+    PKB *pkb;
+    VarTable *varTable;
+    /*
     map<int, stmtType> directory; 
     map<int, Node*> callBank;
     map<int, Node*> whileBank;
     map<int, Node*> ifBank;
     map<int, Node*> assignBank;
+    */
 
     // AST builder nodes
     Node *procRoot;

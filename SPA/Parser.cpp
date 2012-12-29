@@ -12,6 +12,7 @@ Parser::Parser(string s, ReadMode mode)
     tokenizer = *new Tokenizer(s.c_str(), mode);
     nextToken = tokenizer.get_token();
     stmtNo = 0;
+    pkb = new PKB();
     currNode = NULL;
     nextNode = NULL;
     printer[PROC_NAME] = "PROC_NAME";
@@ -162,7 +163,9 @@ void Parser::program(){
 void Parser::procedure(){
     match("procedure");
     match(PROC_NAME);
-    nextNode = procRoot = new Node(currToken.get_name(), PROCEDURE, stmtNo);
+    procName = currToken.get_name();
+    nextNode = procRoot = new Node(procName, PROCEDURE, stmtNo);
+    varTable = pkb->add_proc(procName, nextNode);
     match("{");
     create_node("stmt_lst", STMTLST);
     currNode->add_leaf(nextNode);
@@ -200,7 +203,7 @@ void Parser::call_stmt(){
     match(PROC_NAME);
     create_node(currToken.get_name(), CALL_STMT);
     currNode->link_stmt(nextNode);
-    pkb.add_node_entry(stmtNo, CALLTYPE, nextNode);
+    pkb->add_node_entry(stmtNo, CALLTYPE, nextNode);
     /*directory[stmtNo] = CALLTYPE;
     callBank[stmtNo] = nextNode;*/
     match(";");
@@ -210,7 +213,7 @@ void Parser::while_stmt(){
     match("while");
     create_node(currToken.get_name(), WHILE_STMT);
     currNode->link_stmt(nextNode);
-    pkb.add_node_entry(stmtNo, WHILETYPE, nextNode);
+    pkb->add_node_entry(stmtNo, WHILETYPE, nextNode);
     /*directory[stmtNo] = WHILETYPE;
     whileBank[stmtNo] = nextNode;*/
     
@@ -233,7 +236,7 @@ void Parser::if_stmt(){
     match("if");
     create_node(currToken.get_name(), IF_STMT);
     currNode->link_stmt(nextNode);
-    pkb.add_node_entry(stmtNo, IFTYPE, nextNode);
+    pkb->add_node_entry(stmtNo, IFTYPE, nextNode);
     /*directory[stmtNo] = IFTYPE;
     ifBank[stmtNo] = nextNode;*/
 
@@ -268,7 +271,7 @@ void Parser::assign(){
     create_node("=", ASSIGN_STMT);
     currNode->link_stmt(nextNode);
     nextNode->add_leaf(tempNode);
-    pkb.add_node_entry(stmtNo, ASSIGNTYPE, nextNode);
+    pkb->add_node_entry(stmtNo, ASSIGNTYPE, nextNode);
     /*directory[stmtNo] = ASSIGNTYPE;
     assignBank[stmtNo] = nextNode;*/
     add_modifies(nextNode, tempNode->get_name());
@@ -318,7 +321,7 @@ void Parser::factor(){
         outStack.push(tempNode);
     } else if (t == CONSTANT) {
         match(CONSTANT);
-        pkb.add_constant(currToken.get_name());
+        pkb->add_constant(currToken.get_name());
         tempNode = new Node(currToken.get_name(), CONSTANT_, stmtNo);
         outStack.push(tempNode);
     } else {
@@ -341,15 +344,15 @@ void Parser::create_node(string name, NodeType type){
 
 void Parser::add_modifies(Node* n, string var){
     int stmt = n->get_stmtNo();
-    varTable.insert_var(var);
-    varTable.add_modified_by(var, stmt);
+    varTable->insert_var(var);
+    varTable->add_modified_by(var, stmt);
     n->add_modifies(var);
 }
 
 void Parser::add_uses(Node* n, string var){
     int stmt = n->get_stmtNo();
-    varTable.insert_var(var);
-    varTable.add_used_by(var, stmt);
+    varTable->insert_var(var);
+    varTable->add_used_by(var, stmt);
     n->add_uses(var);
 }
 
@@ -428,7 +431,7 @@ void Parser::dumpBank(){
     map<int,stmtType>::iterator it;
 
     printf("\n\n::::::::: Dumping Bank :::::::\n\n");
-
+/*
     for (it = directory.begin(); it!= directory.end(); it++) {
         switch (it->second) {
             case CALLTYPE:
@@ -444,7 +447,7 @@ void Parser::dumpBank(){
                 assignBank[it->first]->dumpR();
                 break;
         }
-    }
+    }*/
 }
 
 void Parser::dumpTable(){
@@ -454,7 +457,7 @@ void Parser::dumpTable(){
     set<int> u;
 
     printf("\n\n::::::::: Dumping Table :::::::\n\n");
-
+/*
     vector<string> var = varTable.get_all_vars();
     for (varIt = var.begin(); varIt != var.end(); varIt++){
         printf("Variable: %s\n", varIt->c_str());
@@ -468,7 +471,7 @@ void Parser::dumpTable(){
         }
         putchar('\n');
     }
-
+    */
 }
 
 
