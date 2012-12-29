@@ -2,9 +2,11 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
+
 #include "VarTable.h"
 
 using std::map;
+
 
 VarElements::VarElements() {}
 
@@ -88,6 +90,7 @@ string VarTable::get_var_name(int index) const
         return varTable[index].var;
     }
 }
+
 
 void VarTable::add_modified_by(string var, int stmtNo)
 {

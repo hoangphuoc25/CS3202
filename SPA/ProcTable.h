@@ -18,6 +18,8 @@ struct ProcElements {
     VarTable *varTable;
     set<string> calledBy;
     set<string> calls;
+    set<string> modifies;
+    set<string> uses;
     // CFG root node
     // start end
     ProcElements();
@@ -32,9 +34,11 @@ public:
     int get_index(string procName);
     string get_proc_name(int index);
 
-    void update(); // update get_calls
+    void update_called_by(); // update get_calls
 
     int insert_proc(string procName, Node *root);
+    void add_modifies(string procName, string varName);
+    void add_uses(string procName, string varName);
     void add_calls(string proc1, string proc2); 
     set<string> get_calls(string procName);
     set<string> get_calls(int index);

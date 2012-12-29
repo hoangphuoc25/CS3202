@@ -49,6 +49,66 @@ void PKB::add_calls(string proc1, string proc2){
     procTable.add_calls(proc1, proc2);
 }
 
+void PKB::extract_design(){
+
+}
+
+void PKB::update_vars(string procName){
+    VarTable *v = procTable.get_varTable(procName);
+    set<string> s;
+    set<string>::iterator it;
+    set<int> n;
+    set<int>::iterator iter;
+    queue<int> q;
+    int temp, stmtNo;
+    Node *node, *parent;
+    s = v->get_all_vars();
+    for (it = s.begin(); it != s.end(); it++) {
+        n = v->get_modified_by(*it);
+        if (!n.empty()){
+            procTable.add_modifies(procName, *it);
+            for (iter = n.begin(); iter != n.end(); iter++) {
+                q.push(*iter);
+            }
+            while (!q.empty()) {
+                temp = q.front();
+                node = get_node(temp);
+                parent = node->get_parent();
+                if(parent != NULL) {
+                    stmtNo = node->get_parent()->get_stmtNo();
+                    v->add_modified_by(*it, stmtNo);
+                    q.push(stmtNo);
+                    parent->add_modifies(*it);
+                }
+                q.pop();
+            }
+        }
+
+        n = v->get_used_by(*it);
+        if(!n.empty()) {
+            procTable.add_uses(procName, *it);
+            for (iter = n.begin(); iter != n.end(); iter++) {
+                q.push(*iter);
+            }
+            while (!q.empty()) {
+                temp = q.front();
+                node = get_node(temp);
+                parent = node->get_parent();
+                if(parent != NULL) {
+                    stmtNo = node->get_parent()->get_stmtNo();
+                    v->add_used_by(*it, stmtNo);
+                    q.push(stmtNo);
+                    parent->add_uses(*it);
+                }
+                q.pop();
+            }
+        }
+    }
+}
+
+
+
+
 set<string> PKB::get_var_by_proc(string procName){
     int index = procTable.get_index(procName);
     if (index != -1) {

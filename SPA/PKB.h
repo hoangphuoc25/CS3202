@@ -3,6 +3,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <queue>
 #include "ProcTable.h"
 #include "VarTable.h"
 #include "Node.h"
@@ -10,6 +11,7 @@
 using std::map;
 using std::set;
 using std::string;
+using std::queue;
 
 enum stmtType {CALLTYPE, WHILETYPE, IFTYPE, ASSIGNTYPE};
 
@@ -34,6 +36,7 @@ public:
 
     // Design extractor
     void extract_design();
+    void update_vars(string procName);
 
     // Query methods
     // varTable
@@ -72,16 +75,8 @@ private:
     map<int, Node*> assignBank;
     map<string, vector<int> > varBank;
     set<string> constBank;
-    VarTable globalVarTable;
+    VarTable procVarTable;
     const set<string> EMPTY_STRINGSET;
 };
-
-
-
-
-
-
-
-
 
 #endif

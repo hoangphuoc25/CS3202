@@ -27,7 +27,7 @@ string ProcTable::get_proc_name(int index) {
     }
 }
 
-void ProcTable::update(){
+void ProcTable::update_called_by(){
     int sz = procTable.size();
     for (int i = 0; i < sz; i++){
         set<string>::iterator it;
@@ -39,6 +39,8 @@ void ProcTable::update(){
     }
 }
 
+
+
 int ProcTable::insert_proc(string procName, Node *root){
     if (nameToIndex.find(procName) != nameToIndex.end()) {
         return nameToIndex[procName];
@@ -48,6 +50,20 @@ int ProcTable::insert_proc(string procName, Node *root){
     ProcElements procEntry = ProcElements(procName, root);
     procTable.push_back(procEntry);
     return index;
+}
+
+void ProcTable::add_modifies(string procName, string varName){
+    int index = get_index(procName);
+    if (index != -1){
+        procTable[index].modifies.insert(varName);
+    }
+}
+
+void ProcTable::add_uses(string procName, string varName){
+    int index = get_index(procName);
+    if (index != -1){
+        procTable[index].uses.insert(varName);
+    }
 }
 
 void ProcTable::add_calls(string proc1, string proc2){
