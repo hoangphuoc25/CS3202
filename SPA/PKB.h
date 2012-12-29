@@ -28,15 +28,11 @@ public:
     void add_constant(string n);
     void add_calls(string proc1, string proc2);
 
-    /* Global varTable
-    void add_modifies(string var, int stmtNo);
-    void add_uses(string var, int stmtNo);
-    void add_var(string proc, string var);
-    */
-
     // Design extractor
     void extract_design();
     void update_vars(string procName);
+    void insert_procVarTable(string procName);
+    void update_procVarTable(string procName);
 
     // Query methods
     // varTable

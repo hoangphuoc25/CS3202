@@ -40,6 +40,7 @@ public:
     void add_modifies(string procName, string varName);
     void add_uses(string procName, string varName);
     void add_calls(string proc1, string proc2); 
+
     set<string> get_calls(string procName);
     set<string> get_calls(int index);
     set<string> get_called_by(string procName);
@@ -48,6 +49,8 @@ public:
     VarTable* get_varTable(int index);
     Node* get_root(string procName);
     Node* get_root(int index);
+    set<string> get_modifies(string procName);
+    set<string> get_uses(string procName);
     set<string> get_all_procs();
 
 private:

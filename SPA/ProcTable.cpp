@@ -148,6 +148,25 @@ Node* ProcTable::get_root(int index){
     }
 }
 
+
+set<string> ProcTable::get_modifies(string procName){
+    int index = get_index(procName);
+    if (index != -1){
+        return procTable[index].modifies;
+    } else {
+        return EMPTY_STRINGSET;
+    }
+}
+
+set<string> ProcTable::get_uses(string procName){
+    int index = get_index(procName);
+    if (index != -1){
+        return procTable[index].uses;
+    } else {
+        return EMPTY_STRINGSET;
+    }
+}
+
 set<string> ProcTable::get_all_procs(){
     set<string> result;
     int sz = procTable.size();
