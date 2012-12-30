@@ -121,6 +121,30 @@ const char *TYPE_ERROR_FOLLOWS_STAR[TYPE_ERROR_ARRAY_SZ] = {
     " or an underscore"
 };
 
+const char *TYPE_ERROR_NEXT[TYPE_ERROR_ARRAY_SZ] = {
+    "Next: arg one must be a synonym of type" \
+    " stmt, assign, call, while, if, prog_line;" \
+    " or an integer;" \
+    " or an underscore",
+
+    "Next: arg two must be a synonym of type" \
+    " stmt, assign, call, while, if, prog_line;" \
+    " or an integer;" \
+    " or an underscore"
+};
+
+const char *TYPE_ERROR_NEXT_STAR[TYPE_ERROR_ARRAY_SZ] = {
+    "Next*: arg one must be a synonym of type" \
+    " stmt, assign, call, while, if, prog_line;" \
+    " or an integer;" \
+    " or an underscore",
+
+    "Next*: arg two must be a synonym of type" \
+    " stmt, assign, call, while, if, prog_line;" \
+    " or an integer;" \
+    " or an underscore"
+};
+
 //////////////////////////////////////////////////////////////////////
 // AttrRef
 //////////////////////////////////////////////////////////////////////
@@ -1525,6 +1549,13 @@ void PQLParser::eat_stmtRef_stmtRef(RelRef &relRef, StringBuffer &sb,
                 relRef, sb, errorMsg);
 }
 
+void PQLParser::eat_lineRef_lineRef(RelRef &relRef, StringBuffer &sb,
+        char **errorMsg) throw(ParseError)
+{
+    this->eat_XRef_YRef(&PQLParser::eat_lineRef, &PQLParser::eat_lineRef,
+                relRef, sb, errorMsg);
+}
+
 bool PQLParser::eat_relRef_generic(RelRef &relRef, StringBuffer &sb,
         bool (PQLParser::*eat_relRef_string_M) (StringBuffer &sb),
         RelRefType relRefType,
@@ -1602,6 +1633,12 @@ void PQLParser::error_add_relRef(ParseError parseErr_, const RelRef &relRef,
     case REL_FOLLOWS_STAR:
         typeErrorArray = TYPE_ERROR_FOLLOWS_STAR;
         break;
+    case REL_NEXT:
+        typeErrorArray = TYPE_ERROR_NEXT;
+        break;
+    case REL_NEXT_STAR:
+        typeErrorArray = TYPE_ERROR_NEXT_STAR;
+        break;
     }
     switch (parseErr_) {
     case PARSE_REL_ARGONE_UNDECLARED:
@@ -1669,14 +1706,14 @@ bool PQLParser::eat_relRef_follows_star(RelRef &relRef, StringBuffer &sb)
 
 bool PQLParser::eat_relRef_next(RelRef &relRef, StringBuffer &sb)
 {
-    // TODO: Fill in
-    return false;
+    return this->eat_relRef_generic(relRef, sb, &PQLParser::eat_next,
+                   REL_NEXT, &PQLParser::eat_lineRef_lineRef);
 }
 
 bool PQLParser::eat_relRef_next_star(RelRef &relRef, StringBuffer &sb)
 {
-    // TODO: Fill in
-    return false;
+    return this->eat_relRef_generic(relRef, sb, &PQLParser::eat_next_star,
+                   REL_NEXT_STAR, &PQLParser::eat_lineRef_lineRef);
 }
 
 bool PQLParser::eat_relRef_affects(RelRef &relRef, StringBuffer &sb)
@@ -1892,6 +1929,14 @@ DesignEnt QueryInfo::FOLLOWS_ARGTWO_TYPES_ARR[FOLLOWS_ARGTWO_TYPES_ARR_SZ] = {
     ENT_STMT, ENT_ASSIGN, ENT_CALL, ENT_WHILE, ENT_IF, ENT_PROGLINE
 };
 
+DesignEnt QueryInfo::NEXT_ARGONE_TYPES_ARR[NEXT_ARGONE_TYPES_ARR_SZ] = {
+    ENT_STMT, ENT_ASSIGN, ENT_CALL, ENT_WHILE, ENT_IF, ENT_PROGLINE
+};
+
+DesignEnt QueryInfo::NEXT_ARGTWO_TYPES_ARR[NEXT_ARGTWO_TYPES_ARR_SZ] = {
+    ENT_STMT, ENT_ASSIGN, ENT_CALL, ENT_WHILE, ENT_IF, ENT_PROGLINE
+};
+
 set<DesignEnt> QueryInfo::MODIFIES_ARGONE_TYPES(
         QueryInfo::MODIFIES_ARGONE_TYPES_ARR,
         QueryInfo::MODIFIES_ARGONE_TYPES_ARR+MODIFIES_ARGONE_TYPES_ARR_SZ);
@@ -1931,6 +1976,14 @@ set<DesignEnt> QueryInfo::FOLLOWS_ARGONE_TYPES(
 set<DesignEnt> QueryInfo::FOLLOWS_ARGTWO_TYPES(
         QueryInfo::FOLLOWS_ARGTWO_TYPES_ARR,
         QueryInfo::FOLLOWS_ARGTWO_TYPES_ARR+FOLLOWS_ARGTWO_TYPES_ARR_SZ);
+
+set<DesignEnt> QueryInfo::NEXT_ARGONE_TYPES(
+        QueryInfo::NEXT_ARGONE_TYPES_ARR,
+        QueryInfo::NEXT_ARGONE_TYPES_ARR+NEXT_ARGONE_TYPES_ARR_SZ);
+
+set<DesignEnt> QueryInfo::NEXT_ARGTWO_TYPES(
+        QueryInfo::NEXT_ARGTWO_TYPES_ARR,
+        QueryInfo::NEXT_ARGTWO_TYPES_ARR+NEXT_ARGTWO_TYPES_ARR_SZ);
 
 QueryInfo::QueryInfo() {}
 
@@ -2073,8 +2126,8 @@ ParseError QueryInfo::add_follows_relRef(RelRef &relRef, char **errorMsg)
 
 ParseError QueryInfo::add_next_relRef(RelRef &relRef, char **errorMsg)
 {
-    // TODO: fill in
-    return PARSE_UNKNOWN;
+    return this->add_X_relRef(QueryInfo::NEXT_ARGONE_TYPES,
+                    QueryInfo::NEXT_ARGTWO_TYPES, relRef, errorMsg);
 }
 
 ParseError QueryInfo::add_affects_relRef(RelRef &relRef, char **errorMsg)

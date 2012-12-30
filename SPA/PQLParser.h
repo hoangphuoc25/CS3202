@@ -147,6 +147,8 @@ extern const char *TYPE_ERROR_PARENT[TYPE_ERROR_ARRAY_SZ];
 extern const char *TYPE_ERROR_PARENT_STAR[TYPE_ERROR_ARRAY_SZ];
 extern const char *TYPE_ERROR_FOLLOWS[TYPE_ERROR_ARRAY_SZ];
 extern const char *TYPE_ERROR_FOLLOWS_STAR[TYPE_ERROR_ARRAY_SZ];
+extern const char *TYPE_ERROR_NEXT[TYPE_ERROR_ARRAY_SZ];
+extern const char *TYPE_ERROR_NEXT_STAR[TYPE_ERROR_ARRAY_SZ];
 
 enum DesignEnt {
     ENT_PROC, ENT_STMTLST, ENT_STMT, ENT_ASSIGN, ENT_CALL,
@@ -356,6 +358,8 @@ private:
             char **errorMsg) throw(ParseError);
     void eat_stmtRef_stmtRef(RelRef &relRef, StringBuffer &sb,
             char **errorMsg) throw(ParseError);
+    void eat_lineRef_lineRef(RelRef &relRef, StringBuffer &sb,
+            char **errorMsg) throw(ParseError);
     bool relRef_finalize(RelRef &relRef, char **errorMsg);
     bool eat_relRef_generic(RelRef &relRef, StringBuffer &sb,
         bool (PQLParser::*eat_relRef_string_M) (StringBuffer &sb),
@@ -459,6 +463,8 @@ private:
     #define PARENT_ARGTWO_TYPES_ARR_SZ 6
     #define FOLLOWS_ARGONE_TYPES_ARR_SZ 6
     #define FOLLOWS_ARGTWO_TYPES_ARR_SZ 6
+    #define NEXT_ARGONE_TYPES_ARR_SZ 6
+    #define NEXT_ARGTWO_TYPES_ARR_SZ 6
 
     static DesignEnt MODIFIES_ARGONE_TYPES_ARR[MODIFIES_ARGONE_TYPES_ARR_SZ];
     static DesignEnt MODIFIES_ARGTWO_TYPES_ARR[MODIFIES_ARGTWO_TYPES_ARR_SZ];
@@ -470,6 +476,8 @@ private:
     static DesignEnt PARENT_ARGTWO_TYPES_ARR[PARENT_ARGTWO_TYPES_ARR_SZ];
     static DesignEnt FOLLOWS_ARGONE_TYPES_ARR[FOLLOWS_ARGONE_TYPES_ARR_SZ];
     static DesignEnt FOLLOWS_ARGTWO_TYPES_ARR[FOLLOWS_ARGTWO_TYPES_ARR_SZ];
+    static DesignEnt NEXT_ARGONE_TYPES_ARR[NEXT_ARGONE_TYPES_ARR_SZ];
+    static DesignEnt NEXT_ARGTWO_TYPES_ARR[NEXT_ARGTWO_TYPES_ARR_SZ];
     static std::set<DesignEnt> MODIFIES_ARGONE_TYPES;
     static std::set<DesignEnt> MODIFIES_ARGTWO_TYPES;
     static std::set<DesignEnt> USES_ARGONE_TYPES;
@@ -480,6 +488,8 @@ private:
     static std::set<DesignEnt> PARENT_ARGTWO_TYPES;
     static std::set<DesignEnt> FOLLOWS_ARGONE_TYPES;
     static std::set<DesignEnt> FOLLOWS_ARGTWO_TYPES;
+    static std::set<DesignEnt> NEXT_ARGONE_TYPES;
+    static std::set<DesignEnt> NEXT_ARGTWO_TYPES;
 };
 
 #endif
