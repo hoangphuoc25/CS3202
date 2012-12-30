@@ -128,7 +128,6 @@ void Node::dump(int n){
 
 void Node::preorder(int n){
     dump(n);
-    //dumpR();
     int len = leaves.size();
     for (int i = 0; i < len; i++) {
         leaves[i]->preorder(n+4);
@@ -157,7 +156,7 @@ void Node::preorder(int n, FILE *fp){
     }
 }
 
-void Node::dumpR(){
+void Node::dump_relationships(){
 
     printf("Current Node: (%s, %d)\n", nodeName.c_str(), nodeStmtNo);
 
@@ -191,4 +190,51 @@ void Node::dumpR(){
     putchar('\n');
 }
 
+void Node::dump_relationships(FILE *fp){
 
+    fprintf(fp, "Current Node: (%s, %d)\n", nodeName.c_str(), nodeStmtNo);
+
+    if (predecessor != NULL) {
+        fprintf(fp, "Predecessor is: (%s, %d)\n", predecessor->get_name().c_str(), predecessor->get_stmtNo());
+    }
+
+    if (successor != NULL) {
+        fprintf(fp, "Successor is: (%s, %d)\n", successor->get_name().c_str(), successor->get_stmtNo());
+    }
+
+    if (parent != NULL) {
+        fprintf(fp, "Parent is: (%s, %d)\n", parent->get_name().c_str(), parent->get_stmtNo());
+    } 
+
+    int len = children.size();
+    for (int i = 0; i < len; i++) {
+        fprintf(fp, "%d child is: (%s, %d)\n", i, children[i]->get_name().c_str(), children[i]->get_stmtNo());
+    }
+
+    set<string>::iterator it;
+
+    for (it = modifies.begin(); it != modifies.end(); it++) {
+        fprintf(fp, "Modifies: %s\n", it->c_str());
+    }
+
+    for (it = uses.begin(); it != uses.end(); it++) {
+        fprintf(fp, "Uses: %s\n", it->c_str());
+    }
+
+    fputc('\n', fp);
+}
+
+void Node::preorder_relationship(FILE *fp){
+    dump_relationships(fp);
+    int len = leaves.size();
+    for (int i = 0; i < len; i++) {
+        leaves[i]->preorder_relationship(fp);
+    }
+}
+
+void Node::out_relationship(string name){
+    FILE *fp;
+    fp = fopen(name.c_str(), "w");
+    preorder_relationship(fp);
+    fclose(fp);
+}

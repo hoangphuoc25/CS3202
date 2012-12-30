@@ -52,10 +52,13 @@ public:
     // Printer
     void dump(int n);
     void preorder(int n);
-    void dumpR();
     void out(int n, string name);
     void dump(int n, FILE *fp);
     void preorder(int n, FILE *fp);
+    void dump_relationships();
+    void dump_relationships(FILE *fp);
+    void preorder_relationship(FILE *fp);
+    void out_relationship(string name);
 
 private:
     // Node Fields
