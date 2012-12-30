@@ -113,7 +113,7 @@ bool Tokenizer::is_keyword(string t){
 Token Tokenizer::get_token(){
     
     //bool flag = false;  
-    if (currChar == ' ' || currChar== '\n' || currChar == '\t' || isalnum(currChar)) {
+    if (currChar == ' ' || currChar== '\n' || currChar == '\t' || isalnum(currChar) || currChar == EOF) {
         while (true) {
             if (!isalnum(currChar)) {
                 if (fmode == 0) {

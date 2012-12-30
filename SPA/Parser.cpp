@@ -157,7 +157,7 @@ void Parser::error(tokenType t)
 {
      printf("Error!!!\n");
      printf("State: %s\n",state.c_str()); 
-     printf("Expecting tokenType: %s\n", printer[t]); 
+     printf("Expecting tokenType: %s\n", printer[t].c_str()); 
      token_out();
      getchar();
      exit(1);
@@ -180,6 +180,7 @@ void Parser::error(string s)
 void Parser::program(){
     state = "program";
 // handle multiple procedure
+    astRoot = new Node("program", PROGRAM, stmtNo);
     while (!tokenizer.is_done()){
         procedure();
     }
@@ -188,9 +189,13 @@ void Parser::program(){
 void Parser::procedure(){
     state = "procedure";
     match("procedure");
+    if (nextToken.get_type() == VAR_NAME) {
+        nextToken = Token(nextToken.get_name(), PROC_NAME);
+    }
     match(PROC_NAME);
     procName = currToken.get_name();
     procRoot = new Node(procName, PROCEDURE, stmtNo);
+    astRoot->add_leaf(procRoot);
     varTable = pkb->add_proc(procName, procRoot);
     match("{");
     nextNode = procRoot;
