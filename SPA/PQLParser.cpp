@@ -2068,7 +2068,7 @@ ParseError QueryInfo::add_parent_relRef(RelRef &relRef, char **errorMsg)
 ParseError QueryInfo::add_follows_relRef(RelRef &relRef, char **errorMsg)
 {
     return this->add_X_relRef(QueryInfo::FOLLOWS_ARGONE_TYPES,
-                    QueryInfo::PARENT_ARGTWO_TYPES, relRef, errorMsg);
+                    QueryInfo::FOLLOWS_ARGTWO_TYPES, relRef, errorMsg);
 }
 
 ParseError QueryInfo::add_next_relRef(RelRef &relRef, char **errorMsg)
