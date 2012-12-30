@@ -30,6 +30,7 @@ public:
     // Physical methods
     void add_leaf(Node *node);
     Node* get_root();
+vector<Node*> get_leaves();
 
     // AST methods
     Node* get_parent();

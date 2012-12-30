@@ -6,6 +6,11 @@ PKB::PKB(Node *root){
     progRoot = root;
 }
 
+
+Node* PKB::get_progRoot(){
+    return progRoot;
+}
+
 /*
 void PKB::add_modifies(string var, int stmtNo){
     //globalVarTable.insert_var(var);

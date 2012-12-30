@@ -12,7 +12,6 @@ Parser::Parser(string s, ReadMode mode)
     tokenizer = *new Tokenizer(s.c_str(), mode);
     nextToken = tokenizer.get_token();
     stmtNo = 0;
-    pkb = new PKB();
     procRoot = NULL;
     currNode = NULL;
     nextNode = NULL;
@@ -185,6 +184,7 @@ void Parser::program(){
     state = "program";
 // handle multiple procedure
     astRoot = new Node("program", PROGRAM, stmtNo);
+    pkb = new PKB(astRoot);
     while (!tokenizer.is_done()){
         procedure();
     }
@@ -396,8 +396,8 @@ void Parser::add_modifies(Node* n, string var){
 
 void Parser::add_uses(Node* n, string var){
     int stmt = n->get_stmtNo();
-    //varTable->insert_var(var);
-    //varTable->add_used_by(var, stmt);
+    varTable->insert_var(var);
+    varTable->add_used_by(var, stmt);
     n->add_uses(var);
 }
 

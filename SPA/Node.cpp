@@ -42,6 +42,10 @@ Node* Node::get_root(){
     return root;
 }
 
+vector<Node*> Node::get_leaves(){
+    return leaves;
+}
+
 // AST methods
 Node* Node::get_parent(){
     return parent;

@@ -59,6 +59,7 @@ public:
     set<string> get_stmt_modifies(int stmtNo);
     set<string> get_stmt_uses(int stmtNo);
     string get_control_var(int stmtNo);
+    Node* get_progRoot();
 
     // Banks
     map<int, stmtType> get_directory();
