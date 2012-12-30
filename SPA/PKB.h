@@ -42,10 +42,15 @@ public:
     set<string> get_var_by_proc(string procName);
     set<string> get_modifies_var_by_proc(string procName);
     set<string> get_uses_var_by_proc(string procName);
+/*
+    set<string> get_all_vars_by_proc(string procName);
+    set<string> get_all_vars();
+    */
 
     // procTable
-    set<string> get_calls(string procNAme);
+    set<string> get_calls(string procName);
     set<string> get_called_by(string procName);
+    ProcTable get_procTable();
 
     // AST
     bool is_stmt_type(int stmtNo, stmtType type);

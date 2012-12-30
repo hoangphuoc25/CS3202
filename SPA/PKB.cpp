@@ -205,8 +205,11 @@ set<string> PKB::get_uses_var_by_proc(string procName){
     return procTable.get_uses(procName);
 }
 
+/*
+set<string> PKB::get_all_vars_by_proc(string procName){}
 
-
+set<string> PKB::get_all_vars(){}
+*/
 
 
 //procTable
@@ -216,6 +219,10 @@ set<string> PKB::get_calls(string procName){
 
 set<string> PKB::get_called_by(string procName){
     return procTable.get_called_by(procName);
+}
+
+ProcTable PKB::get_procTable(){
+    return procTable;
 }
 
 // AST
