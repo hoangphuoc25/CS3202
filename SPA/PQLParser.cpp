@@ -145,6 +145,30 @@ const char *TYPE_ERROR_NEXT_STAR[TYPE_ERROR_ARRAY_SZ] = {
     " or an underscore"
 };
 
+const char *TYPE_ERROR_AFFECTS[TYPE_ERROR_ARRAY_SZ] = {
+    "Affects: arg one must be a synonym of type" \
+    " assign;" \
+    " or an integer;" \
+    " or an underscore",
+
+    "Affects: arg two must be a synonym of type" \
+    " assign;" \
+    " or an integer;" \
+    " or an underscore"
+};
+
+const char *TYPE_ERROR_AFFECTS_STAR[TYPE_ERROR_ARRAY_SZ] = {
+    "Affects*: arg one must be a synonym of type" \
+    " assign;" \
+    " or an integer;" \
+    " or an underscore",
+
+    "Affects*: arg two must be a synonym of type" \
+    " assign;" \
+    " or an integer;" \
+    " or an underscore"
+};
+
 //////////////////////////////////////////////////////////////////////
 // AttrRef
 //////////////////////////////////////////////////////////////////////
@@ -1639,6 +1663,12 @@ void PQLParser::error_add_relRef(ParseError parseErr_, const RelRef &relRef,
     case REL_NEXT_STAR:
         typeErrorArray = TYPE_ERROR_NEXT_STAR;
         break;
+    case REL_AFFECTS:
+        typeErrorArray = TYPE_ERROR_AFFECTS;
+        break;
+    case REL_AFFECTS_STAR:
+        typeErrorArray = TYPE_ERROR_AFFECTS_STAR;
+        break;
     }
     switch (parseErr_) {
     case PARSE_REL_ARGONE_UNDECLARED:
@@ -1718,14 +1748,14 @@ bool PQLParser::eat_relRef_next_star(RelRef &relRef, StringBuffer &sb)
 
 bool PQLParser::eat_relRef_affects(RelRef &relRef, StringBuffer &sb)
 {
-    // TODO: Fill in
-    return false;
+    return this->eat_relRef_generic(relRef, sb, &PQLParser::eat_affects,
+                   REL_AFFECTS, &PQLParser::eat_stmtRef_stmtRef);
 }
 
 bool PQLParser::eat_relRef_affects_star(RelRef &relRef, StringBuffer &sb)
 {
-    // TODO: Fill in
-    return false;
+    return this->eat_relRef_generic(relRef, sb, &PQLParser::eat_affects_star,
+                   REL_AFFECTS_STAR, &PQLParser::eat_stmtRef_stmtRef);
 }
 
 RelRef PQLParser::eat_relRef(StringBuffer &sb)
@@ -1937,6 +1967,14 @@ DesignEnt QueryInfo::NEXT_ARGTWO_TYPES_ARR[NEXT_ARGTWO_TYPES_ARR_SZ] = {
     ENT_STMT, ENT_ASSIGN, ENT_CALL, ENT_WHILE, ENT_IF, ENT_PROGLINE
 };
 
+DesignEnt QueryInfo::AFFECTS_ARGONE_TYPES_ARR[AFFECTS_ARGONE_TYPES_ARR_SZ] = {
+    ENT_ASSIGN
+};
+
+DesignEnt QueryInfo::AFFECTS_ARGTWO_TYPES_ARR[AFFECTS_ARGTWO_TYPES_ARR_SZ] = {
+    ENT_ASSIGN
+};
+
 set<DesignEnt> QueryInfo::MODIFIES_ARGONE_TYPES(
         QueryInfo::MODIFIES_ARGONE_TYPES_ARR,
         QueryInfo::MODIFIES_ARGONE_TYPES_ARR+MODIFIES_ARGONE_TYPES_ARR_SZ);
@@ -1984,6 +2022,15 @@ set<DesignEnt> QueryInfo::NEXT_ARGONE_TYPES(
 set<DesignEnt> QueryInfo::NEXT_ARGTWO_TYPES(
         QueryInfo::NEXT_ARGTWO_TYPES_ARR,
         QueryInfo::NEXT_ARGTWO_TYPES_ARR+NEXT_ARGTWO_TYPES_ARR_SZ);
+
+set<DesignEnt> QueryInfo::AFFECTS_ARGONE_TYPES(
+        QueryInfo::AFFECTS_ARGONE_TYPES_ARR,
+        QueryInfo::AFFECTS_ARGONE_TYPES_ARR+AFFECTS_ARGONE_TYPES_ARR_SZ);
+
+set<DesignEnt> QueryInfo::AFFECTS_ARGTWO_TYPES(
+        QueryInfo::AFFECTS_ARGTWO_TYPES_ARR,
+        QueryInfo::AFFECTS_ARGTWO_TYPES_ARR+AFFECTS_ARGTWO_TYPES_ARR_SZ);
+
 
 QueryInfo::QueryInfo() {}
 
@@ -2132,8 +2179,8 @@ ParseError QueryInfo::add_next_relRef(RelRef &relRef, char **errorMsg)
 
 ParseError QueryInfo::add_affects_relRef(RelRef &relRef, char **errorMsg)
 {
-    // TODO: fill in
-    return PARSE_UNKNOWN;
+    return this->add_X_relRef(QueryInfo::AFFECTS_ARGONE_TYPES,
+                    QueryInfo::AFFECTS_ARGTWO_TYPES, relRef, errorMsg);
 }
 
 ParseError QueryInfo::add_relRef(RelRef &relRef, char **errorMsg)

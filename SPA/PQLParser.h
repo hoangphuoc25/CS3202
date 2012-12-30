@@ -149,6 +149,8 @@ extern const char *TYPE_ERROR_FOLLOWS[TYPE_ERROR_ARRAY_SZ];
 extern const char *TYPE_ERROR_FOLLOWS_STAR[TYPE_ERROR_ARRAY_SZ];
 extern const char *TYPE_ERROR_NEXT[TYPE_ERROR_ARRAY_SZ];
 extern const char *TYPE_ERROR_NEXT_STAR[TYPE_ERROR_ARRAY_SZ];
+extern const char *TYPE_ERROR_AFFECTS[TYPE_ERROR_ARRAY_SZ];
+extern const char *TYPE_ERROR_AFFECTS_STAR[TYPE_ERROR_ARRAY_SZ];
 
 enum DesignEnt {
     ENT_PROC, ENT_STMTLST, ENT_STMT, ENT_ASSIGN, ENT_CALL,
@@ -465,6 +467,8 @@ private:
     #define FOLLOWS_ARGTWO_TYPES_ARR_SZ 6
     #define NEXT_ARGONE_TYPES_ARR_SZ 6
     #define NEXT_ARGTWO_TYPES_ARR_SZ 6
+    #define AFFECTS_ARGONE_TYPES_ARR_SZ 1
+    #define AFFECTS_ARGTWO_TYPES_ARR_SZ 1
 
     static DesignEnt MODIFIES_ARGONE_TYPES_ARR[MODIFIES_ARGONE_TYPES_ARR_SZ];
     static DesignEnt MODIFIES_ARGTWO_TYPES_ARR[MODIFIES_ARGTWO_TYPES_ARR_SZ];
@@ -478,6 +482,8 @@ private:
     static DesignEnt FOLLOWS_ARGTWO_TYPES_ARR[FOLLOWS_ARGTWO_TYPES_ARR_SZ];
     static DesignEnt NEXT_ARGONE_TYPES_ARR[NEXT_ARGONE_TYPES_ARR_SZ];
     static DesignEnt NEXT_ARGTWO_TYPES_ARR[NEXT_ARGTWO_TYPES_ARR_SZ];
+    static DesignEnt AFFECTS_ARGONE_TYPES_ARR[AFFECTS_ARGONE_TYPES_ARR_SZ];
+    static DesignEnt AFFECTS_ARGTWO_TYPES_ARR[AFFECTS_ARGTWO_TYPES_ARR_SZ];
     static std::set<DesignEnt> MODIFIES_ARGONE_TYPES;
     static std::set<DesignEnt> MODIFIES_ARGTWO_TYPES;
     static std::set<DesignEnt> USES_ARGONE_TYPES;
@@ -490,6 +496,8 @@ private:
     static std::set<DesignEnt> FOLLOWS_ARGTWO_TYPES;
     static std::set<DesignEnt> NEXT_ARGONE_TYPES;
     static std::set<DesignEnt> NEXT_ARGTWO_TYPES;
+    static std::set<DesignEnt> AFFECTS_ARGONE_TYPES;
+    static std::set<DesignEnt> AFFECTS_ARGTWO_TYPES;
 };
 
 #endif
