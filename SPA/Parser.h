@@ -26,6 +26,7 @@ public:
     void init();
     Node *get_ast_root();
     Node *get_proc_root();
+    PKB* get_pkb();
     Node* yard();
 
     void dumpBank();

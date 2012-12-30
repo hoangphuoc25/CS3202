@@ -48,6 +48,10 @@ Node* Parser::get_proc_root()
     return procRoot;
 }
 
+PKB* Parser::get_pkb(){
+    return pkb;
+}
+
 
 /**** match functions ***/
 //match token type

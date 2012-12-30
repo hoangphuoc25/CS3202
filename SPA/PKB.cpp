@@ -271,7 +271,27 @@ string PKB::get_control_var(int stmtNo) {
     }
 }
 
+// Banks
+map<int, stmtType> PKB::get_directory(){
+    return directory;
+}
 
+map<int, Node*> PKB::get_callBank(){
+    return callBank;
+}
+
+map<int, Node*> PKB::get_assignBank(){
+    return assignBank;
+}
+
+map<int, Node*> PKB::get_whileBank(){
+    return whileBank;
+}
+
+map<int, Node*> PKB::get_ifBank(){
+
+return ifBank;
+}
 
 
 

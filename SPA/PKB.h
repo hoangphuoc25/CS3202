@@ -55,6 +55,13 @@ public:
     set<string> get_stmt_uses(int stmtNo);
     string get_control_var(int stmtNo);
 
+    // Banks
+    map<int, stmtType> get_directory();
+    map<int, Node*> get_callBank();
+    map<int, Node*> get_ifBank();
+    map<int, Node*> get_whileBank();
+    map<int, Node*> get_assignBank();
+
     //Utility
     Node* get_node(int stmtNo);
 
