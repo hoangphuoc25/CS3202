@@ -135,6 +135,28 @@ void Node::preorder(int n){
     }
 }
 
+void Node::out(int n, string name){
+    FILE *fp;
+    fp = fopen(name.c_str(), "w");
+    preorder(n, fp);
+    fclose(fp);
+}
+
+void Node::dump(int n, FILE *fp){
+    while (n--) {
+        fputc(' ', fp);
+    }
+    fprintf(fp,"%s\n", nodeName.c_str());
+}
+
+void Node::preorder(int n, FILE *fp){
+    dump(n,fp);
+    int len = leaves.size();
+    for (int i = 0; i < len; i++) {
+        leaves[i]->preorder(n+4, fp);
+    }
+}
+
 void Node::dumpR(){
 
     printf("Current Node: (%s, %d)\n", nodeName.c_str(), nodeStmtNo);

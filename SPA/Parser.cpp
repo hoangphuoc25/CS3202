@@ -13,6 +13,7 @@ Parser::Parser(string s, ReadMode mode)
     nextToken = tokenizer.get_token();
     stmtNo = 0;
     pkb = new PKB();
+    procRoot = NULL;
     currNode = NULL;
     nextNode = NULL;
     printer[PROC_NAME] = "PROC_NAME";
@@ -37,12 +38,12 @@ void Parser::init()
     tokenizer.closeInputFile();
 }
 
-Node *Parser::get_ast_root()
+Node* Parser::get_ast_root()
 {
     return astRoot;
 }
 
-Node *Parser::get_proc_root()
+Node* Parser::get_proc_root()
 {
     return procRoot;
 }
@@ -57,7 +58,7 @@ void Parser::match(tokenType type)
         currToken = nextToken;
         nextToken = tokenizer.get_token();
     } else {
-        error();
+        error(type);
     }
 }
 
@@ -69,7 +70,7 @@ void Parser::match(string str)
          currToken = nextToken;
          nextToken = tokenizer.get_token();
      } else {
-         error();
+         error(str);
      }
 }
 
@@ -145,6 +146,29 @@ void Parser::match_mul(int amt, char* str, ...)
 void Parser::error()
 {
      printf("Error!!!\n");
+     printf("State: %s\n",state.c_str());
+     getchar();
+     exit(1);
+}
+
+
+
+void Parser::error(tokenType t)
+{
+     printf("Error!!!\n");
+     printf("State: %s\n",state.c_str()); 
+     printf("Expecting tokenType: %s\n", printer[t]); 
+     token_out();
+     getchar();
+     exit(1);
+}
+
+
+void Parser::error(string s)
+{
+     printf("Error!!!\n");
+     printf("State: %s\n",state.c_str());
+     printf("Expecting string: %s\n", s.c_str());
      token_out();
      getchar();
      exit(1);
@@ -154,19 +178,22 @@ void Parser::error()
 /**** Grammer rules ***/
 
 void Parser::program(){
+    state = "program";
 // handle multiple procedure
-    while (tokenizer.is_done()){
+    while (!tokenizer.is_done()){
         procedure();
     }
 }
 
 void Parser::procedure(){
+    state = "procedure";
     match("procedure");
     match(PROC_NAME);
     procName = currToken.get_name();
-    nextNode = procRoot = new Node(procName, PROCEDURE, stmtNo);
-    varTable = pkb->add_proc(procName, nextNode);
+    procRoot = new Node(procName, PROCEDURE, stmtNo);
+    varTable = pkb->add_proc(procName, procRoot);
     match("{");
+    nextNode = procRoot;
     create_node("stmt_lst", STMTLST);
     currNode->add_leaf(nextNode);
     stmt_lst();
@@ -174,6 +201,7 @@ void Parser::procedure(){
 }
 
 void Parser::stmt_lst(){
+    state = "stmt_lst";
     stmt();
     while (nextToken.get_name().compare("}")) {
         stmt();
@@ -182,6 +210,7 @@ void Parser::stmt_lst(){
 }
 
 void Parser::stmt(){
+    state = "stmt";
     stmtNo++;
     string s = nextToken.get_name();
     if (s == "call") {
@@ -196,6 +225,7 @@ void Parser::stmt(){
 }
 
 void Parser::call_stmt(){
+    state = "call";
     match("call");
     if (nextToken.get_type() == VAR_NAME) {
         nextToken = Token(nextToken.get_name(), PROC_NAME);
@@ -204,12 +234,14 @@ void Parser::call_stmt(){
     create_node(currToken.get_name(), CALL_STMT);
     currNode->link_stmt(nextNode);
     pkb->add_node_entry(stmtNo, CALLTYPE, nextNode);
+    pkb->add_calls(procName, nextNode->get_name());
     /*directory[stmtNo] = CALLTYPE;
     callBank[stmtNo] = nextNode;*/
     match(";");
 }
 
 void Parser::while_stmt(){
+    state = "while";
     match("while");
     create_node(currToken.get_name(), WHILE_STMT);
     currNode->link_stmt(nextNode);
@@ -233,6 +265,7 @@ void Parser::while_stmt(){
 }
 
 void Parser::if_stmt(){
+    state = "if";
     match("if");
     create_node(currToken.get_name(), IF_STMT);
     currNode->link_stmt(nextNode);
@@ -264,6 +297,7 @@ void Parser::if_stmt(){
     nextNode = nextNode->get_root();
 }
 void Parser::assign(){
+    state = "assign";
     match(VAR_NAME);
     tempNode = new Node(currToken.get_name(), VARIABLE_, stmtNo);
     
@@ -275,7 +309,6 @@ void Parser::assign(){
     /*directory[stmtNo] = ASSIGNTYPE;
     assignBank[stmtNo] = nextNode;*/
     add_modifies(nextNode, tempNode->get_name());
-
     assignNode = nextNode;
     expr();
     while (!opStack.empty()) {
@@ -287,6 +320,7 @@ void Parser::assign(){
 }
 
 void Parser::expr(){
+    state = "expr";
     term();
     string s = nextToken.get_name();
     if (s == "+") {
@@ -303,6 +337,7 @@ void Parser::expr(){
 }
 
 void Parser::term(){
+    state = "term";
     factor();
     if (nextToken.get_name() == "*") {
         match("*");
@@ -313,6 +348,7 @@ void Parser::term(){
 }
 
 void Parser::factor(){
+    state = "factor";
     tokenType t = nextToken.get_type();
     if (t == VAR_NAME) {
         match(VAR_NAME);
@@ -351,8 +387,8 @@ void Parser::add_modifies(Node* n, string var){
 
 void Parser::add_uses(Node* n, string var){
     int stmt = n->get_stmtNo();
-    varTable->insert_var(var);
-    varTable->add_used_by(var, stmt);
+    //varTable->insert_var(var);
+    //varTable->add_used_by(var, stmt);
     n->add_uses(var);
 }
 
@@ -403,6 +439,7 @@ void Parser::check_pre(Node *op){
 }
 
 Node* Parser::yard(){
+
     if (nextToken.get_type() == PROC_NAME) {
         nextToken = Token(nextToken.get_name(), VAR_NAME);
     }
@@ -411,6 +448,7 @@ Node* Parser::yard(){
     match("=");
     create_node("=", ASSIGN_STMT);
     nextNode->add_leaf(tempNode);
+    assignNode = nextNode;
     expr();
     while (!opStack.empty()) {
         join();
@@ -418,6 +456,7 @@ Node* Parser::yard(){
     nextNode->add_leaf(outStack.top());
     outStack.pop();
     return nextNode;
+
 }
 
 /**** Printer functions ***/

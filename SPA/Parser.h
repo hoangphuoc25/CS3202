@@ -37,6 +37,7 @@ private:
     Tokenizer tokenizer;
     Token nextToken;
     Token currToken;
+    string state;
 
     // AST info
     Node *astRoot;
@@ -72,6 +73,8 @@ private:
     void match_mul(int amt, tokenType type, ...);
     void match_mul(int amt, char* str, ...);
     void error();
+    void error(tokenType type);
+    void error(string s);
 
     //Grammer rules
     void program();
