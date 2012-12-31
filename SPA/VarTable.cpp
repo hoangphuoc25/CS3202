@@ -108,6 +108,22 @@ void VarTable::add_used_by(string var, int stmtNo)
     }
 }
 
+void VarTable::add_modified_by(string var, string procName)
+{
+    int index = get_index(var);
+    if (index >= 0) {
+        varTable[index].modifiedByProc.insert(procName);
+    }
+}
+
+void VarTable::add_used_by(string var, string procName)
+{
+    int index = get_index(var);
+    if (index >= 0) {
+        varTable[index].usedByProc.insert(procName);
+    }
+}
+
 const set<int>& VarTable::get_modified_by(string var) const
 {
     int index = get_index(var);
@@ -144,6 +160,26 @@ const set<int>& VarTable::get_used_by(int index) const
     }
     return varTable[index].usedBy;
 }
+
+set<string> VarTable::get_modified_by_proc(string var){
+    int index = get_index(var);
+    if (index == -1) {
+        return EMPTY_STRINGSET;
+    }
+    return varTable[index].modifiedByProc;
+
+
+}
+set<string> VarTable::get_used_by_proc(string var){
+    int index = get_index(var);
+    if (index == -1) {
+        return EMPTY_STRINGSET;
+    }
+    return varTable[index].usedByProc;
+
+}
+
+
 
 set<string> VarTable::get_all_vars() const
 {
