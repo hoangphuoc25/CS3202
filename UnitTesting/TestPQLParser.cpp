@@ -3712,3 +3712,871 @@ void TestPQLParser::test_err_affects_and_star_argtypes()
         CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
     }
 }
+
+void TestPQLParser::test_pattern()
+{
+    StringBuffer sb;
+    string queryStr, out;
+    QueryInfo *qinfo;
+    PQLParser parser;
+
+    // pattern assign(var,_)
+    queryStr = "assign a; variable v; ";
+    queryStr += " Select a pattern a(v,_)";
+    parser.parse(queryStr, false, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "DECLARATIONS\n  assign a\n  variable v\nSELECT TUPLE\n";
+    out += "  assign a\nassign pattern a(v,_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // pattern assign(var,"expr")
+    queryStr = "assign nbd; variable vdfa; ";
+    queryStr += "Select vdfa pattern nbd(vdfa,\"2 *  5\")";
+    parser.parse(queryStr, false, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "DECLARATIONS\n  assign nbd\n  variable vdfa\n";
+    out += "SELECT TUPLE\n  variable vdfa\n";
+    out += "assign pattern nbd(vdfa,\"2*5\")\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // pattern assign(var,_"expr"_)
+    queryStr = "assign kkq; variable hfh; ";
+    queryStr += " Select kkq pattern kkq(hfh,_\"  6 + 5 * a \"_)";
+    parser.parse(queryStr, false, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "DECLARATIONS\n  assign kkq\n  variable hfh\n";
+    out += "SELECT TUPLE\n  assign kkq\n";
+    out += "assign pattern kkq(hfh,_\"6+5*a\"_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // pattern assign("string",_)
+    queryStr = "  assign bfb; Select bfb pattern bfb(\"someVar\",_)";
+    parser.parse(queryStr, false, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "DECLARATIONS\n  assign bfb\nSELECT TUPLE\n  assign bfb\n";
+    out += "assign pattern bfb(\"someVar\",_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // pattern assign("string","expr")
+    queryStr = " assign ja; Select ja pattern ja(\"bvv\", \"  a + b - 3\")";
+    parser.parse(queryStr, false, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "DECLARATIONS\n  assign ja\nSELECT TUPLE\n  assign ja\n";
+    out += "assign pattern ja(\"bvv\",\"a+b-3\")\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // pattern assign("string",_"expr"_)
+    queryStr = " assign lkka; Select lkka pattern lkka(\"ca\", _\"v\"_)";
+    parser.parse(queryStr, false, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "DECLARATIONS\n  assign lkka\nSELECT TUPLE\n  assign lkka\n";
+    out += "assign pattern lkka(\"ca\",_\"v\"_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // pattern assign(_,_)
+    queryStr = " assign x; Select x pattern x(_,_)";
+    parser.parse(queryStr, false, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "DECLARATIONS\n  assign x\nSELECT TUPLE\n  assign x\n";
+    out += "assign pattern x(_,_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // pattern assign(_,"expr")
+    queryStr = " assign g; Select g pattern g(_, \" 3 * aba + 4 - ca1g\")";
+    parser.parse(queryStr, false, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "DECLARATIONS\n  assign g\nSELECT TUPLE\n  assign g\n";
+    out += "assign pattern g(_,\"3*aba+4-ca1g\")\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // pattern assign(_,_"expr"_)
+    queryStr = "assign nna; Select nna pattern nna(_, _\"  df + 1 - 4 \"_)";
+    parser.parse(queryStr, false, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "DECLARATIONS\n  assign nna\nSELECT TUPLE\n  assign nna\n";
+    out += "assign pattern nna(_,_\"df+1-4\"_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // spaces - pattern assign(var,_)
+    queryStr = "assign qq; variable ngd; ";
+    queryStr += " Select <qq,ngd> pattern qq  \t (  \t ngd  , _  \n )";
+    parser.parse(queryStr, false, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "DECLARATIONS\n  assign qq\n  variable ngd\nSELECT TUPLE\n";
+    out += "  assign qq\n  variable ngd\nassign pattern qq(ngd,_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // spaces - pattern assign(var, _"expr"_)
+    queryStr = " assign nbs; variable qhgs#1; Select nbs ";
+    queryStr += " pattern nbs  \n\t  \t ( \t \n qhgs#1   \n \t , ";
+    queryStr += "  _\"    1251 + 51 * cba - hsf \"_  \n \t \n ) ";
+    parser.parse(queryStr, true, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "DECLARATIONS\n  assign nbs\n  variable qhgs#1\nSELECT TUPLE\n";
+    out += "  assign nbs\nassign pattern nbs(qhgs#1,_\"1251+51*cba-hsf\"_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // pattern if(var,_,_)
+    queryStr = "if isdf; variable sa; Select isdf ";
+    queryStr += " pattern isdf(sa,_,_)";
+    parser.parse(queryStr, false, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "DECLARATIONS\n  if isdf\n  variable sa\nSELECT TUPLE\n";
+    out += "  if isdf\nif pattern isdf(sa,_,_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // pattern if("string",_,_)
+    queryStr = " if bba; Select bba pattern bba(\"vv\",_,_)";
+    parser.parse(queryStr, false, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "DECLARATIONS\n  if bba\nSELECT TUPLE\n  if bba\n";
+    out += "if pattern bba(\"vv\",_,_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // pattern if(_,_,_)
+    queryStr = "  if ajaq; Select ajaq pattern ajaq(_,_,_)";
+    parser.parse(queryStr, false, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "DECLARATIONS\n  if ajaq\nSELECT TUPLE\n  if ajaq\n";
+    out += "if pattern ajaq(_,_,_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // spaces - pattern if(var,_,_)
+    queryStr = " variable bvbsa; if fvaf; Select <fvaf, bvbsa> ";
+    queryStr += " pattern \n \t  fvaf  \n \t ( \t \n bvbsa \n \t , \t \n";
+    queryStr += " _ \t\n , \t\n\t _ \n\t\n )\t\n  ";
+    parser.parse(queryStr, false, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "DECLARATIONS\n  variable bvbsa\n  if fvaf\nSELECT TUPLE\n";
+    out += "  if fvaf\n  variable bvbsa\n";
+    out += "if pattern fvaf(bvbsa,_,_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // pattern while(var,_)
+    queryStr = " while aa ; variable ppq; Select aa ";
+    queryStr += " pattern aa(ppq,_)";
+    parser.parse(queryStr, false, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "DECLARATIONS\n  while aa\n  variable ppq\nSELECT TUPLE\n";
+    out += "  while aa\nwhile pattern aa(ppq,_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // pattern while("string",_)
+    queryStr = " while bba; Select bba pattern bba(\"nafg\",_)";
+    parser.parse(queryStr, false, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "DECLARATIONS\n  while bba\nSELECT TUPLE\n  while bba\n";
+    out += "while pattern bba(\"nafg\",_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // pattern while(_,_)
+    queryStr = " while ghaq; Select ghaq pattern ghaq(_,_)";
+    parser.parse(queryStr, false, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "DECLARATIONS\n  while ghaq\nSELECT TUPLE\n  while ghaq\n";
+    out += "while pattern ghaq(_,_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // spaces - while("string",_)
+    queryStr = " while basdfa; Select BOOLEAN pattern basdfa  \n \t ";
+    queryStr += "  ( \n\t \"avar\"\n\t  \n , \t \n _ \t\t\t\n  ) ";
+    parser.parse(queryStr, false, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "DECLARATIONS\n  while basdfa\nSELECT BOOLEAN\n";
+    out += "while pattern basdfa(\"avar\",_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Multiple pattern
+    queryStr = " assign aadf; while wgn2#; if iisdfa; ";
+    queryStr += " variable vbba, v3y, vj1; ";
+    queryStr += " Select <aadf, vbba, wgn2#, iisdfa> ";
+    queryStr += " pattern aadf(vbba, _\"63 - sfv * 721\"_) and ";
+    queryStr += "  wgn2#(v3y, _) and iisdfa(vj1,_,_)";
+    parser.parse(queryStr, false, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "DECLARATIONS\n  assign aadf\n  while wgn2#\n  if iisdfa\n";
+    out += "  variable vbba\n  variable v3y\n  variable vj1\nSELECT TUPLE\n";
+    out += "  assign aadf\n  variable vbba\n  while wgn2#\n  if iisdfa\n";
+    out += "assign pattern aadf(vbba,_\"63-sfv*721\"_)\n";
+    out += "while pattern wgn2#(v3y,_)\nif pattern iisdfa(vj1,_,_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Repeated pattern
+    queryStr = " assign a1, a2, a3; while w1, w2, w3; if i1, i2, i3; ";
+    queryStr += " procedure p1, p2, p3; stmtLst sl1, sl2, sl3; ";
+    queryStr += " stmt s1, s2, s3; call c1, c2, c3; variable v1, v2, v3; ";
+    queryStr += " constant const1, const2, const3; prog_line pl1, pl2, pl3;";
+    queryStr += " variable v4, v5, v6; ";
+    queryStr += " Select <a1.stmt#, a2, a1, w1.stmt#, w2, i1.stmt#, p1, ";
+    queryStr += " p1.procName, p2, sl1, s1, s2.stmt#, c2, v1, v2.varName, ";
+    queryStr += " const1, const2.value, pl1, v5.varName> ";
+    // Pattern assign(var,*)
+    queryStr += " pattern a1(v1,_) and ";
+    queryStr += " a2(v3, \" 2 * y72 - 625\") and ";
+    queryStr += " a3 ( v6 , _\" 761 * sd + nasaA - 832  \"_) and ";
+    // Repeated Pattern assign(var,*)
+    queryStr += " a1(v1,_) and ";
+    queryStr += " a2(v3, \" 2 * y72 - 625\") and ";
+    queryStr += " a3(v6, _\" 761 * sd + nasaA - 832 \"_) and ";
+    // Pattern assign("string",*)
+    queryStr += " a2(\"ret\", _) and a3( \"val\", \"yu + mva - 252\") and ";
+    queryStr += " a1(\"toSwitch\", _\" s + aba - 123 - ffa * 1\"_) and ";
+    // Repeated Pattern assign("string",*)
+    queryStr += " a2(\"ret\", _) and a3( \"val\", \"yu + mva - 252\") and ";
+    queryStr += " a1(\"toSwitch\", _\" s + aba - 123 - ffa * 1\"_) and ";
+    // Pattern assign(_,*)
+    queryStr += " a3( _, _ ) and a2(_,\"62 - 15 * nah\") and ";
+    queryStr += " a1(_, _\"hh + a1yh - Ba1 * 61 + 576\"_) and ";
+    // Repeated Pattern assign(_,*)
+    queryStr += " a3( _, _ ) and a2(_,\"62 - 15 * nah\") and ";
+    queryStr += " a1(_, _\"hh + a1yh - Ba1 * 61 + 576\"_) and ";
+    // Pattern if(*,_,_)
+    queryStr += " i1(v2, _, _) and  i2 ( \"con\" , _, _ ) and ";
+    queryStr += " i3 (_, _, _) and ";
+    // Repeated Pattern if(*,_,_)
+    queryStr += " i1(v2, _, _) and  i2 ( \"con\" , _, _ ) and ";
+    queryStr += " i3 (_, _, _)  and ";
+    // Pattern while(*,_)
+    queryStr += " w1(v6, _ ) and w3 ( \"one\", _) and w3 (_, _) and ";
+    // Repeated Pattern while(*,_)
+    queryStr += " w1(v6, _ ) and w3 ( \"one\", _) and w3 (_, _)  ";
+    parser.parse(queryStr, false, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "DECLARATIONS\n  assign a1\n  assign a2\n  assign a3\n";
+    out += "  while w1\n  while w2\n  while w3\n  if i1\n  if i2\n";
+    out += "  if i3\n  procedure p1\n  procedure p2\n  procedure p3\n";
+    out += "  stmtLst sl1\n  stmtLst sl2\n  stmtLst sl3\n  stmt s1\n";
+    out += "  stmt s2\n  stmt s3\n  call c1\n  call c2\n  call c3\n";
+    out += "  variable v1\n  variable v2\n  variable v3\n";
+    out += "  constant const1\n  constant const2\n  constant const3\n";
+    out += "  prog_line pl1\n  prog_line pl2\n  prog_line pl3\n";
+    out += "  variable v4\n  variable v5\n  variable v6\n";
+    out += "SELECT TUPLE\n  assign a1 stmt#\n  assign a2\n  assign a1\n";
+    out += "  while w1 stmt#\n  while w2\n  if i1 stmt#\n  procedure p1\n";
+    out += "  procedure p1 procName\n  procedure p2\n  stmtLst sl1\n";
+    out += "  stmt s1\n  stmt s2 stmt#\n  call c2\n  variable v1\n";
+    out += "  variable v2 varName\n  constant const1\n";
+    out += "  constant const2 value\n  prog_line pl1\n";
+    out += "  variable v5 varName\n";
+    out += "assign pattern a1(v1,_)\n";
+    out += "assign pattern a2(v3,\"2*y72-625\")\n";
+    out += "assign pattern a3(v6,_\"761*sd+nasaA-832\"_)\n";
+    out += "assign pattern a2(\"ret\",_)\n";
+    out += "assign pattern a3(\"val\",\"yu+mva-252\")\n";
+    out += "assign pattern a1(\"toSwitch\",_\"s+aba-123-ffa*1\"_)\n";
+    out += "assign pattern a3(_,_)\nassign pattern a2(_,\"62-15*nah\")\n";
+    out += "assign pattern a1(_,_\"hh+a1yh-Ba1*61+576\"_)\n";
+    out += "if pattern i1(v2,_,_)\nif pattern i2(\"con\",_,_)\n";
+    out += "if pattern i3(_,_,_)\n";
+    out += "while pattern w1(v6,_)\nwhile pattern w3(\"one\",_)\n";
+    out += "while pattern w3(_,_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+}
+
+void TestPQLParser::test_err_patcl_varref_invalid()
+{
+    string queryStr;
+    string out;
+    ostringstream *os;
+    PQLParser parser;
+
+    queryStr = " assign a1g; Select a1g pattern a1g(  \t 61213, _)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_VARREF_INVALID,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCL_VARREF_INVALID_STR,
+            "61213");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // spaces after varRef
+    queryStr = " assign a661; Select a661 ";
+    queryStr += " pattern a661(6Agb15 \t\n, _)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_VARREF_INVALID,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCL_VARREF_INVALID_STR,
+            "6Agb15");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = " if iba; Select iba pattern iba(72, _,_)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_VARREF_INVALID,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCL_VARREF_INVALID_STR,
+            "72");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = " if buaq; Select buaq pattern buaq ( ^jmsdf$6 \t , _ , _)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_VARREF_INVALID,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCL_VARREF_INVALID_STR,
+            "^jmsdf$6");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = " while w; Select w pattern w( 7341 , _)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_VARREF_INVALID,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCL_VARREF_INVALID_STR,
+            "7341");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
+
+void TestPQLParser::test_err_patcl_varref_undeclared()
+{
+    string queryStr, out;
+    ostringstream *os;
+    PQLParser parser;
+
+    queryStr = " assign a; Select a pattern a(v1,_)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_VARREF_UNDECLARED,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCL_VARREF_UNDECLARED_STR,
+            "v1");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = " while w2; Select w2 pattern w2( naf,_)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_VARREF_UNDECLARED,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCL_VARREF_UNDECLARED_STR,
+            "naf");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = " if i15; Select i15 pattern i15( gfa5,_,_)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_VARREF_UNDECLARED,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCL_VARREF_UNDECLARED_STR,
+            "gfa5");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
+
+void TestPQLParser::test_err_patcl_varref_notvar()
+{
+    string queryStr, out;
+    ostringstream *os;
+    PQLParser parser;
+
+    queryStr = " assign a1, v1; Select a1 pattern a1(v1,_)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_VARREF_NOTVAR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCL_VARREF_NOTVAR_STR,
+            "v1", entity_type_to_string(ENT_ASSIGN));
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = " if idb; constant c1; Select c1 pattern idb( c1,_)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_VARREF_NOTVAR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCL_VARREF_NOTVAR_STR,
+            "c1", entity_type_to_string(ENT_CONST));
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = " while w3; stmt conVar; Select w3 pattern w3(conVar,_)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_VARREF_NOTVAR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCL_VARREF_NOTVAR_STR,
+            "conVar", entity_type_to_string(ENT_STMT));
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
+
+void TestPQLParser::test_err_patcl_argone_nocomma()
+{
+    string queryStr, out;
+    ostringstream *os;
+    PQLParser parser;
+
+    queryStr = "assign a; variable va; Select a pattern a(va$1,_)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_ARGONE_NOCOMMA,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCL_ARGONE_NOCOMMA_STR,
+            "a(va");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = "assign ba; Select ba pattern ba( \"hasf\"#15,_)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_ARGONE_NOCOMMA,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCL_ARGONE_NOCOMMA_STR,
+            "ba(\"hasf\"");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = "assign yw; Select yw pattern yw(_adh,_)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_ARGONE_NOCOMMA,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCL_ARGONE_NOCOMMA_STR,
+            "yw(_");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = "if ida1; variable hh; Select ida1 pattern ida1(hh  674,_,_)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_ARGONE_NOCOMMA,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCL_ARGONE_NOCOMMA_STR,
+            "ida1(hh");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = "if hs; Select hs pattern hs( \"gaq56\"  731,_,_)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_ARGONE_NOCOMMA,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCL_ARGONE_NOCOMMA_STR,
+            "hs(\"gaq56\"");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = " if uwa; Select uwa pattern uwa(_bnba,_,_)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_ARGONE_NOCOMMA,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCL_ARGONE_NOCOMMA_STR,
+            "uwa(_");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = "while w; variable c; Select w pattern w(c$1,_)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_ARGONE_NOCOMMA,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCL_ARGONE_NOCOMMA_STR,
+            "w(c");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = "while rh; Select rh pattern rh(\"aag\"  !63,_)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_ARGONE_NOCOMMA,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCL_ARGONE_NOCOMMA_STR,
+            "rh(\"aag\"");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = "while oga; Select oga pattern oga(_ mg3,_)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_ARGONE_NOCOMMA,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCL_ARGONE_NOCOMMA_STR,
+            "oga(_");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
+
+void TestPQLParser::test_err_patcl_assign_expr_nodquote()
+{
+    string queryStr, out;
+    ostringstream *os;
+    PQLParser parser;
+
+    queryStr = " assign ba1; Select ba1 pattern ba1(_, \"3 *  5)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_ASSIGN_EXPR_NODQUOTE,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN,
+            PARSE_PATCL_ASSIGN_EXPR_NODQUOTE_STR,
+            "ba1(_,\"3 *  5)");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = "  assign khka; Select khka pattern khka(_, _\"a + b -3  )";
+    queryStr += "  pattern khka(_, _)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_ASSIGN_EXPR_NODQUOTE,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN,
+            PARSE_PATCL_ASSIGN_EXPR_NODQUOTE_STR,
+            "khka(_,_\"a + b -3  )  pattern khka(_, _)");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
+
+void TestPQLParser::test_err_patcl_assign_expr_wildcard_no_underscore()
+{
+    string queryStr, out;
+    ostringstream *os;
+    PQLParser parser;
+
+    queryStr = "assign alpha; Select alpha ";
+    queryStr += " pattern alpha(_, _\"ha + 62  * ta \"  )";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_ASSIGN_EXPR_WILDCARD_NO_UNDERSCORE,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN,
+            PARSE_PATCL_ASSIGN_EXPR_WILDCARD_NO_UNDERSCORE_STR,
+            "alpha(_,_\"ha + 62  * ta \"");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
+
+void TestPQLParser::test_err_patcl_assign_expr_invalid()
+{
+    string queryStr, out;
+    ostringstream *os;
+    PQLParser parser;
+
+    queryStr = " assign bua; Select bua ";
+    queryStr += " pattern bua(_, invalidExpr)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_ASSIGN_EXPR_INVALID,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN,
+            PARSE_PATCL_ASSIGN_EXPR_INVALID_STR,
+            "bua(_,", "invalidExpr");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    queryStr = " assign ewaasg; variable nvba; Select ewaasg ";
+    queryStr += " pattern ewaasg(  nvba  ,  #1415 )";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_ASSIGN_EXPR_INVALID,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN,
+            PARSE_PATCL_ASSIGN_EXPR_INVALID_STR,
+            "ewaasg(nvba,", "#1415");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
+
+void TestPQLParser::test_err_patcl_if_argtwo_not_underscore()
+{
+    string queryStr, out;
+    ostringstream *os;
+    PQLParser parser;
+
+    // no space after 'adf'
+    queryStr = " if iisa; Select iisa ";
+    queryStr += " pattern  iisa(  \"var\" \t, adf, _)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_IF_ARGTWO_NOT_UNDERSCORE,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN,
+            PARSE_PATCL_IF_ARGTWO_NOT_UNDERSCORE_STR,
+            "iisa(\"var\",", "adf");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // spaces after nonsense
+    queryStr = " if abba; Select abba ";
+    queryStr += " pattern  abba(  _ \t, nonsense \t , _)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_IF_ARGTWO_NOT_UNDERSCORE,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN,
+            PARSE_PATCL_IF_ARGTWO_NOT_UNDERSCORE_STR,
+            "abba(_,", "nonsense");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
+
+void TestPQLParser::test_err_patcl_if_argtwo_nocomma()
+{
+    string queryStr, out;
+    ostringstream *os;
+    PQLParser parser;
+
+    queryStr = " if kda; Select kda pattern ";
+    queryStr += " kda(_,_asdf,_)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_IF_ARGTWO_NOCOMMA,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN,
+            PARSE_PATCL_IF_ARGTWO_NOCOMMA_STR,
+            "kda(_,_");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
+
+void TestPQLParser::test_err_patcl_if_argthree_not_underscore()
+{
+    string queryStr, out;
+    ostringstream *os;
+    PQLParser parser;
+
+    // no spaces after 'varaf'
+    queryStr = " if kaQ; Select kaQ pattern ";
+    queryStr += " kaQ(_,_, varaf)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_IF_ARGTHREE_NOT_UNDERSCORE,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN,
+            PARSE_PATCL_IF_ARGTHREE_NOT_UNDERSCORE_STR,
+            "kaQ(_,_,", "varaf");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // spaces after '#y211'
+    queryStr = " if nnQ2   ; Select nnQ2 pattern ";
+    queryStr += " nnQ2( \"hasd\" ,_, \t #y211 \t \n )";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_IF_ARGTHREE_NOT_UNDERSCORE,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN,
+            PARSE_PATCL_IF_ARGTHREE_NOT_UNDERSCORE_STR,
+            "nnQ2(\"hasd\",_,", "#y211");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
+
+void TestPQLParser::test_err_patcl_while_argtwo_not_underscore()
+{
+    string queryStr, out;
+    ostringstream *os;
+    PQLParser parser;
+
+    // no spaces after 'adasdf'
+    queryStr = " while w1g; Select w1g pattern ";
+    queryStr += " w1g(_, adasdf)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_WHILE_ARGTWO_NOT_UNDERSCORE,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN,
+            PARSE_PATCL_WHILE_ARGTWO_NOT_UNDERSCORE_STR,
+            "w1g(_,", "adasdf");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // spaces after '^1gva'
+    queryStr = " while vvba; Select vvba pattern ";
+    queryStr += " vvba( \"baff\" ,  ^1gva  \t \n )";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_WHILE_ARGTWO_NOT_UNDERSCORE,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN,
+            PARSE_PATCL_WHILE_ARGTWO_NOT_UNDERSCORE_STR,
+            "vvba(\"baff\",", "^1gva");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
+
+void TestPQLParser::test_err_patcl_norparen()
+{
+    string queryStr, out;
+    ostringstream *os;
+    PQLParser parser;
+
+    // pattern assign
+    queryStr = " assign as; variable var; Select as pattern ";
+    queryStr += " as(var,_\"a + b\"_  ";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_NORPAREN, parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCL_NORPAREN_STR,
+            "pattern as(var,_\"a+b\"_)");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // pattern if
+    queryStr = " if ita; Select ita pattern ";
+    queryStr += " ita( \"vba\" ,_ ,_ sdfg ";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_NORPAREN, parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCL_NORPAREN_STR,
+            "pattern ita(\"vba\",_,_)");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // pattern while
+    queryStr = "  while wenb; variable ba; Select wenb pattern ";
+    queryStr += " wenb( ba ,_  y35af ";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_NORPAREN, parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCL_NORPAREN_STR,
+            "pattern wenb(ba,_)");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
+
+void TestPQLParser::test_err_patcond_and_nosep()
+{
+    string queryStr, out;
+    ostringstream *os;
+    PQLParser parser;
+
+    queryStr = " assign a; while w; Select <a,w> pattern ";
+    queryStr += " a(_,_) and#41 pattern(w,_)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCOND_AND_NOSEP,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCOND_AND_NOSEP_STR,
+            "#41");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
+
+void TestPQLParser::test_err_patcl_syn_undeclared()
+{
+    string queryStr, out;
+    ostringstream *os;
+    PQLParser parser;
+
+    queryStr = " assign a; variable v; Select a pattern a(v,_) and ";
+    queryStr += " a2ba(_,_)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_SYN_UNDECLARED,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCL_SYN_UNDECLARED_STR,
+            "a2ba");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
+
+void TestPQLParser::test_err_patcl_nolparen()
+{
+    string queryStr, out;
+    ostringstream *os;
+    PQLParser parser;
+
+    queryStr = " assign bn,fs; Select bn pattern bn(_,_) and ";
+    queryStr += " fs ^^yha";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_NOLPAREN, parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCL_NOLPAREN_STR, "fs");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
+
+void TestPQLParser::test_err_patcl_syn_type_error()
+{
+    StringBuffer sb;
+    string queryStr, out;
+    ostringstream *os;
+    PQLParser parser;
+
+    // synonym is not while, if, assign
+    set<const char *> S;
+    S.insert(ENT_PROC_STR);
+    S.insert(ENT_STMTLST_STR);
+    S.insert(ENT_STMT_STR);
+    S.insert(ENT_CALL_STR);
+    S.insert(ENT_VAR_STR);
+    S.insert(ENT_CONST_STR);
+    S.insert(ENT_PROGLINE_STR);
+    for (set<const char *>::const_iterator it = S.begin();
+            it != S.end(); it++) {
+        sb.clear();
+        sb.sprintf(" while ww; %s someSyn; Select ww pattern ww(_,_) and ",
+                *it);
+        sb.append(" someSyn(_,_)");
+        queryStr = sb.toString();
+        os = new ostringstream;
+        parser.parse(os, queryStr, true, false);
+        out = os->str();
+        CPPUNIT_ASSERT_EQUAL(PARSE_PATCL_SYN_TYPE_ERROR,
+                parser.get_parse_result());
+        _snprintf_s(this->buf, BUFLEN, BUFLEN,
+                PARSE_PATCL_SYN_TYPE_ERROR_STR, "someSyn", *it);
+        CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    }
+}
+
+void TestPQLParser::test_err_patcond_invalid_patcl()
+{
+    StringBuffer sb;
+    string queryStr, out;
+    ostringstream *os;
+    PQLParser parser;
+
+    // not synonym
+    queryStr = " assign a; Select a pattern a(_,_) and ";
+    queryStr += " #51(_ ,_)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCOND_INVALID_PATCL,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCOND_INVALID_PATCL_STR,
+            "#51(_ ,_)", "pattern a(_,_)");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // not synonym, no rparen
+    queryStr = " assign bab; Select bab pattern bab(_,_) and ";
+    queryStr += "   bab(\"cca\" , _)  and 661  ";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_PATCOND_INVALID_PATCL,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_PATCOND_INVALID_PATCL_STR,
+            "661  ", "pattern bab(\"cca\",_)");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}

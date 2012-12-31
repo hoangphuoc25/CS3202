@@ -1,5 +1,6 @@
 #include "StringBuffer.h"
 
+#include <cctype>
 #include <cstring>
 #include <cstdarg>
 #include <algorithm>
@@ -235,6 +236,21 @@ int StringBuffer::substitutef(const char *fmt, const char *sub)
         }
     }
     return ate;
+}
+
+void StringBuffer::remove_spaces(void)
+{
+    char *copyBuf = new char[this->nrChars+5];
+    int len = 0;
+    for (int i = 0; i < this->nrChars; i++) {
+        if (!isspace(this->buf[i])) {
+            copyBuf[len++] = this->buf[i];
+        }
+    }
+    copyBuf[len] = 0;
+    strncpy(this->buf, copyBuf, len);
+    this->nrChars = len;
+    delete[] copyBuf;
 }
 
 void StringBuffer::clear(void)

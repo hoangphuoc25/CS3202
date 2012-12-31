@@ -128,13 +128,68 @@
 //       prevRelRef.dump().c_str()
 #define PARSE_RELCOND_INVALID_RELREF_STR \
     "Expected RelRef, got \"%s\" [after %s]"
+// arg: PQLParser::eat_while<not_space>(sb) --> sb.c_str()
+#define PARSE_PATCL_VARREF_INVALID_STR \
+    "patCl: expected varRef, got \"%s\""
+// arg: varRef
+#define PARSE_PATCL_VARREF_UNDECLARED_STR \
+    "patCl: undeclared varRef \"%s\""
+// args: varRef, relRefType_to_string(someType)
+#define PARSE_PATCL_VARREF_NOTVAR_STR \
+    "patCl: varRef \"%s\" is not of type variable [type \"%s\"]"
+// arg: patcl string so far
+#define PARSE_PATCL_ARGONE_NOCOMMA_STR \
+    "patCl: expected comma after \"%s\""
+// arg: patcl string so far
+#define PARSE_PATCL_ASSIGN_EXPR_NODQUOTE_STR \
+    "assign pattern: missing double quote for %s"
+// arg: patcl string so far
+#define PARSE_PATCL_ASSIGN_EXPR_WILDCARD_NO_UNDERSCORE_STR \
+    "assign pattern: missing underscore after %s"
+// args: patcl string so far,
+//       PQLParser::eat_while<not_rparen>(sb) --> sb.c_str()
+#define PARSE_PATCL_ASSIGN_EXPR_INVALID_STR \
+    "assign pattern: expected expr after %s ; got \"%s\""
+// args: patcl string so far,
+//       PQLParser::eat_while<not_space>(sb) --> sb.c_str()
+#define PARSE_PATCL_IF_ARGTWO_NOT_UNDERSCORE_STR \
+    "if pattern: expected underscore after %s ; got \"%s\""
+// arg: patcl string so far
+#define PARSE_PATCL_IF_ARGTWO_NOCOMMA_STR \
+    "if pattern: expected comma after %s"
+// args: patcl string so far,
+//       PQLParser::eat_while<not_rparen_space>(sb) --> sb.c_str()
+#define PARSE_PATCL_IF_ARGTHREE_NOT_UNDERSCORE_STR \
+    "if pattern: expected underscore after %s ; got \"%s\""
+// args: patcl string so far,
+//       PQLParser::eat_while<not_rparen_space>(sb) --> sb.c_str()
+#define PARSE_PATCL_WHILE_ARGTWO_NOT_UNDERSCORE_STR \
+    "while pattern: expected underscore after %s ; got \"%s\""
+// arg: patcl.toString().c_str()
+#define PARSE_PATCL_NORPAREN_STR \
+    "patCl: Missing rparen for \"%s\""
+// arg: syn
+#define PARSE_PATCL_SYN_UNDECLARED_STR \
+    "patCl: undeclared synonym \"%s\""
+// arg: syn
+#define PARSE_PATCL_NOLPAREN_STR \
+    "patCl: Missing lparen for \"%s\""
+// args: syn, entity_type_to_string(syn)
+#define PARSE_PATCL_SYN_TYPE_ERROR_STR \
+    "patCl: synonym \"%s\" is of type \"%s\", valid types: assign, while, if"
+// arg: PQLParser::eat_while<not_space>(sb) --> sb.c_str()
+#define PARSE_PATCOND_AND_NOSEP_STR \
+    "patCond: expect whitespace after \"and\" [got %s]"
+// args: PQLParser::eat_while<not_rparen>(sb) --> sb.c_str(),
+//       prevPatCl.toString().c_str()
+#define PARSE_PATCOND_INVALID_PATCL_STR \
+    "Expected patCl, got \"%s\" [after %s]"
 #define PARSE_QINFO_INSERT_INVALID_RELREF_STR \
     "QueryInfo::add_relRef - Trying to insert invalid relRef"
 // arg: StringBuffer contents
 #define PARSE_END_OF_QUERY_ERROR_STR \
     "Expected end of query, got \"%s\""
 #define PARSE_UNKNOWN_STR "Unknown error"
-
 // type error stuff
 #define TYPE_ERROR_ARRAY_SZ 2
 
@@ -183,6 +238,19 @@ enum RelRefArgType {
     RELARG_INVALID
 };
 
+enum PatClType {
+    PATCL_ASSIGN, PATCL_IF, PATCL_WHILE, PATCL_INVALID
+};
+
+enum PatClVarRefType {
+    PATVARREF_SYN, PATVARREF_WILDCARD, PATVARREF_STRING, PATVARREF_INVALID
+};
+
+enum PatClExprType {
+    PATEXPR_EXPR, PATEXPR_EXPR_WILDCARD, PATEXPR_WILDCARD,
+    PATEXPR_INVALID
+};
+
 enum ParseError {
     PARSE_OK,
     PARSE_DECL_EMPTY_SYN, PARSE_DECL_REPEATED_SYN, PARSE_DECL_INVALID_SYN,
@@ -198,6 +266,17 @@ enum ParseError {
     PARSE_REL_ARGTWO_UNDECLARED, PARSE_REL_ARGTWO_TYPE_ERROR,
     PARSE_REL_NO_COMMA, PARSE_REL_NO_RPAREN,
     PARSE_RELCOND_AND_NOSEP, PARSE_RELCOND_INVALID_RELREF,
+    PARSE_PATCL_VARREF_INVALID, PARSE_PATCL_VARREF_UNDECLARED,
+    PARSE_PATCL_VARREF_NOTVAR, PARSE_PATCL_ARGONE_NOCOMMA,
+    PARSE_PATCL_ASSIGN_EXPR_NODQUOTE,
+    PARSE_PATCL_ASSIGN_EXPR_WILDCARD_NO_UNDERSCORE,
+    PARSE_PATCL_ASSIGN_EXPR_INVALID,
+    PARSE_PATCL_IF_ARGTWO_NOT_UNDERSCORE,
+    PARSE_PATCL_IF_ARGTWO_NOCOMMA, PARSE_PATCL_IF_ARGTHREE_NOT_UNDERSCORE,
+    PARSE_PATCL_WHILE_ARGTWO_NOT_UNDERSCORE,
+    PARSE_PATCL_NORPAREN, PARSE_PATCL_SYN_UNDECLARED,
+    PARSE_PATCL_NOLPAREN, PARSE_PATCL_SYN_TYPE_ERROR,
+    PARSE_PATCOND_AND_NOSEP, PARSE_PATCOND_INVALID_PATCL,
     PARSE_QINFO_INSERT_INVALID_RELREF,
     PARSE_END_OF_QUERY_ERROR,
     PARSE_UNKNOWN
@@ -251,6 +330,31 @@ struct RelRef {
 // For comparing RelRef so that we will not insert repeated relref
 struct RelRefCmp {
     bool operator()(const RelRef &a, const RelRef &b) const;
+};
+
+// Pattern clauses
+struct PatCl {
+    enum PatClType type;
+    std::string syn;
+    enum PatClVarRefType varRefType;
+    std::string varRefString;
+    enum PatClExprType exprType;
+    std::string exprString;
+
+    PatCl();
+    void set_pat_assign(const std::string &s, enum PatClVarRefType vrType,
+            const std::string& vr, enum PatClExprType exType,
+            const std::string& ex);
+    void set_pat_if(const std::string& s, enum PatClVarRefType vrType,
+            const std::string& vr);
+    void set_pat_while(const std::string& s, enum PatClVarRefType vrType,
+            const std::string& vr);
+    std::string toString(bool showType=false) const;
+    static bool valid(const PatCl &p);
+};
+
+struct PatClCmp {
+    bool operator()(const PatCl &a, const PatCl &b) const;
 };
 
 // For printing out parse error
@@ -384,6 +488,8 @@ private:
     bool eat_relRef_affects_star(RelRef &relRef, StringBuffer &sb);
     RelRef eat_relRef(StringBuffer &sb);
     bool eat_relCond(StringBuffer &sb) throw(ParseError);
+    PatCl eat_patternClause(StringBuffer &sb) throw(ParseError);
+    bool eat_patternCond(StringBuffer &sb) throw(ParseError);
     void eat_select_stwithpat(StringBuffer &sb);
     bool insert_syn(DesignEnt ent, const std::string &s) throw(ParseError);
     DesignEnt retrieve_syn_type(const std::string& s) const;
@@ -425,6 +531,7 @@ public:
     void set_select_tuple();
     ParseError add_select_tuple(AttrRef attrRef);
     ParseError add_relRef(RelRef& relRef, char **errorMsg);
+    ParseError add_patCl(const PatCl &p, char **errorMsg);
     void dump(void) const;
     void dump(FILE *f) const;
     std::string dump_to_string() const;
@@ -439,6 +546,8 @@ private:
     std::vector<std::pair<ClauseType, int> > evalOrder;
     std::vector<RelRef> relRefs;
     std::set<RelRef, RelRefCmp> relRefsSet;
+    std::vector<PatCl> patCls;
+    std::set<PatCl, PatClCmp> patClSet;
 
     char errorBuf[QINFO_ERROR_LEN+5];
 

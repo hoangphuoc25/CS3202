@@ -170,6 +170,27 @@ const char *TYPE_ERROR_AFFECTS_STAR[TYPE_ERROR_ARRAY_SZ] = {
 };
 
 //////////////////////////////////////////////////////////////////////
+// Internal functions
+//////////////////////////////////////////////////////////////////////
+
+bool string_is_synonym(const std::string &s)
+{
+    int len = s.size();
+    if (len <= 0) {
+        return false;
+    }
+    if (!isalpha(s[0])) {
+        return false;
+    }
+    for (int i = 0; i < len; i++) {
+        if (!isalnum(s[i]) && s[i] != '#') {
+            return false;
+        }
+    }
+    return true;
+}
+
+//////////////////////////////////////////////////////////////////////
 // AttrRef
 //////////////////////////////////////////////////////////////////////
 
@@ -442,6 +463,163 @@ bool RelRefCmp::operator()(const RelRef &a, const RelRef &b) const
     #undef RELREF_ARGTWO_CMP
 }
 
+//////////////////////////////////////////////////////////////////////
+// PatCl
+//////////////////////////////////////////////////////////////////////
+PatCl::PatCl():
+    type(PATCL_INVALID), syn(),
+    varRefType(PATVARREF_INVALID), varRefString(),
+    exprType(PATEXPR_INVALID), exprString() {}
+
+void PatCl::set_pat_assign(const string& syn_, enum PatClVarRefType vrType,
+        const string& vr, enum PatClExprType exType,
+        const string& ex)
+{
+    this->type = PATCL_ASSIGN;
+    this->syn = syn_;
+    this->varRefType = vrType;
+    if (this->varRefType == PATVARREF_SYN ||
+            this->varRefType == PATVARREF_STRING) {
+        this->varRefString = vr;
+    }
+    this->exprType = exType;
+    if (this->exprType == PATEXPR_EXPR ||
+            this->exprType == PATEXPR_EXPR_WILDCARD) {
+        // TODO: Use AST static method to construct actual tree
+        //       and store actual tree
+        StringBuffer sb;
+        sb.append(ex);
+        sb.remove_spaces();
+        this->exprString = sb.toString();
+    }
+}
+
+void PatCl::set_pat_if(const string& syn_, enum PatClVarRefType vrType,
+        const string& vr)
+{
+    this->type = PATCL_IF;
+    this->syn = syn_;
+    this->varRefType = vrType;
+    if (this->varRefType == PATVARREF_SYN ||
+            this->varRefType == PATVARREF_STRING) {
+        this->varRefString = vr;
+    }
+}
+
+void PatCl::set_pat_while(const string &syn_, enum PatClVarRefType vrType,
+        const string& vr)
+{
+    this->type = PATCL_WHILE;
+    this->syn = syn_;
+    this->varRefType = vrType;
+    if (this->varRefType == PATVARREF_SYN ||
+            this->varRefType == PATVARREF_STRING) {
+        this->varRefString = vr;
+    }
+}
+
+string PatCl::toString(bool showType) const
+{
+    StringBuffer sb;
+    if (showType) {
+        switch (this->type) {
+        case PATCL_ASSIGN:
+            sb.append("assign ");
+            break;
+        case PATCL_IF:
+            sb.append("if ");
+            break;
+        case PATCL_WHILE:
+            sb.append("while ");
+            break;
+        default:
+            sb.append("invalid ");
+            break;
+        }
+    }
+    sb.append("pattern ");
+    if (this->type != PATCL_INVALID) {
+        sb.append(this->syn);
+        sb.append('(');
+        switch (this->varRefType) {
+        case PATVARREF_SYN:
+            sb.append(this->varRefString);
+            break;
+        case PATVARREF_STRING:
+            sb.append('"');
+            sb.append(this->varRefString);
+            sb.append('"');
+            break;
+        case PATVARREF_WILDCARD:
+            sb.append('_');
+            break;
+        }
+        sb.append(',');
+        if (this->type == PATCL_ASSIGN) {
+            switch (this->exprType) {
+            case PATEXPR_EXPR:
+                sb.append('"');
+                sb.append(this->exprString);
+                sb.append('"');
+                break;
+            case PATEXPR_EXPR_WILDCARD:
+                sb.append('_');
+                sb.append('"');
+                sb.append(this->exprString);
+                sb.append('"');
+                sb.append('_');
+                break;
+            case PATEXPR_WILDCARD:
+                sb.append('_');
+                break;
+            default:
+                break;
+            }
+        } else if (this->type == PATCL_IF) {
+            sb.append("_,_");
+        } else if (this->type == PATCL_WHILE) {
+            sb.append('_');
+        }
+        sb.append(')');
+    }
+    return sb.toString();
+}
+
+bool PatCl::valid(const PatCl &p)
+{
+    return p.type != PATCL_INVALID;
+}
+
+bool PatClCmp::operator()(const PatCl &a, const PatCl &b) const
+{
+    if (a.type != b.type) {
+        return a.type < b.type;
+    } else {
+        if (a.syn != b.syn) {
+            return a.syn < b.syn;
+        } else if (a.varRefType != b.varRefType) {
+            return a.varRefType < b.varRefType;
+        } else {
+            if (a.varRefType == PATVARREF_SYN ||
+                    a.varRefType == PATVARREF_STRING) {
+                if (a.varRefString != b.varRefString) {
+                    return a.varRefString < b.varRefString;
+                }
+            }
+            if (a.type == PATCL_ASSIGN) {
+                if (a.exprType != b.exprType) {
+                    return a.exprType < b.exprType;
+                } else if (a.exprType == PATEXPR_EXPR ||
+                        a.exprType == PATEXPR_EXPR_WILDCARD) {
+                    return a.exprString < b.exprString;
+                } else {
+                    return false;
+                }
+            }
+            return false;
+        }
+    }
+}
 
 //////////////////////////////////////////////////////////////////////
 // PQLParseErrorStream
@@ -821,6 +999,57 @@ void PQLParser::print_error(va_list ap)
     case PARSE_RELCOND_INVALID_RELREF:
         sb.vsprintf(PARSE_RELCOND_INVALID_RELREF_STR, ap);
         break;
+    case PARSE_PATCL_VARREF_INVALID:
+        sb.vsprintf(PARSE_PATCL_VARREF_INVALID_STR, ap);
+        break;
+    case PARSE_PATCL_VARREF_UNDECLARED:
+        sb.vsprintf(PARSE_PATCL_VARREF_UNDECLARED_STR, ap);
+        break;
+    case PARSE_PATCL_VARREF_NOTVAR:
+        sb.vsprintf(PARSE_PATCL_VARREF_NOTVAR_STR, ap);
+        break;
+    case PARSE_PATCL_ARGONE_NOCOMMA:
+        sb.vsprintf(PARSE_PATCL_ARGONE_NOCOMMA_STR, ap);
+        break;
+    case PARSE_PATCL_ASSIGN_EXPR_NODQUOTE:
+        sb.vsprintf(PARSE_PATCL_ASSIGN_EXPR_NODQUOTE_STR, ap);
+        break;
+    case PARSE_PATCL_ASSIGN_EXPR_WILDCARD_NO_UNDERSCORE:
+        sb.vsprintf(PARSE_PATCL_ASSIGN_EXPR_WILDCARD_NO_UNDERSCORE_STR, ap);
+        break;
+    case PARSE_PATCL_ASSIGN_EXPR_INVALID:
+        sb.vsprintf(PARSE_PATCL_ASSIGN_EXPR_INVALID_STR, ap);
+        break;
+    case PARSE_PATCL_IF_ARGTWO_NOT_UNDERSCORE:
+        sb.vsprintf(PARSE_PATCL_IF_ARGTWO_NOT_UNDERSCORE_STR, ap);
+        break;
+    case PARSE_PATCL_IF_ARGTWO_NOCOMMA:
+        sb.vsprintf(PARSE_PATCL_IF_ARGTWO_NOCOMMA_STR, ap);
+        break;
+    case PARSE_PATCL_IF_ARGTHREE_NOT_UNDERSCORE:
+        sb.vsprintf(PARSE_PATCL_IF_ARGTHREE_NOT_UNDERSCORE_STR, ap);
+        break;
+    case PARSE_PATCL_WHILE_ARGTWO_NOT_UNDERSCORE:
+        sb.vsprintf(PARSE_PATCL_WHILE_ARGTWO_NOT_UNDERSCORE_STR, ap);
+        break;
+    case PARSE_PATCL_NORPAREN:
+        sb.vsprintf(PARSE_PATCL_NORPAREN_STR, ap);
+        break;
+    case PARSE_PATCL_SYN_UNDECLARED:
+        sb.vsprintf(PARSE_PATCL_SYN_UNDECLARED_STR, ap);
+        break;
+    case PARSE_PATCL_NOLPAREN:
+        sb.vsprintf(PARSE_PATCL_NOLPAREN_STR, ap);
+        break;
+    case PARSE_PATCL_SYN_TYPE_ERROR:
+        sb.vsprintf(PARSE_PATCL_SYN_TYPE_ERROR_STR, ap);
+        break;
+    case PARSE_PATCOND_AND_NOSEP:
+        sb.vsprintf(PARSE_PATCOND_AND_NOSEP_STR, ap);
+        break;
+    case PARSE_PATCOND_INVALID_PATCL:
+        sb.vsprintf(PARSE_PATCOND_INVALID_PATCL_STR, ap);
+        break;
     case PARSE_QINFO_INSERT_INVALID_RELREF:
         sb.vsprintf(PARSE_QINFO_INSERT_INVALID_RELREF_STR, ap);
         break;
@@ -888,9 +1117,24 @@ bool not_space(char ch)
     return !isspace(ch);
 }
 
+bool not_space_lparen(char ch)
+{
+    return (!isspace(ch) && ch != '(');
+}
+
+bool not_space_rparen(char ch)
+{
+    return (!isspace(ch) && ch != ')');
+}
+
 bool not_rparen(char ch)
 {
     return ch != ')';
+}
+
+bool not_dquote(char ch)
+{
+    return ch != '"';
 }
 
 bool is_alpha(char ch)
@@ -1830,6 +2074,290 @@ bool PQLParser::eat_relCond(StringBuffer &sb) throw(ParseError)
     return true;
 }
 
+PatCl PQLParser::eat_patternClause(StringBuffer &sb) throw (ParseError)
+{
+    int saveIdx = this->bufIdx;
+    bool ret;
+    RelRefArgType rtype;
+    PatCl patCl;
+    PatClType patClType = PATCL_INVALID;
+    PatClVarRefType varRefType = PATVARREF_INVALID;
+    PatClExprType exprType = PATEXPR_INVALID;
+    string syn, varRefString, exprString;
+    DesignEnt entType;
+    StringBuffer errorSb;
+    sb.clear();
+    this->eat_space();
+    // synonym
+    if (!this->eat_synonym(sb)) {
+        RESTORE_AND_RET(PatCl(), saveIdx);
+    }
+    syn = sb.toString();
+    entType = this->retrieve_syn_type(syn);
+    if (entType != ENT_ASSIGN && entType != ENT_IF &&
+            entType != ENT_WHILE) {
+        RESTORE_AND_RET(PatCl(), saveIdx);
+    }
+    switch (entType) {
+    case ENT_ASSIGN:
+        patClType = PATCL_ASSIGN;
+        break;
+    case ENT_IF:
+        patClType = PATCL_IF;
+        break;
+    case ENT_WHILE:
+        patClType = PATCL_WHILE;
+        break;
+    }
+    this->eat_space();
+    if (!this->eat_lparen()) {
+        RESTORE_AND_RET(PatCl(), saveIdx);
+    }
+    // point of no return, ok to error out from now since we ate '('
+    this->eat_space();
+    saveIdx = this->bufIdx;
+    // 1st argument - eat varRef
+    rtype = this->eat_varRef(sb);
+    if (rtype == RELARG_INVALID) {
+        this->bufIdx = saveIdx;
+        sb.clear();
+        this->eat_while<not_comma_space>(sb);
+        this->error(PARSE_PATCL_VARREF_INVALID, sb.c_str());
+    }
+    assert(rtype == RELARG_SYN || rtype == RELARG_STRING ||
+            rtype == RELARG_WILDCARD);
+    varRefString = sb.toString();
+    if (rtype == RELARG_SYN) {
+        // type check, make sure it's of type var
+        entType = this->retrieve_syn_type(varRefString);
+        if (entType == ENT_INVALID) {
+            this->error(PARSE_PATCL_VARREF_UNDECLARED,
+                    varRefString.c_str());
+        } else if (entType != ENT_VAR) {
+            this->error(PARSE_PATCL_VARREF_NOTVAR, varRefString.c_str(),
+                    entity_type_to_string(entType));
+        }
+        varRefType = PATVARREF_SYN;
+    } else if (rtype == RELARG_STRING) {
+        varRefType = PATVARREF_STRING;
+    } else if (rtype == RELARG_WILDCARD) {
+        varRefType = PATVARREF_WILDCARD;
+        varRefString = "_";
+    }
+    this->eat_space();
+    saveIdx = this->bufIdx;
+
+    #define ARGONE_ERROR(someErr) do { \
+        errorSb.clear(); \
+        errorSb.sprintf("%s(%s%s%s", syn.c_str(), \
+                    ((varRefType == PATVARREF_STRING) ? "\"" : ""), \
+                    varRefString.c_str(), \
+                    ((varRefType == PATVARREF_STRING) ? "\"" : "")); \
+        this->error(someErr, errorSb.c_str()); \
+    } while (0)
+
+    #define ARGONE_ERROR_SB(someErr) do { \
+        errorSb.clear(); \
+        errorSb.sprintf("%s(%s%s%s", syn.c_str(), \
+                    ((varRefType == PATVARREF_STRING) ? "\"" : ""), \
+                    varRefString.c_str(), \
+                    ((varRefType == PATVARREF_STRING) ? "\"" : "")); \
+        this->error(someErr, errorSb.c_str(), sb.c_str()); \
+    } while (0)
+
+    #define ARGTWO_ERROR(argtwostr, someErr) do { \
+        errorSb.clear(); \
+        errorSb.sprintf("%s(%s%s%s,"argtwostr, syn.c_str(), \
+                    ((varRefType == PATVARREF_STRING) ? "\"" : ""), \
+                    varRefString.c_str(), \
+                    ((varRefType == PATVARREF_STRING) ? "\"" : ""), \
+                    sb.c_str()); \
+        this->error(someErr, errorSb.c_str()); \
+    } while(0)
+
+    #define ARGTWO_ERROR_SB_ERR(someErr) do { \
+        errorSb.clear(); \
+        errorSb.sprintf("%s(%s%s%s,", syn.c_str(), \
+                    ((varRefType == PATVARREF_STRING) ? "\"" : ""), \
+                    varRefString.c_str(), \
+                    ((varRefType == PATVARREF_STRING) ? "\"" : "")); \
+        this->error(someErr, errorSb.c_str(), sb.c_str()); \
+    } while(0)
+
+    // comma after first arg
+    if (!this->eat_comma()) {
+        ARGONE_ERROR(PARSE_PATCL_ARGONE_NOCOMMA);
+    }
+    this->eat_space();
+    saveIdx = this->bufIdx;
+    // second arg
+    if (patClType == PATCL_ASSIGN) {
+        if (this->eat_dquote()) {
+            exprType = PATEXPR_EXPR;
+            sb.clear();
+            this->eat_while<not_dquote>(sb);
+            if (!this->eat_dquote()) {
+                ARGTWO_ERROR("\"%s", PARSE_PATCL_ASSIGN_EXPR_NODQUOTE);
+            }
+            exprString = sb.toString();
+        } else if (this->eat_underscore()) {
+            if (this->eat_dquote()) {
+                exprType = PATEXPR_EXPR_WILDCARD;
+                sb.clear();
+                this->eat_while<not_dquote>(sb);
+                if (!this->eat_dquote()) {
+                    ARGTWO_ERROR("_\"%s",
+                            PARSE_PATCL_ASSIGN_EXPR_NODQUOTE);
+                }
+                if (!this->eat_underscore()) {
+                    ARGTWO_ERROR("_\"%s\"",
+                            PARSE_PATCL_ASSIGN_EXPR_WILDCARD_NO_UNDERSCORE);
+                }
+                exprString = sb.toString();
+            } else {
+                exprType = PATEXPR_WILDCARD;
+            }
+        } else {
+            // error, invalid expr
+            sb.clear();
+            this->eat_while<not_space_rparen>(sb);
+            ARGTWO_ERROR_SB_ERR(PARSE_PATCL_ASSIGN_EXPR_INVALID);
+        }
+    } else if (patClType == PATCL_IF) {
+        if (!this->eat_underscore()) {
+            sb.clear();
+            this->eat_while<not_comma_space>(sb);
+            ARGTWO_ERROR_SB_ERR(PARSE_PATCL_IF_ARGTWO_NOT_UNDERSCORE);
+        }
+        this->eat_space();
+        if (!this->eat_comma()) {
+            errorSb.clear();
+            errorSb.sprintf("%s(%s%s%s,_", syn.c_str(),
+                        ((varRefType == PATVARREF_STRING) ? "\"" : ""),
+                        varRefString.c_str(),
+                        ((varRefType == PATVARREF_STRING) ? "\"" : ""));
+            this->error(PARSE_PATCL_IF_ARGTWO_NOCOMMA, errorSb.c_str());
+        }
+        this->eat_space();
+        if (!this->eat_underscore()) {
+            sb.clear();
+            this->eat_while<not_space_rparen>(sb);
+            errorSb.clear();
+            errorSb.sprintf("%s(%s%s%s,_,", syn.c_str(),
+                        ((varRefType == PATVARREF_STRING) ? "\"" : ""),
+                        varRefString.c_str(),
+                        ((varRefType == PATVARREF_STRING) ? "\"" : ""));
+            this->error(PARSE_PATCL_IF_ARGTHREE_NOT_UNDERSCORE,
+                    errorSb.c_str(), sb.c_str());
+        }
+    } else if (patClType == PATCL_WHILE) {
+        if (!this->eat_underscore()) {
+            sb.clear();
+            this->eat_while<not_space_rparen>(sb);
+            ARGTWO_ERROR_SB_ERR(PARSE_PATCL_WHILE_ARGTWO_NOT_UNDERSCORE);
+        }
+    }
+    this->eat_space();
+    // set PatCl parameters
+    switch (patClType) {
+    case PATCL_ASSIGN:
+        patCl.set_pat_assign(syn, varRefType, varRefString, exprType,
+                exprString);
+        break;
+    case PATCL_IF:
+        patCl.set_pat_if(syn, varRefType, varRefString);
+        break;
+    case PATCL_WHILE:
+        patCl.set_pat_while(syn, varRefType, varRefString);
+        break;
+    }
+    if (!this->eat_rparen()) {
+        this->error(PARSE_PATCL_NORPAREN, patCl.toString().c_str());
+    }
+    return patCl;
+
+    #undef ARGONE_ERROR
+    #undef ARGONE_ERROR_SB
+    #undef ARGTWOERROR
+    #undef ARGTWO_ERROR_SB
+}
+
+bool PQLParser::eat_patternCond(StringBuffer &sb) throw(ParseError)
+{
+    int saveIdx = this->bufIdx;
+    PatCl patcl, prevPatcl;
+    char *errorMsg = NULL;
+    if (this->eat_space() <= 0) {
+        RESTORE_AND_RET(false, saveIdx);
+    }
+    patcl = this->eat_patternClause(sb);
+    if (!PatCl::valid(patcl)) {
+        RESTORE_AND_RET(false, saveIdx);
+    }
+    this->qinfo->add_patCl(patcl, &errorMsg);
+    if (errorMsg) {
+        this->warning(errorMsg);
+        errorMsg = NULL;
+    }
+
+    while (1) {
+        saveIdx = this->bufIdx;
+        if (this->eat_space() <= 0) {
+            break;
+        }
+        if (!this->eat_and(sb)) {
+            this->bufIdx = saveIdx;
+            break;
+        }
+        if (this->eat_space() <= 0) {
+            sb.clear();
+            this->eat_while<not_space>(sb);
+            this->error(PARSE_PATCOND_AND_NOSEP, sb.c_str());
+        }
+        prevPatcl = patcl;
+        patcl = this->eat_patternClause(sb);
+        if (!PatCl::valid(patcl)) {
+            sb.clear();
+            saveIdx = this->bufIdx;
+            this->eat_while<not_space_lparen>(sb);
+            string s = sb.toString();
+            if (string_is_synonym(s)) {
+                DesignEnt entType = this->retrieve_syn_type(s);
+                switch (entType) {
+                case ENT_INVALID:
+                    this->error(PARSE_PATCL_SYN_UNDECLARED, s.c_str());
+                    break;
+                case ENT_ASSIGN: case ENT_IF: case ENT_WHILE:
+                    // next char is not '('
+                    this->error(PARSE_PATCL_NOLPAREN, s.c_str());
+                    break;
+                default:
+                    // invalid synonym type
+                    this->error(PARSE_PATCL_SYN_TYPE_ERROR, s.c_str(),
+                            entity_type_to_string(entType));
+                    break;
+                }
+            } else {
+                sb.clear();
+                this->bufIdx = saveIdx;
+                this->eat_while<not_rparen>(sb);
+                if (this->bufIdx < this->bufLen &&
+                        this->buf[this->bufIdx] == ')') {
+                    sb.append(')');
+                }
+                this->error(PARSE_PATCOND_INVALID_PATCL, sb.c_str(),
+                        prevPatcl.toString().c_str());
+            }
+        }
+        this->qinfo->add_patCl(patcl, &errorMsg);
+        if (errorMsg) {
+            this->warning(errorMsg);
+            errorMsg = NULL;
+        }
+    }
+    return true;
+}
+
 void PQLParser::eat_select_stwithpat(StringBuffer &sb)
 {
     if (this->bufIdx >= this->bufLen) {
@@ -1844,8 +2372,8 @@ void PQLParser::eat_select_stwithpat(StringBuffer &sb)
             // nothing
         } else if (this->eat_with(sb)) {
             // TODO: Fill in
-        } else if (this->eat_pattern(sb)) {
-            // TODO: Fill in
+        } else if (this->eat_pattern(sb) && this->eat_patternCond(sb)) {
+            // nothing
         } else {
             break;
         }
@@ -2056,6 +2584,8 @@ void QueryInfo::reset(const map<string, DesignEnt>& etab,
     this->evalOrder.clear();
     this->relRefs.clear();
     this->relRefsSet.clear();
+    this->patCls.clear();
+    this->patClSet.clear();
 }
 
 void QueryInfo::set_select_boolean()
@@ -2213,6 +2743,28 @@ ParseError QueryInfo::add_relRef(RelRef &relRef, char **errorMsg)
     }
 }
 
+ParseError QueryInfo::add_patCl(const PatCl &p, char **errorMsg)
+{
+    ParseError ret = PARSE_OK;
+    assert(p.type != PATCL_INVALID && p.varRefType != PATVARREF_INVALID &&
+            ((p.type == PATCL_ASSIGN && p.exprType != PATEXPR_INVALID) ||
+             (p.type != PATCL_ASSIGN)));
+    if (this->patClSet.find(p) != this->patClSet.end()) {
+        if (errorMsg) {
+            StringBuffer sb;
+            sb.append("QueryInfo::add_patCl - repeated clause: ");
+            sb.append(p.toString());
+            *errorMsg = strdup(sb.c_str());
+        }
+    } else {
+        this->evalOrder.push_back(
+                make_pair(PATTERN_CLAUSE, this->patCls.size()));
+        this->patClSet.insert(p);
+        this->patCls.push_back(p);
+    }
+    return ret;
+}
+
 void QueryInfo::dump(void) const
 {
     this->dump(stdout);
@@ -2254,6 +2806,10 @@ std::string QueryInfo::dump_to_string() const
         switch (it->first) {
         case SUCHTHAT_CLAUSE:
             sb.append(this->relRefs[it->second].dump());
+            sb.append('\n');
+            break;
+        case PATTERN_CLAUSE:
+            sb.append(this->patCls[it->second].toString(true));
             sb.append('\n');
             break;
         }

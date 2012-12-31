@@ -221,6 +221,25 @@ void TestStringBuffer::testSubstitutef()
     CPPUNIT_ASSERT_EQUAL(out, strbuf.toString());
 }
 
+void TestStringBuffer::testRemovespaces()
+{
+    StringBuffer sb;
+    string out;
+    sb.append("  this is just a tt \t \n test   ");
+    sb.remove_spaces();
+    out = "thisisjustatttest";
+    CPPUNIT_ASSERT_EQUAL(out, sb.toString());
+    CPPUNIT_ASSERT_EQUAL((int)out.size(), sb.size());
+    sb.append("merry go round 1 2 3 45");
+    out += "merry go round 1 2 3 45";
+    CPPUNIT_ASSERT_EQUAL(out, sb.toString());
+    CPPUNIT_ASSERT_EQUAL((int)out.size(), sb.size());
+    sb.remove_spaces();
+    out = "thisisjustatttestmerrygoround12345";
+    CPPUNIT_ASSERT_EQUAL(out, sb.toString());
+    CPPUNIT_ASSERT_EQUAL((int)out.size(), sb.size());
+}
+
 void TestStringBuffer::testSize()
 {
     StringBuffer sb;

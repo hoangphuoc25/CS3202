@@ -50,6 +50,24 @@ CPPUNIT_TEST(test_next_and_star);
 CPPUNIT_TEST(test_err_next_and_star_argtypes);
 CPPUNIT_TEST(test_affects_and_star);
 CPPUNIT_TEST(test_err_affects_and_star_argtypes);
+CPPUNIT_TEST(test_pattern);
+CPPUNIT_TEST(test_err_patcl_varref_invalid);
+CPPUNIT_TEST(test_err_patcl_varref_undeclared);
+CPPUNIT_TEST(test_err_patcl_varref_notvar);
+CPPUNIT_TEST(test_err_patcl_argone_nocomma);
+CPPUNIT_TEST(test_err_patcl_assign_expr_nodquote);
+CPPUNIT_TEST(test_err_patcl_assign_expr_wildcard_no_underscore);
+CPPUNIT_TEST(test_err_patcl_assign_expr_invalid);
+CPPUNIT_TEST(test_err_patcl_if_argtwo_not_underscore);
+CPPUNIT_TEST(test_err_patcl_if_argtwo_nocomma);
+CPPUNIT_TEST(test_err_patcl_if_argthree_not_underscore);
+CPPUNIT_TEST(test_err_patcl_while_argtwo_not_underscore);
+CPPUNIT_TEST(test_err_patcl_norparen);
+CPPUNIT_TEST(test_err_patcond_and_nosep);
+CPPUNIT_TEST(test_err_patcl_syn_undeclared);
+CPPUNIT_TEST(test_err_patcl_nolparen);
+CPPUNIT_TEST(test_err_patcl_syn_type_error);
+CPPUNIT_TEST(test_err_patcond_invalid_patcl);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -104,6 +122,24 @@ private:
     void test_err_next_and_star_argtypes();
     void test_affects_and_star();
     void test_err_affects_and_star_argtypes();
+    void test_pattern();
+    void test_err_patcl_varref_invalid();
+    void test_err_patcl_varref_undeclared();
+    void test_err_patcl_varref_notvar();
+    void test_err_patcl_argone_nocomma();
+    void test_err_patcl_assign_expr_nodquote();
+    void test_err_patcl_assign_expr_wildcard_no_underscore();
+    void test_err_patcl_assign_expr_invalid();
+    void test_err_patcl_if_argtwo_not_underscore();
+    void test_err_patcl_if_argtwo_nocomma();
+    void test_err_patcl_if_argthree_not_underscore();
+    void test_err_patcl_while_argtwo_not_underscore();
+    void test_err_patcl_norparen();
+    void test_err_patcond_and_nosep();
+    void test_err_patcl_syn_undeclared();
+    void test_err_patcl_nolparen();
+    void test_err_patcl_syn_type_error();
+    void test_err_patcond_invalid_patcl();
 };
 
 #endif
