@@ -7,32 +7,33 @@
 #include "ProcTable.h"
 #include "VarTable.h"
 #include "Node.h"
+#include "StmtBank.h"
 
 using std::map;
 using std::set;
 using std::string;
 using std::queue;
 
-enum stmtType {CALLTYPE, WHILETYPE, IFTYPE, ASSIGNTYPE};
+
 
 class PKB{
 
 
 public:
     PKB();
-    PKB(Node *root);
+    PKB(Node *root, ProcTable *pt, VarTable *vt, StmtBank *sb);
 
     // Builder methods
-    VarTable* add_proc(string proc, Node* proc_root); 
-    void add_node_entry(int stmtNo, stmtType type, Node* node);
-    void add_constant(string n);
-    void add_calls(string proc1, string proc2);
 
-    // Design extractor
+
+
+    //to modify
+    /*// Design extractor/*
     void extract_design();
     void update_vars(string procName);
     void update_procVarTable(string procName); //propagate calls info
-
+    */
+    // to update
     // Query methods
     // varTable
     set<int> get_modifies_var(string var);
@@ -53,7 +54,7 @@ public:
     ProcTable get_procTable();
 
     // AST
-    bool is_stmt_type(int stmtNo, stmtType type);
+
     bool is_stmt_modifies(int stmtNo, string varName);
     bool is_stmt_uses(int stmtNo, string varName);
     set<string> get_stmt_modifies(int stmtNo);
@@ -61,30 +62,21 @@ public:
     string get_control_var(int stmtNo);
     Node* get_progRoot();
 
-    // Banks
-    map<int, stmtType> get_directory();
-    map<int, Node*> get_callBank();
-    map<int, Node*> get_ifBank();
-    map<int, Node*> get_whileBank();
-    map<int, Node*> get_assignBank();
 
-    //Utility
-    Node* get_node(int stmtNo);
+
+
 
     // Printers
 
 private:
+
     Node *progRoot;
-    ProcTable procTable;
-    map<int, stmtType> directory; 
-    map<int, Node*> callBank;
-    map<int, Node*> whileBank;
-    map<int, Node*> ifBank;
-    map<int, Node*> assignBank;
-    map<string, vector<int> > varBank;
-    set<string> constBank;
-    VarTable procVarTable;
+    ProcTable *procTable;
+    VarTable *varTable;
+    StmtBank *stmtBank;
+
     const set<string> EMPTY_STRINGSET;
+
 };
 
 #endif

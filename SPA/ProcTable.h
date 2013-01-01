@@ -15,15 +15,15 @@ using std::map;
 struct ProcElements {
     string procName;
     Node *procRoot;
-    VarTable *varTable;
+    int start;
+    int end;
     set<string> calledBy;
     set<string> calls;
     set<string> modifies;
     set<string> uses;
     // CFG root node
-    // start end
     ProcElements();
-    ProcElements(string name, Node *root);
+    ProcElements(string name);
 };
 
 
@@ -33,31 +33,37 @@ public:
     ProcTable();
     int get_index(string procName);
     string get_proc_name(int index);
+    Node* get_root(string procName);
 
-    void update_called_by(); // update get_calls
+    void update_table(VarTable *vt);
 
-    int insert_proc(string procName, Node *root);
+    void set_start(string procName, int stmtNo);
+    void set_end(string procName, int stmtNo);
+    void set_proc_root(string procName, Node *root);
+    int insert_proc(string procName);
     void add_modifies(string procName, string varName);
     void add_uses(string procName, string varName);
     void add_calls(string proc1, string proc2); 
 
     set<string> get_calls(string procName);
-    set<string> get_calls(int index);
     set<string> get_called_by(string procName);
-    set<string> get_called_by(int index);
-    VarTable* get_varTable(string procName);
-    VarTable* get_varTable(int index);
-    Node* get_root(string procName);
-    Node* get_root(int index);
     set<string> get_modifies(string procName);
     set<string> get_uses(string procName);
     set<string> get_all_procs();
+
+    set<string> get_calls(int index);
+    set<string> get_called_by(int index);
+    Node* get_root(int index);
 
 private:
     void add_called_by(string proc1, string proc2); 
     const set<string> EMPTY_STRINGSET;
     vector<ProcElements> procTable;
-    map<string, int> nameToIndex; 
+    map<string, int> nameToIndex;
+    vector<int> updated;
+    void update(string procName);
+    void combine_up(string proc1, string proc2);
+    VarTable *varTable;
 
 };
 

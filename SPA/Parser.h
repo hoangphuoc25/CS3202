@@ -12,11 +12,12 @@
 #include "PKB.h"
 #include <map>
 #include <set>
+#include <queue>
 
 using std::map;
 using std::set;
 using std::stack;
-
+using std::queue;
 
 
 class Parser {
@@ -28,10 +29,11 @@ public:
     Node *get_proc_root();
     PKB* get_pkb();
     Node* yard();
+    void update_tables();
+    void update_calls();
+    void update_nodes(Node *n);
 
-    void dumpBank();
     void dumpTable();
-
 
 private:
     // Tokens
@@ -40,19 +42,14 @@ private:
     Token currToken;
     string state;
 
-    // AST info
-    Node *astRoot;
+    // Info structures
     int stmtNo;
     string procName;
-    PKB *pkb;
+   
+    Node *astRoot;
     VarTable *varTable;
-    /*
-    map<int, stmtType> directory; 
-    map<int, Node*> callBank;
-    map<int, Node*> whileBank;
-    map<int, Node*> ifBank;
-    map<int, Node*> assignBank;
-    */
+    StmtBank *stmtBank;
+    ProcTable *procTable;
 
     // AST builder nodes
     Node *procRoot;
@@ -71,8 +68,6 @@ private:
     //Match functions
     void match(tokenType type);
     void match(string str);
-    void match_mul(int amt, tokenType type, ...);
-    void match_mul(int amt, char* str, ...);
     void error();
     void error(tokenType type);
     void error(string s);
@@ -98,6 +93,7 @@ private:
     void create_node(string name, NodeType type);
     void add_modifies(Node* n, string var);
     void add_uses(Node* n, string var);
+    void combine_node_up(Node *n1, Node* n2);
 
     // Shunting Yard
     void join();

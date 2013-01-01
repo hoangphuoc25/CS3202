@@ -101,6 +101,27 @@ void Node::add_uses(string var){
     uses.insert(var);
 }
 
+void Node::set_control_var(string var){
+    control_var = var;
+}
+
+void Node::set_uses(set<string> s){
+    uses = s;
+}
+
+void Node::set_modifies(set<string> s){
+    modifies = s;
+}
+
+void Node::set_updated(){
+    updated = true;
+}
+
+bool Node::is_updated(){
+    return updated;
+}
+
+
 // Helper
 void Node::link_stmt(Node *n1){
     if (nodeType == STMTLST) {
@@ -118,9 +139,7 @@ void Node::link_stmt(Node *n1){
     }
 }
 
-void Node::set_control_var(string var){
-    control_var = var;
-}
+
 
 // Printer
 void Node::dump(int n){

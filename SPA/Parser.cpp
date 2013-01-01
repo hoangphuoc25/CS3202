@@ -12,9 +12,15 @@ Parser::Parser(string s, ReadMode mode)
     tokenizer = *new Tokenizer(s.c_str(), mode);
     nextToken = tokenizer.get_token();
     stmtNo = 0;
+
+    varTable = new VarTable();
+    stmtBank = new StmtBank();
+    procTable = new ProcTable();
+
     procRoot = NULL;
     currNode = NULL;
     nextNode = NULL;
+    
     printer[PROC_NAME] = "PROC_NAME";
     printer[VAR_NAME] = "VAR_NAME";
     printer[OPERATOR] = "OPERATOR";
@@ -24,6 +30,7 @@ Parser::Parser(string s, ReadMode mode)
     printer[BRACKETS] = "BRACKETS";
     printer[KEYWORD] = "KEYWORD";
     printer[NONE] = "NONE";
+    
     op_pre["+"] = 0;
     op_pre["-"] = 0;
     op_pre["*"] = 1;
@@ -47,8 +54,72 @@ Node* Parser::get_proc_root()
     return procRoot;
 }
 
+void Parser::update_tables(){
+    // Update the procedure uses and modifies
+    procTable->update_table(varTable);
+    // Update calls nodes
+    update_calls();
+    // Updates container nodes
+    map<int, Node*>::iterator it;
+    map<int, Node*> bank = stmtBank->get_whileBank();
+    for (it = bank.begin(); it != bank.end(); it++) {
+        update_nodes(it->second);
+    }
+    bank = stmtBank->get_ifBank();
+    for (it = bank.begin(); it != bank.end(); it++) {
+        update_nodes(it->second);
+    }
+}
+
+void Parser::update_nodes(Node *n){
+    int stmtNo = n->get_stmtNo();
+    if (!n->is_updated()) {
+        vector<Node*> v = n->get_children();
+        int sz = v.size();
+        for (int i = 0; i < sz; i++) {
+            update_nodes(v[i]);
+            combine_node_up(n, v[i]);
+        }
+        n->set_updated();
+    }
+}
+
+void Parser::combine_node_up(Node *n1, Node *n2){
+    set<string>::iterator it;
+    set<string> s;
+    int stmtNo = n1->get_stmtNo();
+
+    s = n2->get_modifies();
+    for (it = s.begin(); it != s.end(); it++) {
+        n1->add_modifies(*it);
+        varTable->add_modified_by(*it,stmtNo);
+    }
+
+    s = n2->get_uses();
+    for (it = s.begin(); it != s.end(); it++) {
+        n1->add_uses(*it);
+        varTable->add_used_by(*it,stmtNo);
+    }
+}
+
+
+void Parser::update_calls(){
+    map<int, Node*>::iterator it;
+    map<int, Node*> callBank = stmtBank->get_callBank(); 
+    set<string> s;
+    string name;
+    for (it = callBank.begin(); it != callBank.end(); it++) {
+        name = it->second->get_name();
+        s = procTable->get_modifies(name);
+        it->second->set_modifies(s);
+        s = procTable->get_uses(name);
+        it->second->set_uses(s);
+    }
+}
+
 PKB* Parser::get_pkb(){
-    return pkb;
+    update_tables();
+    return new PKB(astRoot, procTable, varTable, stmtBank);
 }
 
 
@@ -76,73 +147,6 @@ void Parser::match(string str)
          error(str);
      }
 }
-
-//match against multiple token types
-void Parser::match_mul(int amt, tokenType type, ...)
-{
-    va_list vl;
-    va_start(vl,type);
-    tokenType temp;
-    bool flag = false;
-    
-    if (nextToken.get_type() == type) {
-         token_out(); 
-         currToken = nextToken;
-         nextToken = tokenizer.get_token();
-         flag = true;
-    }
-    
-    for (int i = 1; i < amt; i++) {
-        if (flag) {
-            break;
-        }
-        temp = (tokenType)va_arg(vl,int);    
-        if (nextToken.get_type() == temp) {
-            token_out();
-            currToken = nextToken;
-            nextToken = tokenizer.get_token();
-            flag = true;
-        }
-    }
-    
-    if (flag == false) {
-        error();
-    }
-}
-
-//match against multiple strings
-void Parser::match_mul(int amt, char* str, ...)
-{
-     va_list vl;
-     va_start(vl,str);
-     string temp;
-     bool flag = false;
-     temp = str;
-     if (!temp.compare(nextToken.get_name())) {
-         token_out();
-         currToken = nextToken;
-         nextToken = tokenizer.get_token();
-         flag = true;
-     }
-     
-     for (int i = 1; i < amt; i++) {
-        if (flag == true) {
-            break;
-        }
-        temp = string(va_arg(vl,char*));
-        if (!temp.compare(nextToken.get_name())) {
-            token_out();
-            currToken = nextToken;
-            nextToken = tokenizer.get_token();
-            flag = true;
-        }
-     }
-
-     if (flag == false) {
-         error();
-     }
-}
-
 
 
 //For now just exit on error
@@ -182,11 +186,10 @@ void Parser::error(string s)
 
 void Parser::program(){
     state = "program";
-// handle multiple procedure
     astRoot = new Node("program", PROGRAM, stmtNo);
-    pkb = new PKB(astRoot);
     while (!tokenizer.is_done()){
         procedure();
+        procTable->set_end(procName, stmtNo);
     }
 }
 
@@ -196,11 +199,15 @@ void Parser::procedure(){
     if (nextToken.get_type() == VAR_NAME) {
         nextToken = Token(nextToken.get_name(), PROC_NAME);
     }
+
     match(PROC_NAME);
     procName = currToken.get_name();
     procRoot = new Node(procName, PROCEDURE, stmtNo);
     astRoot->add_leaf(procRoot);
-    varTable = pkb->add_proc(procName, procRoot);
+    procTable->insert_proc(procName);
+    procTable->set_proc_root(procName, procRoot);
+    procTable->set_start(procName, stmtNo+1);
+
     match("{");
     nextNode = procRoot;
     create_node("stmt_lst", STMTLST);
@@ -239,13 +246,13 @@ void Parser::call_stmt(){
     if (nextToken.get_type() == VAR_NAME) {
         nextToken = Token(nextToken.get_name(), PROC_NAME);
     }
+
     match(PROC_NAME);
     create_node(currToken.get_name(), CALL_STMT);
     currNode->link_stmt(nextNode);
-    pkb->add_node_entry(stmtNo, CALLTYPE, nextNode);
-    pkb->add_calls(procName, nextNode->get_name());
-    /*directory[stmtNo] = CALLTYPE;
-    callBank[stmtNo] = nextNode;*/
+    stmtBank->add_node_entry(stmtNo, CALLTYPE, nextNode);
+    procTable->add_calls(procName, nextNode->get_name());
+
     match(";");
 }
 
@@ -254,10 +261,8 @@ void Parser::while_stmt(){
     match("while");
     create_node(currToken.get_name(), WHILE_STMT);
     currNode->link_stmt(nextNode);
-    pkb->add_node_entry(stmtNo, WHILETYPE, nextNode);
-    /*directory[stmtNo] = WHILETYPE;
-    whileBank[stmtNo] = nextNode;*/
-    
+    stmtBank->add_node_entry(stmtNo, WHILETYPE, nextNode);
+
     match(VAR_NAME);
     string varName = currToken.get_name();
     create_node(varName, VARIABLE_);
@@ -278,9 +283,7 @@ void Parser::if_stmt(){
     match("if");
     create_node(currToken.get_name(), IF_STMT);
     currNode->link_stmt(nextNode);
-    pkb->add_node_entry(stmtNo, IFTYPE, nextNode);
-    /*directory[stmtNo] = IFTYPE;
-    ifBank[stmtNo] = nextNode;*/
+    stmtBank->add_node_entry(stmtNo, IFTYPE, nextNode);
 
     match(VAR_NAME);
     string varName = currToken.get_name();
@@ -314,9 +317,8 @@ void Parser::assign(){
     create_node("=", ASSIGN_STMT);
     currNode->link_stmt(nextNode);
     nextNode->add_leaf(tempNode);
-    pkb->add_node_entry(stmtNo, ASSIGNTYPE, nextNode);
-    /*directory[stmtNo] = ASSIGNTYPE;
-    assignBank[stmtNo] = nextNode;*/
+    stmtBank->add_node_entry(stmtNo, ASSIGNTYPE, nextNode);
+
     add_modifies(nextNode, tempNode->get_name());
     assignNode = nextNode;
     expr();
@@ -366,7 +368,7 @@ void Parser::factor(){
         outStack.push(tempNode);
     } else if (t == CONSTANT) {
         match(CONSTANT);
-        pkb->add_constant(currToken.get_name());
+        stmtBank->add_constant(currToken.get_name());
         tempNode = new Node(currToken.get_name(), CONSTANT_, stmtNo);
         outStack.push(tempNode);
     } else {
@@ -391,14 +393,18 @@ void Parser::add_modifies(Node* n, string var){
     int stmt = n->get_stmtNo();
     varTable->insert_var(var);
     varTable->add_modified_by(var, stmt);
+    varTable->add_modified_by(var, procName);
     n->add_modifies(var);
+    procTable->add_modifies(procName, var);
 }
 
 void Parser::add_uses(Node* n, string var){
     int stmt = n->get_stmtNo();
     varTable->insert_var(var);
     varTable->add_used_by(var, stmt);
+    varTable->add_used_by(var, procName);
     n->add_uses(var);
+    procTable->add_uses(procName, var);
 }
 
 
@@ -475,28 +481,7 @@ void Parser::token_out(){
 
 }
 
-void Parser::dumpBank(){
-    map<int,stmtType>::iterator it;
 
-    printf("\n\n::::::::: Dumping Bank :::::::\n\n");
-/*
-    for (it = directory.begin(); it!= directory.end(); it++) {
-        switch (it->second) {
-            case CALLTYPE:
-                callBank[it->first]->dumpR();
-                break;
-            case WHILETYPE:
-                whileBank[it->first]->dumpR();
-                break;
-            case IFTYPE:
-                ifBank[it->first]->dumpR();;
-                break;
-            case ASSIGNTYPE:
-                assignBank[it->first]->dumpR();
-                break;
-        }
-    }*/
-}
 
 void Parser::dumpTable(){
     set<int>::iterator it;

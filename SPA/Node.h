@@ -30,7 +30,7 @@ public:
     // Physical methods
     void add_leaf(Node *node);
     Node* get_root();
-vector<Node*> get_leaves();
+    vector<Node*> get_leaves();
 
     // AST methods
     Node* get_parent();
@@ -45,7 +45,11 @@ vector<Node*> get_leaves();
     void set_successor(Node* n);
     void add_modifies(string var);
     void add_uses(string var);
+    void set_modifies(set<string> s);
+    void set_uses(set<string> s);
     void set_control_var(string var);
+    void set_updated();
+    bool is_updated();
 
     // Helper
     void link_stmt(Node *n1); //helper to link stmt nodes
@@ -66,6 +70,7 @@ private:
     string nodeName;
     NodeType nodeType;
     int nodeStmtNo;
+    bool updated;
 
     // Physical
     Node *root;
