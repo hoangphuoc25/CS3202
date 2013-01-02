@@ -1,12 +1,12 @@
-#ifndef T11_TEST_PQLPARSER_H
-#define T11_TEST_PQLPARSER_H
+#ifndef T11_TEST_20_PQLPARSER_H
+#define T11_TEST_20_PQLPARSER_H
 
 #include <map>
 #include <string>
 #include <cppunit/extensions/HelperMacros.h>
 
-class TestPQLParser: public CPPUNIT_NS::TestFixture {
-CPPUNIT_TEST_SUITE(TestPQLParser);
+class Test_20_PQLParser: public CPPUNIT_NS::TestFixture {
+CPPUNIT_TEST_SUITE(Test_20_PQLParser);
 CPPUNIT_TEST(test_one_decl_one);
 CPPUNIT_TEST(test_one_decl);
 CPPUNIT_TEST(test_mult_decl);

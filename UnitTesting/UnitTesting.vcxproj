@@ -68,12 +68,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="source\UnitTest.cpp" />
-    <ClCompile Include="TestPQLParser.cpp" />
-    <ClCompile Include="TestStringBuffer.cpp" />
+    <ClCompile Include="Test_00_StringBuffer.cpp" />
+    <ClCompile Include="Test_20_PQLParser.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="TestPQLParser.h" />
-    <ClInclude Include="TestStringBuffer.h" />
+    <ClInclude Include="Test_00_StringBuffer.h" />
+    <ClInclude Include="Test_20_PQLParser.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,16 +2,16 @@
 #include <string>
 
 #include "../SPA/StringBuffer.h"
-#include "TestStringBuffer.h"
+#include "Test_00_StringBuffer.h"
 
 using std::string;
 
-void TestStringBuffer::setUp() {}
-void TestStringBuffer::tearDown() {}
+void Test_00_StringBuffer::setUp() {}
+void Test_00_StringBuffer::tearDown() {}
 
-CPPUNIT_TEST_SUITE_REGISTRATION(TestStringBuffer);
+CPPUNIT_TEST_SUITE_REGISTRATION(Test_00_StringBuffer);
 
-void TestStringBuffer::testAppendChar()
+void Test_00_StringBuffer::testAppendChar()
 {
     StringBuffer sb;
     string src, s;
@@ -26,7 +26,7 @@ void TestStringBuffer::testAppendChar()
     CPPUNIT_ASSERT_EQUAL(src, s);
 }
 
-void TestStringBuffer::testAppendCString()
+void Test_00_StringBuffer::testAppendCString()
 {
     const char *sArr[] = {
         "This is the first string",
@@ -55,7 +55,7 @@ void TestStringBuffer::testAppendCString()
     delete[] cat;
 }
 
-void TestStringBuffer::testAppendString()
+void Test_00_StringBuffer::testAppendString()
 {
     string s, src;
     StringBuffer sb;
@@ -71,7 +71,7 @@ void TestStringBuffer::testAppendString()
     CPPUNIT_ASSERT_EQUAL(src, sb.toString());
 }
 
-void TestStringBuffer::testAppendInt()
+void Test_00_StringBuffer::testAppendInt()
 {
     StringBuffer sb;
     int cnt;
@@ -104,7 +104,7 @@ void TestStringBuffer::testAppendInt()
     CPPUNIT_ASSERT_EQUAL(6, cnt);
 }
 
-void TestStringBuffer::testAppendMixed()
+void Test_00_StringBuffer::testAppendMixed()
 {
     StringBuffer sb;
     string src = "";
@@ -137,7 +137,7 @@ void TestStringBuffer::testAppendMixed()
     CPPUNIT_ASSERT_EQUAL(src, sb.toString());
 }
 
-void TestStringBuffer::testClear()
+void Test_00_StringBuffer::testClear()
 {
     string src = "";
     StringBuffer sb;
@@ -158,7 +158,7 @@ void TestStringBuffer::testClear()
     CPPUNIT_ASSERT_EQUAL(src, sb.toString());
 }
 
-void TestStringBuffer::testStrcmp()
+void Test_00_StringBuffer::testStrcmp()
 {
     StringBuffer sb;
     for (int i = 0; i < 26; i++) {
@@ -172,7 +172,7 @@ void TestStringBuffer::testStrcmp()
     CPPUNIT_ASSERT_EQUAL(1, ret);
 }
 
-void TestStringBuffer::testCstr()
+void Test_00_StringBuffer::testCstr()
 {
     StringBuffer sb;
     sb.append('a');
@@ -182,7 +182,7 @@ void TestStringBuffer::testCstr()
     CPPUNIT_ASSERT_EQUAL(0, ret);
 }
 
-void TestStringBuffer::testSprintf()
+void Test_00_StringBuffer::testSprintf()
 {
     StringBuffer sb;
     const char *fmt = "this is %% just a %d %s%% %c";
@@ -199,7 +199,7 @@ void TestStringBuffer::testSprintf()
     CPPUNIT_ASSERT_EQUAL(80, cnt);
 }
 
-void TestStringBuffer::testSubstitutef()
+void Test_00_StringBuffer::testSubstitutef()
 {
     StringBuffer sb;
     const char *fmt = "this is %s just %% a %d test %s%s\n";
@@ -221,7 +221,7 @@ void TestStringBuffer::testSubstitutef()
     CPPUNIT_ASSERT_EQUAL(out, strbuf.toString());
 }
 
-void TestStringBuffer::testRemovespaces()
+void Test_00_StringBuffer::testRemovespaces()
 {
     StringBuffer sb;
     string out;
@@ -240,7 +240,7 @@ void TestStringBuffer::testRemovespaces()
     CPPUNIT_ASSERT_EQUAL((int)out.size(), sb.size());
 }
 
-void TestStringBuffer::testSize()
+void Test_00_StringBuffer::testSize()
 {
     StringBuffer sb;
     CPPUNIT_ASSERT_EQUAL(0, sb.size());
