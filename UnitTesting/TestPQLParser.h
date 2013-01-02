@@ -36,6 +36,7 @@ CPPUNIT_TEST(test_err_rel_argone_type_error);
 CPPUNIT_TEST(test_err_rel_argtwo_undeclared);
 CPPUNIT_TEST(test_err_rel_argtwo_type_error);
 CPPUNIT_TEST(test_err_rel_no_rparen);
+CPPUNIT_TEST(test_err_relcond_and_nosep);
 CPPUNIT_TEST(test_err_relcond_invalid_relRef);
 CPPUNIT_TEST(test_err_end_of_query_error);
 CPPUNIT_TEST(test_uses);
