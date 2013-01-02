@@ -118,7 +118,12 @@ bool PKB::is_parent_star(int stmt1, int stmt2){
 }
 
 int PKB::get_parent(int stmtNo){
-    return(stmtBank->get_node(stmtNo)->get_parent()->get_stmtNo());
+    Node *n = stmtBank->get_node(stmtNo)->get_parent();
+    if (n != NULL) {
+        return n->get_stmtNo();
+    } else {
+        return -1;
+    }
 }
 
 set<int> PKB::get_parent_star(int stmtNo){
@@ -181,7 +186,12 @@ bool PKB::is_follows_star(int stmt1, int stmt2){
 }
 
 int PKB::get_successor(int stmtNo){
-    return stmtBank->get_node(stmtNo)->get_successor()->get_stmtNo();
+    Node *n = stmtBank->get_node(stmtNo)->get_successor();
+    if (n != NULL) {
+        return n->get_stmtNo();
+    } else {
+        return -1;
+    }
 }
 
 set<int> PKB::get_successor_star(int stmtNo){
@@ -195,8 +205,14 @@ set<int> PKB::get_successor_star(int stmtNo){
 }
 
 int PKB::get_predecessor(int stmtNo){
-    return stmtBank->get_node(stmtNo)->get_predecessor()->get_stmtNo();
+    Node *n = stmtBank->get_node(stmtNo)->get_predecessor();
+    if (n != NULL) {
+        return n->get_stmtNo();
+    } else {
+        return -1;
+    }
 }
+
 set<int> PKB::get_predecessor_star(int stmtNo){
     set<int> res;
     Node *n = stmtBank->get_node(stmtNo)->get_predecessor();
@@ -260,6 +276,37 @@ set<int> PKB::filter_by_proc(string procName, set<int> s){
         return res;
     }
 }
+
+int PKB::filter_by_stmtType(stmtType type, int stmtNo){
+    if(is_stmtType(stmtNo, type)) {
+        return stmtNo;
+    } else {
+        return -1;
+    }
+}
+
+set<int> PKB::filter_by_stmtType(stmtType type, set<int> s){
+    set<int> res;
+    set<int>::iterator it;
+    map<int, stmtType> m = stmtBank->get_directory();
+    for (it = s.begin(); it != s.end(); it++) {
+        if (m[*it] == type) {
+            res.insert(*it);
+        }
+    }
+    return res;
+}
+
+bool PKB::is_stmtType(int stmtNo, stmtType type){
+    map<int, stmtType> m = stmtBank->get_directory();
+    if (m.find(stmtNo) != m.end()) {
+        return (stmtBank->get_directory()[stmtNo] == type);
+    } else {
+        return false;
+    }
+}
+
+
 
 // Debuugers
 Node* PKB::get_progRoot(){

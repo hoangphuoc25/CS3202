@@ -82,6 +82,9 @@ public:
     set<int> get_all_stmt();
     set<int> get_all_stmt_by_proc(string procName);
     set<int> filter_by_proc(string procName, set<int> s);
+    int filter_by_stmtType(stmtType type, int stmtNo);
+    set<int> filter_by_stmtType(stmtType type, set<int> s);
+    bool is_stmtType(int stmtNo, stmtType type);
 
     // Debuugers
     Node* get_progRoot();
