@@ -29,6 +29,7 @@ const char *TYPE_ERROR_MODIFIES[TYPE_ERROR_ARRAY_SZ] = {
     "Modifies: arg one must be a synonym of type" \
     " assign, stmt, if, while, procedure, call, prog_line;" \
     " or the name of a procedure enclosed in double quotes;" \
+    " or an integer;" \
     " or an underscore",
 
     "Modifies: arg two must be a synonym of type" \
@@ -41,6 +42,7 @@ const char *TYPE_ERROR_USES[TYPE_ERROR_ARRAY_SZ] = {
     "Uses: arg one must be a synonym of type" \
     " assign, stmt, if, while, procedure, call, prog_line;" \
     " or the name of a procedure enclosed in double quotes;" \
+    " or an integer;" \
     " or an underscore",
 
     "Uses: arg two must be a synonym of type" \
