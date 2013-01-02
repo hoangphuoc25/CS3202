@@ -14,8 +14,6 @@ using std::set;
 using std::string;
 using std::queue;
 
-
-
 class PKB{
 
 
@@ -23,50 +21,69 @@ public:
     PKB();
     PKB(Node *root, ProcTable *pt, VarTable *vt, StmtBank *sb);
 
-    // Builder methods
-
-
-
-    //to modify
-    /*// Design extractor/*
-    void extract_design();
-    void update_vars(string procName);
-    void update_procVarTable(string procName); //propagate calls info
-    */
-    // to update
     // Query methods
-    // varTable
-    set<int> get_modifies_var(string var);
-    set<int> get_uses_var(string var);
-    set<string> get_proc_modifies_var(string var);
-    set<string> get_proc_uses_var(string var); 
-    set<string> get_var_by_proc(string procName);
-    set<string> get_modifies_var_by_proc(string procName);
-    set<string> get_uses_var_by_proc(string procName);
-/*
-    set<string> get_all_vars_by_proc(string procName);
+    
+    // Variables
+    
+    string get_control_var(int stmtNo);
     set<string> get_all_vars();
-    */
+    set<string> get_all_vars_by_proc(string procName);
 
-    // procTable
+    // Calls
+    bool is_calls(string proc1, string proc2);
     set<string> get_calls(string procName);
     set<string> get_called_by(string procName);
-    ProcTable get_procTable();
+    
+    // Modifies
+    bool is_modifies(string procName, string varName);
+    bool is_modifies(int stmtNo, string varName);
+        
+    set<string> get_proc_modifies(string var);
+    set<int> get_stmt_modifies(string var);
+    
+    set<string> get_var_proc_modifies(string procName);
+    set<string> get_var_stmt_modifies(int stmtNo);
 
-    // AST
+    // Uses
+    bool is_uses(string procName, string varName);
+    bool is_uses(int stmtNo, string varName);
 
-    bool is_stmt_modifies(int stmtNo, string varName);
-    bool is_stmt_uses(int stmtNo, string varName);
-    set<string> get_stmt_modifies(int stmtNo);
-    set<string> get_stmt_uses(int stmtNo);
-    string get_control_var(int stmtNo);
+    set<string> get_proc_uses(string var);
+    set<int> get_stmt_uses(string var);
+    
+    set<string> get_var_proc_uses(string procName);
+    set<string> get_var_stmt_uses(int stmtNo); 
+
+    // Parent
+    bool is_parent(int stmt1, int stmt2);
+    bool is_parent_star(int stmt1, int stmt2);
+
+    int get_parent(int stmtNo);
+    set<int> get_parent_star(int stmtNo);
+    
+    set<int> get_children(int stmtNo);
+    set<int> get_children_star(int stmtNo);
+
+    // Follows
+    bool is_follows(int stmt1, int stmt2);
+    bool is_follows_star(int stmt1, int stmt2);
+
+    int get_successor(int stmtNo);
+    set<int> get_successor_star(int stmNo);
+
+    int get_predecessor(int stmtNo);
+    set<int> get_predecessor_star(int stmtNo);
+
+    // Others
+    set<int> filter_by_proc(string procName, set<int> s);
+    //get const
+
+    // Debuugers
     Node* get_progRoot();
+    ProcTable* get_procTable();
+    StmtBank* get_stmtBank();
+    VarTable* get_varTable();
 
-
-
-
-
-    // Printers
 
 private:
 
@@ -76,7 +93,7 @@ private:
     StmtBank *stmtBank;
 
     const set<string> EMPTY_STRINGSET;
-
+    const set<int> EMPTY_INTSET;
 };
 
 #endif

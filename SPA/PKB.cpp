@@ -9,138 +9,35 @@ PKB::PKB(Node *root, ProcTable *pt, VarTable *vt, StmtBank *sb){
     stmtBank = sb;
 }
 
-
-Node* PKB::get_progRoot(){
-    return progRoot;
+// Variables
+string PKB::get_control_var(int stmtNo){
+    return stmtBank->get_node(stmtNo)->get_control_var();
 }
 
+set<string> PKB::get_all_vars(){
+    return varTable->get_all_vars();
+}
 
-/*
-void PKB::extract_design(){
-
-    set<string> s = procTable.get_all_procs();
+set<string> PKB::get_all_vars_by_proc(string procName){
+    set<string> s,res;
     set<string>::iterator it;
+    s = procTable->get_modifies(procName);
     for (it = s.begin(); it != s.end(); it++) {
-        update_vars(*it);
+        res.insert(*it);
     }
+    s = procTable->get_uses(procName);
     for (it = s.begin(); it != s.end(); it++) {
-        update_procVarTable(*it);
+        res.insert(*it);
     }
+    return res;
 }
 
-void PKB::update_vars(string procName){
-    VarTable *v = procTable.get_varTable(procName);
-    set<string> s;
-    set<string>::iterator it;
-    set<int> n;
-    set<int>::iterator iter;
-    queue<int> q;
-    int temp, stmtNo;
-    int index = procTable.get_index(procName);
-    Node *node, *parent;
-    s = v->get_all_vars();
-    for (it = s.begin(); it != s.end(); it++) {
-        n = v->get_modified_by(*it);
-        if (!n.empty()){
-            procTable.add_modifies(procName, *it);
-            procVarTable.add_modified_by(*it, index);
-            for (iter = n.begin(); iter != n.end(); iter++) {
-                q.push(*iter);
-            }
-            while (!q.empty()) {
-                temp = q.front();
-                node = get_node(temp);
-                parent = node->get_parent();
-                if(parent != NULL) {
-                    stmtNo = node->get_parent()->get_stmtNo();
-                    v->add_modified_by(*it, stmtNo);
-                    q.push(stmtNo);
-                    parent->add_modifies(*it);
-                }
-                q.pop();
-            }
-        }
-
-        n = v->get_used_by(*it);
-        if(!n.empty()) {
-            procTable.add_uses(procName, *it);
-            procVarTable.add_used_by(*it, index);
-            for (iter = n.begin(); iter != n.end(); iter++) {
-                q.push(*iter);
-            }
-            while (!q.empty()) {
-                temp = q.front();
-                node = get_node(temp);
-                parent = node->get_parent();
-                if(parent != NULL) {
-                    stmtNo = node->get_parent()->get_stmtNo();
-                    v->add_used_by(*it, stmtNo);
-                    q.push(stmtNo);
-                    parent->add_uses(*it);
-                }
-                q.pop();
-            }
-        }
-    }
+// Calls
+bool PKB::is_calls(string proc1, string proc2){
+    set<string> s = procTable->get_calls(proc1); 
+    return (s.find(proc2) != s.end());
 }
 
-
-void PKB::update_procVarTable(string procName){
-    set<string> s,v;
-    set<string>::iterator it, var;
-    int index = procTable.get_index(procName);
-    s = procTable.get_calls(procName);
-    for (it = s.begin(); it != s.end(); it++) {
-        v = procTable.get_modifies(*it);
-        for (var = v.begin(); var != v.end(); var++) {
-            procTable.add_modifies(procName, *var);
-            procVarTable.add_modified_by(*var, index);
-        }
-        v = procTable.get_uses(*it);
-        for (var = v.begin(); var != v.end(); var++) {
-            procTable.add_uses(procName, *var);
-            procVarTable.add_used_by(*var, index);
-        }
-    }
-}
-*/
-
-set<int> PKB::get_modifies_var(string var){
-    return *new set<int>;
-}
-
-set<int> PKB::get_uses_var(string var){
-        return *new set<int>;
-}
-
-set<string> PKB::get_proc_modifies_var(string var){
-        return *new set<string>;
-}
-
-set<string> PKB::get_proc_uses_var(string var){
-            return *new set<string>;
-}
-
-set<string> PKB::get_var_by_proc(string procName){
-            return *new set<string>;
-}
-
-set<string> PKB::get_modifies_var_by_proc(string procName){
-    return procTable->get_modifies(procName);
-}
-
-set<string> PKB::get_uses_var_by_proc(string procName){
-    return procTable->get_uses(procName);
-}
-
-/*
-set<string> PKB::get_all_vars_by_proc(string procName){}
-
-set<string> PKB::get_all_vars(){}
-*/
-
-
-//procTable
 set<string> PKB::get_calls(string procName){
     return procTable->get_calls(procName);
 }
@@ -149,49 +46,198 @@ set<string> PKB::get_called_by(string procName){
     return procTable->get_called_by(procName);
 }
 
-ProcTable PKB::get_procTable(){
-    return *procTable;
+// Modifies
+bool PKB::is_modifies(string procName, string varName){
+    set<string> s = procTable->get_modifies(procName);
+    return (s.find(varName) != s.end());
 }
 
-// AST
+bool PKB::is_modifies(int stmtNo, string varName){
+    set<string> s = stmtBank->get_node(stmtNo)->get_modifies();
+    return (s.find(varName) != s.end());
+}
 
+set<string> PKB::get_proc_modifies(string var){
+    return varTable->get_modified_by_proc(var);
+}
 
-bool PKB::is_stmt_modifies(int stmtNo, string varName) {
-    set<string> s = get_stmt_modifies(stmtNo);
-    if (s.find(varName) != s.end()) {
-        return true;
+set<int> PKB::get_stmt_modifies(string var){
+    return varTable->get_modified_by(var);
+}
+
+set<string> PKB::get_var_proc_modifies(string procName){
+    return procTable->get_modifies(procName);
+}
+
+set<string> PKB::get_var_stmt_modifies(int stmtNo){
+    return stmtBank->get_node(stmtNo)->get_modifies();
+}
+
+// Uses
+bool PKB::is_uses(string procName, string varName){
+    set<string> s = procTable->get_uses(procName);
+    return (s.find(varName) != s.end());
+}
+
+bool PKB::is_uses(int stmtNo, string varName){
+    set<string> s = stmtBank->get_node(stmtNo)->get_uses();
+    return (s.find(varName) != s.end());
+}
+
+set<string> PKB::get_proc_uses(string var){
+    return varTable->get_used_by_proc(var);
+}
+
+set<int> PKB::get_stmt_uses(string var){
+    return varTable->get_used_by(var);
+}
+
+set<string> PKB::get_var_proc_uses(string procName){
+    return procTable->get_uses(procName);
+}
+
+set<string> PKB::get_var_stmt_uses(int stmtNo){
+    return stmtBank->get_node(stmtNo)->get_uses();
+} 
+
+// Parent
+bool PKB::is_parent(int stmt1, int stmt2){
+    return (stmtBank->get_node(stmt2)->get_parent()->get_stmtNo() == stmt1);
+}
+
+bool PKB::is_parent_star(int stmt1, int stmt2){
+    Node *n = stmtBank->get_node(stmt2)->get_parent();
+    while (n != NULL) {
+        if (n->get_stmtNo() == stmt1) {
+            return true;
+        } else {
+            n = n->get_parent();
+        }
+    }
+    return false;
+}
+
+int PKB::get_parent(int stmtNo){
+    return(stmtBank->get_node(stmtNo)->get_parent()->get_stmtNo());
+}
+
+set<int> PKB::get_parent_star(int stmtNo){
+    set<int> res;
+    Node *n = stmtBank->get_node(stmtNo)->get_parent();
+    while (n != NULL) {
+        res.insert(n->get_stmtNo());
+        n = n->get_parent();
+    }
+    return res;
+}
+
+set<int> PKB::get_children(int stmtNo){
+    set<int> s;
+    vector<Node*> v = stmtBank->get_node(stmtNo)->get_children(); 
+    int sz = v.size();
+    for(int i = 0; i< sz; i++) {
+        s.insert(v[i]->get_stmtNo());
+    }
+    return s;
+}
+
+set<int> PKB::get_children_star(int stmtNo){
+    queue<Node*> q;
+    set<int> res;
+    Node *n = stmtBank->get_node(stmtNo);
+    vector<Node*> v = n->get_children();
+    int sz = v.size();
+    for (int i = 0; i < sz; i++) {
+        q.push(v[i]);
+    }
+    while (!q.empty()) {
+        n = q.front();
+        res.insert(n->get_stmtNo());
+        v = n->get_children();
+        sz = v.size();
+        for (int i = 0; i < sz; i++) {
+            q.push(v[i]);
+        }
+        q.pop();
+    }
+    return res;
+}
+
+// Follows
+bool PKB::is_follows(int stmt1, int stmt2){
+    return (stmtBank->get_node(stmt1)->get_successor()->get_stmtNo() == stmt2);
+}
+
+bool PKB::is_follows_star(int stmt1, int stmt2){
+    Node *n = stmtBank->get_node(stmt1)->get_successor();
+    while (n != NULL) {
+        if (n->get_stmtNo() == stmt2) {
+            return true;
+        } else {
+            n = n->get_successor();
+        }
+    }
+    return false;
+}
+
+int PKB::get_successor(int stmtNo){
+    return stmtBank->get_node(stmtNo)->get_successor()->get_stmtNo();
+}
+
+set<int> PKB::get_successor_star(int stmtNo){
+    set<int> res;
+    Node *n = stmtBank->get_node(stmtNo)->get_successor();
+    while (n != NULL) {
+        res.insert(n->get_stmtNo());
+        n = n->get_successor();
+    }
+    return res;
+}
+
+int PKB::get_predecessor(int stmtNo){
+    return stmtBank->get_node(stmtNo)->get_predecessor()->get_stmtNo();
+}
+set<int> PKB::get_predecessor_star(int stmtNo){
+    set<int> res;
+    Node *n = stmtBank->get_node(stmtNo)->get_predecessor();
+    while (n != NULL) {
+        res.insert(n->get_stmtNo());
+        n = n->get_predecessor();
+    }
+    return res;
+}
+
+// Others
+set<int> PKB::filter_by_proc(string procName, set<int> s){
+    int start, end;
+    start = procTable->get_start(procName);
+    end = procTable->get_end(procName);
+    if (start == -1 || end == -1) {
+        return EMPTY_INTSET;
     } else {
-        return false;
+        set<int> res;
+        std::set<int>::iterator it, low, high;
+        low = s.lower_bound(start);
+        high = s.upper_bound(end);
+        for (it = low; it != high; it++) {
+            res.insert(*it);
+        }
+        return res;
     }
 }
 
-bool PKB::is_stmt_uses(int stmtNo, string varName) {
-    set<string> s = get_stmt_uses(stmtNo);
-    if (s.find(varName) != s.end()) {
-        return true;
-    } else {
-        return false;
-    }
+// Debuugers
+Node* PKB::get_progRoot(){
+    return progRoot;
 }
 
-set<string> PKB::get_stmt_modifies(int stmtNo){
-            return *new set<string>;
+ProcTable* PKB::get_procTable(){
+    return procTable;
+}
+StmtBank* PKB::get_stmtBank(){
+    return stmtBank;
 }
 
-set<string> PKB::get_stmt_uses(int stmtNo){
-            return *new set<string>;
+VarTable* PKB::get_varTable(){
+    return varTable;
 }
-
-string PKB::get_control_var(int stmtNo) {
-    return "test";
-}
-
-
-
-
-
-
-
-// Ultiliy
-
-

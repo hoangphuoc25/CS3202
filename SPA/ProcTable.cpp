@@ -131,6 +131,24 @@ void ProcTable::add_called_by(string proc1, string proc2){
     }
 }
 
+int ProcTable::get_start(string procName){
+    if (nameToIndex.find(procName) != nameToIndex.end()) {
+        return procTable[nameToIndex[procName]].start;
+    } else {
+        return -1;
+    }
+}
+
+
+int ProcTable::get_end(string procName){
+    if (nameToIndex.find(procName) != nameToIndex.end()) {
+        return procTable[nameToIndex[procName]].end;
+    } else {
+        return -1;
+    }
+}
+
+
 set<string> ProcTable::get_calls(string procName){
     if (nameToIndex.find(procName) != nameToIndex.end()) {
         return procTable[nameToIndex[procName]].calls;

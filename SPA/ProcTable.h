@@ -45,6 +45,8 @@ public:
     void add_uses(string procName, string varName);
     void add_calls(string proc1, string proc2); 
 
+    int get_start(string procName);
+    int get_end(string procName);
     set<string> get_calls(string procName);
     set<string> get_called_by(string procName);
     set<string> get_modifies(string procName);
