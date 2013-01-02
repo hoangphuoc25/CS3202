@@ -12,10 +12,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PQLParser.cpp" />
+    <ClCompile Include="ResultsGraph.cpp" />
     <ClCompile Include="StringBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PQLParser.h" />
+    <ClInclude Include="ResultsGraph.h" />
     <ClInclude Include="StringBuffer.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

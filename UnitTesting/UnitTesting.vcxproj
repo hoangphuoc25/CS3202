@@ -70,10 +70,12 @@
     <ClCompile Include="source\UnitTest.cpp" />
     <ClCompile Include="Test_00_StringBuffer.cpp" />
     <ClCompile Include="Test_20_PQLParser.cpp" />
+    <ClCompile Include="Test_21_ResultsGraph.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Test_00_StringBuffer.h" />
     <ClInclude Include="Test_20_PQLParser.h" />
+    <ClInclude Include="Test_21_ResultsGraph.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
