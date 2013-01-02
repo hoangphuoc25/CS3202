@@ -107,13 +107,20 @@ void Parser::update_calls(){
     map<int, Node*>::iterator it;
     map<int, Node*> callBank = stmtBank->get_callBank(); 
     set<string> s;
+    set<string>::iterator sit;
     string name;
     for (it = callBank.begin(); it != callBank.end(); it++) {
         name = it->second->get_name();
         s = procTable->get_modifies(name);
         it->second->set_modifies(s);
+        for (sit = s.begin(); sit != s.end(); sit++) {
+            varTable->add_modified_by(*sit, it->second->get_stmtNo());
+        }
         s = procTable->get_uses(name);
         it->second->set_uses(s);
+        for (sit = s.begin(); sit != s.end(); sit++) {
+            varTable->add_used_by(*sit, it->second->get_stmtNo());
+        }
     }
 }
 

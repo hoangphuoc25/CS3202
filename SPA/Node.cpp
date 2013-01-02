@@ -11,6 +11,7 @@ Node::Node(string name, NodeType type, int stmtNo)
     parent = NULL;
     predecessor = NULL;
     successor = NULL;
+    updated = false;
 }
 
 const string& Node::get_name() const

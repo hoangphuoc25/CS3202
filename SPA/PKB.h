@@ -74,9 +74,14 @@ public:
     int get_predecessor(int stmtNo);
     set<int> get_predecessor_star(int stmtNo);
 
+    // Constant
+    set<string> get_all_const();
+    bool is_const_exist(string n);
+
     // Others
+    set<int> get_all_stmt();
+    set<int> get_all_stmt_by_proc(string procName);
     set<int> filter_by_proc(string procName, set<int> s);
-    //get const
 
     // Debuugers
     Node* get_progRoot();

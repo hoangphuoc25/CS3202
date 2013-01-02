@@ -207,7 +207,42 @@ set<int> PKB::get_predecessor_star(int stmtNo){
     return res;
 }
 
+// Constant
+set<string> PKB::get_all_const(){
+    return stmtBank->get_constBank();
+}
+
+bool PKB::is_const_exist(string n){
+    set<string> s = stmtBank->get_constBank();
+    return (s.find(n) != s.end());
+}
+
+
 // Others
+set<int> PKB::get_all_stmt(){
+    int sz = stmtBank->get_directory().size();
+    set<int> res;
+    for (int i = 1; i <= sz; i++) {
+        res.insert(i);
+    }
+    return res;
+}
+
+set<int> PKB::get_all_stmt_by_proc(string procName){
+    int start, end;
+    start = procTable->get_start(procName);
+    end = procTable->get_end(procName);
+    if (start == -1 || end == -1) {
+        return EMPTY_INTSET;
+    } else {
+        set<int> res;
+        for (int i = start; i <= end; i++) {
+            res.insert(i);
+        }
+        return res;
+    }
+}
+
 set<int> PKB::filter_by_proc(string procName, set<int> s){
     int start, end;
     start = procTable->get_start(procName);
