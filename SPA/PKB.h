@@ -31,9 +31,14 @@ public:
 
     // Calls
     bool is_calls(string proc1, string proc2);
+    bool is_calls_star(string proc1, string proc2);
+
     set<string> get_calls(string procName);
+    set<string> get_calls_star(string procName);
+
     set<string> get_called_by(string procName);
-    
+    set<string> get_called_by_star(string procName);
+
     // Modifies
     bool is_modifies(string procName, string varName);
     bool is_modifies(int stmtNo, string varName);
@@ -79,12 +84,14 @@ public:
     bool is_const_exist(string n);
 
     // Others
+    bool is_stmtType(int stmtNo, stmtType type);
+
     set<int> get_all_stmt();
     set<int> get_all_stmt_by_proc(string procName);
+
     set<int> filter_by_proc(string procName, set<int> s);
-    int filter_by_stmtType(stmtType type, int stmtNo);
     set<int> filter_by_stmtType(stmtType type, set<int> s);
-    bool is_stmtType(int stmtNo, stmtType type);
+    int filter_by_stmtType(stmtType type, int stmtNo);
 
     // Debuugers
     Node* get_progRoot();

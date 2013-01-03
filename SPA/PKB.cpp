@@ -38,12 +38,71 @@ bool PKB::is_calls(string proc1, string proc2){
     return (s.find(proc2) != s.end());
 }
 
+bool PKB::is_calls_star(string proc1, string proc2){
+    queue<string> q;
+    set<string>::iterator it;
+    set<string> s = procTable->get_calls(proc1); 
+    for (it = s.begin(); it != s.end(); it++) {
+        q.push(*it);
+    }
+    while (!q.empty()) {
+        if (q.front() == proc2) {
+            return true;
+        } else {
+            s = procTable->get_calls(q.front());
+            for (it = s.begin(); it != s.end(); it++) {
+                q.push(*it);
+            }
+            q.pop();
+        }
+    }
+    return false;
+}
+
 set<string> PKB::get_calls(string procName){
     return procTable->get_calls(procName);
 }
 
+set<string> PKB::get_calls_star(string procName){
+    queue<string> q;
+    set<string> res;
+    set<string>::iterator it;
+    set<string> s = procTable->get_calls(procName); 
+    for (it = s.begin(); it != s.end(); it++) {
+        q.push(*it);
+    }
+    while (!q.empty()) {
+        res.insert(q.front());
+        s = procTable->get_calls(q.front());
+        for (it = s.begin(); it != s.end(); it++) {
+            q.push(*it);
+        }
+        q.pop();
+    }
+    return res;
+}
+
 set<string> PKB::get_called_by(string procName){
     return procTable->get_called_by(procName);
+}
+
+set<string> PKB::get_called_by_star(string procName){
+    queue<string> q;
+    set<string> res;
+    set<string>::iterator it;
+    set<string> s = procTable->get_called_by(procName); 
+    for (it = s.begin(); it != s.end(); it++) {
+        q.push(*it);
+    }
+    while (!q.empty()) {
+        res.insert(q.front());
+        s = procTable->get_called_by(q.front());
+        for (it = s.begin(); it != s.end(); it++) {
+            q.push(*it);
+        }
+        q.pop();
+    }
+    return res;
 }
 
 // Modifies
@@ -235,6 +294,15 @@ bool PKB::is_const_exist(string n){
 
 
 // Others
+bool PKB::is_stmtType(int stmtNo, stmtType type){
+    map<int, stmtType> m = stmtBank->get_directory();
+    if (m.find(stmtNo) != m.end()) {
+        return (stmtBank->get_directory()[stmtNo] == type);
+    } else {
+        return false;
+    }
+}
+
 set<int> PKB::get_all_stmt(){
     int sz = stmtBank->get_directory().size();
     set<int> res;
@@ -297,14 +365,7 @@ set<int> PKB::filter_by_stmtType(stmtType type, set<int> s){
     return res;
 }
 
-bool PKB::is_stmtType(int stmtNo, stmtType type){
-    map<int, stmtType> m = stmtBank->get_directory();
-    if (m.find(stmtNo) != m.end()) {
-        return (stmtBank->get_directory()[stmtNo] == type);
-    } else {
-        return false;
-    }
-}
+
 
 
 
