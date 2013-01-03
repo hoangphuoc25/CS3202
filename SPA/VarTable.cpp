@@ -58,19 +58,6 @@ VarTable& VarTable::operator=(const VarTable &other)
 
 VarTable::~VarTable() {}
 
-int VarTable::insert_var(string var)
-{
-    if (nameToIndex.find(var) != nameToIndex.end()) {
-        return nameToIndex[var];
-    }
-
-    int index = varTable.size();
-    nameToIndex[var] = index;
-    VarElements varEntry = VarElements(index, var);
-    varTable.push_back(varEntry);
-    return index;
-}
-
 int VarTable::get_index(string var) const
 {
     map<string,int>::const_iterator it = nameToIndex.find(var);
@@ -91,6 +78,18 @@ string VarTable::get_var_name(int index) const
     }
 }
 
+int VarTable::insert_var(string var)
+{
+    if (nameToIndex.find(var) != nameToIndex.end()) {
+        return nameToIndex[var];
+    }
+
+    int index = varTable.size();
+    nameToIndex[var] = index;
+    VarElements varEntry = VarElements(index, var);
+    varTable.push_back(varEntry);
+    return index;
+}
 
 void VarTable::add_modified_by(string var, int stmtNo)
 {
@@ -100,19 +99,19 @@ void VarTable::add_modified_by(string var, int stmtNo)
     }
 }
 
-void VarTable::add_used_by(string var, int stmtNo)
-{
-    int index = get_index(var);
-    if (index >= 0) {
-        varTable[index].usedBy.insert(stmtNo);
-    }
-}
-
 void VarTable::add_modified_by(string var, string procName)
 {
     int index = get_index(var);
     if (index >= 0) {
         varTable[index].modifiedByProc.insert(procName);
+    }
+}
+
+void VarTable::add_used_by(string var, int stmtNo)
+{
+    int index = get_index(var);
+    if (index >= 0) {
+        varTable[index].usedBy.insert(stmtNo);
     }
 }
 
@@ -167,19 +166,15 @@ set<string> VarTable::get_modified_by_proc(string var){
         return EMPTY_STRINGSET;
     }
     return varTable[index].modifiedByProc;
-
-
 }
+
 set<string> VarTable::get_used_by_proc(string var){
     int index = get_index(var);
     if (index == -1) {
         return EMPTY_STRINGSET;
     }
     return varTable[index].usedByProc;
-
 }
-
-
 
 set<string> VarTable::get_all_vars() const
 {

@@ -10,9 +10,12 @@ class CFGNode
 public:
     CFGNode();
     CFGNode(int n);
+
+    int get_stmtNo();
+
     void set_edge(CFGNode *node, edge e, int i);
     CFGNode* get_edge(edge e, int i);
-    int get_stmtNo();
+
     void print();
 
 private:

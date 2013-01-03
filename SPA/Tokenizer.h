@@ -17,28 +17,30 @@ class Tokenizer {
 
 public:
     Tokenizer();
-    Token get_token();
     Tokenizer(string s, ReadMode mode);
     ~Tokenizer();
+
     void closeInputFile();
-    void reset();
+
+    Token get_token();
     bool is_done();
 
 private:
     StringBuffer strBuffer;
     string tokenString;
-    Token nextToken();
     char currChar;
     int tokenNo;
+    bool done;
 
     string inputString;
-    char myget();
-    void nextChar();
     int start;
     int end;
     ReadMode fmode;
     FILE *pFile;
-    bool done;
+
+    Token nextToken();
+    char myget();
+    void nextChar();
 
     bool is_name(string t);
     bool is_const(string t);
@@ -47,7 +49,6 @@ private:
     bool is_braces(string t);
     bool is_brackets(string t);
     bool is_keyword(string t);
-
 
 };
 

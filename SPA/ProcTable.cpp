@@ -65,6 +65,16 @@ void ProcTable::combine_up(string proc1, string proc2){
     }
 }
 
+int ProcTable::insert_proc(string procName){
+    if (nameToIndex.find(procName) != nameToIndex.end()) {
+        return nameToIndex[procName];
+    }
+    int index = procTable.size();
+    nameToIndex[procName] = index;
+    ProcElements procEntry = ProcElements(procName);
+    procTable.push_back(procEntry);
+    return index;
+}
 
 void ProcTable::set_start(string procName, int stmtNo){
     int index = get_index(procName);
@@ -79,8 +89,6 @@ void ProcTable::set_end(string procName, int stmtNo){
     if (index != -1){
         procTable[index].end = stmtNo;
     }
-
-
 }
 
 void ProcTable::set_proc_root(string procName, Node *root){
@@ -88,17 +96,6 @@ void ProcTable::set_proc_root(string procName, Node *root){
     if (index != -1){
         procTable[index].procRoot = root;
     }
-}
-
-int ProcTable::insert_proc(string procName){
-    if (nameToIndex.find(procName) != nameToIndex.end()) {
-        return nameToIndex[procName];
-    }
-    int index = procTable.size();
-    nameToIndex[procName] = index;
-    ProcElements procEntry = ProcElements(procName);
-    procTable.push_back(procEntry);
-    return index;
 }
 
 void ProcTable::add_modifies(string procName, string varName){
@@ -148,6 +145,22 @@ int ProcTable::get_end(string procName){
     }
 }
 
+Node* ProcTable::get_root(string procName){
+    if (nameToIndex.find(procName) != nameToIndex.end()) {
+        return procTable[nameToIndex[procName]].procRoot;
+    } else {
+        return NULL;
+    }
+}
+
+Node* ProcTable::get_root(int index){
+    int sz = procTable.size();
+    if (index < 0 || index >= sz) {
+        return NULL;
+    } else {
+        return procTable[index].procRoot;
+    }
+}
 
 set<string> ProcTable::get_calls(string procName){
     if (nameToIndex.find(procName) != nameToIndex.end()) {
@@ -182,24 +195,6 @@ set<string> ProcTable::get_called_by(int index){
         return procTable[index].calledBy;
     }
 }
-
-Node* ProcTable::get_root(string procName){
-    if (nameToIndex.find(procName) != nameToIndex.end()) {
-        return procTable[nameToIndex[procName]].procRoot;
-    } else {
-        return NULL;
-    }
-}
-
-Node* ProcTable::get_root(int index){
-    int sz = procTable.size();
-    if (index < 0 || index >= sz) {
-        return NULL;
-    } else {
-        return procTable[index].procRoot;
-    }
-}
-
 
 set<string> ProcTable::get_modifies(string procName){
     int index = get_index(procName);

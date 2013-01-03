@@ -6,11 +6,11 @@
 
 using std::map;
 
-enum stmtType {CALLTYPE, WHILETYPE, IFTYPE, ASSIGNTYPE};
+enum stmtType {
+    CALLTYPE, WHILETYPE, IFTYPE, ASSIGNTYPE
+};
 
-class StmtBank
-{
-
+class StmtBank {
 public:
     StmtBank(void);
     ~StmtBank(void);
@@ -25,21 +25,19 @@ public:
     map<int, Node*> get_whileBank();
     map<int, Node*> get_assignBank();
     set<string> get_constBank();
+
     bool is_stmt_type(int stmtNo, stmtType type);
 
-    void dumpBank();
     //Utility
     Node* get_node(int stmtNo);
 
 private:
-
     map<int, stmtType> directory; 
     map<int, Node*> callBank;
     map<int, Node*> whileBank;
     map<int, Node*> ifBank;
     map<int, Node*> assignBank;
     set<string> constBank;
-
 };
 
 #endif

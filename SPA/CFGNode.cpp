@@ -5,7 +5,8 @@ CFGNode::CFGNode()
 {
 }
 
-CFGNode::CFGNode(int n){
+CFGNode::CFGNode(int n)
+{
     stmtNo = n;
     inOne = NULL;
     inTwo = NULL;
@@ -14,35 +15,37 @@ CFGNode::CFGNode(int n){
     outTwo = NULL;
 }
 
-void CFGNode::set_edge(CFGNode *node, edge e, int i){
+void CFGNode::set_edge(CFGNode *node, edge e, int i)
+{
     switch (e) {
-        case IN:
-            switch (i) {
-                case 1:
-                    inOne = node;
-                    break;
-                case 2:
-                    inTwo = node;
-                    break;
-                case 3:
-                    inThree = node;
-                    break;
-            }
+    case IN:
+        switch (i) {
+        case 1:
+            inOne = node;
             break;
-        case OUT:
-            switch (i) {
-                case 1:
-                    outOne = node;
-                    break;
-                case 2:
-                    outTwo = node;
-                    break;
-            }
+        case 2:
+            inTwo = node;
             break;
+        case 3:
+            inThree = node;
+            break;
+        }
+        break;
+    case OUT:
+        switch (i) {
+        case 1:
+            outOne = node;
+            break;
+        case 2:
+            outTwo = node;
+            break;
+        }
+        break;
     }
 }
 
-CFGNode* CFGNode::get_edge(edge e, int i){
+CFGNode* CFGNode::get_edge(edge e, int i)
+{
     switch (e) {
     case IN:
         switch (i) {
@@ -67,17 +70,16 @@ CFGNode* CFGNode::get_edge(edge e, int i){
                 break;
         }
         break;
+    }
 }
 
-
-
-}
-
-int CFGNode::get_stmtNo(){
+int CFGNode::get_stmtNo()
+{
     return stmtNo;
 }
 
-void CFGNode::print(){
+void CFGNode::print()
+{
     printf("Stmtno: %d\n", stmtNo);
     if (inOne != NULL) {
         printf("inOne: %d\n", inOne->get_stmtNo());

@@ -5,9 +5,9 @@
 
 Node::Node(string name, NodeType type, int stmtNo)
 {
-	nodeName = name;
-	nodeType = type;
-	nodeStmtNo = stmtNo;
+    nodeName = name;
+    nodeType = type;
+    nodeStmtNo = stmtNo;
     parent = NULL;
     predecessor = NULL;
     successor = NULL;
@@ -16,12 +16,12 @@ Node::Node(string name, NodeType type, int stmtNo)
 
 const string& Node::get_name() const
 {
-	return nodeName;
+    return nodeName;
 }
 
 NodeType Node::get_type() const
 {
-	return nodeType;
+    return nodeType;
 }
 
 int Node::get_stmtNo() const
@@ -30,7 +30,8 @@ int Node::get_stmtNo() const
 }
 
 // Physical methods
-void Node::set_root(Node *node){
+void Node::set_root(Node *node)
+{
     root = node;
 }
 
@@ -39,92 +40,113 @@ void Node::add_leaf(Node *node){
     node->set_root(this);
 }
 
-Node* Node::get_root(){
+Node* Node::get_root()
+{
     return root;
 }
 
-vector<Node*> Node::get_leaves(){
+vector<Node*> Node::get_leaves()
+{
     return leaves;
 }
 
 // AST methods
-Node* Node::get_parent(){
+Node* Node::get_parent()
+{
     return parent;
 }
 
-vector<Node*> Node::get_children(){
+vector<Node*> Node::get_children()
+{
     return children;
 }
 
-Node* Node::get_predecessor(){
+Node* Node::get_predecessor()
+{
     return predecessor;
 }
 
-Node* Node::get_successor(){
+Node* Node::get_successor()
+{
     return successor;
 }
 
-set<string> Node::get_modifies(){
+set<string> Node::get_modifies()
+{
     return modifies;
 }
 
-set<string> Node::get_uses(){
+set<string> Node::get_uses()
+{
     return uses;
 }
 
-string Node::get_control_var(){
+string Node::get_control_var()
+{
     return control_var;
 }
 
-void Node::set_parent(Node* n){
+void Node::set_parent(Node* n)
+{
     parent = n;
 }
 
-void Node::add_child(Node* n){
+void Node::add_child(Node* n)
+{
     children.push_back(n);
     n->set_parent(this);
 }
 
-void Node::set_predecessor(Node* n){
+void Node::set_predecessor(Node* n)
+{
     predecessor = n;
 }
 
-void Node::set_successor(Node* n){
+void Node::set_successor(Node* n)
+{
     successor = n;
     n->set_predecessor(this);
 }
 
-void Node::add_modifies(string var){
+void Node::add_modifies(string var)
+{
     modifies.insert(var);
 }
 
-void Node::add_uses(string var){
+void Node::add_uses(string var)
+{
     uses.insert(var);
 }
 
-void Node::set_control_var(string var){
+void Node::set_control_var(string var)
+{
     control_var = var;
 }
 
-void Node::set_uses(set<string> s){
+void Node::set_uses(set<string> s)
+{
     uses = s;
 }
 
-void Node::set_modifies(set<string> s){
+void Node::set_modifies(set<string> s)
+{
     modifies = s;
 }
 
-void Node::set_updated(){
+void Node::set_updated()
+{
     updated = true;
 }
 
-bool Node::is_updated(){
+bool Node::is_updated()
+{
     return updated;
 }
 
 
 // Helper
-void Node::link_stmt(Node *n1){
+void Node::link_stmt(Node *n1)
+{
     if (nodeType == STMTLST) {
         add_leaf(n1);
         NodeType t = root->get_type();
@@ -140,17 +162,17 @@ void Node::link_stmt(Node *n1){
     }
 }
 
-
-
 // Printer
-void Node::dump(int n){
+void Node::dump(int n)
+{
     while (n--) {
         putchar(' ');
     }
     printf("%s\n", nodeName.c_str());
 }
 
-void Node::preorder(int n){
+void Node::preorder(int n)
+{
     dump(n);
     int len = leaves.size();
     for (int i = 0; i < len; i++) {
@@ -158,21 +180,24 @@ void Node::preorder(int n){
     }
 }
 
-void Node::out(int n, string name){
+void Node::out(int n, string name)
+{
     FILE *fp;
     fp = fopen(name.c_str(), "w");
     preorder(n, fp);
     fclose(fp);
 }
 
-void Node::dump(int n, FILE *fp){
+void Node::dump(int n, FILE *fp)
+{
     while (n--) {
         fputc(' ', fp);
     }
     fprintf(fp,"%s\n", nodeName.c_str());
 }
 
-void Node::preorder(int n, FILE *fp){
+void Node::preorder(int n, FILE *fp)
+{
     dump(n,fp);
     int len = leaves.size();
     for (int i = 0; i < len; i++) {
@@ -180,7 +205,8 @@ void Node::preorder(int n, FILE *fp){
     }
 }
 
-void Node::dump_relationships(){
+void Node::dump_relationships()
+{
 
     printf("Current Node: (%s, %d)\n", nodeName.c_str(), nodeStmtNo);
 
@@ -214,7 +240,8 @@ void Node::dump_relationships(){
     putchar('\n');
 }
 
-void Node::dump_relationships(FILE *fp){
+void Node::dump_relationships(FILE *fp)
+{
 
     fprintf(fp, "Current Node: (%s, %d)\n", nodeName.c_str(), nodeStmtNo);
 
@@ -248,7 +275,8 @@ void Node::dump_relationships(FILE *fp){
     fputc('\n', fp);
 }
 
-void Node::preorder_relationship(FILE *fp){
+void Node::preorder_relationship(FILE *fp)
+{
     dump_relationships(fp);
     int len = leaves.size();
     for (int i = 0; i < len; i++) {
@@ -256,7 +284,8 @@ void Node::preorder_relationship(FILE *fp){
     }
 }
 
-void Node::out_relationship(string name){
+void Node::out_relationship(string name)
+{
     FILE *fp;
     fp = fopen(name.c_str(), "w");
     preorder_relationship(fp);

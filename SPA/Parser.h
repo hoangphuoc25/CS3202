@@ -3,38 +3,33 @@
 
 #include <cstdio>
 #include <string>
-#include <cctype>
-#include <cstdarg>
 #include <stack>
+#include <map>
+#include <set>
+#include <queue>
 #include "Tokenizer.h"
 #include "Node.h"
 #include "VarTable.h"
 #include "PKB.h"
 #include "CFGNode.h"
-#include <map>
-#include <set>
-#include <queue>
 
 using std::map;
 using std::set;
 using std::stack;
 using std::queue;
 
-
 class Parser {
 public:
     Parser();
     Parser(string s ,ReadMode mode);
+
     void init();
+    PKB* get_pkb();
+
     Node *get_ast_root();
     Node *get_proc_root();
-    PKB* get_pkb();
-    Node* yard();
-    void update_tables();
-    void update_calls();
-    void update_nodes(Node *n);
 
-    void dumpTable();
+    Node* yard();
 
 private:
     // Tokens
@@ -67,6 +62,12 @@ private:
     // Printer data
     map<tokenType, string> printer; 
 
+    // Updaters
+    void update_tables();
+    void update_calls();
+    void update_nodes(Node *n);
+    void combine_node_up(Node *n1, Node* n2);
+
     //Match functions
     void match(tokenType type);
     void match(string str);
@@ -87,24 +88,25 @@ private:
     void term();
     void factor();
 
-    //Printer functions
-    void token_out();
+    // Shunting Yard
+    void join();
+    void check_pre(Node *op);
+    map<string, int> op_pre;
 
-    
-    //Helper
-    void create_node(string name, NodeType type);
-    void add_modifies(Node* n, string var);
-    void add_uses(Node* n, string var);
-    void combine_node_up(Node *n1, Node* n2);
+    // CFG builders
     void init_CFG();
     int build_CFG(int stmtNo);
     void make_CFG();
     void Parser::dfs(int n);
     set<int> visited;
-    // Shunting Yard
-    void join();
-    void check_pre(Node *op);
-    map<string, int> op_pre;
+
+    //Printer functions
+    void token_out();
+
+    //Helper
+    void create_node(string name, NodeType type);
+    void add_modifies(Node* n, string var);
+    void add_uses(Node* n, string var);
 
 };
 

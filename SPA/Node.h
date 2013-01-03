@@ -49,6 +49,7 @@ public:
     void set_uses(set<string> s);
     void set_control_var(string var);
     void set_updated();
+
     bool is_updated();
 
     // Helper
@@ -56,10 +57,11 @@ public:
 
     // Printer
     void dump(int n);
-    void preorder(int n);
-    void out(int n, string name);
     void dump(int n, FILE *fp);
+    void preorder(int n);
     void preorder(int n, FILE *fp);
+    void out(int n, string name);
+
     void dump_relationships();
     void dump_relationships(FILE *fp);
     void preorder_relationship(FILE *fp);
@@ -88,9 +90,6 @@ private:
 
     void set_parent(Node* n);
     void set_predecessor(Node* n);
-
-
-
 };
 
 #endif

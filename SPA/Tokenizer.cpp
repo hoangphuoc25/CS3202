@@ -41,9 +41,7 @@ void Tokenizer::closeInputFile()
     }
 }
 
-void Tokenizer::reset(){
-    tokenNo = 0;
-}
+
 
 char Tokenizer::myget()
 {
@@ -53,7 +51,8 @@ char Tokenizer::myget()
     return inputString[start++];
 }
 
-void Tokenizer::nextChar(){
+void Tokenizer::nextChar()
+{
     if (fmode == 0) {
     currChar = fgetc(pFile);
     } else {
@@ -61,7 +60,8 @@ void Tokenizer::nextChar(){
     }
 }
 
-bool Tokenizer::is_name(string t){
+bool Tokenizer::is_name(string t)
+{
     int len = t.length();
     bool flag = false;
     if (isalpha(t[0])) {
@@ -76,7 +76,8 @@ bool Tokenizer::is_name(string t){
     return flag;
 }
 
-bool Tokenizer::is_const(string t){
+bool Tokenizer::is_const(string t)
+{
     int len = t.length();
     bool flag = true;
     for (int i = 0; i < len; i++){
@@ -88,30 +89,36 @@ bool Tokenizer::is_const(string t){
     return flag;
 }
 
-bool Tokenizer::is_oper(string t){
+bool Tokenizer::is_oper(string t)
+{
     return (t.length() == 1 && (t[0] == '+' || t[0] == '-'
         || t[0] == '*' || t[0] == '/'));
 }
 
-bool Tokenizer::is_equalsign(string t){
+bool Tokenizer::is_equalsign(string t)
+{
     return (t.length() == 1 && t[0] == '=');
 }
 
-bool Tokenizer::is_braces(string t){
+bool Tokenizer::is_braces(string t)
+{
     return (t.length() == 1 && (t[0] == '{' || t[0] == '}'));
 }
-bool Tokenizer::is_brackets(string t){
+
+bool Tokenizer::is_brackets(string t)
+{
     return (t.length() == 1 && (t[0] == '(' || t[0] == ')'));
 }
 
-bool Tokenizer::is_keyword(string t){
+bool Tokenizer::is_keyword(string t)
+{
     return (!t.compare("procedure") || !t.compare("call")
         || !t.compare("while") || !t.compare("if")
         || !t.compare("then") || !t.compare("else"));
 }
 
-Token Tokenizer::get_token(){
-    
+Token Tokenizer::get_token()
+{
     //bool flag = false;  
     if (currChar == ' ' || currChar== '\n' || currChar == '\t' || isalnum(currChar) || currChar == EOF) {
         while (true) {
@@ -186,7 +193,8 @@ Token Tokenizer::get_token(){
     }
 }
 
-bool Tokenizer::is_done(){
+bool Tokenizer::is_done()
+{
     return done;
 }
 

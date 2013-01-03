@@ -2,7 +2,6 @@
 #define T11_TABLES_AST_H
 
 #include <vector>
-#include <utility>
 #include <string>
 #include <map>
 #include <set>
@@ -15,10 +14,13 @@ using std::set;
 struct VarElements {
     int index;
     string var;
+
     set<int> modifiedBy;
     set<int> usedBy;
+
     set<string> modifiedByProc;
     set<string> usedByProc;
+
     VarElements();
     VarElements(int id, string name);
     VarElements(const struct VarElements &other);
@@ -32,15 +34,15 @@ public:
     VarTable(const VarTable &other);
     VarTable& operator=(const VarTable &other);
     ~VarTable();
-    // #method for varTable#
 
     int get_index(string var) const;
     string get_var_name(int index) const;
 
     int insert_var(string var);
+
     void add_modified_by(string var, int stmtNo);
-    void add_used_by(string var, int stmtNo);
     void add_modified_by(string var, string procName);
+    void add_used_by(string var, int stmtNo);
     void add_used_by(string var, string procName);
 
     const set<int>& get_modified_by(string var) const;

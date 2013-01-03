@@ -54,7 +54,23 @@ Node* Parser::get_proc_root()
     return procRoot;
 }
 
-void Parser::update_tables(){
+PKB* Parser::get_pkb()
+{
+    make_CFG();
+    for(int i = 1;i<31;i++){
+        CFG[i]->print();
+    }
+    dfs(1);
+    dfs(19);
+    dfs(24);
+    dfs(27);
+    update_tables();
+    return new PKB(astRoot, procTable, varTable, stmtBank);
+}
+
+// Updaters
+void Parser::update_tables()
+{
     // Update the procedure uses and modifies
     procTable->update_table(varTable);
     // Update calls nodes
@@ -71,7 +87,8 @@ void Parser::update_tables(){
     }
 }
 
-void Parser::update_nodes(Node *n){
+void Parser::update_nodes(Node *n)
+{
     int stmtNo = n->get_stmtNo();
     if (!n->is_updated()) {
         vector<Node*> v = n->get_children();
@@ -84,7 +101,8 @@ void Parser::update_nodes(Node *n){
     }
 }
 
-void Parser::combine_node_up(Node *n1, Node *n2){
+void Parser::combine_node_up(Node *n1, Node *n2)
+{
     set<string>::iterator it;
     set<string> s;
     int stmtNo = n1->get_stmtNo();
@@ -103,7 +121,8 @@ void Parser::combine_node_up(Node *n1, Node *n2){
 }
 
 
-void Parser::update_calls(){
+void Parser::update_calls()
+{
     map<int, Node*>::iterator it;
     map<int, Node*> callBank = stmtBank->get_callBank(); 
     set<string> s;
@@ -124,23 +143,7 @@ void Parser::update_calls(){
     }
 }
 
-PKB* Parser::get_pkb(){
-
-    make_CFG();
-    for(int i = 1;i<31;i++){
-        CFG[i]->print();
-    }
-    dfs(1);
-    dfs(19);
-    dfs(24);
-    dfs(27);
-    update_tables();
-    return new PKB(astRoot, procTable, varTable, stmtBank);
-}
-
-
-/**** match functions ***/
-//match token type
+// Match functions
 void Parser::match(tokenType type)
 {
     if (nextToken.get_type() == type) {
@@ -152,7 +155,6 @@ void Parser::match(tokenType type)
     }
 }
 
-//match with a string
 void Parser::match(string str)
 {
      if (!str.compare(nextToken.get_name())) {
@@ -164,8 +166,6 @@ void Parser::match(string str)
      }
 }
 
-
-//For now just exit on error
 void Parser::error()
 {
      printf("Error!!!\n");
@@ -173,8 +173,6 @@ void Parser::error()
      getchar();
      exit(1);
 }
-
-
 
 void Parser::error(tokenType t)
 {
@@ -186,7 +184,6 @@ void Parser::error(tokenType t)
      exit(1);
 }
 
-
 void Parser::error(string s)
 {
      printf("Error!!!\n");
@@ -197,10 +194,9 @@ void Parser::error(string s)
      exit(1);
 }
 
-
-/**** Grammer rules ***/
-
-void Parser::program(){
+// Grammer rules
+void Parser::program()
+{
     state = "program";
     astRoot = new Node("program", PROGRAM, -1);
     while (!tokenizer.is_done()){
@@ -209,7 +205,8 @@ void Parser::program(){
     }
 }
 
-void Parser::procedure(){
+void Parser::procedure()
+{
     state = "procedure";
     match("procedure");
     if (nextToken.get_type() == VAR_NAME) {
@@ -232,7 +229,8 @@ void Parser::procedure(){
     match("}");
 }
 
-void Parser::stmt_lst(){
+void Parser::stmt_lst()
+{
     state = "stmt_lst";
     stmt();
     while (nextToken.get_name().compare("}")) {
@@ -241,7 +239,8 @@ void Parser::stmt_lst(){
     nextNode = nextNode->get_root();
 }
 
-void Parser::stmt(){
+void Parser::stmt()
+{
     state = "stmt";
     stmtNo++;
     string s = nextToken.get_name();
@@ -256,7 +255,8 @@ void Parser::stmt(){
     }
 }
 
-void Parser::call_stmt(){
+void Parser::call_stmt()
+{
     state = "call";
     match("call");
     if (nextToken.get_type() == VAR_NAME) {
@@ -272,7 +272,8 @@ void Parser::call_stmt(){
     match(";");
 }
 
-void Parser::while_stmt(){
+void Parser::while_stmt()
+{
     state = "while";
     match("while");
     create_node(currToken.get_name(), WHILE_STMT);
@@ -294,7 +295,8 @@ void Parser::while_stmt(){
     nextNode = nextNode->get_root();
 }
 
-void Parser::if_stmt(){
+void Parser::if_stmt()
+{
     state = "if";
     match("if");
     create_node(currToken.get_name(), IF_STMT);
@@ -324,7 +326,9 @@ void Parser::if_stmt(){
     match("}");
     nextNode = nextNode->get_root();
 }
-void Parser::assign(){
+
+void Parser::assign()
+{
     state = "assign";
     match(VAR_NAME);
     tempNode = new Node(currToken.get_name(), VARIABLE_, stmtNo);
@@ -346,7 +350,8 @@ void Parser::assign(){
     match(";");
 }
 
-void Parser::expr(){
+void Parser::expr()
+{
     state = "expr";
     term();
     string s = nextToken.get_name();
@@ -363,7 +368,8 @@ void Parser::expr(){
     }
 }
 
-void Parser::term(){
+void Parser::term()
+{
     state = "term";
     factor();
     if (nextToken.get_name() == "*") {
@@ -374,7 +380,8 @@ void Parser::term(){
     }
 }
 
-void Parser::factor(){
+void Parser::factor()
+{
     state = "factor";
     tokenType t = nextToken.get_type();
     if (t == VAR_NAME) {
@@ -398,147 +405,9 @@ void Parser::factor(){
     }
 }
 
-// Helpers
-
-void Parser::create_node(string name, NodeType type){
-    currNode = nextNode;
-    nextNode = new Node(name, type, stmtNo);
-}
-
-void Parser::add_modifies(Node* n, string var){
-    int stmt = n->get_stmtNo();
-    varTable->insert_var(var);
-    varTable->add_modified_by(var, stmt);
-    varTable->add_modified_by(var, procName);
-    n->add_modifies(var);
-    procTable->add_modifies(procName, var);
-}
-
-void Parser::add_uses(Node* n, string var){
-    int stmt = n->get_stmtNo();
-    varTable->insert_var(var);
-    varTable->add_used_by(var, stmt);
-    varTable->add_used_by(var, procName);
-    n->add_uses(var);
-    procTable->add_uses(procName, var);
-}
-
-void Parser::init_CFG(){
-
-    CFG.resize(stmtNo+10);
-    int sz = CFG.size();
-    for (int i = 0; i < sz; i++) {
-        CFG[i] = new CFGNode(i);
-    }
-}
-
-int Parser::build_CFG(int stmtNo){
-    Node *n, *branch;
-    int next, if_succ;
-    
-    if (stmtBank->is_stmt_type(stmtNo, IFTYPE)) {
-         n = stmtBank->get_node(stmtNo)->get_successor();
-         if (n != NULL) {
-             if_succ = n->get_stmtNo();
-         } else {
-             if_succ = -1;
-         }
-         
-         n = stmtBank->get_node(stmtNo);
-         
-         branch = n->get_leaves()[1]->get_leaves()[0];
-         next = branch->get_stmtNo();
-         CFG[stmtNo]->set_edge(CFG[next], OUT, 1);
-         CFG[next]->set_edge(CFG[stmtNo], IN, 1);
-         next = build_CFG(next);
-         CFG[0]->set_edge(CFG[next], IN, 1);
-
-
-         branch = n->get_leaves()[2]->get_leaves()[0];
-         next = branch->get_stmtNo();
-         CFG[stmtNo]->set_edge(CFG[next], OUT, 2);
-         CFG[next]->set_edge(CFG[stmtNo], IN, 1);
-         next = build_CFG(next);
-         CFG[0]->set_edge(CFG[next], IN, 2);
-
-         if (if_succ != -1) {
-            CFG[0]->get_edge(IN, 1)->set_edge(CFG[if_succ], OUT, 1);
-            CFG[0]->get_edge(IN, 2)->set_edge(CFG[if_succ], OUT, 1);
-            CFG[if_succ]->set_edge(CFG[0]->get_edge(IN, 1), IN, 1);
-            CFG[if_succ]->set_edge(CFG[0]->get_edge(IN, 2), IN, 2);
-            return build_CFG(if_succ);
-         } else {
-             return 0;
-         }
-
-    } else {
-        if (stmtBank->is_stmt_type(stmtNo, WHILETYPE)) {
-            n = stmtBank->get_node(stmtNo)->get_children()[0];
-            next = n->get_stmtNo();
-            CFG[stmtNo]->set_edge(CFG[next], OUT, 2);
-            CFG[next]->set_edge(CFG[stmtNo], IN, 1);
-            next = build_CFG(next);
-            if (next != 0) {
-                CFG[stmtNo]->set_edge(CFG[next], IN, 2);
-                CFG[next]->set_edge(CFG[stmtNo], OUT, 1);
-            } else {
-                CFG[0]->get_edge(IN, 1)->set_edge(CFG[stmtNo], OUT, 1);
-                CFG[0]->get_edge(IN, 2)->set_edge(CFG[stmtNo], OUT, 1);
-                CFG[stmtNo]->set_edge(CFG[0]->get_edge(IN, 1), IN, 2);
-                CFG[stmtNo]->set_edge(CFG[0]->get_edge(IN, 2), IN, 3);
-            }
-        } 
-
-        n = stmtBank->get_node(stmtNo)->get_successor();
-        if (n != NULL) {
-            next = n->get_stmtNo();
-            CFG[stmtNo]->set_edge(CFG[next], OUT, 1);
-            CFG[next]->set_edge(CFG[stmtNo], IN, 1);
-            return build_CFG(next);
-        }
-    }
-
-     return stmtNo;
-}
-
-void Parser::make_CFG(){
-    set<string>::iterator it;
-    set<string> s = procTable->get_all_procs();
-    int start;
-    init_CFG();
-    for (it = s.begin(); it != s.end(); it++) {
-        start = procTable->get_start(*it);
-        build_CFG(start);
-    }
-}
-
-void Parser::dfs(int n){
-    if(visited.find(n) == visited.end()){
-        CFGNode* curr = CFG[n];
-        printf("At: %d\n",n);
-        visited.insert(n);
-        CFGNode* next;
-     
-        next = curr->get_edge(OUT, 2);
-        if (next != NULL) {
-           // printf("Right: %d\n\n", next->get_stmtNo());
-            dfs(next->get_stmtNo());
-        }
-
-        next = curr->get_edge(OUT, 1);
-        if (next != NULL) {
-           //  printf("Left: %d\n\n", next->get_stmtNo());
-            dfs(next->get_stmtNo());
-        }
-
-
-
-    }
-}
-
 // Shunting Yard
-
-void Parser::join(){
+void Parser::join()
+{
     Node* right = outStack.top();
     outStack.pop();
     Node* left = outStack.top();
@@ -550,8 +419,8 @@ void Parser::join(){
     outStack.push(op);
 }
 
-void Parser::check_pre(Node *op){
-
+void Parser::check_pre(Node *op)
+{
     if(op->get_name() == ")") {
         while (opStack.top()->get_name() != "(") {
             join();
@@ -578,8 +447,8 @@ void Parser::check_pre(Node *op){
      opStack.push(op);
 }
 
-Node* Parser::yard(){
-
+Node* Parser::yard()
+{
     if (nextToken.get_type() == PROC_NAME) {
         nextToken = Token(nextToken.get_name(), VAR_NAME);
     }
@@ -596,40 +465,148 @@ Node* Parser::yard(){
     nextNode->add_leaf(outStack.top());
     outStack.pop();
     return nextNode;
-
 }
 
-/**** Printer functions ***/
-
-void Parser::token_out(){
-    printf("Token parsed: (%s , %s)\n",nextToken.get_name().c_str(),printer[nextToken.get_type()].c_str());     
-
-}
-
-
-
-void Parser::dumpTable(){
-    set<int>::iterator it;
-    vector<string>:: iterator varIt;
-    set<int> m;
-    set<int> u;
-
-    printf("\n\n::::::::: Dumping Table :::::::\n\n");
-/*
-    vector<string> var = varTable.get_all_vars();
-    for (varIt = var.begin(); varIt != var.end(); varIt++){
-        printf("Variable: %s\n", varIt->c_str());
-        m = varTable.get_modified_by(*varIt);
-        for (it = m.begin(); it != m.end(); it++) {
-            printf("Modified by: %d\n", *it);
-        }
-        u = varTable.get_used_by(*varIt);
-        for (it = u.begin(); it != u.end(); it++) {
-            printf("Used by: %d\n", *it);
-        }
-        putchar('\n');
+// CFG builder
+void Parser::init_CFG()
+{
+    CFG.resize(stmtNo+10);
+    int sz = CFG.size();
+    for (int i = 0; i < sz; i++) {
+        CFG[i] = new CFGNode(i);
     }
-    */
 }
 
+int Parser::build_CFG(int stmtNo)
+{
+    Node *n, *branch;
+    int next, if_succ;
+    
+    if (stmtBank->is_stmt_type(stmtNo, IFTYPE)) {
+         n = stmtBank->get_node(stmtNo)->get_successor();
+         if (n != NULL) {
+             if_succ = n->get_stmtNo();
+         } else {
+             if_succ = -1;
+         }
+         
+         n = stmtBank->get_node(stmtNo);
+         
+         branch = n->get_leaves()[1]->get_leaves()[0];
+         next = branch->get_stmtNo();
+         CFG[stmtNo]->set_edge(CFG[next], OUT, 1);
+         CFG[next]->set_edge(CFG[stmtNo], IN, 1);
+         next = build_CFG(next);
+         CFG[0]->set_edge(CFG[next], IN, 1);
 
+         branch = n->get_leaves()[2]->get_leaves()[0];
+         next = branch->get_stmtNo();
+         CFG[stmtNo]->set_edge(CFG[next], OUT, 2);
+         CFG[next]->set_edge(CFG[stmtNo], IN, 1);
+         next = build_CFG(next);
+         CFG[0]->set_edge(CFG[next], IN, 2);
+
+         if (if_succ != -1) {
+            CFG[0]->get_edge(IN, 1)->set_edge(CFG[if_succ], OUT, 1);
+            CFG[0]->get_edge(IN, 2)->set_edge(CFG[if_succ], OUT, 1);
+            CFG[if_succ]->set_edge(CFG[0]->get_edge(IN, 1), IN, 1);
+            CFG[if_succ]->set_edge(CFG[0]->get_edge(IN, 2), IN, 2);
+            return build_CFG(if_succ);
+         } else {
+             return 0;
+         }
+    } else {
+        if (stmtBank->is_stmt_type(stmtNo, WHILETYPE)) {
+            n = stmtBank->get_node(stmtNo)->get_children()[0];
+            next = n->get_stmtNo();
+            CFG[stmtNo]->set_edge(CFG[next], OUT, 2);
+            CFG[next]->set_edge(CFG[stmtNo], IN, 1);
+            next = build_CFG(next);
+            if (next != 0) {
+                CFG[stmtNo]->set_edge(CFG[next], IN, 2);
+                CFG[next]->set_edge(CFG[stmtNo], OUT, 1);
+            } else {
+                CFG[0]->get_edge(IN, 1)->set_edge(CFG[stmtNo], OUT, 1);
+                CFG[0]->get_edge(IN, 2)->set_edge(CFG[stmtNo], OUT, 1);
+                CFG[stmtNo]->set_edge(CFG[0]->get_edge(IN, 1), IN, 2);
+                CFG[stmtNo]->set_edge(CFG[0]->get_edge(IN, 2), IN, 3);
+            }
+        } 
+
+        n = stmtBank->get_node(stmtNo)->get_successor();
+        if (n != NULL) {
+            next = n->get_stmtNo();
+            CFG[stmtNo]->set_edge(CFG[next], OUT, 1);
+            CFG[next]->set_edge(CFG[stmtNo], IN, 1);
+            return build_CFG(next);
+        }
+    }
+     return stmtNo;
+}
+
+void Parser::make_CFG()
+{
+    set<string>::iterator it;
+    set<string> s = procTable->get_all_procs();
+    int start;
+    init_CFG();
+    for (it = s.begin(); it != s.end(); it++) {
+        start = procTable->get_start(*it);
+        build_CFG(start);
+    }
+}
+
+void Parser::dfs(int n){
+    if(visited.find(n) == visited.end()){
+        CFGNode* curr = CFG[n];
+        printf("At: %d\n",n);
+        visited.insert(n);
+        CFGNode* next;
+
+        next = curr->get_edge(OUT, 2);
+        if (next != NULL) {
+           // printf("Right: %d\n\n", next->get_stmtNo());
+            dfs(next->get_stmtNo());
+        }
+
+        next = curr->get_edge(OUT, 1);
+        if (next != NULL) {
+           //  printf("Left: %d\n\n", next->get_stmtNo());
+            dfs(next->get_stmtNo());
+        }
+    }
+}
+
+// Helpers
+void Parser::create_node(string name, NodeType type)
+{
+    currNode = nextNode;
+    nextNode = new Node(name, type, stmtNo);
+}
+
+void Parser::add_modifies(Node* n, string var)
+{
+    int stmt = n->get_stmtNo();
+    varTable->insert_var(var);
+    varTable->add_modified_by(var, stmt);
+    varTable->add_modified_by(var, procName);
+    n->add_modifies(var);
+    procTable->add_modifies(procName, var);
+}
+
+void Parser::add_uses(Node* n, string var)
+{
+    int stmt = n->get_stmtNo();
+    varTable->insert_var(var);
+    varTable->add_used_by(var, stmt);
+    varTable->add_used_by(var, procName);
+    n->add_uses(var);
+    procTable->add_uses(procName, var);
+}
+
+// Printer
+void Parser::token_out()
+{
+    //printf("Token parsed: (%s , %s)\n",nextToken.get_name().c_str(),printer[nextToken.get_type()].c_str());     
+
+}

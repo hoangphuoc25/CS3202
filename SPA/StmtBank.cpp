@@ -9,54 +9,63 @@ StmtBank::~StmtBank(void)
 {
 }
 
-void StmtBank::add_node_entry(int stmtNo, stmtType type, Node* node){
+void StmtBank::add_node_entry(int stmtNo, stmtType type, Node* node)
+{
     directory[stmtNo] = type;
     switch(type) {
-        case CALLTYPE:
-            callBank[stmtNo] = node;
-            break;
-        case WHILETYPE:
-            whileBank[stmtNo] = node;
-            break;
-        case IFTYPE:
-            ifBank[stmtNo] = node;
-            break;
-        case ASSIGNTYPE:
-            assignBank[stmtNo] = node;
-            break;
+    case CALLTYPE:
+        callBank[stmtNo] = node;
+        break;
+    case WHILETYPE:
+        whileBank[stmtNo] = node;
+        break;
+    case IFTYPE:
+        ifBank[stmtNo] = node;
+        break;
+    case ASSIGNTYPE:
+        assignBank[stmtNo] = node;
+        break;
     }
 }
 
-void StmtBank::add_constant(string n){
+void StmtBank::add_constant(string n)
+{
     constBank.insert(n);
 }
 
 
-map<int, stmtType> StmtBank::get_directory(){
+map<int, stmtType> StmtBank::get_directory()
+{
     return directory;
 }
 
-map<int, Node*> StmtBank::get_callBank(){
+map<int, Node*> StmtBank::get_callBank()
+{
     return callBank;
 }
 
-map<int, Node*> StmtBank::get_assignBank(){
+map<int, Node*> StmtBank::get_assignBank()
+{
     return assignBank;
 }
 
-map<int, Node*> StmtBank::get_whileBank(){
+map<int, Node*> StmtBank::get_whileBank()
+{
     return whileBank;
 }
 
-map<int, Node*> StmtBank::get_ifBank(){
+map<int, Node*> StmtBank::get_ifBank()
+{
     return ifBank;
 }
 
-set<string> StmtBank::get_constBank(){
+set<string> StmtBank::get_constBank()
+{
     return constBank;
 }
 
-bool StmtBank::is_stmt_type(int stmtNo, stmtType type){
+bool StmtBank::is_stmt_type(int stmtNo, stmtType type)
+{
     if (directory.find(stmtNo) != directory.end()) {
         return (directory[stmtNo] == type);
     } else {
@@ -64,51 +73,25 @@ bool StmtBank::is_stmt_type(int stmtNo, stmtType type){
     }
 }
 
-Node* StmtBank::get_node(int stmtNo) {
+Node* StmtBank::get_node(int stmtNo)
+{
     if (directory.find(stmtNo) != directory.end()) {
         stmtType type = directory[stmtNo];
         switch(type) {
-            case CALLTYPE:
-                return callBank[stmtNo];
-                break;
-            case WHILETYPE:
-                return whileBank[stmtNo];
-                break;
-            case IFTYPE:
-                return ifBank[stmtNo];
-                break;
-            case ASSIGNTYPE:
-                return assignBank[stmtNo];
-                break;
+        case CALLTYPE:
+            return callBank[stmtNo];
+            break;
+        case WHILETYPE:
+            return whileBank[stmtNo];
+            break;
+        case IFTYPE:
+            return ifBank[stmtNo];
+            break;
+        case ASSIGNTYPE:
+            return assignBank[stmtNo];
+            break;
         }
     } else {
         return NULL;
     }
 }
-
-void StmtBank::dumpBank(){
-    map<int,stmtType>::iterator it;
-
-    printf("\n\n::::::::: Dumping Bank :::::::\n\n");
-/*
-    for (it = directory.begin(); it!= directory.end(); it++) {
-        switch (it->second) {
-            case CALLTYPE:
-                callBank[it->first]->dumpR();
-                break;
-            case WHILETYPE:
-                whileBank[it->first]->dumpR();
-                break;
-            case IFTYPE:
-                ifBank[it->first]->dumpR();;
-                break;
-            case ASSIGNTYPE:
-                assignBank[it->first]->dumpR();
-                break;
-        }
-    }*/
-}
-
-
-
-
