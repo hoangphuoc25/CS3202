@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CFGNode.cpp" />
     <ClCompile Include="Node.cpp" />
     <ClCompile Include="Parser.cpp" />
     <ClCompile Include="PKB.cpp" />
@@ -24,6 +25,7 @@
     <ClCompile Include="VarTable.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CFGNode.h" />
     <ClInclude Include="Node.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="PKB.h" />

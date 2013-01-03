@@ -10,6 +10,7 @@
 #include "Node.h"
 #include "VarTable.h"
 #include "PKB.h"
+#include "CFGNode.h"
 #include <map>
 #include <set>
 #include <queue>
@@ -50,6 +51,7 @@ private:
     VarTable *varTable;
     StmtBank *stmtBank;
     ProcTable *procTable;
+    vector<CFGNode*> CFG;
 
     // AST builder nodes
     Node *procRoot;
@@ -94,7 +96,11 @@ private:
     void add_modifies(Node* n, string var);
     void add_uses(Node* n, string var);
     void combine_node_up(Node *n1, Node* n2);
-
+    void init_CFG();
+    int build_CFG(int stmtNo);
+    void make_CFG();
+    void Parser::dfs(int n);
+    set<int> visited;
     // Shunting Yard
     void join();
     void check_pre(Node *op);

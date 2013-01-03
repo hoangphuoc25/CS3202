@@ -125,6 +125,15 @@ void Parser::update_calls(){
 }
 
 PKB* Parser::get_pkb(){
+
+    make_CFG();
+    for(int i = 1;i<31;i++){
+        CFG[i]->print();
+    }
+    dfs(1);
+    dfs(19);
+    dfs(24);
+    dfs(27);
     update_tables();
     return new PKB(astRoot, procTable, varTable, stmtBank);
 }
@@ -193,7 +202,7 @@ void Parser::error(string s)
 
 void Parser::program(){
     state = "program";
-    astRoot = new Node("program", PROGRAM, stmtNo);
+    astRoot = new Node("program", PROGRAM, -1);
     while (!tokenizer.is_done()){
         procedure();
         procTable->set_end(procName, stmtNo);
@@ -209,7 +218,7 @@ void Parser::procedure(){
 
     match(PROC_NAME);
     procName = currToken.get_name();
-    procRoot = new Node(procName, PROCEDURE, stmtNo);
+    procRoot = new Node(procName, PROCEDURE, 0);
     astRoot->add_leaf(procRoot);
     procTable->insert_proc(procName);
     procTable->set_proc_root(procName, procRoot);
@@ -414,9 +423,118 @@ void Parser::add_uses(Node* n, string var){
     procTable->add_uses(procName, var);
 }
 
+void Parser::init_CFG(){
+
+    CFG.resize(stmtNo+10);
+    int sz = CFG.size();
+    for (int i = 0; i < sz; i++) {
+        CFG[i] = new CFGNode(i);
+    }
+}
+
+int Parser::build_CFG(int stmtNo){
+    Node *n, *branch;
+    int next, if_succ;
+    
+    if (stmtBank->is_stmt_type(stmtNo, IFTYPE)) {
+         n = stmtBank->get_node(stmtNo)->get_successor();
+         if (n != NULL) {
+             if_succ = n->get_stmtNo();
+         } else {
+             if_succ = -1;
+         }
+         
+         n = stmtBank->get_node(stmtNo);
+         
+         branch = n->get_leaves()[1]->get_leaves()[0];
+         next = branch->get_stmtNo();
+         CFG[stmtNo]->set_edge(CFG[next], OUT, 1);
+         CFG[next]->set_edge(CFG[stmtNo], IN, 1);
+         next = build_CFG(next);
+         CFG[0]->set_edge(CFG[next], IN, 1);
+
+
+         branch = n->get_leaves()[2]->get_leaves()[0];
+         next = branch->get_stmtNo();
+         CFG[stmtNo]->set_edge(CFG[next], OUT, 2);
+         CFG[next]->set_edge(CFG[stmtNo], IN, 1);
+         next = build_CFG(next);
+         CFG[0]->set_edge(CFG[next], IN, 2);
+
+         if (if_succ != -1) {
+            CFG[0]->get_edge(IN, 1)->set_edge(CFG[if_succ], OUT, 1);
+            CFG[0]->get_edge(IN, 2)->set_edge(CFG[if_succ], OUT, 1);
+            CFG[if_succ]->set_edge(CFG[0]->get_edge(IN, 1), IN, 1);
+            CFG[if_succ]->set_edge(CFG[0]->get_edge(IN, 2), IN, 2);
+            return build_CFG(if_succ);
+         } else {
+             return 0;
+         }
+
+    } else {
+        if (stmtBank->is_stmt_type(stmtNo, WHILETYPE)) {
+            n = stmtBank->get_node(stmtNo)->get_children()[0];
+            next = n->get_stmtNo();
+            CFG[stmtNo]->set_edge(CFG[next], OUT, 2);
+            CFG[next]->set_edge(CFG[stmtNo], IN, 1);
+            next = build_CFG(next);
+            if (next != 0) {
+                CFG[stmtNo]->set_edge(CFG[next], IN, 2);
+                CFG[next]->set_edge(CFG[stmtNo], OUT, 1);
+            } else {
+                CFG[0]->get_edge(IN, 1)->set_edge(CFG[stmtNo], OUT, 1);
+                CFG[0]->get_edge(IN, 2)->set_edge(CFG[stmtNo], OUT, 1);
+                CFG[stmtNo]->set_edge(CFG[0]->get_edge(IN, 1), IN, 2);
+                CFG[stmtNo]->set_edge(CFG[0]->get_edge(IN, 2), IN, 3);
+            }
+        } 
+
+        n = stmtBank->get_node(stmtNo)->get_successor();
+        if (n != NULL) {
+            next = n->get_stmtNo();
+            CFG[stmtNo]->set_edge(CFG[next], OUT, 1);
+            CFG[next]->set_edge(CFG[stmtNo], IN, 1);
+            return build_CFG(next);
+        }
+    }
+
+     return stmtNo;
+}
+
+void Parser::make_CFG(){
+    set<string>::iterator it;
+    set<string> s = procTable->get_all_procs();
+    int start;
+    init_CFG();
+    for (it = s.begin(); it != s.end(); it++) {
+        start = procTable->get_start(*it);
+        build_CFG(start);
+    }
+}
+
+void Parser::dfs(int n){
+    if(visited.find(n) == visited.end()){
+        CFGNode* curr = CFG[n];
+        printf("At: %d\n",n);
+        visited.insert(n);
+        CFGNode* next;
+     
+        next = curr->get_edge(OUT, 2);
+        if (next != NULL) {
+           // printf("Right: %d\n\n", next->get_stmtNo());
+            dfs(next->get_stmtNo());
+        }
+
+        next = curr->get_edge(OUT, 1);
+        if (next != NULL) {
+           //  printf("Left: %d\n\n", next->get_stmtNo());
+            dfs(next->get_stmtNo());
+        }
 
 
 
+    }
+}
 
 // Shunting Yard
 
