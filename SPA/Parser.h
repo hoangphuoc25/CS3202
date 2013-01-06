@@ -46,7 +46,7 @@ private:
     VarTable *varTable;
     StmtBank *stmtBank;
     ProcTable *procTable;
-    vector<CFGNode*> CFG;
+    vector<CFGNode*> *CFG;
 
     // AST builder nodes
     Node *procRoot;
@@ -95,10 +95,12 @@ private:
 
     // CFG builders
     void init_CFG();
-    int build_CFG(int stmtNo);
+    CFGNode* build_CFG(int stmtNo);
     void make_CFG();
-    void Parser::dfs(int n);
+    void dfs(CFGNode* n);
+    void set_edge(CFGNode* outNode, CFGNode* inNode, int out, int in);
     set<int> visited;
+
 
     //Printer functions
     void token_out();
