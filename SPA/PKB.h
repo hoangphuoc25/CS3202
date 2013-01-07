@@ -4,6 +4,7 @@
 #include <set>
 #include <string>
 #include <queue>
+#include <stack>
 #include "ProcTable.h"
 #include "VarTable.h"
 #include "Node.h"
@@ -14,6 +15,8 @@ using std::map;
 using std::set;
 using std::string;
 using std::queue;
+using std::stack;
+
 
 class PKB{
 
@@ -84,10 +87,10 @@ public:
     bool is_next(int stmt1, int stmt2);
     bool is_next_star(int stmt1, int stmt2);
 
-    int get_before(int stmtNo);
+    set<int> get_before(int stmtNo);
     set<int> get_before_star(int stmtNo);
 
-    int get_after(int stmtNo);
+    set<int> get_after(int stmtNo);
     set<int> get_after_star(int stmtNo);
 
     // Affects

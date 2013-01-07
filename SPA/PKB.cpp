@@ -290,6 +290,313 @@ bool PKB::is_next(int stmt1, int stmt2)
     return (s.find(stmt2) != s.end());
 }
 
+bool PKB::is_next_star(int stmt1, int stmt2)
+{
+    set<int> s =  CFG->at(stmt1)->get_after();
+    set<int>::iterator it;
+    queue<int> q;
+    for (it = s.begin(); it != s.end(); it++) {
+        q.push(*it);
+    }
+    while (!q.empty()) {
+        if (q.front() == stmt2) {
+            return true;
+        } else {
+            s = CFG->at(q.front())->get_after();
+            for (it = s.begin(); it != s.end(); it++) {
+                q.push(*it);
+            }
+            q.pop();
+        }
+    }
+    return false;
+}
+
+set<int> PKB::get_before(int stmtNo)
+{
+    return CFG->at(stmtNo)->get_before();
+}
+
+set<int> PKB::get_before_star(int stmtNo) {
+    set<int> s =  CFG->at(stmtNo)->get_before();
+    set<int>::iterator it;
+    set<int> res , visited;
+    queue<int> q;
+    for (it = s.begin(); it != s.end(); it++) {
+        q.push(*it);
+    }
+    while (!q.empty()) {
+        if (visited.find(q.front()) == visited.end()) {
+            visited.insert(q.front());
+            res.insert(q.front());
+            s = CFG->at(q.front())->get_before();
+            for (it = s.begin(); it != s.end(); it++) {
+                q.push(*it);
+            }
+        }
+        q.pop();
+    }
+    return res;
+}
+
+set<int> PKB::get_after(int stmtNo)
+{
+    return CFG->at(stmtNo)->get_after();
+}
+
+set<int> PKB::get_after_star(int stmtNo) {
+    set<int> s =  CFG->at(stmtNo)->get_after();
+    set<int>::iterator it;
+    set<int> res, visited;
+    queue<int> q;
+    for (it = s.begin(); it != s.end(); it++) {
+        q.push(*it);
+    }
+    while (!q.empty()) {
+        if (visited.find(q.front()) == visited.end()) {
+            visited.insert(q.front());
+            res.insert(q.front());
+            s = CFG->at(q.front())->get_after();
+            for (it = s.begin(); it != s.end(); it++) {
+                q.push(*it);
+            }
+        }
+        q.pop();
+    }
+    return res;
+}
+
+// Affects
+bool PKB::is_affects(int stmt1, int stmt2)
+{
+    set<int> visited; 
+    set<string> temp;
+    stack<CFGNode*> s;
+    int n;
+    string var = *get_var_stmt_modifies(stmt1).begin();
+
+    // Initial checks
+    if (!is_stmtType(stmt1, ASSIGNTYPE) || !is_stmtType(stmt2, ASSIGNTYPE)) {
+        return false;
+    }
+    temp = get_var_stmt_uses(stmt2);
+    if (temp.find(var) == temp.end()) {
+        return false;
+    }
+
+    CFGNode *curr = CFG->at(stmt1);
+    s.push(curr->get_edge(OUT, 1));
+    s.push(curr->get_edge(OUT, 2));
+    visited.insert(curr->get_stmtNo());
+    while (!s.empty()) {
+        if (s.top() == NULL) {
+            s.pop();
+            continue;
+        }
+        curr = s.top();
+        n = curr->get_stmtNo();
+        // Dummy node -> continue
+        if (n == -1) {
+            s.pop();
+            s.push(curr->get_edge(OUT, 1));
+            continue;
+        }
+        // If not visited
+        if (visited.find(n) == visited.end()) {
+            visited.insert(n);
+            // Reached stmt2 -> done
+            if (n == stmt2) {
+                return true;
+            }
+            // Check stmt only when it is assign stmt
+            if (is_stmtType(n, ASSIGNTYPE)) {
+                temp = get_var_stmt_modifies(n);
+                if (temp.find(var) != temp.end()) {
+                    return false;
+                }
+            }
+            s.pop();
+            s.push(curr->get_edge(OUT, 1));
+            s.push(curr->get_edge(OUT, 2));
+        }
+        s.pop();
+    }
+    return false;
+}
+
+bool PKB::is_affects_star(int stmt1, int stmt2)
+{
+    if (!is_stmtType(stmt1, ASSIGNTYPE) || !is_stmtType(stmt2, ASSIGNTYPE)) {
+        return false;
+    }
+
+    set<int> processed;
+    queue<int> q;
+    set<int> temp;
+    set<int>::iterator it;
+    int n;
+    temp = get_affects(stmt1);
+    for (it = temp.begin(); it != temp.end(); it++) {
+        q.push(*it);
+    }
+    while (!q.empty()) {
+        n = q.front();
+        if (processed.find(n) != processed.end()){
+            q.pop();
+            continue;
+        } else {
+            if (n == stmt2) {
+                return true;
+            }
+            processed.insert(n);
+            temp = get_affects(n);
+            for (it = temp.begin(); it != temp.end(); it++) {
+                q.push(*it);
+            }
+            q.pop();
+        }
+    }
+    return false;
+}
+
+set<int> PKB::get_affects(int stmtNo)
+{
+    if (!is_stmtType(stmtNo, ASSIGNTYPE)) {
+        return EMPTY_INTSET;
+    }
+
+    set<int> res;
+    set<int> visited; 
+    set<string> temp;
+    stack<CFGNode*> s;
+    int n;
+    string var = *get_var_stmt_modifies(stmtNo).begin();
+    CFGNode *curr = CFG->at(stmtNo);
+    s.push(curr->get_edge(OUT, 1));
+    s.push(curr->get_edge(OUT, 2));
+    visited.insert(curr->get_stmtNo());
+    while (!s.empty()) {
+        if (s.top() == NULL) {
+            s.pop();
+            continue;
+        }
+        curr = s.top();
+        n = curr->get_stmtNo();
+        // Dummy node -> continue
+        if (n == -1) {
+            s.pop();
+            s.push(curr->get_edge(OUT, 1));
+            continue;
+        }
+        // If not visited
+        if (visited.find(n) == visited.end()) {
+            visited.insert(n);
+            // Check stmt only when it is assign stmt
+            if (is_stmtType(n, ASSIGNTYPE)) {
+                // stmt uses var: affects allows this stmt to modify var
+                temp = get_var_stmt_uses(n);
+                if (temp.find(var) != temp.end()){
+                    res.insert(n);
+                }
+                temp = get_var_stmt_modifies(n);
+                // Current path broken.
+                if (temp.find(var) != temp.end()) {
+                    s.pop();
+                    continue;
+                }
+            }
+            s.pop();
+            s.push(curr->get_edge(OUT, 1));
+            s.push(curr->get_edge(OUT, 2));
+        }
+        s.pop();
+    }
+    return res;
+}
+
+set<int> PKB::get_affects_star(int stmtNo)
+{
+    if (!is_stmtType(stmtNo, ASSIGNTYPE)) {
+        return EMPTY_INTSET;
+    }
+    set<int> processed;
+    set<int> res;
+    queue<int> q;
+    set<int> temp;
+    set<int>::iterator it;
+    int n;
+    temp = get_affects(stmtNo);
+    for (it = temp.begin(); it != temp.end(); it++) {
+        q.push(*it);
+        res.insert(*it);
+    }
+    while (!q.empty()) {
+        n = q.front();
+        processed.insert(n);
+        temp = get_affects(n);
+        for (it = temp.begin(); it != temp.end(); it++) {
+            q.push(*it);
+            res.insert(*it);
+        }
+        q.pop();
+    }
+    return res;
+}
+
+set<int> PKB::get_affected_by(int stmtNo)
+{
+    if (!is_stmtType(stmtNo, ASSIGNTYPE)) {
+        return EMPTY_INTSET;
+    }
+    set<string> var = get_var_stmt_uses(stmtNo);
+    string procName = procTable->which_proc(stmtNo);
+    set<int> s, res;
+    set<int>::iterator it_stmt;
+    set<string>::iterator it_var;
+    for (it_var = var.begin(); it_var != var.end(); it_var++) {
+        s = filter_by_proc(procName, get_stmt_modifies(*it_var));
+        for (it_stmt = s.begin(); it_stmt != s.end(); it_stmt++) {
+            if (is_affects(*it_stmt, stmtNo)) {
+                res.insert(*it_stmt);
+            }
+        }
+    }
+    return res;
+}
+
+set<int> PKB::get_affected_by_star(int stmtNo)
+{
+    if (!is_stmtType(stmtNo, ASSIGNTYPE)) {
+        return EMPTY_INTSET;
+    }
+    queue<int> q;
+    set<int> temp, res, processed;
+    set<int>::iterator it;
+    int n;
+    temp = get_affected_by(stmtNo);
+    for (it = temp.begin(); it != temp.end(); it++) {
+        q.push(*it);
+    }
+    while (!q.empty()) {
+        n = q.front();
+        if (processed.find(n) != processed.end()) {
+            q.pop();
+            continue;
+        } else {
+            processed.insert(n);
+            res.insert(n);
+            temp = get_affected_by(n);
+            for (it = temp.begin(); it != temp.end(); it++) {
+                q.push(*it);
+            }
+            q.pop();
+        }
+    }
+    return res;
+}
+
+
+
 
 // Constant
 set<string> PKB::get_all_const(){

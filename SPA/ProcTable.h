@@ -60,6 +60,8 @@ public:
     set<string> get_uses(string procName);
     set<string> get_all_procs();
 
+    string which_proc(int stmtNo);
+
 private:
     void add_called_by(string proc1, string proc2); 
     
@@ -69,6 +71,7 @@ private:
 
     const set<string> EMPTY_STRINGSET;
 
+    map<int, string> procFinder; 
     map<string, int> nameToIndex;
     vector<ProcElements> procTable;
     VarTable *varTable;

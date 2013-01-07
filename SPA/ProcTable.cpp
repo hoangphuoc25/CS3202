@@ -80,6 +80,7 @@ void ProcTable::set_start(string procName, int stmtNo){
     int index = get_index(procName);
     if (index != -1){
         procTable[index].start = stmtNo;
+        procFinder[stmtNo] = procName;
     }
 
 }
@@ -88,6 +89,7 @@ void ProcTable::set_end(string procName, int stmtNo){
     int index = get_index(procName);
     if (index != -1){
         procTable[index].end = stmtNo;
+        procFinder[stmtNo] = procName;
     }
 }
 
@@ -222,3 +224,9 @@ set<string> ProcTable::get_all_procs(){
     }
     return result;
 }
+
+string ProcTable::which_proc(int stmtNo)
+{
+    return procFinder.lower_bound(stmtNo)->second;
+}
+
