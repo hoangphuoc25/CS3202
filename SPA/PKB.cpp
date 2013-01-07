@@ -2,11 +2,12 @@
 
 PKB::PKB(){}
 
-PKB::PKB(Node *root, ProcTable *pt, VarTable *vt, StmtBank *sb){
+PKB::PKB(Node *root, ProcTable *pt, VarTable *vt, StmtBank *sb, vector<CFGNode*> *cfg){
     progRoot = root;
     procTable = pt;
     varTable = vt;
     stmtBank = sb;
+    CFG = cfg;
 }
 
 // Variables
@@ -282,6 +283,14 @@ set<int> PKB::get_predecessor_star(int stmtNo){
     return res;
 }
 
+// Next
+bool PKB::is_next(int stmt1, int stmt2)
+{
+    set<int> s =  CFG->at(stmt1)->get_after();
+    return (s.find(stmt2) != s.end());
+}
+
+
 // Constant
 set<string> PKB::get_all_const(){
     return stmtBank->get_constBank();
@@ -366,7 +375,30 @@ set<int> PKB::filter_by_stmtType(stmtType type, set<int> s){
 }
 
 
+void PKB::dfs(CFGNode *node)
+{
+    if (node == NULL) {
+        return;
+    }
+    int n = node->get_stmtNo();
+    if (n == -1){
+        dfs(node->get_edge(OUT, 1));
+    } else {
+        if (visited.find(n) == visited.end()) {
+            printf("AT node %d,\n", n);
+            visited.insert(n);
+            if (node->get_edge(OUT, 2) != NULL){
+                dfs(node->get_edge(OUT, 2));
+            }
 
+            if(node->get_edge(OUT, 1) != NULL) {
+                dfs(node->get_edge(OUT, 1));
+            }
+
+        }
+    }
+
+}
 
 
 // Debuugers
@@ -383,4 +415,9 @@ StmtBank* PKB::get_stmtBank(){
 
 VarTable* PKB::get_varTable(){
     return varTable;
+}
+
+vector<CFGNode*>* PKB::get_CFG()
+{
+    return CFG;
 }

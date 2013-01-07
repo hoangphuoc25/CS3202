@@ -8,6 +8,7 @@
 #include "VarTable.h"
 #include "Node.h"
 #include "StmtBank.h"
+#include "CFGNode.h"
 
 using std::map;
 using std::set;
@@ -19,7 +20,7 @@ class PKB{
 
 public:
     PKB();
-    PKB(Node *root, ProcTable *pt, VarTable *vt, StmtBank *sb);
+    PKB(Node *root, ProcTable *pt, VarTable *vt, StmtBank *sb, vector<CFGNode*> *cfg);
 
     // Query methods
     
@@ -79,9 +80,25 @@ public:
     int get_predecessor(int stmtNo);
     set<int> get_predecessor_star(int stmtNo);
 
-    // Constant
-    set<string> get_all_const();
-    bool is_const_exist(string n);
+    // Next
+    bool is_next(int stmt1, int stmt2);
+    bool is_next_star(int stmt1, int stmt2);
+
+    int get_before(int stmtNo);
+    set<int> get_before_star(int stmtNo);
+
+    int get_after(int stmtNo);
+    set<int> get_after_star(int stmtNo);
+
+    // Affects
+    bool is_affects(int stmt1, int stmt2);
+    bool is_affects_star(int stmt1, int stmt2);
+
+    set<int> get_affects(int stmtNo);
+    set<int> get_affects_star(int stmtNo);
+
+    set<int> get_affected_by(int stmtNo);
+    set<int> get_affected_by_star(int stmtNo);
 
     // Others
     bool is_stmtType(int stmtNo, stmtType type);
@@ -93,12 +110,18 @@ public:
     set<int> filter_by_stmtType(stmtType type, set<int> s);
     int filter_by_stmtType(stmtType type, int stmtNo);
 
+    // Constant
+    set<string> get_all_const();
+    bool is_const_exist(string n);
+
     // Debuugers
     Node* get_progRoot();
     ProcTable* get_procTable();
     StmtBank* get_stmtBank();
     VarTable* get_varTable();
-
+    vector<CFGNode*>* get_CFG();
+    set<int> visited;
+    void dfs(CFGNode *node);
 
 private:
 
@@ -106,6 +129,7 @@ private:
     ProcTable *procTable;
     VarTable *varTable;
     StmtBank *stmtBank;
+    vector<CFGNode*> *CFG;
 
     const set<string> EMPTY_STRINGSET;
     const set<int> EMPTY_INTSET;

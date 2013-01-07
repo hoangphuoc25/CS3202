@@ -97,9 +97,8 @@ private:
     void init_CFG();
     CFGNode* build_CFG(int stmtNo);
     void make_CFG();
-    void dfs(CFGNode* n);
     void set_edge(CFGNode* outNode, CFGNode* inNode, int out, int in);
-    set<int> visited;
+
 
 
     //Printer functions

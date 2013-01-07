@@ -58,15 +58,8 @@ Node* Parser::get_proc_root()
 PKB* Parser::get_pkb()
 {
     make_CFG();
-    for(int i = 1;i<31;i++){
-        CFG->at(i)->print();
-    }
-    dfs(CFG->at(1));
-    dfs(CFG->at(19));
-    dfs(CFG->at(24));
-    dfs(CFG->at(27));
     update_tables();
-    return new PKB(astRoot, procTable, varTable, stmtBank);
+    return new PKB(astRoot, procTable, varTable, stmtBank, CFG);
 }
 
 // Updaters
@@ -546,7 +539,7 @@ CFGNode* Parser::build_CFG(int stmtNo)
 }*/
 
 CFGNode* Parser::build_CFG(int stmtNo){
-    Node *succ, *child;
+    Node *succ, *child, *temp;
     int succNo, childNo, thenNo, elseNo;
     CFGNode *next, *thenNode, *elseNode;
 
@@ -554,20 +547,22 @@ CFGNode* Parser::build_CFG(int stmtNo){
         thenNo = stmtNo + 1;
         set_edge(CFG->at(stmtNo), CFG->at(thenNo), 1, 1);
         thenNode = build_CFG(thenNo);
-        elseNo = thenNode->get_stmtNo() + 1;
+        temp = stmtBank->get_node(stmtNo)->get_leaves()[2]->get_leaves()[0];
+        elseNo = temp->get_stmtNo();
         set_edge(CFG->at(stmtNo), CFG->at(elseNo), 2, 1);
         elseNode = build_CFG(elseNo);
 
         succ = stmtBank->get_node(stmtNo)->get_successor();
+            
+        next = new CFGNode(-1);
+        set_edge(thenNode, next, 1, 1);
+        set_edge(elseNode, next, 1, 2);
+        
         if (succ != NULL) {
             succNo = succ->get_stmtNo();
-            set_edge(thenNode, CFG->at(succNo), 1, 1);
-            set_edge(elseNode, CFG->at(succNo), 1, 2);
+            set_edge(next, CFG->at(succNo), 1, 1);
             return build_CFG(succNo);
         } else {
-            next = new CFGNode(-1);
-            set_edge(thenNode, next, 1, 1);
-            set_edge(elseNode, next, 1, 2);
             return next;
         }
     } else {
@@ -606,27 +601,6 @@ void Parser::set_edge(CFGNode* outNode, CFGNode* inNode, int out, int in){
     inNode->set_edge(outNode, IN, in);
 }
 
-void Parser::dfs(CFGNode* n){
-    if (n->get_stmtNo() == -1) {
-        dfs(n->get_edge(OUT, 1));
-    } else {
-        if(visited.find(n->get_stmtNo()) == visited.end()){
-            printf("At: %d\n",n->get_stmtNo());
-            visited.insert(n->get_stmtNo());
-            CFGNode* next;
-            next = n->get_edge(OUT, 2);
-            if (next != NULL) {
-                // printf("Right: %d\n\n", next->get_stmtNo());
-                dfs(next);
-            }
-            next = n->get_edge(OUT, 1);
-            if (next != NULL) {
-                //  printf("Left: %d\n\n", next->get_stmtNo());
-                dfs(next);
-            }
-        }
-    }
-}
 
 // Helpers
 void Parser::create_node(string name, NodeType type)

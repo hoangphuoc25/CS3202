@@ -55,9 +55,6 @@ CFGNode* CFGNode::get_edge(edge e, int i)
             case 2:
                 return inTwo;
                 break;
-            case 3:
-                return inThree;
-                break;
         }
         break;
     case OUT:
@@ -78,6 +75,49 @@ int CFGNode::get_stmtNo()
     return stmtNo;
 }
 
+set<int> CFGNode::get_before(){
+    set<int> s, temp;
+    int n;
+    if (inOne != NULL) {
+        n = inOne->get_stmtNo();
+        if (n != -1) {
+            s.insert(n);
+        } else {
+            s = inOne->get_before();
+        }
+    }
+    if (inTwo != NULL) {
+        n = inTwo->get_stmtNo();
+        if (n != -1) {
+            s.insert(n);
+        } else {
+            temp = inTwo->get_before();
+            for (set<int>::iterator it = temp.begin(); it != temp.end(); it++) {
+                s.insert(*it);
+            }
+        }
+    }
+    return s;
+}
+
+set<int> CFGNode::get_after(){
+    set<int> s;
+    int n;
+    if (outOne != NULL) {
+        n = outOne->get_stmtNo();
+        if (n != -1) {
+            s.insert(n);
+        } else {
+            return outOne->get_after();
+        }
+    }
+    if (outTwo != NULL) {
+        s.insert(outTwo->get_stmtNo());
+    }
+    return s;
+}
+
+
 void CFGNode::print()
 {
     printf("Stmtno: %d\n", stmtNo);
@@ -86,9 +126,6 @@ void CFGNode::print()
     }
     if (inTwo != NULL) {
         printf("inTwo: %d\n", inTwo->get_stmtNo());
-    }
-    if (inThree != NULL) {
-        printf("inThree: %d\n", inThree->get_stmtNo());
     }
     if (outOne != NULL) {
         printf("outOne: %d\n", outOne->get_stmtNo());
