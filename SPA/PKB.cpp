@@ -401,25 +401,28 @@ bool PKB::is_affects(int stmt1, int stmt2)
             s.push(curr->get_edge(OUT, 1));
             continue;
         }
-        // If not visited
-        if (visited.find(n) == visited.end()) {
+        // If visited
+        if (visited.find(n) != visited.end()) {
+            s.pop();
+            continue;
+        } else {
             visited.insert(n);
             // Reached stmt2 -> done
             if (n == stmt2) {
                 return true;
             }
-            // Check stmt only when it is assign stmt
-            if (is_stmtType(n, ASSIGNTYPE)) {
+            // Check stmt only when it is assign stmt or calls
+            if (is_stmtType(n, ASSIGNTYPE) || is_stmtType(n, CALLTYPE)) {
                 temp = get_var_stmt_modifies(n);
+                // Path broken
                 if (temp.find(var) != temp.end()) {
-                    return false;
+                    continue;
                 }
             }
             s.pop();
             s.push(curr->get_edge(OUT, 1));
             s.push(curr->get_edge(OUT, 2));
         }
-        s.pop();
     }
     return false;
 }
@@ -488,9 +491,21 @@ set<int> PKB::get_affects(int stmtNo)
             s.push(curr->get_edge(OUT, 1));
             continue;
         }
-        // If not visited
-        if (visited.find(n) == visited.end()) {
+        // If visited
+        if (visited.find(n) != visited.end()) {
+            s.pop();
+            continue;
+        } else {
             visited.insert(n);
+            // Check if calls modifies
+            if (is_stmtType(n, CALLTYPE)) {
+                temp = get_var_stmt_modifies(n);
+                // Current path broken.
+                if (temp.find(var) != temp.end()) {
+                    s.pop();
+                    continue;
+                }
+            }
             // Check stmt only when it is assign stmt
             if (is_stmtType(n, ASSIGNTYPE)) {
                 // stmt uses var: affects allows this stmt to modify var
@@ -509,7 +524,6 @@ set<int> PKB::get_affects(int stmtNo)
             s.push(curr->get_edge(OUT, 1));
             s.push(curr->get_edge(OUT, 2));
         }
-        s.pop();
     }
     return res;
 }
