@@ -1,0 +1,6 @@
+procedure John {
+	while e {
+		if i then {
+			y = z + 1; }
+		else {
+			z = z * x + y + e * d; } } }

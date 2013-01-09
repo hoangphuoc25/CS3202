@@ -1,0 +1,4 @@
+procedure Jane {
+	while d {
+		z = x + z; }
+	x = z + x; }

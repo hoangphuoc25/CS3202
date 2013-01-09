@@ -1,0 +1,6 @@
+procedure Mary {
+	while i {
+		z = y * 3 + 2 * x;
+		call John;
+		i = i - 1; }
+	y = y + z + i; }
