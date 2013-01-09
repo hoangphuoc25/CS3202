@@ -141,6 +141,7 @@ private:
     void test_err_patcl_nolparen();
     void test_err_patcl_syn_type_error();
     void test_err_patcond_invalid_patcl();
+    void test_dump_optimized_to_string();
 };
 
 #endif

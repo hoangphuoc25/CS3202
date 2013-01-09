@@ -564,6 +564,8 @@ private:
     ParseError add_follows_relRef(RelRef &relRef, char **errorMsg);
     ParseError add_next_relRef(RelRef &relRef, char **errorMsg);
     ParseError add_affects_relRef(RelRef &relRef, char **errorMsg);
+    void dump_decl_select(StringBuffer &sb) const;
+    void dump_clauses(StringBuffer &sb, bool dumpOptimized=false) const;
 
     #define MODIFIES_ARGONE_TYPES_ARR_SZ 7
     #define MODIFIES_ARGTWO_TYPES_ARR_SZ 1

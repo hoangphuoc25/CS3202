@@ -2781,6 +2781,13 @@ void QueryInfo::dump(FILE *f) const
 std::string QueryInfo::dump_to_string() const
 {
     StringBuffer sb;
+    this->dump_decl_select(sb);
+    this->dump_clauses(sb, false);
+    return sb.toString();
+}
+
+void QueryInfo::dump_decl_select(StringBuffer &sb) const
+{
     sb.append("DECLARATIONS\n");
     for (vector<pair<DesignEnt, string> >::const_iterator it =
             this->entVec.begin(); it != this->entVec.end(); it++) {
@@ -2804,8 +2811,19 @@ std::string QueryInfo::dump_to_string() const
     } else {
         sb.append("BOOLEAN\n");
     }
-    for (vector<pair<ClauseType, int> >::const_iterator it =
-            this->insertOrder.begin(); it != this->insertOrder.end(); it++) {
+}
+
+void QueryInfo::dump_clauses(StringBuffer &sb, bool dumpOptimized) const
+{
+    vector<pair<ClauseType, int> >::const_iterator it, endIt;
+    if (dumpOptimized) {
+        it = this->evalOrder.begin();
+        endIt = this->evalOrder.end();
+    } else {
+        it = this->insertOrder.begin();
+        endIt = this->insertOrder.end();
+    }
+    for (; it != endIt; it++) {
         switch (it->first) {
         case SUCHTHAT_CLAUSE:
             sb.append(this->relRefs[it->second].dump());
@@ -2817,5 +2835,4 @@ std::string QueryInfo::dump_to_string() const
             break;
         }
     }
-    return sb.toString();
 }
