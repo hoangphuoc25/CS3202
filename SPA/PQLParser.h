@@ -230,7 +230,7 @@ enum RelRefType {
 };
 
 enum ClauseType {
-    SUCHTHAT_CLAUSE, WITH_CLAUSE, PATTERN_CLAUSE
+    SUCHTHAT_CLAUSE, WITH_CLAUSE, PATTERN_CLAUSE, INVALID_CLAUSE
 };
 
 enum RelRefArgType {
@@ -541,6 +541,8 @@ public:
     void dump(FILE *f) const;
     std::string dump_to_string() const;
     std::string dump_optimized_to_string() const;
+    ClauseType get_nth_clause(int n, void **r);
+    int get_nr_clauses() const;
 
 private:
     // entity declarations

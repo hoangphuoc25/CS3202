@@ -16,6 +16,7 @@
     <ClCompile Include="Parser.cpp" />
     <ClCompile Include="PKB.cpp" />
     <ClCompile Include="PQLParser.cpp" />
+    <ClCompile Include="QueryEvaluator.cpp" />
     <ClCompile Include="ResultsGraph.cpp" />
     <ClCompile Include="ProcTable.cpp" />
     <ClCompile Include="StmtBank.cpp" />
@@ -30,6 +31,7 @@
     <ClInclude Include="Parser.h" />
     <ClInclude Include="PKB.h" />
     <ClInclude Include="PQLParser.h" />
+    <ClInclude Include="QueryEvaluator.h" />
     <ClInclude Include="ResultsGraph.h" />
     <ClInclude Include="ProcTable.h" />
     <ClInclude Include="StmtBank.h" />

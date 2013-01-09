@@ -2856,3 +2856,36 @@ void QueryInfo::optimize(enum PQLOptimization method)
         break;
     }
 }
+
+int QueryInfo::get_nr_clauses() const
+{
+    return (int)this->evalOrder.size();
+}
+
+ClauseType QueryInfo::get_nth_clause(int n, void **r)
+{
+    int len = this->evalOrder.size();
+    ClauseType ret = INVALID_CLAUSE;
+    if (n >= len) {
+        return INVALID_CLAUSE;
+    } else {
+        ret = this->evalOrder[n].first;
+        int idx = this->evalOrder[n].second;
+        switch (this->evalOrder[n].first) {
+        case SUCHTHAT_CLAUSE:
+            if (r) {
+                *r = (void *)&(this->relRefs[idx]);
+            }
+            break;
+        case WITH_CLAUSE:
+            // TODO: Implement once with clause is done
+            break;
+        case PATTERN_CLAUSE:
+            if (r) {
+                *r = (void *)&(this->patCls[idx]);
+            }
+            break;
+        }
+    }
+    return ret;
+}
