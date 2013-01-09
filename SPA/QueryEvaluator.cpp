@@ -29,7 +29,7 @@ void QueryEvaluator::evaluate(const string& queryStr,
     PatCl *patCl;
     void *retPtr;
     ClauseType clauseType;
-    for (int i = 0; i < nrClauses; i++) {
+    for (int i = 0; i < nrClauses && this->results.is_alive(); i++) {
         retPtr = NULL;
         clauseType = qinfo->get_nth_clause(i, &retPtr);
         assert(clauseType != INVALID_CLAUSE);

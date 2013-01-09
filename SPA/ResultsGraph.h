@@ -59,7 +59,7 @@ public:
     Vertex *get_vertex(int value);
     DesignEnt get_synType() const;
     const std::map<int, Vertex *>& get_vertices() const;
-    void reset();
+    bool reset();
     std::set<Vertex *> get_unblessed() const;
     void remove_vertex(int value);
     std::string toString() const;
@@ -125,6 +125,7 @@ public:
     void prune(int syn1, const std::string& syn2);
     void prune(int syn1, int syn2);
     void reset();
+    bool is_alive() const;
     std::string toString() const;
 
 private:
@@ -143,6 +144,7 @@ private:
             std::set<Vertex *>& garbage,
             const std::set<int>& synToReset);
 
+    bool alive;
     int SYNLABEL;
     int VALUELABEL;
     std::map<std::string, int> synMap;

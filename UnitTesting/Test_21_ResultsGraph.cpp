@@ -24,6 +24,7 @@ void Test_21_ResultsGraph::test_empty_graph()
     ResultsGraph g;
     string s = g.toString();
     CPPUNIT_ASSERT_EQUAL(string(""), s);
+    CPPUNIT_ASSERT_EQUAL(true, g.is_alive());
 }
 
 void Test_21_ResultsGraph::test_add_vertex()
@@ -222,6 +223,43 @@ void Test_21_ResultsGraph::test_prune_add_all()
     CPPUNIT_ASSERT_EQUAL(true, g.has_syn("c"));
     vSet = g.get_synonym("c");
     CPPUNIT_ASSERT_EQUAL(0, (int)vSet.size());
+    // graph is now dead
+    CPPUNIT_ASSERT_EQUAL(false, g.is_alive());
+}
+
+void Test_21_ResultsGraph::test_prune_nonempty_death()
+{
+    // 1. a = b + c
+    // 2. g = 3 + d
+    ResultsGraph g;
+    set<pair<int, string> > vSet;
+    string s;
+
+    // evaluate:
+    // Uses(a,v)
+    // Uses(a2,v2)
+    // Modifies(a3,v)
+    g.add_edge(ENT_ASSIGN, "a", 1, ENT_VAR, "v", "b");
+    g.add_edge(ENT_ASSIGN, "a", 1, ENT_VAR, "v", "c");
+    g.add_edge(ENT_ASSIGN, "a", 2, ENT_VAR, "v", "d");
+    g.prune("a", "v");
+    CPPUNIT_ASSERT_EQUAL(true, g.is_alive());
+    g.add_edge(ENT_ASSIGN, "a2", 1, ENT_VAR, "v2", "b");
+    g.add_edge(ENT_ASSIGN, "a2", 1, ENT_VAR, "v2", "c");
+    g.add_edge(ENT_ASSIGN, "a2", 2, ENT_VAR, "v2", "d");
+    g.prune("a2", "v2");
+    CPPUNIT_ASSERT_EQUAL(true, g.is_alive());
+    g.prune("a3", "v");
+    CPPUNIT_ASSERT_EQUAL(false, g.is_alive());
+    // syn map:
+    // a -> 1, v -> 2, a2 -> 3, v2 -> 4
+    // string map:
+    // b -> 1, c -> 2, d -> 3
+    s = "1 1 -> [2 1] [2 2]\n1 2 -> [2 3]\n";
+    s += "2 1 -> [1 1]\n2 2 -> [1 1]\n2 3 -> [1 2]\n";
+    s += "3 1 -> [4 1] [4 2]\n3 2 -> [4 3]\n";
+    s += "4 1 -> [3 1]\n4 2 -> [3 1]\n4 3 -> [3 2]\n";
+    CPPUNIT_ASSERT_EQUAL(s, g.toString());
 }
 
 void Test_21_ResultsGraph::test_prune_1()
@@ -361,6 +399,7 @@ void Test_21_ResultsGraph::test_prune_1()
     vSet = g.get_synonym("a2");
     CPPUNIT_ASSERT_EQUAL(1, (int)vSet.size());
     CPPUNIT_ASSERT_EQUAL(1, (int)vSet.count(make_pair(2, "")));
+    CPPUNIT_ASSERT_EQUAL(true, g.is_alive());
 }
 
 void Test_21_ResultsGraph::test_prune_2()
@@ -443,6 +482,7 @@ void Test_21_ResultsGraph::test_prune_2()
     vSet = g.get_synonym("a2");
     CPPUNIT_ASSERT_EQUAL(1, (int)vSet.size());
     CPPUNIT_ASSERT_EQUAL(1, (int)vSet.count(make_pair(6, "")));
+    CPPUNIT_ASSERT_EQUAL(true, g.is_alive());
 }
 
 void Test_21_ResultsGraph::test_prune_3()
@@ -591,4 +631,5 @@ void Test_21_ResultsGraph::test_prune_3()
     CPPUNIT_ASSERT_EQUAL(1, (int)vSet.count(make_pair(5, "y")));
     CPPUNIT_ASSERT_EQUAL(1, (int)vSet.count(make_pair(6, "x")));
     CPPUNIT_ASSERT_EQUAL(1, (int)vSet.count(make_pair(8, "z")));
+    CPPUNIT_ASSERT_EQUAL(true, g.is_alive());
 }

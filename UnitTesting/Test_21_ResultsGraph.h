@@ -11,6 +11,7 @@ CPPUNIT_TEST(test_empty_graph);
 CPPUNIT_TEST(test_add_vertex);
 CPPUNIT_TEST(test_add_edge);
 CPPUNIT_TEST(test_prune_add_all);
+CPPUNIT_TEST(test_prune_nonempty_death);
 CPPUNIT_TEST(test_prune_1);
 CPPUNIT_TEST(test_prune_2);
 CPPUNIT_TEST(test_prune_3);
@@ -25,6 +26,7 @@ private:
     void test_add_vertex();
     void test_add_edge();
     void test_prune_add_all();
+    void test_prune_nonempty_death();
     void test_prune_1();
     void test_prune_2();
     void test_prune_3();

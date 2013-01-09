@@ -210,12 +210,13 @@ const map<int, Vertex *>& SuperVertex::get_vertices() const
     return this->vertices;
 }
 
-void SuperVertex::reset()
+bool SuperVertex::reset()
 {
     for (map<int, Vertex *>::const_iterator it = this->vertices.begin();
             it != this->vertices.end(); it++) {
         it->second->reset();
     }
+    return (this->vertices.size() > 0);
 }
 
 set<Vertex *> SuperVertex::get_unblessed() const
@@ -275,7 +276,7 @@ set<pair<int, string> > SuperVertex::toSet() const
 //////////////////////////////////////////////////////////////////////
 
 ResultsGraph::ResultsGraph()
-    : SYNLABEL(1), VALUELABEL(1) {}
+    : alive(true), SYNLABEL(1), VALUELABEL(1) {}
 
 ResultsGraph::~ResultsGraph()
 {
@@ -496,6 +497,9 @@ void ResultsGraph::prune(const string& syn)
 {
     if (this->has_syn(syn)) {
         this->prune(syn_to_int(syn));
+    } else {
+        // didnt add such synonym. graph is dead
+        this->alive = false;
     }
 }
 
@@ -513,6 +517,8 @@ void ResultsGraph::prune(const string& syn, const string& syn2)
 {
     if (this->has_syn(syn) && this->has_syn(syn2)) {
         this->prune(this->syn_to_int(syn), this->syn_to_int(syn2));
+    } else {
+        this->alive = false;
     }
 }
 
@@ -520,6 +526,8 @@ void ResultsGraph::prune(const string& syn, int syn2)
 {
     if (this->has_syn(syn) && this->has_syn(syn2)) {
         this->prune(this->syn_to_int(syn), syn2);
+    } else {
+        this->alive = false;
     }
 }
 
@@ -527,6 +535,8 @@ void ResultsGraph::prune(int syn, const string& syn2)
 {
     if (this->has_syn(syn) && this->has_syn(syn2)) {
         this->prune(syn, this->syn_to_int(syn2));
+    } else {
+        this->alive = false;
     }
 }
 
@@ -545,6 +555,8 @@ void ResultsGraph::prune(int syn1, int syn2)
             this->prune_prelude(syn2, q, garbage);
         }
         this->prune__(&q, garbage, synToReset);
+    } else {
+        this->alive = false;
     }
 }
 
@@ -597,12 +609,21 @@ void ResultsGraph::prune__(map<int, PruneInfo, PruneInfoCmp> *q,
 
     // reset graph
     map<int, SuperVertex *>::const_iterator superIt;
+    bool aliveNext = true;
     for (set<int>::const_iterator it = synToReset.begin();
             it != synToReset.end(); it++) {
         superIt = this->vertices.find(*it);
         if (superIt != this->vertices.end()) {
             SuperVertex *superVertex = superIt->second;
-            superVertex->reset();
+            aliveNext = superVertex->reset() && aliveNext;
+        } else {
+            aliveNext = false;
         }
     }
+    this->alive = aliveNext;
+}
+
+bool ResultsGraph::is_alive() const
+{
+    return this->alive;
 }
