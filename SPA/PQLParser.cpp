@@ -2583,6 +2583,7 @@ void QueryInfo::reset(const map<string, DesignEnt>& etab,
             it != eVec.end(); it++) {
         this->entVec.push_back(*it);
     }
+    this->insertOrder.clear();
     this->evalOrder.clear();
     this->relRefs.clear();
     this->relRefsSet.clear();
@@ -2630,7 +2631,7 @@ DesignEnt QueryInfo::retrieve_syn_type(const string &s) const
 void QueryInfo::insert_relRef(const RelRef &relRef, char **errorMsg)
 {
     if (this->relRefsSet.find(relRef) == this->relRefsSet.end()) {
-        this->evalOrder.push_back(
+        this->insertOrder.push_back(
             make_pair(SUCHTHAT_CLAUSE, this->relRefs.size()));
         this->relRefsSet.insert(relRef);
         this->relRefs.push_back(relRef);
@@ -2759,7 +2760,7 @@ ParseError QueryInfo::add_patCl(const PatCl &p, char **errorMsg)
             *errorMsg = strdup(sb.c_str());
         }
     } else {
-        this->evalOrder.push_back(
+        this->insertOrder.push_back(
                 make_pair(PATTERN_CLAUSE, this->patCls.size()));
         this->patClSet.insert(p);
         this->patCls.push_back(p);
@@ -2804,7 +2805,7 @@ std::string QueryInfo::dump_to_string() const
         sb.append("BOOLEAN\n");
     }
     for (vector<pair<ClauseType, int> >::const_iterator it =
-            this->evalOrder.begin(); it != this->evalOrder.end(); it++) {
+            this->insertOrder.begin(); it != this->insertOrder.end(); it++) {
         switch (it->first) {
         case SUCHTHAT_CLAUSE:
             sb.append(this->relRefs[it->second].dump());

@@ -543,6 +543,7 @@ private:
     SelectType selectType;
     std::vector<AttrRef> selectTuple;
     std::set<AttrRef, AttrRefCmp> selectTable;
+    std::vector<std::pair<ClauseType, int> > insertOrder;
     std::vector<std::pair<ClauseType, int> > evalOrder;
     std::vector<RelRef> relRefs;
     std::set<RelRef, RelRefCmp> relRefsSet;
