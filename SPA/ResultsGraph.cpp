@@ -34,8 +34,10 @@ bool PruneInfoCmp::operator()(const PruneInfo &a, const PruneInfo &b)
 // private
 Vertex::Vertex() {}
 
-Vertex::Vertex(SuperVertex *r, int syn_, int value_)
-    : root(r), alive(true), syn(syn_), value(value_), blessed(true) {}
+Vertex::Vertex(SuperVertex *r, int syn_, const string& valueStr_,
+        int value_)
+    : root(r), alive(true), syn(syn_), value(value_),
+      valueStr(valueStr_), blessed(true) {}
 
 void Vertex::add_neighbor(Vertex *v)
 {
@@ -112,6 +114,11 @@ int Vertex::get_value() const
     return this->value;
 }
 
+string Vertex::get_valueStr() const
+{
+    return valueStr;
+}
+
 void Vertex::reset()
 {
     this->blessed = false;
@@ -164,21 +171,22 @@ string Vertex::toString() const
 // private constructor
 SuperVertex::SuperVertex() {}
 
-SuperVertex::SuperVertex(int syn_): syn(syn_) {}
+SuperVertex::SuperVertex(DesignEnt synType_, int syn_):
+        synType(synType_), syn(syn_) {}
 
 int SuperVertex::get_syn() const
 {
     return this->syn;
 }
 
-Vertex *SuperVertex::add_vertex(int value)
+Vertex *SuperVertex::add_vertex(const string& value, int valueInt)
 {
     Vertex *v;
-    if (this->vertices.find(value) == this->vertices.end()) {
-        v = new Vertex(this, this->syn, value);
-        this->vertices[value] = v;
+    if (this->vertices.find(valueInt) == this->vertices.end()) {
+        v = new Vertex(this, this->syn, value, valueInt);
+        this->vertices[valueInt] = v;
     }
-    v = this->vertices[value];
+    v = this->vertices[valueInt];
     v->bless();
     return v;
 }
@@ -190,6 +198,11 @@ Vertex *SuperVertex::get_vertex(int value)
         return NULL;
     }
     return it->second;
+}
+
+DesignEnt SuperVertex::get_synType() const
+{
+    return this->synType;
 }
 
 const map<int, Vertex *>& SuperVertex::get_vertices() const
@@ -245,6 +258,18 @@ string SuperVertex::toString() const
     return sb.toString();
 }
 
+set<pair<int, string> > SuperVertex::toSet() const
+{
+    set<pair<int, string> > ret;
+    Vertex *v;
+    for (map<int, Vertex *>::const_iterator it = this->vertices.begin();
+            it != this->vertices.end(); it++) {
+        v = it->second;
+        ret.insert(make_pair(v->get_value(), v->get_valueStr()));
+    }
+    return ret;
+}
+
 //////////////////////////////////////////////////////////////////////
 // ResultsGraph
 //////////////////////////////////////////////////////////////////////
@@ -257,50 +282,61 @@ ResultsGraph::~ResultsGraph()
     this->reset();
 }
 
-Vertex *ResultsGraph::add_vertex(const string& syn, const string& value)
+Vertex *ResultsGraph::add_vertex(DesignEnt synType, const string& syn,
+        const string& value)
 {
     int synLabel, valueLabel;
     synLabel = this->retrieve_superVertex_label(syn);
     valueLabel = this->retrieve_value_label(value);
-    return this->add_vertex(synLabel, valueLabel);
+    return this->add_vertex(synType, synLabel, value, valueLabel);
 }
 
-Vertex *ResultsGraph::add_vertex(const string& syn, int value)
+Vertex *ResultsGraph::add_vertex(DesignEnt synType,
+        const string& syn, int value)
 {
     int synLabel;
     synLabel = this->retrieve_superVertex_label(syn);
-    return this->add_vertex(synLabel, value);
+    return this->add_vertex(synType, synLabel, "", value);
 }
 
-void ResultsGraph::add_edge(const string& syn, int value,
-        const string& syn2, int value2)
+void ResultsGraph::add_edge(DesignEnt syn1Type,
+        const string& syn, int value,
+        DesignEnt syn2Type, const string& syn2, int value2)
 {
-    Vertex *a = this->add_vertex(syn, value);
-    Vertex *b = this->add_vertex(syn2, value2);
+    Vertex *a = this->add_vertex(syn1Type, syn, value);
+    Vertex *b = this->add_vertex(syn2Type, syn2, value2);
     a->add_neighbor(b);
     b->add_neighbor(a);
 }
 
-void ResultsGraph::add_edge(const string& syn, int value,
-        const string& syn2, const string& value2)
+void ResultsGraph::add_edge(DesignEnt syn1Type,
+        const string& syn, int value,
+        DesignEnt syn2Type, const string& syn2, const string& value2)
 {
-    int value2Label = this->retrieve_value_label(value2);
-    this->add_edge(syn, value, syn2, value2Label);
+    Vertex *a = this->add_vertex(syn1Type, syn, value);
+    Vertex *b = this->add_vertex(syn2Type, syn2, value2);
+    a->add_neighbor(b);
+    b->add_neighbor(a);
 }
 
-void ResultsGraph::add_edge(const string& syn, const string& value,
-        const string& syn2, int value2)
+void ResultsGraph::add_edge(DesignEnt syn1Type,
+        const string& syn, const string& value,
+        DesignEnt syn2Type, const string& syn2, int value2)
 {
-    int valueLabel = this->retrieve_value_label(value);
-    this->add_edge(syn, valueLabel, syn2, value2);
+    Vertex *a = this->add_vertex(syn1Type, syn, value);
+    Vertex *b = this->add_vertex(syn2Type, syn2, value2);
+    a->add_neighbor(b);
+    b->add_neighbor(a);
 }
 
-void ResultsGraph::add_edge(const string& syn, const string& value,
-        const string& syn2, const string& value2)
+void ResultsGraph::add_edge(DesignEnt syn1Type,
+        const string& syn, const string& value,
+        DesignEnt syn2Type, const string& syn2, const string& value2)
 {
-    int valueLabel = this->retrieve_value_label(value);
-    int value2Label = this->retrieve_value_label(value2);
-    this->add_edge(syn, valueLabel, syn2, value2Label);
+    Vertex *a = this->add_vertex(syn1Type, syn, value);
+    Vertex *b = this->add_vertex(syn2Type, syn2, value2);
+    a->add_neighbor(b);
+    b->add_neighbor(a);
 }
 
 Vertex *ResultsGraph::get_vertex(const pair<int, int>& ip)
@@ -313,6 +349,21 @@ Vertex *ResultsGraph::get_vertex(const pair<int, int>& ip)
     }
     SuperVertex *superVertex = it->second;
     return superVertex->get_vertex(val);
+}
+
+set<pair<int, string> > ResultsGraph::get_synonym(const string& syn) const
+{
+    if (!this->has_syn(syn)) {
+        return set<pair<int, string> > ();
+    } else {
+        map<string, int>::const_iterator it = synMap.find(syn);
+        assert(it != this->synMap.end());
+        map<int, SuperVertex *>::const_iterator kt =
+                this->vertices.find(it->second);
+        assert(kt != this->vertices.end());
+        SuperVertex *superVertex = kt->second;
+        return superVertex->toSet();
+    }
 }
 
 bool ResultsGraph::has_syn(const string& syn) const
@@ -374,16 +425,18 @@ int ResultsGraph::retrieve_value_label(const string& value)
 }
 
 // private version
-Vertex *ResultsGraph::add_vertex(int syn, int value)
+Vertex *ResultsGraph::add_vertex(DesignEnt synType,
+        int syn, const string& value, int valueInt)
 {
     SuperVertex *superVertex;
     Vertex *vertex;
     if (this->vertices.find(syn) == this->vertices.end()) {
-        superVertex = new SuperVertex(syn);
+        superVertex = new SuperVertex(synType, syn);
         this->vertices[syn] = superVertex;
     }
     superVertex = this->vertices[syn];
-    vertex = superVertex->add_vertex(value);
+    assert(superVertex->get_synType() == synType);
+    vertex = superVertex->add_vertex(value, valueInt);
     return vertex;
 }
 
