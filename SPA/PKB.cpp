@@ -12,7 +12,11 @@ PKB::PKB(Node *root, ProcTable *pt, VarTable *vt, StmtBank *sb, vector<CFGNode*>
 
 // Variables
 string PKB::get_control_var(int stmtNo){
-    return stmtBank->get_node(stmtNo)->get_control_var();
+    if (is_valid_stmtNo(stmtNo)) {
+        return stmtBank->get_node(stmtNo)->get_control_var();
+    } else {
+        return "";
+    }
 }
 
 set<string> PKB::get_all_vars(){
@@ -113,8 +117,12 @@ bool PKB::is_modifies(string procName, string varName){
 }
 
 bool PKB::is_modifies(int stmtNo, string varName){
-    set<string> s = stmtBank->get_node(stmtNo)->get_modifies();
-    return (s.find(varName) != s.end());
+    if (is_valid_stmtNo(stmtNo)) {
+        set<string> s = stmtBank->get_node(stmtNo)->get_modifies();
+        return (s.find(varName) != s.end());
+    } else {
+        return false;
+    }
 }
 
 set<string> PKB::get_proc_modifies(string var){
@@ -130,7 +138,11 @@ set<string> PKB::get_var_proc_modifies(string procName){
 }
 
 set<string> PKB::get_var_stmt_modifies(int stmtNo){
-    return stmtBank->get_node(stmtNo)->get_modifies();
+    if (is_valid_stmtNo(stmtNo)) {
+        return stmtBank->get_node(stmtNo)->get_modifies();
+    } else {
+        return EMPTY_STRINGSET;
+    }
 }
 
 // Uses
@@ -140,8 +152,12 @@ bool PKB::is_uses(string procName, string varName){
 }
 
 bool PKB::is_uses(int stmtNo, string varName){
-    set<string> s = stmtBank->get_node(stmtNo)->get_uses();
-    return (s.find(varName) != s.end());
+    if (is_valid_stmtNo(stmtNo)) {
+        set<string> s = stmtBank->get_node(stmtNo)->get_uses();
+        return (s.find(varName) != s.end());
+    } else {
+        return false;
+    }
 }
 
 set<string> PKB::get_proc_uses(string var){
@@ -157,218 +173,299 @@ set<string> PKB::get_var_proc_uses(string procName){
 }
 
 set<string> PKB::get_var_stmt_uses(int stmtNo){
-    return stmtBank->get_node(stmtNo)->get_uses();
-} 
+    if (is_valid_stmtNo(stmtNo)) {
+        return stmtBank->get_node(stmtNo)->get_uses();
+    } else {
+        return EMPTY_STRINGSET;
+    }
+}
 
 // Parent
 bool PKB::is_parent(int stmt1, int stmt2){
-    return (stmtBank->get_node(stmt2)->get_parent()->get_stmtNo() == stmt1);
+    if (is_valid_stmtNo(stmt1) && is_valid_stmtNo(stmt2)) {
+        return (stmtBank->get_node(stmt2)->get_parent()->get_stmtNo() == stmt1);
+    } else {
+        return false;
+    }
 }
 
 bool PKB::is_parent_star(int stmt1, int stmt2){
-    Node *n = stmtBank->get_node(stmt2)->get_parent();
-    while (n != NULL) {
-        if (n->get_stmtNo() == stmt1) {
-            return true;
-        } else {
-            n = n->get_parent();
+    if (is_valid_stmtNo(stmt1) && is_valid_stmtNo(stmt2)) {
+        Node *n = stmtBank->get_node(stmt2)->get_parent();
+        while (n != NULL) {
+            if (n->get_stmtNo() == stmt1) {
+                return true;
+            } else {
+                n = n->get_parent();
+            }
         }
+        return false;
+    } else {
+        return false;
     }
-    return false;
 }
 
 int PKB::get_parent(int stmtNo){
-    Node *n = stmtBank->get_node(stmtNo)->get_parent();
-    if (n != NULL) {
-        return n->get_stmtNo();
+    if (is_valid_stmtNo(stmtNo)) {
+        Node *n = stmtBank->get_node(stmtNo)->get_parent();
+        if (n != NULL) {
+            return n->get_stmtNo();
+        } else {
+            return -1;
+        }
     } else {
         return -1;
     }
 }
 
 set<int> PKB::get_parent_star(int stmtNo){
-    set<int> res;
-    Node *n = stmtBank->get_node(stmtNo)->get_parent();
-    while (n != NULL) {
-        res.insert(n->get_stmtNo());
-        n = n->get_parent();
+    if (is_valid_stmtNo(stmtNo)) {
+        set<int> res;
+        Node *n = stmtBank->get_node(stmtNo)->get_parent();
+        while (n != NULL) {
+            res.insert(n->get_stmtNo());
+            n = n->get_parent();
+        }
+        return res;
+    } else {
+        return EMPTY_INTSET;
     }
-    return res;
 }
 
 set<int> PKB::get_children(int stmtNo){
-    set<int> s;
-    vector<Node*> v = stmtBank->get_node(stmtNo)->get_children(); 
-    int sz = v.size();
-    for(int i = 0; i< sz; i++) {
-        s.insert(v[i]->get_stmtNo());
+    if (is_valid_stmtNo(stmtNo)) {
+        set<int> s;
+        vector<Node*> v = stmtBank->get_node(stmtNo)->get_children(); 
+        int sz = v.size();
+        for(int i = 0; i< sz; i++) {
+            s.insert(v[i]->get_stmtNo());
+        }
+        return s;
+    } else {
+        return EMPTY_INTSET;
     }
-    return s;
 }
 
 set<int> PKB::get_children_star(int stmtNo){
-    queue<Node*> q;
-    set<int> res;
-    Node *n = stmtBank->get_node(stmtNo);
-    vector<Node*> v = n->get_children();
-    int sz = v.size();
-    for (int i = 0; i < sz; i++) {
-        q.push(v[i]);
-    }
-    while (!q.empty()) {
-        n = q.front();
-        res.insert(n->get_stmtNo());
-        v = n->get_children();
-        sz = v.size();
+    if (is_valid_stmtNo(stmtNo)) {
+        queue<Node*> q;
+        set<int> res;
+        Node *n = stmtBank->get_node(stmtNo);
+        vector<Node*> v = n->get_children();
+        int sz = v.size();
         for (int i = 0; i < sz; i++) {
             q.push(v[i]);
         }
-        q.pop();
+        while (!q.empty()) {
+            n = q.front();
+            res.insert(n->get_stmtNo());
+            v = n->get_children();
+            sz = v.size();
+            for (int i = 0; i < sz; i++) {
+                q.push(v[i]);
+            }
+            q.pop();
+        }
+        return res;
+    } else { 
+        return EMPTY_INTSET;
     }
-    return res;
 }
 
 // Follows
 bool PKB::is_follows(int stmt1, int stmt2){
+    if (is_valid_stmtNo(stmt1) && is_valid_stmtNo(stmt2)) {
     return (stmtBank->get_node(stmt1)->get_successor()->get_stmtNo() == stmt2);
+    } else {
+        return false;
+    }
 }
 
 bool PKB::is_follows_star(int stmt1, int stmt2){
-    Node *n = stmtBank->get_node(stmt1)->get_successor();
-    while (n != NULL) {
-        if (n->get_stmtNo() == stmt2) {
-            return true;
-        } else {
-            n = n->get_successor();
+    if (is_valid_stmtNo(stmt1) && is_valid_stmtNo(stmt2)) {
+        Node *n = stmtBank->get_node(stmt1)->get_successor();
+        while (n != NULL) {
+            if (n->get_stmtNo() == stmt2) {
+                return true;
+            } else {
+                n = n->get_successor();
+            }
         }
+        return false;
+    } else { 
+        return false;
     }
-    return false;
 }
 
 int PKB::get_successor(int stmtNo){
-    Node *n = stmtBank->get_node(stmtNo)->get_successor();
-    if (n != NULL) {
-        return n->get_stmtNo();
+    if (is_valid_stmtNo(stmtNo)) {
+        Node *n = stmtBank->get_node(stmtNo)->get_successor();
+        if (n != NULL) {
+            return n->get_stmtNo();
+        } else {
+            return -1;
+        }
     } else {
         return -1;
     }
 }
 
 set<int> PKB::get_successor_star(int stmtNo){
-    set<int> res;
-    Node *n = stmtBank->get_node(stmtNo)->get_successor();
-    while (n != NULL) {
-        res.insert(n->get_stmtNo());
-        n = n->get_successor();
+    if (is_valid_stmtNo(stmtNo)) {
+        set<int> res;
+        Node *n = stmtBank->get_node(stmtNo)->get_successor();
+        while (n != NULL) {
+            res.insert(n->get_stmtNo());
+            n = n->get_successor();
+        }
+        return res;
+    } else {
+        return EMPTY_INTSET;
     }
-    return res;
 }
 
 int PKB::get_predecessor(int stmtNo){
-    Node *n = stmtBank->get_node(stmtNo)->get_predecessor();
-    if (n != NULL) {
-        return n->get_stmtNo();
+    if (is_valid_stmtNo(stmtNo)) {
+        Node *n = stmtBank->get_node(stmtNo)->get_predecessor();
+        if (n != NULL) {
+            return n->get_stmtNo();
+        } else {
+            return -1;
+        }
     } else {
         return -1;
     }
 }
 
 set<int> PKB::get_predecessor_star(int stmtNo){
-    set<int> res;
-    Node *n = stmtBank->get_node(stmtNo)->get_predecessor();
-    while (n != NULL) {
-        res.insert(n->get_stmtNo());
-        n = n->get_predecessor();
+    if (is_valid_stmtNo(stmtNo)) {
+        set<int> res;
+        Node *n = stmtBank->get_node(stmtNo)->get_predecessor();
+        while (n != NULL) {
+            res.insert(n->get_stmtNo());
+            n = n->get_predecessor();
+        }
+        return res;
+    } else {
+        return EMPTY_INTSET;
     }
-    return res;
 }
 
 // Next
 bool PKB::is_next(int stmt1, int stmt2)
 {
-    set<int> s =  CFG->at(stmt1)->get_after();
-    return (s.find(stmt2) != s.end());
+    if (is_valid_stmtNo(stmt1) && is_valid_stmtNo(stmt2)) {
+        set<int> s =  CFG->at(stmt1)->get_after();
+        return (s.find(stmt2) != s.end());
+    } else {
+        return false;
+    }
 }
 
 bool PKB::is_next_star(int stmt1, int stmt2)
 {
-    set<int> s =  CFG->at(stmt1)->get_after();
-    set<int>::iterator it;
-    queue<int> q;
-    for (it = s.begin(); it != s.end(); it++) {
-        q.push(*it);
-    }
-    while (!q.empty()) {
-        if (q.front() == stmt2) {
-            return true;
-        } else {
-            s = CFG->at(q.front())->get_after();
-            for (it = s.begin(); it != s.end(); it++) {
-                q.push(*it);
-            }
-            q.pop();
+    if (is_valid_stmtNo(stmt1) && is_valid_stmtNo(stmt2)) {
+        set<int> s =  CFG->at(stmt1)->get_after();
+        set<int>::iterator it;
+        queue<int> q;
+        for (it = s.begin(); it != s.end(); it++) {
+            q.push(*it);
         }
+        while (!q.empty()) {
+            if (q.front() == stmt2) {
+                return true;
+            } else {
+                s = CFG->at(q.front())->get_after();
+                for (it = s.begin(); it != s.end(); it++) {
+                    q.push(*it);
+                }
+                q.pop();
+            }
+        }
+        return false;
+    } else {
+        return false;
     }
-    return false;
 }
 
 set<int> PKB::get_before(int stmtNo)
 {
-    return CFG->at(stmtNo)->get_before();
+    if (is_valid_stmtNo(stmtNo)) {
+        return CFG->at(stmtNo)->get_before();
+    } else {
+        return EMPTY_INTSET;
+    }
 }
 
 set<int> PKB::get_before_star(int stmtNo) {
-    set<int> s =  CFG->at(stmtNo)->get_before();
-    set<int>::iterator it;
-    set<int> res , visited;
-    queue<int> q;
-    for (it = s.begin(); it != s.end(); it++) {
-        q.push(*it);
-    }
-    while (!q.empty()) {
-        if (visited.find(q.front()) == visited.end()) {
-            visited.insert(q.front());
-            res.insert(q.front());
-            s = CFG->at(q.front())->get_before();
-            for (it = s.begin(); it != s.end(); it++) {
-                q.push(*it);
-            }
+    if (is_valid_stmtNo(stmtNo)) {
+        set<int> s =  CFG->at(stmtNo)->get_before();
+        set<int>::iterator it;
+        set<int> res , visited;
+        queue<int> q;
+        for (it = s.begin(); it != s.end(); it++) {
+            q.push(*it);
         }
-        q.pop();
+        while (!q.empty()) {
+            if (visited.find(q.front()) == visited.end()) {
+                visited.insert(q.front());
+                res.insert(q.front());
+                s = CFG->at(q.front())->get_before();
+                for (it = s.begin(); it != s.end(); it++) {
+                    q.push(*it);
+                }
+            }
+            q.pop();
+        }
+        return res;
+    } else {
+        return EMPTY_INTSET;
     }
-    return res;
+
 }
 
 set<int> PKB::get_after(int stmtNo)
 {
-    return CFG->at(stmtNo)->get_after();
+    if (is_valid_stmtNo(stmtNo)) {
+        return CFG->at(stmtNo)->get_after();
+    } else {
+        return EMPTY_INTSET;
+    }
 }
 
 set<int> PKB::get_after_star(int stmtNo) {
-    set<int> s =  CFG->at(stmtNo)->get_after();
-    set<int>::iterator it;
-    set<int> res, visited;
-    queue<int> q;
-    for (it = s.begin(); it != s.end(); it++) {
-        q.push(*it);
-    }
-    while (!q.empty()) {
-        if (visited.find(q.front()) == visited.end()) {
-            visited.insert(q.front());
-            res.insert(q.front());
-            s = CFG->at(q.front())->get_after();
-            for (it = s.begin(); it != s.end(); it++) {
-                q.push(*it);
-            }
+    if (is_valid_stmtNo(stmtNo)) {
+        set<int> s =  CFG->at(stmtNo)->get_after();
+        set<int>::iterator it;
+        set<int> res, visited;
+        queue<int> q;
+        for (it = s.begin(); it != s.end(); it++) {
+            q.push(*it);
         }
-        q.pop();
+        while (!q.empty()) {
+            if (visited.find(q.front()) == visited.end()) {
+                visited.insert(q.front());
+                res.insert(q.front());
+                s = CFG->at(q.front())->get_after();
+                for (it = s.begin(); it != s.end(); it++) {
+                    q.push(*it);
+                }
+            }
+            q.pop();
+        }
+        return res;
+    } else {
+        return EMPTY_INTSET;
     }
-    return res;
 }
 
 // Affects
 bool PKB::is_affects(int stmt1, int stmt2)
 {
+    if (!is_stmtType(stmt1, ASSIGNTYPE) || !is_stmtType(stmt2, ASSIGNTYPE)) {
+        return false;
+    }
+
     set<int> visited; 
     set<string> temp;
     stack<CFGNode*> s;
@@ -376,9 +473,6 @@ bool PKB::is_affects(int stmt1, int stmt2)
     string var = *get_var_stmt_modifies(stmt1).begin();
 
     // Initial checks
-    if (!is_stmtType(stmt1, ASSIGNTYPE) || !is_stmtType(stmt2, ASSIGNTYPE)) {
-        return false;
-    }
     temp = get_var_stmt_uses(stmt2);
     if (temp.find(var) == temp.end()) {
         return false;
@@ -625,12 +719,12 @@ bool PKB::is_const_exist(string n){
 
 // Others
 bool PKB::is_stmtType(int stmtNo, stmtType type){
-    map<int, stmtType> m = stmtBank->get_directory();
-    if (m.find(stmtNo) != m.end()) {
-        return (stmtBank->get_directory()[stmtNo] == type);
-    } else {
-        return false;
-    }
+    return stmtBank->is_stmtType(stmtNo, type);
+}
+
+bool PKB::is_valid_stmtNo(int stmtNo)
+{
+    return stmtBank->is_valid_stmtNo(stmtNo);
 }
 
 set<int> PKB::get_all_stmt(){

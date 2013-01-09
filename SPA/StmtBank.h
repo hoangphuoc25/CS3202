@@ -26,7 +26,8 @@ public:
     map<int, Node*> get_assignBank();
     set<string> get_constBank();
 
-    bool is_stmt_type(int stmtNo, stmtType type);
+    bool is_stmtType(int stmtNo, stmtType type);
+    bool is_valid_stmtNo(int stmtNo);
 
     //Utility
     Node* get_node(int stmtNo);

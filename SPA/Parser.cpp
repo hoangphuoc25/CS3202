@@ -543,7 +543,7 @@ CFGNode* Parser::build_CFG(int stmtNo){
     int succNo, childNo, thenNo, elseNo;
     CFGNode *next, *thenNode, *elseNode;
 
-    if (stmtBank->is_stmt_type(stmtNo, IFTYPE)){
+    if (stmtBank->is_stmtType(stmtNo, IFTYPE)){
         thenNo = stmtNo + 1;
         set_edge(CFG->at(stmtNo), CFG->at(thenNo), 1, 1);
         thenNode = build_CFG(thenNo);
@@ -566,7 +566,7 @@ CFGNode* Parser::build_CFG(int stmtNo){
             return next;
         }
     } else {
-        if (stmtBank->is_stmt_type(stmtNo, WHILETYPE)){
+        if (stmtBank->is_stmtType(stmtNo, WHILETYPE)){
             child = stmtBank->get_node(stmtNo)->get_children()[0];
             childNo = child->get_stmtNo();
             set_edge(CFG->at(stmtNo), CFG->at(childNo), 2, 1);

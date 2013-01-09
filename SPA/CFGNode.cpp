@@ -108,6 +108,7 @@ set<int> CFGNode::get_after(){
         if (n != -1) {
             s.insert(n);
         } else {
+            // Dummy nodes only have outOne.
             return outOne->get_after();
         }
     }

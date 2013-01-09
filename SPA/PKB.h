@@ -105,6 +105,7 @@ public:
 
     // Others
     bool is_stmtType(int stmtNo, stmtType type);
+    bool is_valid_stmtNo(int stmtNo);
 
     set<int> get_all_stmt();
     set<int> get_all_stmt_by_proc(string procName);
@@ -117,7 +118,7 @@ public:
     set<string> get_all_const();
     bool is_const_exist(string n);
 
-    // Debuugers
+    // Debuggers
     Node* get_progRoot();
     ProcTable* get_procTable();
     StmtBank* get_stmtBank();

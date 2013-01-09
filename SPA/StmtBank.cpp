@@ -64,13 +64,18 @@ set<string> StmtBank::get_constBank()
     return constBank;
 }
 
-bool StmtBank::is_stmt_type(int stmtNo, stmtType type)
+bool StmtBank::is_stmtType(int stmtNo, stmtType type)
 {
     if (directory.find(stmtNo) != directory.end()) {
         return (directory[stmtNo] == type);
     } else {
         return false;
     }
+}
+
+bool StmtBank::is_valid_stmtNo(int stmtNo)
+{
+    return (directory.find(stmtNo) != directory.end());
 }
 
 Node* StmtBank::get_node(int stmtNo)
