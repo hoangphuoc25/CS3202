@@ -2786,6 +2786,14 @@ std::string QueryInfo::dump_to_string() const
     return sb.toString();
 }
 
+string QueryInfo::dump_optimized_to_string() const
+{
+    StringBuffer sb;
+    this->dump_decl_select(sb);
+    this->dump_clauses(sb, true);
+    return sb.toString();
+}
+
 void QueryInfo::dump_decl_select(StringBuffer &sb) const
 {
     sb.append("DECLARATIONS\n");
@@ -2834,5 +2842,17 @@ void QueryInfo::dump_clauses(StringBuffer &sb, bool dumpOptimized) const
             sb.append('\n');
             break;
         }
+    }
+}
+
+void QueryInfo::optimize(enum PQLOptimization method)
+{
+    this->evalOrder.clear();
+    switch (method) {
+    case PQL_OPTIMIZE_NONE:
+        for (int i = 0; i < (int)this->insertOrder.size(); i++) {
+            this->evalOrder.push_back(this->insertOrder[i]);
+        }
+        break;
     }
 }

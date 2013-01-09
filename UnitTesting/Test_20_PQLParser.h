@@ -69,6 +69,7 @@ CPPUNIT_TEST(test_err_patcl_syn_undeclared);
 CPPUNIT_TEST(test_err_patcl_nolparen);
 CPPUNIT_TEST(test_err_patcl_syn_type_error);
 CPPUNIT_TEST(test_err_patcond_invalid_patcl);
+CPPUNIT_TEST(test_dump_optimized_to_string);
 CPPUNIT_TEST_SUITE_END();
 
 public:

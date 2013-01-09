@@ -4580,3 +4580,24 @@ void Test_20_PQLParser::test_err_patcond_invalid_patcl()
             "661  ", "pattern bab(\"cca\",_)");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
+
+void Test_20_PQLParser::test_dump_optimized_to_string()
+{
+    string queryStr, out;
+    ostringstream *os;
+    PQLParser parser;
+    QueryInfo *qinfo;
+
+    queryStr = " assign a ; Select a such that Uses(a,_)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, false, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "DECLARATIONS\n  assign a\nSELECT TUPLE\n  assign a\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_optimized_to_string());
+    out = "DECLARATIONS\n  assign a\nSELECT TUPLE\n  assign a\nUses(a,_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+    qinfo->optimize();
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_optimized_to_string());
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+}

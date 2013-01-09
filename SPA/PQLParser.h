@@ -282,6 +282,10 @@ enum ParseError {
     PARSE_UNKNOWN
 };
 
+enum PQLOptimization {
+    PQL_OPTIMIZE_NONE
+};
+
 // Helper functions
 const char *relRefType_to_string(RelRefType relType);
 const char *entity_type_to_string(DesignEnt entType);
@@ -525,6 +529,7 @@ public:
     QueryInfo();
     QueryInfo(const std::map<std::string, DesignEnt>& etab,
         const std::vector<std::pair<DesignEnt, std::string> >& eVec);
+    void optimize(enum PQLOptimization method=PQL_OPTIMIZE_NONE);
     void reset(const std::map<std::string, DesignEnt> &etab,
         const std::vector<std::pair<DesignEnt, std::string> >& eVec);
     void set_select_boolean();
@@ -535,6 +540,7 @@ public:
     void dump(void) const;
     void dump(FILE *f) const;
     std::string dump_to_string() const;
+    std::string dump_optimized_to_string() const;
 
 private:
     // entity declarations
