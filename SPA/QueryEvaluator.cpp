@@ -5,11 +5,15 @@
 using std::list;
 using std::string;
 
-QueryEvaluator::QueryEvaluator(): results() {}
+QueryEvaluator::QueryEvaluator(): pqlParser(), results() {}
 
-void QueryEvaluator::evaluate(QueryInfo *qinfo, list<string>& resultSet)
+void QueryEvaluator::evaluate(const string& queryStr,
+        list<string>& resultSet)
 {
+    QueryInfo *qinfo;
     results.reset();
+    this->pqlParser.parse(queryStr, true, true);
+    qinfo = this->pqlParser.get_queryinfo();
     qinfo->optimize();
     int nrClauses = qinfo->get_nr_clauses();
     RelRef *relRef;

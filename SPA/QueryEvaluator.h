@@ -9,7 +9,8 @@
 class QueryEvaluator {
 public:
     QueryEvaluator();
-    void evaluate(QueryInfo *qinfo, std::list<std::string>& resultSet);
+    void evaluate(const std::string& queryStr,
+            std::list<std::string>& resultSet);
 private:
     void evaluate_relRef(RelRef *relRef);
     void evaluate_patCl(PatCl *patCl);
@@ -17,6 +18,7 @@ private:
     void evaluate_modifies(RelRef *relRef);
     void evaluate_uses(RelRef *relRef);
 
+    PQLParser pqlParser;
     ResultsGraph results;
 };
 
