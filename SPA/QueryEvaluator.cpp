@@ -1,11 +1,20 @@
 #include "QueryEvaluator.h"
+#include "Parser.h"
 
 #include <cassert>
 
 using std::list;
 using std::string;
 
-QueryEvaluator::QueryEvaluator(): pqlParser(), results() {}
+QueryEvaluator::QueryEvaluator():
+        pqlParser(), pkb(NULL), results() {}
+
+void QueryEvaluator::parseSimple(const string& simple)
+{
+    Parser parser(simple, FROMSTRING);
+    parser.init();
+    this->pkb = parser.get_pkb();
+}
 
 void QueryEvaluator::evaluate(const string& queryStr,
         list<string>& resultSet)

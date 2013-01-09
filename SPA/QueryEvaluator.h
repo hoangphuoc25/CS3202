@@ -3,12 +3,14 @@
 
 #include <list>
 #include <string>
+#include "PKB.h"
 #include "PQLParser.h"
 #include "ResultsGraph.h"
 
 class QueryEvaluator {
 public:
     QueryEvaluator();
+    void parseSimple(const std::string& simple);
     void evaluate(const std::string& queryStr,
             std::list<std::string>& resultSet);
 private:
@@ -19,6 +21,7 @@ private:
     void evaluate_uses(RelRef *relRef);
 
     PQLParser pqlParser;
+    PKB *pkb;
     ResultsGraph results;
 };
 
