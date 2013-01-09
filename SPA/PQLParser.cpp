@@ -2889,3 +2889,13 @@ ClauseType QueryInfo::get_nth_clause(int n, void **r)
     }
     return ret;
 }
+
+SelectType QueryInfo::get_selectType() const
+{
+    return this->selectType;
+}
+
+const vector<AttrRef>& QueryInfo::get_selectTuple() const
+{
+    return this->selectTuple;
+}

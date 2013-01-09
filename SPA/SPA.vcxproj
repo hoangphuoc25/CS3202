@@ -19,6 +19,7 @@
     <ClCompile Include="QueryEvaluator.cpp" />
     <ClCompile Include="ResultsGraph.cpp" />
     <ClCompile Include="ProcTable.cpp" />
+    <ClCompile Include="ResultsProjector.cpp" />
     <ClCompile Include="StmtBank.cpp" />
     <ClCompile Include="StringBuffer.cpp" />
     <ClCompile Include="Token.cpp" />
@@ -34,6 +35,7 @@
     <ClInclude Include="QueryEvaluator.h" />
     <ClInclude Include="ResultsGraph.h" />
     <ClInclude Include="ProcTable.h" />
+    <ClInclude Include="ResultsProjector.h" />
     <ClInclude Include="StmtBank.h" />
     <ClInclude Include="StringBuffer.h" />
     <ClInclude Include="Token.h" />

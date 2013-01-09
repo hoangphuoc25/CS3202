@@ -543,6 +543,8 @@ public:
     std::string dump_optimized_to_string() const;
     ClauseType get_nth_clause(int n, void **r);
     int get_nr_clauses() const;
+    SelectType get_selectType() const;
+    const std::vector<AttrRef>& get_selectTuple() const;
 
 private:
     // entity declarations
