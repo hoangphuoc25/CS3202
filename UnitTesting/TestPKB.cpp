@@ -804,12 +804,18 @@ void TestPKB::test_modifies()
     this->compare_string_set(stringSet, 1, "this");
     stringSet = pkb->get_all_vars_modified_by_assign(6);
     this->compare_string_set(stringSet, 1, "x1");
+    stringSet = pkb->get_all_vars_modified_by_if(7);
+    this->compare_string_set(stringSet, 16, "t1", "h2", "a", "xe",
+            "onceOnly", "all", "none", "harp", "nn", "pfg", "ue",
+            "y", "x", "hoho", "haa", "fire");
     stringSet = pkb->get_all_vars_modified_by_assign(8);
     this->compare_string_set(stringSet, 1, "t1");
     stringSet = pkb->get_all_vars_modified_by_assign(9);
     this->compare_string_set(stringSet, 1, "h2");
     stringSet = pkb->get_all_vars_modified_by_assign(12);
     this->compare_string_set(stringSet, 1, "y");
+    stringSet = pkb->get_all_vars_modified_by_if(13);
+    this->compare_string_set(stringSet, 4, "x", "hoho", "haa", "fire");
     stringSet = pkb->get_all_vars_modified_by_assign(15);
     this->compare_string_set(stringSet, 1, "x");
     stringSet = pkb->get_all_vars_modified_by_assign(17);
@@ -834,10 +840,14 @@ void TestPKB::test_modifies()
     this->compare_string_set(stringSet, 1, "xe");
     stringSet = pkb->get_all_vars_modified_by_assign(26);
     this->compare_string_set(stringSet, 1, "onceOnly");
+    stringSet = pkb->get_all_vars_modified_by_if(27);
+    this->compare_string_set(stringSet, 4, "all", "none", "harp", "nn");
     stringSet = pkb->get_all_vars_modified_by_assign(28);
     this->compare_string_set(stringSet, 1, "all");
     stringSet = pkb->get_all_vars_modified_by_assign(29);
     this->compare_string_set(stringSet, 1, "none");
+    stringSet = pkb->get_all_vars_modified_by_if(31);
+    this->compare_string_set(stringSet, 2, "harp", "nn");
     stringSet = pkb->get_all_vars_modified_by_assign(32);
     this->compare_string_set(stringSet, 1, "harp");
     stringSet = pkb->get_all_vars_modified_by_assign(33);

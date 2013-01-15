@@ -20,6 +20,16 @@ set<string> PKB::get_all_vars_modified_by_assign(int assign) const
     }
 }
 
+set<string> PKB::get_all_vars_modified_by_if(int ifStmt) const
+{
+    Node *ifNode = this->stmtBank->get_ifNode(ifStmt);
+    if (ifNode == NULL) {
+        return set<string>();
+    } else {
+        return ifNode->get_modifies();
+    }
+}
+
 set<int> PKB::get_all_assign_modifying_var(const string& var) const
 {
     return this->varTable->get_assign_modifying_var(var);

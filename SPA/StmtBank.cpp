@@ -43,6 +43,16 @@ Node* StmtBank::get_assignNode(int stmtNo) const
     }
 }
 
+Node *StmtBank::get_ifNode(int stmtNo) const
+{
+    map<int, Node*>::const_iterator it = this->ifBank.find(stmtNo);
+    if (it == this->ifBank.end()) {
+        return NULL;
+    } else {
+        return it->second;
+    }
+}
+
 set<int> StmtBank::get_all_assign() const
 {
     // TODO: Improve efficiency
