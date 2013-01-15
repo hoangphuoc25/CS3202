@@ -30,6 +30,7 @@ public:
     std::set<std::string> get_all_vars_modified_by_assign(int assign) const;
     std::set<std::string> get_all_vars_modified_by_if(int ifStmt) const;
     std::set<std::string> get_all_vars_modified_by_while(int whileStmt) const;
+    std::set<std::string> get_all_vars_modified_by_call(int callStmt) const;
     std::set<int> get_all_assign_modifying_var(const std::string& var) const;
 
     // Retrieve everything

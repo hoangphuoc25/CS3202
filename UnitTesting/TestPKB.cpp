@@ -820,6 +820,9 @@ void TestPKB::test_modifies()
     this->compare_string_set(stringSet, 1, "t1");
     stringSet = pkb->get_all_vars_modified_by_assign(9);
     this->compare_string_set(stringSet, 1, "h2");
+    stringSet = pkb->get_all_vars_modified_by_call(10);
+    this->compare_string_set(stringSet, 9, "a", "xe", "onceOnly", "all",
+            "none", "harp", "nn", "pfg", "ue");
     stringSet = pkb->get_all_vars_modified_by_while(11);
     this->compare_string_set(stringSet, 1, "y");
     stringSet = pkb->get_all_vars_modified_by_assign(12);
@@ -830,6 +833,8 @@ void TestPKB::test_modifies()
     this->compare_string_set(stringSet, 3, "x", "hoho", "haa");
     stringSet = pkb->get_all_vars_modified_by_assign(15);
     this->compare_string_set(stringSet, 1, "x");
+    stringSet = pkb->get_all_vars_modified_by_call(16);
+    this->compare_string_set(stringSet, 2, "hoho", "haa");
     stringSet = pkb->get_all_vars_modified_by_assign(17);
     this->compare_string_set(stringSet, 1, "fire");
     stringSet = pkb->get_all_vars_modified_by_assign(18);
@@ -869,6 +874,8 @@ void TestPKB::test_modifies()
     this->compare_string_set(stringSet, 1, "harp");
     stringSet = pkb->get_all_vars_modified_by_assign(33);
     this->compare_string_set(stringSet, 1, "nn");
+    stringSet = pkb->get_all_vars_modified_by_call(34);
+    this->compare_string_set(stringSet, 2, "pfg", "ue");
 
     stringSet = pkb->get_var_proc_modifies("thirdProc");
     this->compare_string_set(stringSet, 2, "hoho", "haa");

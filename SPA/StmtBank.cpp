@@ -63,6 +63,16 @@ Node *StmtBank::get_whileNode(int stmtNo) const
     }
 }
 
+Node *StmtBank::get_callNode(int stmtNo) const
+{
+    map<int, Node*>::const_iterator it = this->callBank.find(stmtNo);
+    if (it == this->callBank.end()) {
+        return NULL;
+    } else {
+        return it->second;
+    }
+}
+
 set<int> StmtBank::get_all_assign() const
 {
     // TODO: Improve efficiency
