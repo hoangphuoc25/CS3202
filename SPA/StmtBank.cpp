@@ -73,6 +73,29 @@ Node *StmtBank::get_callNode(int stmtNo) const
     }
 }
 
+Node *StmtBank::get_stmtNode(int stmtNo) const
+{
+    map<int, stmtType>::const_iterator it = this->directory.find(stmtNo);
+    if (it == this->directory.end()) {
+        return NULL;
+    } else {
+        switch (it->second) {
+        case CALLTYPE:
+            return this->get_callNode(stmtNo);
+            break;
+        case WHILETYPE:
+            return this->get_whileNode(stmtNo);
+            break;
+        case IFTYPE:
+            return this->get_ifNode(stmtNo);
+            break;
+        case ASSIGNTYPE:
+            return this->get_assignNode(stmtNo);
+            break;
+        }
+    }
+}
+
 set<int> StmtBank::get_all_assign() const
 {
     // TODO: Improve efficiency

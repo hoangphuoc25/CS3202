@@ -50,6 +50,16 @@ set<string> PKB::get_all_vars_modified_by_call(int callStmt) const
     }
 }
 
+set<string> PKB::get_all_vars_modified_by_stmt(int stmtNo) const
+{
+    Node *node = this->stmtBank->get_stmtNode(stmtNo);
+    if (node == NULL) {
+        return set<string>();
+    } else {
+        return node->get_modifies();
+    }
+}
+
 set<int> PKB::get_all_assign_modifying_var(const string& var) const
 {
     return this->varTable->get_assign_modifying_var(var);
