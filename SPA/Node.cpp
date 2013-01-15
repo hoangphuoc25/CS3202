@@ -71,7 +71,7 @@ Node* Node::get_successor()
     return successor;
 }
 
-set<string> Node::get_modifies()
+const set<string>& Node::get_modifies() const
 {
     return modifies;
 }

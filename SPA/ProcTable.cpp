@@ -47,21 +47,21 @@ void ProcTable::update(string procName){
     }
 }
 
-void ProcTable::combine_up(string proc1, string proc2){
+void ProcTable::combine_up(string caller, string callee){
     set<string>::iterator it;
     set<string> s;
-    int index = get_index(proc1);
+    int index = get_index(caller);
 
-    s = get_modifies(proc2);
+    s = get_modifies(callee);
     for (it = s.begin(); it != s.end(); it++) {
         procTable[index].modifies.insert(*it);
-        varTable->add_modified_by(*it, proc1);
+        varTable->add_proc_modifies_var(caller, *it);
     }
 
-    s = get_uses(proc2);
+    s = get_uses(callee);
     for (it = s.begin(); it != s.end(); it++) {
         procTable[index].uses.insert(*it);
-        varTable->add_used_by(*it, proc1);
+        varTable->add_used_by(*it, caller);
     }
 }
 

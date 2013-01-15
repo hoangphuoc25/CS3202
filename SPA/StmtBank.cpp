@@ -33,6 +33,26 @@ void StmtBank::add_constant(string n)
     constBank.insert(n);
 }
 
+Node* StmtBank::get_assignNode(int stmtNo) const
+{
+    map<int, Node*>::const_iterator it = this->assignBank.find(stmtNo);
+    if (it == this->assignBank.end()) {
+        return NULL;
+    } else {
+        return it->second;
+    }
+}
+
+set<int> StmtBank::get_all_assign() const
+{
+    // TODO: Improve efficiency
+    set<int> ret;
+    for (map<int, Node*>::const_iterator it = assignBank.begin();
+            it != assignBank.end(); it++) {
+        ret.insert(it->first);
+    }
+    return ret;
+}
 
 map<int, stmtType> StmtBank::get_directory()
 {

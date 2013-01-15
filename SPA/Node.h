@@ -37,7 +37,7 @@ public:
     vector<Node*> get_children();
     Node* get_predecessor();
     Node* get_successor();
-    set<string> get_modifies();
+    const std::set<std::string>& get_modifies() const;
     set<string> get_uses();
     string get_control_var();
 

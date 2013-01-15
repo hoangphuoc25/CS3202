@@ -10,6 +10,31 @@ PKB::PKB(Node *root, ProcTable *pt, VarTable *vt, StmtBank *sb, vector<CFGNode*>
     CFG = cfg;
 }
 
+set<string> PKB::get_all_vars_modified_by_assign(int assign) const
+{
+    Node *assignNode = this->stmtBank->get_assignNode(assign);
+    if (assignNode == NULL) {
+        return set<string>();
+    } else {
+        return assignNode->get_modifies();
+    }
+}
+
+set<int> PKB::get_all_assign_modifying_var(const string& var) const
+{
+    return this->varTable->get_assign_modifying_var(var);
+}
+
+set<int> PKB::get_all_assign() const
+{
+    return this->stmtBank->get_all_assign();
+}
+
+set<string> PKB::get_all_vars() const
+{
+    return varTable->get_all_vars();
+}
+
 // Variables
 string PKB::get_control_var(int stmtNo){
     if (is_valid_stmtNo(stmtNo)) {
@@ -17,10 +42,6 @@ string PKB::get_control_var(int stmtNo){
     } else {
         return "";
     }
-}
-
-set<string> PKB::get_all_vars(){
-    return varTable->get_all_vars();
 }
 
 set<string> PKB::get_all_vars_by_proc(string procName){
@@ -129,8 +150,9 @@ set<string> PKB::get_proc_modifies(string var){
     return varTable->get_modified_by_proc(var);
 }
 
-set<int> PKB::get_stmt_modifies(string var){
-    return varTable->get_modified_by(var);
+set<int> PKB::get_stmt_modifies(const string& var) const
+{
+    return varTable->get_stmt_modifying_var(var);
 }
 
 set<string> PKB::get_var_proc_modifies(string procName){

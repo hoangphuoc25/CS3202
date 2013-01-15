@@ -106,7 +106,7 @@ private:
 
     //Helper
     void create_node(string name, NodeType type);
-    void add_modifies(Node* n, string var);
+    void add_modifies(Node* n, const std::string& var);
     void add_uses(Node* n, string var);
 
 };

@@ -26,11 +26,16 @@ public:
     PKB(Node *root, ProcTable *pt, VarTable *vt, StmtBank *sb, vector<CFGNode*> *cfg);
 
     // Query methods
+
+    std::set<std::string> get_all_vars_modified_by_assign(int assign) const;
+    std::set<int> get_all_assign_modifying_var(const std::string& var) const;
+
+    // Retrieve everything
+    std::set<int> get_all_assign() const;
+    std::set<std::string> get_all_vars() const;
     
     // Variables
-    
     string get_control_var(int stmtNo);
-    set<string> get_all_vars();
     set<string> get_all_vars_by_proc(string procName);
 
     // Calls
@@ -48,7 +53,7 @@ public:
     bool is_modifies(int stmtNo, string varName);
         
     set<string> get_proc_modifies(string var);
-    set<int> get_stmt_modifies(string var);
+    set<int> get_stmt_modifies(const std::string& var) const;
     
     set<string> get_var_proc_modifies(string procName);
     set<string> get_var_stmt_modifies(int stmtNo);

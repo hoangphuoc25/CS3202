@@ -19,7 +19,7 @@ struct ProcElements {
     int end;
     set<string> calledBy;
     set<string> calls;
-    set<string> modifies;
+    set<string> modifies; // Variables modified by procedure
     set<string> uses;
     // CFG root node
     ProcElements();

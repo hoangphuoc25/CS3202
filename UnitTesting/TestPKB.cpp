@@ -1,3 +1,4 @@
+#include <cstdarg>
 #include <string>
 #include <map>
 #include "TestPKB.h"
@@ -639,3 +640,220 @@ void TestPKB::test_three(){
 
 }
 
+void TestPKB::compare_string_set(const set<string>& S, int n, ...) const
+{
+    int expectedSize = S.size();
+    CPPUNIT_ASSERT_EQUAL((int)S.size(), n);
+    set<string> tmpSet;
+    va_list ap;
+    va_start(ap, n);
+    for (int i = 0; i < n; i++) {
+        char *apStr = va_arg(ap, char*);
+        string str = string(apStr);
+        CPPUNIT_ASSERT_EQUAL(1, (int)S.count(str));
+        CPPUNIT_ASSERT_EQUAL(0, (int)tmpSet.count(str));
+        tmpSet.insert(str);
+    }
+    va_end(ap);
+    CPPUNIT_ASSERT_EQUAL(expectedSize, (int)tmpSet.size());
+}
+
+void TestPKB::test_modifies()
+{
+    string simpleProg =
+        "procedure pOne { \
+           aone = b + c; \
+           d3 = 5 + 7; \
+           while x { \
+             this = bx + d3; \
+             while a { \
+               x1 = b + ha; \
+               if g2 then { \
+                 t1 = t + bab; \
+                 h2 = 2 + ga; \
+                 call secProc; \
+                 while ten { \
+                   y = y + ue; \
+                 } \
+                 if tp then { \
+                   while one { \
+                     x = y + z; \
+                     call thirdProc; \
+                   } \
+                 } else { \
+                   fire = a + fire; \
+                 } \
+               } else { \
+                 xe = a * cab; \
+               } \
+               good = evil + evil; \
+               pe = 2 * 3 + zt1; \
+             } \
+             fol = y + g2; \
+           } \
+           g2 = xz + brave; \
+         } \
+         procedure secProc { \
+           a = b + c; \
+           xe = 2 + 73; \
+           while gg { \
+             onceOnly = true; \
+             if twice then { \
+               all = 3 * 5; \
+             } else { \
+               none = bba; \
+               while p { \
+                 if xe then { \
+                   harp = 41; \
+                 } else { \
+                   nn = ba1; \
+                 } \
+               } \
+             } \
+           } \
+           call procFOUR; \
+         } \
+         procedure thirdProc { \
+           hoho = merry + christmas; \
+           haa = haas; \
+         } \
+         procedure procFOUR { \
+           pfg = pf + g; \
+           while x { \
+             ue = no ; \
+           } \
+         }";
+    Parser parser(simpleProg, FROMSTRING);
+    parser.init();
+    PKB *pkb = parser.get_pkb();
+    set<int> intSet;
+    set<string> stringSet;
+
+    // pOne modifies:
+    // aone, d3, this, x1, t1, h2, a, xe, onceOnly, all, none, harp, nn
+    // pfg, ue, y, x, hoho, haa, fire, good, pe, fol, g2
+    //
+    // secProc modifies:
+    // a, xe, onceOnly, all, none, harp, nn, pfg, ue
+    //
+    // thirdProc modifies:
+    // hoho, haa
+    //
+    // procFOUR modifies:
+    // pfg, ue
+    //
+    // stmt 1 [assign] - aone
+    // stmt 2 [assign] - d3
+    // stmt 3 [while] - this, x1, t1, h2, a, xe, onceOnly, all, none,
+    //                  harp, nn, pfg, ue, y, x, hoho, haa, fire, good,
+    //                  pe, fol
+    // stmt 4 [assign] - this
+    // stmt 5 [while] - x1, t1, h2, a, xe, onceOnly, all, none, harp, nn,
+    //                  pfg, ue, y, x, hoho, haa, fire, good, pe
+    // stmt 6 [assign] - x1
+    // stmt 7 [if] - t1, h2, a, xe, onceOnly, all, none, harp, nn, pfg, ue,
+    //               y, x, hoho, haa, fire
+    // stmt 8 [assign] - t1
+    // stmt 9 [assign] - h2
+    // stmt 10 [call] - a, xe, onceOnly, all, none, harp, nn, pfg, ue
+    // stmt 11 [while] - y
+    // stmt 12 [assign] - y
+    // stmt 13 [if] - x, hoho, haa, fire
+    // stmt 14 [while] - x, hoho, haa
+    // stmt 15 [assign] - x
+    // stmt 16 [call] - hoho, haa
+    // stmt 17 [assign] - fire
+    // stmt 18 [assign] - xe
+    // stmt 19 [assign] - good
+    // stmt 20 [assign] - pe
+    // stmt 21 [assign] - fol
+    // stmt 22 [assign] - g2
+
+    // secProc
+    // stmt 23 [assign] - a
+    // stmt 24 [assign] - xe
+    // stmt 25 [while] - onceOnly, all, none, harp, nn
+    // stmt 26 [assign] - onceOnly
+    // stmt 27 [if] - all, none, harp, nn
+    // stmt 28 [assign] - all
+    // stmt 29 [assign] - none
+    // stmt 30 [while] - harp, nn
+    // stmt 31 [if] - harp, nn
+    // stmt 32 [assign] - harp
+    // stmt 33 [assign] - nn
+    // stmt 34 [call] - pfg, ue
+
+    // thirdProc
+    // stmt 35 [assign] - hoho
+    // stmt 36 [assign] - haa
+
+    // procFour
+    // stmt 37 [assign] - pfg
+    // stmt 38 [while] - ue
+    // stmt 39 [assign] - ue
+    stringSet = pkb->get_var_proc_modifies("pOne");
+    this->compare_string_set(stringSet, 24, "aone", "d3", "this", "x1", "t1",
+            "h2", "a", "xe", "onceOnly", "all", "none", "harp", "nn",
+            "pfg", "ue", "y", "x", "hoho", "haa", "fire", "good", "pe",
+            "fol", "g2");
+    stringSet = pkb->get_all_vars_modified_by_assign(1);
+    this->compare_string_set(stringSet, 1, "aone");
+    stringSet = pkb->get_all_vars_modified_by_assign(2);
+    this->compare_string_set(stringSet, 1, "d3");
+    stringSet = pkb->get_all_vars_modified_by_assign(4);
+    this->compare_string_set(stringSet, 1, "this");
+    stringSet = pkb->get_all_vars_modified_by_assign(6);
+    this->compare_string_set(stringSet, 1, "x1");
+    stringSet = pkb->get_all_vars_modified_by_assign(8);
+    this->compare_string_set(stringSet, 1, "t1");
+    stringSet = pkb->get_all_vars_modified_by_assign(9);
+    this->compare_string_set(stringSet, 1, "h2");
+    stringSet = pkb->get_all_vars_modified_by_assign(12);
+    this->compare_string_set(stringSet, 1, "y");
+    stringSet = pkb->get_all_vars_modified_by_assign(15);
+    this->compare_string_set(stringSet, 1, "x");
+    stringSet = pkb->get_all_vars_modified_by_assign(17);
+    this->compare_string_set(stringSet, 1, "fire");
+    stringSet = pkb->get_all_vars_modified_by_assign(18);
+    this->compare_string_set(stringSet, 1, "xe");
+    stringSet = pkb->get_all_vars_modified_by_assign(19);
+    this->compare_string_set(stringSet, 1, "good");
+    stringSet = pkb->get_all_vars_modified_by_assign(20);
+    this->compare_string_set(stringSet, 1, "pe");
+    stringSet = pkb->get_all_vars_modified_by_assign(21);
+    this->compare_string_set(stringSet, 1, "fol");
+    stringSet = pkb->get_all_vars_modified_by_assign(22);
+    this->compare_string_set(stringSet, 1, "g2");
+
+    stringSet = pkb->get_var_proc_modifies("secProc");
+    this->compare_string_set(stringSet, 9, "a", "xe", "onceOnly", "all",
+            "none", "harp", "nn", "pfg", "ue");
+    stringSet = pkb->get_all_vars_modified_by_assign(23);
+    this->compare_string_set(stringSet, 1, "a");
+    stringSet = pkb->get_all_vars_modified_by_assign(24);
+    this->compare_string_set(stringSet, 1, "xe");
+    stringSet = pkb->get_all_vars_modified_by_assign(26);
+    this->compare_string_set(stringSet, 1, "onceOnly");
+    stringSet = pkb->get_all_vars_modified_by_assign(28);
+    this->compare_string_set(stringSet, 1, "all");
+    stringSet = pkb->get_all_vars_modified_by_assign(29);
+    this->compare_string_set(stringSet, 1, "none");
+    stringSet = pkb->get_all_vars_modified_by_assign(32);
+    this->compare_string_set(stringSet, 1, "harp");
+    stringSet = pkb->get_all_vars_modified_by_assign(33);
+    this->compare_string_set(stringSet, 1, "nn");
+
+    stringSet = pkb->get_var_proc_modifies("thirdProc");
+    this->compare_string_set(stringSet, 2, "hoho", "haa");
+    stringSet = pkb->get_all_vars_modified_by_assign(35);
+    this->compare_string_set(stringSet, 1, "hoho");
+    stringSet = pkb->get_all_vars_modified_by_assign(36);
+    this->compare_string_set(stringSet, 1, "haa");
+
+    stringSet = pkb->get_var_proc_modifies("procFOUR");
+    this->compare_string_set(stringSet, 2, "pfg", "ue");
+    stringSet = pkb->get_all_vars_modified_by_assign(37);
+    this->compare_string_set(stringSet, 1, "pfg");
+    stringSet = pkb->get_all_vars_modified_by_assign(39);
+    this->compare_string_set(stringSet, 1, "ue");
+}

@@ -1,3 +1,4 @@
+#include <cassert>
 #include "Parser.h"
 
 
@@ -95,21 +96,30 @@ void Parser::update_nodes(Node *n)
     }
 }
 
-void Parser::combine_node_up(Node *n1, Node *n2)
+void Parser::combine_node_up(Node *topNode, Node *botNode)
 {
     set<string>::iterator it;
     set<string> s;
-    int stmtNo = n1->get_stmtNo();
-
-    s = n2->get_modifies();
+    int stmtNo = topNode->get_stmtNo();
+    NodeType topNodeType = topNode->get_type();
+    assert(topNodeType == IF_STMT || topNodeType == WHILE_STMT);
+    bool addIfMod = (topNodeType == IF_STMT);
+    bool addWhileMod = (topNodeType == WHILE_STMT);
+    s = botNode->get_modifies();
     for (it = s.begin(); it != s.end(); it++) {
-        n1->add_modifies(*it);
-        varTable->add_modified_by(*it,stmtNo);
+        topNode->add_modifies(*it);
+        if (addIfMod) {
+            this->varTable->add_if_modifies_var(stmtNo, *it);
+        }
+        if (addWhileMod) {
+            this->varTable->add_while_modifies_var(stmtNo, *it);
+        }
+        this->varTable->add_stmt_modifies_var(stmtNo, *it);
     }
 
-    s = n2->get_uses();
+    s = botNode->get_uses();
     for (it = s.begin(); it != s.end(); it++) {
-        n1->add_uses(*it);
+        topNode->add_uses(*it);
         varTable->add_used_by(*it,stmtNo);
     }
 }
@@ -123,16 +133,18 @@ void Parser::update_calls()
     set<string>::iterator sit;
     string name;
     for (it = callBank.begin(); it != callBank.end(); it++) {
-        name = it->second->get_name();
+        Node *callNode = it->second;
+        int callNodeStmtNo = callNode->get_stmtNo();
+        name = callNode->get_name();
         s = procTable->get_modifies(name);
-        it->second->set_modifies(s);
+        callNode->set_modifies(s);
         for (sit = s.begin(); sit != s.end(); sit++) {
-            varTable->add_modified_by(*sit, it->second->get_stmtNo());
+            varTable->add_call_modifies_var(callNodeStmtNo, *sit);
         }
         s = procTable->get_uses(name);
-        it->second->set_uses(s);
+        callNode->set_uses(s);
         for (sit = s.begin(); sit != s.end(); sit++) {
-            varTable->add_used_by(*sit, it->second->get_stmtNo());
+            varTable->add_used_by(*sit, callNode->get_stmtNo());
         }
     }
 }
@@ -609,12 +621,13 @@ void Parser::create_node(string name, NodeType type)
     nextNode = new Node(name, type, stmtNo);
 }
 
-void Parser::add_modifies(Node* n, string var)
+// Node n is an assign stmt. It modifies var
+void Parser::add_modifies(Node* n, const string& var)
 {
-    int stmt = n->get_stmtNo();
+    int assignStmt = n->get_stmtNo();
     varTable->insert_var(var);
-    varTable->add_modified_by(var, stmt);
-    varTable->add_modified_by(var, procName);
+    varTable->add_assign_modifies_var(assignStmt, var);
+    varTable->add_proc_modifies_var(procName, var);
     n->add_modifies(var);
     procTable->add_modifies(procName, var);
 }

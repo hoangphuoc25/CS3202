@@ -21,7 +21,7 @@ runner.addTest(suite);
 bool wasSucessful = runner.run();
 
 
-//getchar();
+getchar();
 
 return wasSucessful ? 0 : 1;
 }

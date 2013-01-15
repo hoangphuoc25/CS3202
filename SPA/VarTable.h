@@ -15,10 +15,14 @@ struct VarElements {
     int index;
     string var;
 
-    set<int> modifiedBy;
-    set<int> usedBy;
+    std::set<int> assignModifying;
+    std::set<int> ifModifying;
+    std::set<int> whileModifying;
+    std::set<int> callModifying;
+    std::set<int> stmtModifying;
+    std::set<int> usedBy;
 
-    set<string> modifiedByProc;
+    std::set<std::string> procModifying;
     set<string> usedByProc;
 
     VarElements();
@@ -40,12 +44,21 @@ public:
 
     int insert_var(string var);
 
-    void add_modified_by(string var, int stmtNo);
-    void add_modified_by(string var, string procName);
+    void add_assign_modifies_var(int assign, const std::string& var);
+    void add_if_modifies_var(int ifStmt, const std::string& var);
+    void add_while_modifies_var(int whileStmt, const std::string& var);
+    void add_call_modifies_var(int callStmt, const std::string& var);
+    void add_stmt_modifies_var(int stmtNo, const std::string& var);
+    void add_proc_modifies_var(const std::string& procName,
+            const std::string &var);
     void add_used_by(string var, int stmtNo);
     void add_used_by(string var, string procName);
 
-    const set<int>& get_modified_by(string var) const;
+    const set<int>& get_assign_modifying_var(const std::string& var) const;
+    const set<int>& get_if_modifying_var(const std::string& var) const;
+    const set<int>& get_while_modifying_var(const std::string& var) const;
+    const set<int>& get_call_modifying_var(const std::string& var) const;
+    const set<int>& get_stmt_modifying_var(const std::string& var) const;
     const set<int>& get_modified_by(int index) const;
     const set<int>& get_used_by(string var) const;
     const set<int>& get_used_by(int index) const;

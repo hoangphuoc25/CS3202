@@ -18,6 +18,10 @@ public:
     void add_node_entry(int stmtNo, stmtType type, Node* node);
     void add_constant(string n);
 
+    Node *get_assignNode(int stmtNo) const;
+    // TODO: Improve efficiency of get_all_* methods
+    std::set<int> get_all_assign() const;
+
     // Banks
     map<int, stmtType> get_directory();
     map<int, Node*> get_callBank();

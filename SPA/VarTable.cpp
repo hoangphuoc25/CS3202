@@ -21,7 +21,10 @@ VarElements::VarElements(const struct VarElements &other)
     if (this != &other) {
         index = other.index;
         var = other.var;
-        modifiedBy = other.modifiedBy;
+        assignModifying = other.assignModifying;
+        ifModifying = other.ifModifying;
+        whileModifying = other.whileModifying;
+        stmtModifying = other.stmtModifying;
         usedBy = other.usedBy;
     }
 }
@@ -31,7 +34,10 @@ VarElements& VarElements::operator=(const struct VarElements &other)
     if (this != &other) {
         index = other.index;
         var = other.var;
-        modifiedBy = other.modifiedBy;
+        assignModifying = other.assignModifying;
+        ifModifying = other.ifModifying;
+        whileModifying = other.whileModifying;
+        stmtModifying = other.stmtModifying;
         usedBy = other.usedBy;
     }
     return *this;
@@ -91,19 +97,55 @@ int VarTable::insert_var(string var)
     return index;
 }
 
-void VarTable::add_modified_by(string var, int stmtNo)
+void VarTable::add_assign_modifies_var(int assign, const string& var)
 {
     int index = get_index(var);
     if (index >= 0) {
-        varTable[index].modifiedBy.insert(stmtNo);
+        varTable[index].assignModifying.insert(assign);
+        varTable[index].stmtModifying.insert(assign);
     }
 }
 
-void VarTable::add_modified_by(string var, string procName)
+void VarTable::add_if_modifies_var(int ifStmt, const string& var)
 {
     int index = get_index(var);
     if (index >= 0) {
-        varTable[index].modifiedByProc.insert(procName);
+        varTable[index].ifModifying.insert(ifStmt);
+        varTable[index].stmtModifying.insert(ifStmt);
+    }
+}
+
+void VarTable::add_while_modifies_var(int whileStmt, const string& var)
+{
+    int index = get_index(var);
+    if (index >= 0) {
+        varTable[index].whileModifying.insert(whileStmt);
+    }
+}
+
+void VarTable::add_call_modifies_var(int callStmt, const string& var)
+{
+    int index = get_index(var);
+    if (index >= 0) {
+        varTable[index].callModifying.insert(callStmt);
+        varTable[index].stmtModifying.insert(callStmt);
+    }
+}
+
+void VarTable::add_stmt_modifies_var(int stmtNo, const string& var)
+{
+    int index = get_index(var);
+    if (index >= 0) {
+        varTable[index].stmtModifying.insert(stmtNo);
+    }
+}
+
+void VarTable::add_proc_modifies_var(const string& procName,
+        const string& var)
+{
+    int index = get_index(var);
+    if (index >= 0) {
+        varTable[index].procModifying.insert(procName);
     }
 }
 
@@ -123,13 +165,53 @@ void VarTable::add_used_by(string var, string procName)
     }
 }
 
-const set<int>& VarTable::get_modified_by(string var) const
+const set<int>& VarTable::get_assign_modifying_var(const string& var) const
 {
     int index = get_index(var);
     if (index == -1) {
         return EMPTY_INTSET;
     } else {
-        return varTable[index].modifiedBy;
+        return varTable[index].assignModifying;
+    }
+}
+
+const set<int>& VarTable::get_if_modifying_var(const string& var) const
+{
+    int index = get_index(var);
+    if (index == -1) {
+        return EMPTY_INTSET;
+    } else {
+        return varTable[index].ifModifying;
+    }
+}
+
+const set<int>& VarTable::get_while_modifying_var(const string& var) const
+{
+    int index = get_index(var);
+    if (index == -1) {
+        return EMPTY_INTSET;
+    } else {
+        return varTable[index].whileModifying;
+    }
+}
+
+const set<int>& VarTable::get_call_modifying_var(const string& var) const
+{
+    int index = get_index(var);
+    if (index == -1) {
+        return EMPTY_INTSET;
+    } else {
+        return varTable[index].callModifying;
+    }
+}
+
+const set<int>& VarTable::get_stmt_modifying_var(const string& var) const
+{
+    int index = get_index(var);
+    if (index == -1) {
+        return EMPTY_INTSET;
+    } else {
+        return varTable[index].stmtModifying;
     }
 }
 
@@ -139,7 +221,7 @@ const set<int>& VarTable::get_modified_by(int index) const
     if (index < 0 || index >= sz) {
         return EMPTY_INTSET;
     }
-    return varTable[index].modifiedBy;
+    return varTable[index].stmtModifying;
 }
 
 const set<int>& VarTable::get_used_by(string var) const
@@ -165,7 +247,7 @@ set<string> VarTable::get_modified_by_proc(string var){
     if (index == -1) {
         return EMPTY_STRINGSET;
     }
-    return varTable[index].modifiedByProc;
+    return varTable[index].procModifying;
 }
 
 set<string> VarTable::get_used_by_proc(string var){
