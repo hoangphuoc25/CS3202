@@ -443,17 +443,22 @@ Vertex *ResultsGraph::add_vertex(DesignEnt synType,
 
 void ResultsGraph::reset()
 {
-    SuperVertex *v;
+    SuperVertex *superVertex;
     for (map<int, SuperVertex *>::const_iterator it =
             this->vertices.begin(); it != this->vertices.end(); it++) {
-        v = it->second;
-        const map<int, Vertex *>& vertices = v->get_vertices();
+        superVertex = it->second;
+        const map<int, Vertex *>& vertices = superVertex->get_vertices();
         for (map<int, Vertex *>::const_iterator kt = vertices.begin();
                 kt != vertices.end(); kt++) {
-            delete kt->second;
+            Vertex *vertex = kt->second;
+            delete vertex;
         }
-        delete v;
+        delete superVertex;
     }
+    this->synMap.clear();
+    this->valueMap.clear();
+    this->intValueToString.clear();
+    this->vertices.clear();
 }
 
 string ResultsGraph::toString() const

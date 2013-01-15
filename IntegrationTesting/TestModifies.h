@@ -2,6 +2,7 @@
 #define T11_TEST_INTEGRATION_MODIFIES_H
 
 #include <map>
+#include <set>
 #include <string>
 #include <cppunit/extensions/HelperMacros.h>
 
@@ -15,6 +16,7 @@ public:
     void tearDown();
 
 private:
+    void compare_string_set(const std::set<std::string>& S, int n, ...) const;
     void test_modifies_single();
 };
 
