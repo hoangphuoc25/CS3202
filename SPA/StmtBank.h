@@ -20,6 +20,7 @@ public:
 
     Node *get_assignNode(int stmtNo) const;
     Node *get_ifNode(int stmtNo) const;
+    Node *get_whileNode(int stmtNo) const;
     // TODO: Improve efficiency of get_all_* methods
     std::set<int> get_all_assign() const;
 

@@ -30,6 +30,16 @@ set<string> PKB::get_all_vars_modified_by_if(int ifStmt) const
     }
 }
 
+set<string> PKB::get_all_vars_modified_by_while(int whileStmt) const
+{
+    Node *whileNode = this->stmtBank->get_whileNode(whileStmt);
+    if (whileNode == NULL) {
+        return set<string>();
+    } else {
+        return whileNode->get_modifies();
+    }
+}
+
 set<int> PKB::get_all_assign_modifying_var(const string& var) const
 {
     return this->varTable->get_assign_modifying_var(var);
