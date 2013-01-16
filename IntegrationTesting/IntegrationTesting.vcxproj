@@ -68,9 +68,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="source\IntegrationTest.cpp" />
+    <ClCompile Include="TestHelper.cpp" />
     <ClCompile Include="TestModifies.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="TestHelper.h" />
     <ClInclude Include="TestModifies.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
