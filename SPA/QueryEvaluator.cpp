@@ -134,7 +134,7 @@ void QueryEvaluator::evaluate(const string& queryStr,
             break;
         }
     }
-    this->resultsProjector.get_results(this->results, qinfo, resultSet);
+    this->resultsProjector.get_results(this->results, qinfo, pkb, resultSet);
 }
 
 void QueryEvaluator::evaluate_relRef(RelRef *relRef)

@@ -6,19 +6,25 @@
 #include <string>
 #include <map>
 #include <set>
+#include "PKB.h"
 #include "PQLParser.h"
 #include "ResultsGraph.h"
 
 class ResultsProjector {
 public:
     ResultsProjector();
-    void get_results(const ResultsGraph &resultsGraph,
-            QueryInfo *qinfo, std::list<std::string>& results);
+    void get_results(ResultsGraph &resultsGraph,
+            QueryInfo *qinfo, PKB *pkb, std::list<std::string>& results);
 private:
     void reset();
     void recursive_generate(int n,
             const std::vector<AttrRef>& selectTuple,
             QueryInfo *qinfo, std::list<std::string>& results);
+    void add_syn_to_graph(ResultsGraph &resultsGraph, const AttrRef &attrRef,
+            PKB *pkb);
+    void add_int_syn_to_graph(ResultsGraph &resultsGraph,
+            const AttrRef &attrRef, PKB *pkb,
+            std::set<int> (PKB::*)() const);
 
     int nrSelect;
     StringBuffer sb;

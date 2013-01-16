@@ -43,9 +43,53 @@ void ResultsProjector::reset()
     this->synRepeated.clear();
 }
 
+void ResultsProjector::add_syn_to_graph(ResultsGraph &resultsGraph,
+        const AttrRef &attrRef, PKB *pkb)
+{
+    // TODO: Implement PKB methods for those left empty
+    assert(attrRef.entType != ENT_INVALID);
+    switch (attrRef.entType) {
+    case ENT_PROC:
+        break;
+    case ENT_STMTLST:
+        break;
+    case ENT_STMT:
+        break;
+    case ENT_ASSIGN:
+        this->add_int_syn_to_graph(resultsGraph, attrRef, pkb,
+                &PKB::get_all_assign);
+        break;
+    case ENT_CALL:
+        break;
+    case ENT_WHILE:
+        break;
+    case ENT_IF:
+        break;
+    case ENT_VAR:
+        break;
+    case ENT_CONST:
+        break;
+    case ENT_PROGLINE:
+        break;
+    }
+}
+
+void ResultsProjector::add_int_syn_to_graph(ResultsGraph &resultsGraph,
+        const AttrRef &attrRef, PKB *pkb,
+        set<int> (PKB::*retrieve_int_set)() const)
+{
+    DesignEnt entType = attrRef.entType;
+    const string& synName = attrRef.syn;
+    set<int> synSet = (pkb->*retrieve_int_set)();
+    for (set<int>::const_iterator it = synSet.begin(); it != synSet.end();
+            it++) {
+        resultsGraph.add_vertex(entType, synName, *it);
+    }
+}
+
 void ResultsProjector::get_results(
-        const ResultsGraph& resultsGraph,
-        QueryInfo *qinfo, list<string>& results)
+        ResultsGraph& resultsGraph,
+        QueryInfo *qinfo, PKB *pkb, list<string>& results)
 {
     this->reset();
     results.clear();
@@ -64,8 +108,9 @@ void ResultsProjector::get_results(
     this->nrSelect = selectTuple.size();
     for (int i = 0; i < this->nrSelect; i++) {
         const AttrRef& attrRef = selectTuple[i];
+        // synonym is new, add everything into graph
         if (!resultsGraph.has_syn(attrRef.syn)) {
-            return;
+            this->add_syn_to_graph(resultsGraph, attrRef, pkb);
         }
         if (this->synToSetIndex.find(attrRef.syn) ==
                 this->synToSetIndex.end()) {
