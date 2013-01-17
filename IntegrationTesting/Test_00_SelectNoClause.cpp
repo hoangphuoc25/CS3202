@@ -74,4 +74,9 @@ void Test_00_SelectNoClause::test_select_one_syn()
     evaluator.evaluate(queryStr, resultList);
     stringSet = set<string>(resultList.begin(), resultList.end());
     this->compare_string_set(stringSet, 3, "3", "10", "23");
+    // while
+    queryStr = " while ahafGS1; Select ahafGS1";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 3, "5", "8", "19");
 }
