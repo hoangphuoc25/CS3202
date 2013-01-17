@@ -37,6 +37,7 @@ public:
     // Retrieve everything
     std::set<int> get_all_assign() const;
     std::set<std::string> get_all_vars() const;
+    std::set<std::string> get_all_procs() const;
     
     // Variables
     string get_control_var(int stmtNo);

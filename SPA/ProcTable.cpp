@@ -216,7 +216,9 @@ set<string> ProcTable::get_uses(string procName){
     }
 }
 
-set<string> ProcTable::get_all_procs(){
+// TODO: Improve efficiency of this method
+set<string> ProcTable::get_all_procs() const
+{
     set<string> result;
     int sz = procTable.size();
     for (int i = 0; i < sz; i++) {

@@ -640,6 +640,23 @@ void TestPKB::test_three(){
 
 }
 
+void TestPKB::compare_int_set(const set<int>& S, int n, ...) const
+{
+    int expectedSize = S.size();
+    CPPUNIT_ASSERT_EQUAL((int)S.size(), n);
+    set<int> tmpSet;
+    va_list ap;
+    va_start(ap, n);
+    for (int i = 0; i < n; i++) {
+        int value = va_arg(ap, int);
+        CPPUNIT_ASSERT_EQUAL(1, (int)S.count(value));
+        CPPUNIT_ASSERT_EQUAL(0, (int)tmpSet.count(value));
+        tmpSet.insert(value);
+    }
+    va_end(ap);
+    CPPUNIT_ASSERT_EQUAL(expectedSize, (int)tmpSet.size());
+}
+
 void TestPKB::compare_string_set(const set<string>& S, int n, ...) const
 {
     int expectedSize = S.size();
@@ -656,6 +673,85 @@ void TestPKB::compare_string_set(const set<string>& S, int n, ...) const
     }
     va_end(ap);
     CPPUNIT_ASSERT_EQUAL(expectedSize, (int)tmpSet.size());
+}
+
+void TestPKB::test_retrieve_all_X()
+{
+    string simpleProg, queryStr;
+    set<int> intSet;
+    set<string> stringSet;
+    simpleProg =
+        "procedure Xproc { \
+           a = x + y + 3; \
+           b73 = xid - 62; \
+           if good then { \
+             bc = 2 + 73; \
+             tie = fighter; \
+             sad = 3 + 2; \
+             while true { \
+               gather = food; \
+               if cond then { \
+                 call execVE; \
+                 cleanup = 156; \
+               } else { \
+                 while x { \
+                   hungry = eat; \
+                   tired = sleep; \
+                 } \
+                 hell = no; \
+               } \
+               follows = star; \
+               modifies = P; \
+             } \
+             program = cool; \
+             pkgmgr = pacman; \
+           } else { \
+             call oneTwoThree; \
+             elseVar = 511; \
+           } \
+           last = varHere; \
+         } \
+         procedure execVE { \
+           execVar = 0; \
+           cool = stuff; \
+           if cool then { \
+             call lastProc; \
+             save = state; \
+           } else { \
+             exitVal = 675; \
+           } \
+           retVal = exitVal; \
+         } \
+         procedure oneTwoThree { \
+           one = twoThree; \
+           bill = paid; \
+           lastProc = sameName; \
+         } \
+         procedure lastProc { \
+           while notEmpty { \
+             doStuff = 1; \
+           } \
+           im = done; \
+         }";
+    Parser parser(simpleProg, FROMSTRING);
+    parser.init();
+    PKB *pkb = parser.get_pkb();
+    intSet = pkb->get_all_assign();
+    this->compare_int_set(intSet, 26, 1, 2, 4, 5, 6, 8, 11, 13, 14, 15, 16,
+            17, 18, 19, 21, 22, 23, 24, 27, 28, 29, 30, 31, 32, 34, 35);
+    stringSet = pkb->get_all_vars();
+    this->compare_string_set(stringSet, 48, "a", "b73", "bc", "bill",
+            "cleanup", "cond", "cool", "doStuff", "done",
+            "eat", "elseVar", "execVar", "exitVal", "fighter",
+            "follows", "food", "gather", "good", "hell",
+            "hungry", "im", "last", "lastProc", "modifies",
+            "no", "notEmpty", "one", "P", "pacman", "paid", "pkgmgr",
+            "program", "retVal", "sad", "sameName", "save",
+            "sleep", "star", "state", "stuff", "tie", "tired",
+            "true", "twoThree", "varHere", "x", "xid", "y");
+    stringSet = pkb->get_all_procs();
+    this->compare_string_set(stringSet, 4, "Xproc", "execVE", "oneTwoThree",
+            "lastProc");
 }
 
 void TestPKB::test_modifies()

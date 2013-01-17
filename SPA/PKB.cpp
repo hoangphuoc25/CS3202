@@ -75,6 +75,11 @@ set<string> PKB::get_all_vars() const
     return varTable->get_all_vars();
 }
 
+set<string> PKB::get_all_procs() const
+{
+    return this->procTable->get_all_procs();
+}
+
 // Variables
 string PKB::get_control_var(int stmtNo){
     if (is_valid_stmtNo(stmtNo)) {

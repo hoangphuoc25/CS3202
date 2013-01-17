@@ -58,7 +58,7 @@ public:
 
     set<string> get_modifies(string procName);
     set<string> get_uses(string procName);
-    set<string> get_all_procs();
+    std::set<std::string> get_all_procs() const;
 
     string which_proc(int stmtNo);
 
