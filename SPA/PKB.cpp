@@ -789,10 +789,6 @@ set<int> PKB::get_affected_by_star(int stmtNo)
 
 
 // Constant
-set<string> PKB::get_all_const(){
-    return stmtBank->get_constBank();
-}
-
 bool PKB::is_const_exist(string n){
     set<string> s = stmtBank->get_constBank();
     return (s.find(n) != s.end());

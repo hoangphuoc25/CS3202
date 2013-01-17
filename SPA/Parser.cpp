@@ -1,7 +1,6 @@
 #include <cassert>
 #include "Parser.h"
-
-
+#include "SPAUtils.h"
 
 Parser::Parser()
 {
@@ -396,10 +395,17 @@ void Parser::factor()
         add_uses(assignNode, tempNode->get_name());
         outStack.push(tempNode);
     } else if (t == CONSTANT) {
+        char *errorMsg = NULL;
+        bool ret;
         match(CONSTANT);
-        stmtBank->add_constant(currToken.get_name());
-        tempNode = new Node(currToken.get_name(), CONSTANT_, stmtNo);
-        outStack.push(tempNode);
+        ret = stmtBank->add_constant(currToken.get_name(), &errorMsg);
+        if (!ret) {
+            // TODO: error out and show error message??
+            free(errorMsg);
+        } else {
+            tempNode = new Node(currToken.get_name(), CONSTANT_, stmtNo);
+            outStack.push(tempNode);
+        }
     } else {
         match("(");
         tempNode = new Node("(", BRACKETS_, stmtNo);

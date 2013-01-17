@@ -1,4 +1,5 @@
 #include "StmtBank.h"
+#include "SPAUtils.h"
 
 StmtBank::StmtBank(void)
 {
@@ -28,9 +29,14 @@ void StmtBank::add_node_entry(int stmtNo, stmtType type, Node* node)
     }
 }
 
-void StmtBank::add_constant(string n)
+bool StmtBank::add_constant(const std::string& n, char **errorMsg)
 {
-    constBank.insert(n);
+    int value = 0;
+    bool ret = string_to_uint(n, &value, errorMsg);
+    if (ret) {
+        this->constBank.insert(n);
+    }
+    return ret;
 }
 
 Node* StmtBank::get_assignNode(int stmtNo) const
@@ -138,6 +144,11 @@ set<int> StmtBank::get_all_call() const
         ret.insert(it->first);
     }
     return ret;
+}
+
+const set<int>& StmtBank::get_all_const() const
+{
+    return this->constBank;
 }
 
 map<int, stmtType> StmtBank::get_directory()

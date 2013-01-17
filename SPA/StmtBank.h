@@ -16,7 +16,7 @@ public:
     ~StmtBank(void);
 
     void add_node_entry(int stmtNo, stmtType type, Node* node);
-    void add_constant(string n);
+    bool add_constant(const std::string& n, char **errorMsg);
 
     Node *get_assignNode(int stmtNo) const;
     Node *get_ifNode(int stmtNo) const;
@@ -28,6 +28,7 @@ public:
     std::set<int> get_all_if() const;
     std::set<int> get_all_while() const;
     std::set<int> get_all_call() const;
+    const std::set<int>& get_all_const() const;
 
     // Banks
     map<int, stmtType> get_directory();
@@ -35,7 +36,7 @@ public:
     map<int, Node*> get_ifBank();
     map<int, Node*> get_whileBank();
     map<int, Node*> get_assignBank();
-    set<string> get_constBank();
+    set<int> get_constBank();
 
     bool is_stmtType(int stmtNo, stmtType type);
     bool is_valid_stmtNo(int stmtNo);
@@ -49,7 +50,7 @@ private:
     map<int, Node*> whileBank;
     map<int, Node*> ifBank;
     map<int, Node*> assignBank;
-    set<string> constBank;
+    std::set<int> constBank;
 };
 
 #endif

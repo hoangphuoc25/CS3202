@@ -41,6 +41,7 @@ public:
     std::set<int> get_all_call() const;
     std::set<std::string> get_all_vars() const;
     std::set<std::string> get_all_procs() const;
+    std::setint> get_all_const();
     
     // Variables
     string get_control_var(int stmtNo);
@@ -128,7 +129,6 @@ public:
     int filter_by_stmtType(stmtType type, int stmtNo);
 
     // Constant
-    set<string> get_all_const();
     bool is_const_exist(string n);
 
     // Debuggers
