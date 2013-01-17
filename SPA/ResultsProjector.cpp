@@ -52,6 +52,8 @@ void ResultsProjector::add_syn_to_graph(ResultsGraph &resultsGraph,
     case ENT_PROC:
         break;
     case ENT_STMTLST:
+        this->add_int_syn_to_graph(resultsGraph, attrRef, pkb,
+                &PKB::get_all_stmtLst);
         break;
     case ENT_STMT:
         this->add_int_syn_to_graph(resultsGraph, attrRef, pkb,

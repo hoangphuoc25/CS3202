@@ -98,4 +98,10 @@ void Test_00_SelectNoClause::test_select_one_syn()
     this->compare_string_set(stringSet, 26, "1", "2", "3", "4", "5",
             "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16",
             "17", "18", "19", "20", "21", "22", "23", "24", "25", "26");
+    // stmtLst
+    queryStr = " stmtLst hhl5; Select hhl5";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 12, "1", "4", "6", "9", "11",
+        "12", "18", "20", "22", "24", "25", "26");
 }

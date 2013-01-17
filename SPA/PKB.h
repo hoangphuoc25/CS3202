@@ -41,7 +41,7 @@ public:
     std::set<int> get_all_call() const;
     std::set<int> get_all_stmt() const;
     std::set<int> get_all_progline() const;
-    const std::set<int>& get_all_stmtLst() const;
+    std::set<int> get_all_stmtLst() const;
     std::set<std::string> get_all_vars() const;
     std::set<std::string> get_all_procs() const;
     const std::set<int>& get_all_const() const;
