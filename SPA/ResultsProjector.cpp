@@ -50,6 +50,8 @@ void ResultsProjector::add_syn_to_graph(ResultsGraph &resultsGraph,
     assert(attrRef.entType != ENT_INVALID);
     switch (attrRef.entType) {
     case ENT_PROC:
+        this->add_string_syn_to_graph(resultsGraph, attrRef, pkb,
+                &PKB::get_all_procs);
         break;
     case ENT_STMTLST:
         this->add_int_syn_to_graph(resultsGraph, attrRef, pkb,

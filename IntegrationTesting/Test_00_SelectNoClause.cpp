@@ -123,4 +123,9 @@ void Test_00_SelectNoClause::test_select_one_syn()
             "sink", "tify", "tree",
             "true", "two", "x", "xc", "xp", "y", "yea",
             "yellow");
+    // procedure
+    queryStr = " procedure pasf; Select pasf";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 3, "pOne", "twoProng", "GGG");
 }
