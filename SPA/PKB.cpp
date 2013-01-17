@@ -95,7 +95,7 @@ set<int> PKB::get_all_progline() const
     return this->get_all_stmt();
 }
 
-set<int> PKB::get_all_stmtLst() const
+const set<int>& PKB::get_all_stmtLst() const
 {
     return this->stmtBank->get_all_stmtLst();
 }
