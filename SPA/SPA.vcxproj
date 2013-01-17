@@ -20,6 +20,7 @@
     <ClCompile Include="ResultsGraph.cpp" />
     <ClCompile Include="ProcTable.cpp" />
     <ClCompile Include="ResultsProjector.cpp" />
+    <ClCompile Include="SPAUtils.cpp" />
     <ClCompile Include="StmtBank.cpp" />
     <ClCompile Include="StringBuffer.cpp" />
     <ClCompile Include="Token.cpp" />
@@ -36,6 +37,7 @@
     <ClInclude Include="ResultsGraph.h" />
     <ClInclude Include="ProcTable.h" />
     <ClInclude Include="ResultsProjector.h" />
+    <ClInclude Include="SPAUtils.h" />
     <ClInclude Include="StmtBank.h" />
     <ClInclude Include="StringBuffer.h" />
     <ClInclude Include="Token.h" />

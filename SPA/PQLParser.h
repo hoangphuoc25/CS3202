@@ -10,6 +10,7 @@
 #include <memory>
 #include <fstream>
 #include "StringBuffer.h"
+#include "SPAUtils.h"
 
 #define ENT_PROC_STR     "procedure"
 #define ENT_STMTLST_STR  "stmtLst"
@@ -50,12 +51,6 @@
 #define ATTR_STMTNO_STR   "stmt#"
 #define ATTR_DEFAULT_STR  "default"
 #define ATTR_INVALID_STR  "invalid"
-
-#define S_TO_UINT_MAX 2147483647L
-#define S_TO_UINT_EMPTY_STRING "string_to_uint - String is empty"
-#define S_TO_UINT_WHITESPACE "string_to_uint - String consists of whitespace"
-#define S_TO_UINT_TOO_LONG  "string_to_uint - String is too long (max 10 char)"
-#define S_TO_UINT_OVERFLOW "string_to_uint - integer overflow. Max 2147483647"
 
 // arg: synonym type
 #define PARSE_DECL_EMPTY_SYN_STR \
@@ -290,7 +285,6 @@ enum PQLOptimization {
 const char *relRefType_to_string(RelRefType relType);
 const char *entity_type_to_string(DesignEnt entType);
 const char *attrType_to_string(AttrType attrType);
-bool string_to_uint(const std::string& s, int *res, char **errorMsg);
 
 struct AttrRef {
     std::string syn;
