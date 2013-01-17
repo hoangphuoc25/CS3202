@@ -62,6 +62,7 @@ void Test_00_SelectNoClause::test_select_one_syn()
            gg = ggGGggGG; \
          }";
     evaluator.parseSimple(simpleProg);
+    // assign
     queryStr = "assign asdfa; Select asdfa";
     evaluator.evaluate(queryStr, resultList);
     stringSet = set<string>(resultList.begin(), resultList.end());
