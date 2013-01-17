@@ -25,6 +25,9 @@ private:
     void add_int_syn_to_graph(ResultsGraph &resultsGraph,
             const AttrRef &attrRef, PKB *pkb,
             std::set<int> (PKB::*)() const);
+    void add_string_syn_to_graph(ResultsGraph &resultsGraph,
+            const AttrRef &attrRef, PKB *pkb,
+            std::set<std::string> (PKB::*)() const);
 
     int nrSelect;
     StringBuffer sb;

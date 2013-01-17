@@ -51,7 +51,7 @@ void Test_00_SelectNoClause::test_select_one_syn()
            tree = ish; \
          } \n\
          procedure twoProng { \n \
-           harryPottter = not - harryPuttar; \
+           harryPotter = not - harryPuttar; \
            if x then { \
              y = aa + gadfly; \
            } else { \
@@ -104,4 +104,23 @@ void Test_00_SelectNoClause::test_select_one_syn()
     stringSet = set<string>(resultList.begin(), resultList.end());
     this->compare_string_set(stringSet, 12, "1", "4", "6", "9", "11",
         "12", "18", "20", "22", "24", "25", "26");
+    // const
+    queryStr = " constant c134s; Select c134s ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 2, "0", "55");
+    // var
+    queryStr = " variable  gg; Select gg";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 42, "a", "aa",
+            "am", "b", "bad", "blah",
+            "bye", "cd", "down", "ee", "evil", "eye", "f",
+            "g", "gadfly", "gg", "ggGGggGG", "good", "gt",
+            "harryPotter", "harryPuttar",
+            "heat", "hell", "hi",
+            "i", "ish", "no", "not", "orange", "out", "red",
+            "sink", "tify", "tree",
+            "true", "two", "x", "xc", "xp", "y", "yea",
+            "yellow");
 }

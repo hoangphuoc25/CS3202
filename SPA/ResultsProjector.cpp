@@ -76,8 +76,12 @@ void ResultsProjector::add_syn_to_graph(ResultsGraph &resultsGraph,
                 &PKB::get_all_if);
         break;
     case ENT_VAR:
+        this->add_string_syn_to_graph(resultsGraph, attrRef, pkb,
+                &PKB::get_all_vars);
         break;
     case ENT_CONST:
+        this->add_int_syn_to_graph(resultsGraph, attrRef, pkb,
+                &PKB::get_all_const);
         break;
     case ENT_PROGLINE:
         this->add_int_syn_to_graph(resultsGraph, attrRef, pkb,
@@ -95,6 +99,19 @@ void ResultsProjector::add_int_syn_to_graph(ResultsGraph &resultsGraph,
     set<int> synSet = (pkb->*retrieve_int_set)();
     for (set<int>::const_iterator it = synSet.begin(); it != synSet.end();
             it++) {
+        resultsGraph.add_vertex(entType, synName, *it);
+    }
+}
+
+void ResultsProjector::add_string_syn_to_graph(ResultsGraph &resultsGraph,
+        const AttrRef &attrRef, PKB *pkb,
+        set<string> (PKB::*retrieve_string_set)() const)
+{
+    DesignEnt entType = attrRef.entType;
+    const string& synName = attrRef.syn;
+    set<string> synSet = (pkb->*retrieve_string_set)();
+    for (set<string>::const_iterator it = synSet.begin();
+            it != synSet.end(); it++) {
         resultsGraph.add_vertex(entType, synName, *it);
     }
 }

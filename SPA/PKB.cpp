@@ -110,7 +110,7 @@ set<string> PKB::get_all_procs() const
     return this->procTable->get_all_procs();
 }
 
-const set<int>& PKB::get_all_const() const
+set<int> PKB::get_all_const() const
 {
     return this->stmtBank->get_all_const();
 }
