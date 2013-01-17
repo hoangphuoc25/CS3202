@@ -742,6 +742,9 @@ void TestPKB::test_retrieve_all_X()
             17, 18, 19, 21, 22, 23, 24, 27, 28, 29, 30, 31, 32, 34, 35);
     intSet = pkb->get_all_if();
     this->compare_int_set(intSet, 3, 3, 9, 25);
+    // while
+    intSet = pkb->get_all_while();
+    this->compare_int_set(intSet, 3, 7, 12, 33);
     // variable
     stringSet = pkb->get_all_vars();
     this->compare_string_set(stringSet, 48, "a", "b73", "bc", "bill",

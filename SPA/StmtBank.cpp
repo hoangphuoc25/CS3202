@@ -118,6 +118,17 @@ set<int> StmtBank::get_all_if() const
     return ret;
 }
 
+set<int> StmtBank::get_all_while() const
+{
+    // TODO: Improve efficiency
+    set<int> ret;
+    for (map<int, Node*>::const_iterator it = this->whileBank.begin();
+            it != this->whileBank.end(); it++) {
+        ret.insert(it->first);
+    }
+    return ret;
+}
+
 map<int, stmtType> StmtBank::get_directory()
 {
     return directory;

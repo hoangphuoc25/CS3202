@@ -75,6 +75,11 @@ set<int> PKB::get_all_if() const
     return this->stmtBank->get_all_if();
 }
 
+set<int> PKB::get_all_while() const
+{
+    return this->stmtBank->get_all_while();
+}
+
 set<string> PKB::get_all_vars() const
 {
     return varTable->get_all_vars();
