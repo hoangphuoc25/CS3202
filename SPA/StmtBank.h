@@ -29,6 +29,7 @@ public:
     std::set<int> get_all_while() const;
     std::set<int> get_all_call() const;
     const std::set<int>& get_all_const() const;
+    std::set<int> get_all_stmt() const;
 
     // query methods
     bool has_const(int n) const;

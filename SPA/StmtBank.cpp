@@ -151,6 +151,17 @@ const set<int>& StmtBank::get_all_const() const
     return this->constBank;
 }
 
+set<int> StmtBank::get_all_stmt() const
+{
+    // TODO: Improve efficiency
+    set<int> ret;
+    for (map<int, stmtType>::const_iterator it = this->directory.begin();
+                it != this->directory.end(); it++) {
+        ret.insert(it->first);
+    }
+    return ret;
+}
+
 bool StmtBank::has_const(int n) const
 {
     return this->constBank.find(n) != this->constBank.end();

@@ -85,6 +85,11 @@ set<int> PKB::get_all_call() const
     return this->stmtBank->get_all_call();
 }
 
+set<int> PKB::get_all_stmt() const
+{
+    return this->stmtBank->get_all_stmt();
+}
+
 set<string> PKB::get_all_vars() const
 {
     return varTable->get_all_vars();
