@@ -70,6 +70,11 @@ set<int> PKB::get_all_assign() const
     return this->stmtBank->get_all_assign();
 }
 
+set<int> PKB::get_all_if() const
+{
+    return this->stmtBank->get_all_if();
+}
+
 set<string> PKB::get_all_vars() const
 {
     return varTable->get_all_vars();

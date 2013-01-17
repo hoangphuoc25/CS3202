@@ -36,6 +36,7 @@ public:
 
     // Retrieve everything
     std::set<int> get_all_assign() const;
+    std::set<int> get_all_if() const;
     std::set<std::string> get_all_vars() const;
     std::set<std::string> get_all_procs() const;
     

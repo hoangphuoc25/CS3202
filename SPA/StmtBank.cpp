@@ -107,6 +107,17 @@ set<int> StmtBank::get_all_assign() const
     return ret;
 }
 
+set<int> StmtBank::get_all_if() const
+{
+    // TODO: Improve efficiency
+    set<int>ret;
+    for (map<int, Node*>::const_iterator it = this->ifBank.begin();
+            it != this->ifBank.end(); it++) {
+        ret.insert(it->first);
+    }
+    return ret;
+}
+
 map<int, stmtType> StmtBank::get_directory()
 {
     return directory;

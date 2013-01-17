@@ -25,6 +25,7 @@ public:
     Node *get_stmtNode(int stmtNo) const;
     // TODO: Improve efficiency of get_all_* methods
     std::set<int> get_all_assign() const;
+    std::set<int> get_all_if() const;
 
     // Banks
     map<int, stmtType> get_directory();

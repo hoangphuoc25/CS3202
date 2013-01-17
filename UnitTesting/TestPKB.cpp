@@ -736,9 +736,13 @@ void TestPKB::test_retrieve_all_X()
     Parser parser(simpleProg, FROMSTRING);
     parser.init();
     PKB *pkb = parser.get_pkb();
+    // assign
     intSet = pkb->get_all_assign();
     this->compare_int_set(intSet, 26, 1, 2, 4, 5, 6, 8, 11, 13, 14, 15, 16,
             17, 18, 19, 21, 22, 23, 24, 27, 28, 29, 30, 31, 32, 34, 35);
+    intSet = pkb->get_all_if();
+    this->compare_int_set(intSet, 3, 3, 9, 25);
+    // variable
     stringSet = pkb->get_all_vars();
     this->compare_string_set(stringSet, 48, "a", "b73", "bc", "bill",
             "cleanup", "cond", "cool", "doStuff", "done",
@@ -749,6 +753,7 @@ void TestPKB::test_retrieve_all_X()
             "program", "retVal", "sad", "sameName", "save",
             "sleep", "star", "state", "stuff", "tie", "tired",
             "true", "twoThree", "varHere", "x", "xid", "y");
+    // procedure
     stringSet = pkb->get_all_procs();
     this->compare_string_set(stringSet, 4, "Xproc", "execVE", "oneTwoThree",
             "lastProc");
