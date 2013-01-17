@@ -740,6 +740,7 @@ void TestPKB::test_retrieve_all_X()
     intSet = pkb->get_all_assign();
     this->compare_int_set(intSet, 26, 1, 2, 4, 5, 6, 8, 11, 13, 14, 15, 16,
             17, 18, 19, 21, 22, 23, 24, 27, 28, 29, 30, 31, 32, 34, 35);
+    // if
     intSet = pkb->get_all_if();
     this->compare_int_set(intSet, 3, 3, 9, 25);
     // while
