@@ -746,6 +746,9 @@ void TestPKB::test_retrieve_all_X()
     // while
     intSet = pkb->get_all_while();
     this->compare_int_set(intSet, 3, 7, 12, 33);
+    // call
+    intSet = pkb->get_all_call();
+    this->compare_int_set(intSet, 3, 10, 20, 26);
     // variable
     stringSet = pkb->get_all_vars();
     this->compare_string_set(stringSet, 48, "a", "b73", "bc", "bill",

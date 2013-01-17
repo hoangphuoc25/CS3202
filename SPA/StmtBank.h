@@ -27,6 +27,7 @@ public:
     std::set<int> get_all_assign() const;
     std::set<int> get_all_if() const;
     std::set<int> get_all_while() const;
+    std::set<int> get_all_call() const;
 
     // Banks
     map<int, stmtType> get_directory();
