@@ -69,4 +69,9 @@ void Test_00_SelectNoClause::test_select_one_syn()
     this->compare_string_set(stringSet, 18, "1", "2", "4", "6", "9", "11",
             "12", "13", "14", "16", "17", "18", "20", "21", "22", "24",
             "25", "26");
+    // if
+    queryStr = "if bbb; Select bbb";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 3, "3", "10", "23");
 }

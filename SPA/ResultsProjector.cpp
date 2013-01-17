@@ -64,6 +64,8 @@ void ResultsProjector::add_syn_to_graph(ResultsGraph &resultsGraph,
     case ENT_WHILE:
         break;
     case ENT_IF:
+        this->add_int_syn_to_graph(resultsGraph, attrRef, pkb,
+                &PKB::get_all_if);
         break;
     case ENT_VAR:
         break;
