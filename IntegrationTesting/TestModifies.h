@@ -5,8 +5,9 @@
 #include <set>
 #include <string>
 #include <cppunit/extensions/HelperMacros.h>
+#include "TestHelper.h"
 
-class TestModifies: public CPPUNIT_NS::TestFixture {
+class TestModifies: public TestHelper {
 CPPUNIT_TEST_SUITE(TestModifies);
 CPPUNIT_TEST(test_modifies_single);
 CPPUNIT_TEST_SUITE_END();
@@ -16,7 +17,6 @@ public:
     void tearDown();
 
 private:
-    void compare_string_set(const std::set<std::string>& S, int n, ...) const;
     void test_modifies_single();
 };
 
