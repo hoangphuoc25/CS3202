@@ -237,17 +237,19 @@ void Parser::procedure()
 void Parser::stmt_lst()
 {
     state = "stmt_lst";
-    stmt();
+    int stmtNo = stmt();
+    this->stmtBank->add_stmtLst(stmtNo);
     while (nextToken.get_name().compare("}")) {
         stmt();
     }
     nextNode = nextNode->get_root();
 }
 
-void Parser::stmt()
+int Parser::stmt()
 {
     state = "stmt";
     stmtNo++;
+    int retStmtNo = stmtNo;
     string s = nextToken.get_name();
     if (s == "call") {
         call_stmt();
@@ -258,6 +260,7 @@ void Parser::stmt()
     } else {
         assign();
     }
+    return retStmtNo;
 }
 
 void Parser::call_stmt()

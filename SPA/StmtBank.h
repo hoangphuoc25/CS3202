@@ -17,6 +17,7 @@ public:
 
     void add_node_entry(int stmtNo, stmtType type, Node* node);
     bool add_constant(const std::string& n, char **errorMsg);
+    void add_stmtLst(int stmtNo);
 
     Node *get_assignNode(int stmtNo) const;
     Node *get_ifNode(int stmtNo) const;
@@ -30,6 +31,7 @@ public:
     std::set<int> get_all_call() const;
     const std::set<int>& get_all_const() const;
     std::set<int> get_all_stmt() const;
+    const std::set<int>& get_all_stmtLst() const;
 
     // query methods
     bool has_const(int n) const;
@@ -54,6 +56,7 @@ private:
     map<int, Node*> ifBank;
     map<int, Node*> assignBank;
     std::set<int> constBank;
+    std::set<int> stmtLstSet;
 };
 
 #endif

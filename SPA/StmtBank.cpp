@@ -39,6 +39,11 @@ bool StmtBank::add_constant(const std::string& n, char **errorMsg)
     return ret;
 }
 
+void StmtBank::add_stmtLst(int stmtNo)
+{
+    this->stmtLstSet.insert(stmtNo);
+}
+
 Node* StmtBank::get_assignNode(int stmtNo) const
 {
     map<int, Node*>::const_iterator it = this->assignBank.find(stmtNo);
@@ -160,6 +165,11 @@ set<int> StmtBank::get_all_stmt() const
         ret.insert(it->first);
     }
     return ret;
+}
+
+const set<int>& StmtBank::get_all_stmtLst() const
+{
+    return this->stmtLstSet;
 }
 
 bool StmtBank::has_const(int n) const

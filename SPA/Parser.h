@@ -79,7 +79,8 @@ private:
     void program();
     void procedure();
     void stmt_lst();
-    void stmt();
+    // returns the statement number
+    int stmt();
     void call_stmt();
     void while_stmt();
     void if_stmt();
