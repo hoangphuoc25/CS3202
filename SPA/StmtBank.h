@@ -30,13 +30,15 @@ public:
     std::set<int> get_all_call() const;
     const std::set<int>& get_all_const() const;
 
+    // query methods
+    bool has_const(int n) const;
+
     // Banks
     map<int, stmtType> get_directory();
     map<int, Node*> get_callBank();
     map<int, Node*> get_ifBank();
     map<int, Node*> get_whileBank();
     map<int, Node*> get_assignBank();
-    set<int> get_constBank();
 
     bool is_stmtType(int stmtNo, stmtType type);
     bool is_valid_stmtNo(int stmtNo);

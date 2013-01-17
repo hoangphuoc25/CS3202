@@ -95,6 +95,11 @@ set<string> PKB::get_all_procs() const
     return this->procTable->get_all_procs();
 }
 
+const set<int>& PKB::get_all_const() const
+{
+    return this->stmtBank->get_all_const();
+}
+
 // Variables
 string PKB::get_control_var(int stmtNo){
     if (is_valid_stmtNo(stmtNo)) {
@@ -789,11 +794,10 @@ set<int> PKB::get_affected_by_star(int stmtNo)
 
 
 // Constant
-bool PKB::is_const_exist(string n){
-    set<string> s = stmtBank->get_constBank();
-    return (s.find(n) != s.end());
+bool PKB::has_const(int n) const
+{
+    return this->stmtBank->has_const(n);
 }
-
 
 // Others
 bool PKB::is_stmtType(int stmtNo, stmtType type){

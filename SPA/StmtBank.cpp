@@ -34,7 +34,7 @@ bool StmtBank::add_constant(const std::string& n, char **errorMsg)
     int value = 0;
     bool ret = string_to_uint(n, &value, errorMsg);
     if (ret) {
-        this->constBank.insert(n);
+        this->constBank.insert(value);
     }
     return ret;
 }
@@ -151,6 +151,11 @@ const set<int>& StmtBank::get_all_const() const
     return this->constBank;
 }
 
+bool StmtBank::has_const(int n) const
+{
+    return this->constBank.find(n) != this->constBank.end();
+}
+
 map<int, stmtType> StmtBank::get_directory()
 {
     return directory;
@@ -174,11 +179,6 @@ map<int, Node*> StmtBank::get_whileBank()
 map<int, Node*> StmtBank::get_ifBank()
 {
     return ifBank;
-}
-
-set<string> StmtBank::get_constBank()
-{
-    return constBank;
 }
 
 bool StmtBank::is_stmtType(int stmtNo, stmtType type)

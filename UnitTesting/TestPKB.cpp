@@ -24,6 +24,7 @@ void TestPKB::test_one(){
 
     set<string> s;
     set<int> s1;
+    set<int> intSet;
     set<int>::iterator it;
     int i;
 
@@ -264,19 +265,19 @@ void TestPKB::test_one(){
     CPPUNIT_ASSERT(s1.find(1) != s1.end());
 
     // Constant
-    CPPUNIT_ASSERT(pkb.is_const_exist("3"));
-    CPPUNIT_ASSERT(pkb.is_const_exist("1"));
-    CPPUNIT_ASSERT(!pkb.is_const_exist("100"));
+    CPPUNIT_ASSERT(pkb.has_const(3));
+    CPPUNIT_ASSERT(pkb.has_const(1));
+    CPPUNIT_ASSERT(!pkb.has_const(100));
 
-    s = pkb.get_all_const();
-    CPPUNIT_ASSERT_EQUAL(7, (int)s.size());
-    CPPUNIT_ASSERT(s.find("10") != s.end());
-    CPPUNIT_ASSERT(s.find("5") != s.end());
-    CPPUNIT_ASSERT(s.find("4") != s.end());
-    CPPUNIT_ASSERT(s.find("12") != s.end());
-    CPPUNIT_ASSERT(s.find("1") != s.end());
-    CPPUNIT_ASSERT(s.find("3") != s.end());
-    CPPUNIT_ASSERT(s.find("2") != s.end());
+    intSet = pkb.get_all_const();
+    CPPUNIT_ASSERT_EQUAL(7, (int)intSet.size());
+    CPPUNIT_ASSERT(intSet.find(10) != intSet.end());
+    CPPUNIT_ASSERT(intSet.find(5) != intSet.end());
+    CPPUNIT_ASSERT(intSet.find(4) != intSet.end());
+    CPPUNIT_ASSERT(intSet.find(12) != intSet.end());
+    CPPUNIT_ASSERT(intSet.find(1) != intSet.end());
+    CPPUNIT_ASSERT(intSet.find(3) != intSet.end());
+    CPPUNIT_ASSERT(intSet.find(2) != intSet.end());
 
     // Others
     s1 = pkb.get_all_stmt();
@@ -749,6 +750,10 @@ void TestPKB::test_retrieve_all_X()
     // call
     intSet = pkb->get_all_call();
     this->compare_int_set(intSet, 3, 10, 20, 26);
+    // const
+    intSet = pkb->get_all_const();
+    this->compare_int_set(intSet, 9, 3, 62, 2, 73, 156, 511,
+                0, 675, 1);
     // variable
     stringSet = pkb->get_all_vars();
     this->compare_string_set(stringSet, 48, "a", "b73", "bc", "bill",
