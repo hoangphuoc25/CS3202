@@ -60,6 +60,8 @@ void ResultsProjector::add_syn_to_graph(ResultsGraph &resultsGraph,
                 &PKB::get_all_assign);
         break;
     case ENT_CALL:
+        this->add_int_syn_to_graph(resultsGraph, attrRef, pkb,
+                &PKB::get_all_call);
         break;
     case ENT_WHILE:
         this->add_int_syn_to_graph(resultsGraph, attrRef, pkb,
@@ -163,7 +165,6 @@ void ResultsProjector::recursive_generate(int n,
         bool useInt;
         switch (attrRef.entType) {
         case ENT_PROC:
-        case ENT_CALL:
         case ENT_VAR:
             useInt = false;
             break;
