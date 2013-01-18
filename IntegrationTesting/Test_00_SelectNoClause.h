@@ -12,6 +12,7 @@ public:
     void setUp();
     void tearDown();
 private:
+    std::string SELECT_ONE_SIMPLEPROG;
     void test_select_one_syn();
 };
 

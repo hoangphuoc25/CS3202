@@ -8,18 +8,9 @@ using std::string;
 using std::set;
 using std::list;
 
-void Test_00_SelectNoClause::setUp() {}
-void Test_00_SelectNoClause::tearDown() {}
-
-CPPUNIT_TEST_SUITE_REGISTRATION(Test_00_SelectNoClause);
-
-void Test_00_SelectNoClause::test_select_one_syn()
+void Test_00_SelectNoClause::setUp()
 {
-    string simpleProg, queryStr;
-    QueryEvaluator evaluator;
-    list<string> resultList;
-    set<string> stringSet;
-    simpleProg =
+    this->SELECT_ONE_SIMPLEPROG =
         "procedure pOne { \n\
            a = b + cd; \
            g = a * xc; \
@@ -61,6 +52,19 @@ void Test_00_SelectNoClause::test_select_one_syn()
          procedure GGG { \
            gg = ggGGggGG; \
          }";
+}
+
+void Test_00_SelectNoClause::tearDown() {}
+
+CPPUNIT_TEST_SUITE_REGISTRATION(Test_00_SelectNoClause);
+
+void Test_00_SelectNoClause::test_select_one_syn()
+{
+    string queryStr;
+    QueryEvaluator evaluator;
+    list<string> resultList;
+    set<string> stringSet;
+    const string& simpleProg = this->SELECT_ONE_SIMPLEPROG;
     evaluator.parseSimple(simpleProg);
     // assign
     queryStr = "assign asdfa; Select asdfa";
