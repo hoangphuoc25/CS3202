@@ -218,3 +218,85 @@ void Test_00_SelectNoClause::test_select_one_syn_attr()
     stringSet = set<string>(resultList.begin(), resultList.end());
     this->compare_string_set(stringSet, 2, "twoProng", "GGG");
 }
+
+void Test_00_SelectNoClause::test_select_two_same_syn()
+{
+    string queryStr;
+    QueryEvaluator evaluator;
+    list<string> resultList;
+    set<string> stringSet;
+    const string& simpleProg = this->SELECT_ONE_SIMPLEPROG;
+    evaluator.parseSimple(simpleProg);
+    // assign
+    queryStr = "assign bhad; Select <bhad,bhad>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 18, "1,1", "2,2", "4,4", "6,6",
+            "9,9", "11,11", "12,12", "13,13", "14,14", "16,16", "17,17",
+            "18,18", "20,20", "21,21", "22,22", "24,24", "25,25",
+            "26,26");
+    // if
+    queryStr = "if mhs; Select <mhs,mhs>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 3, "3,3", "10,10", "23,23");
+    // while
+    queryStr = " while kjfh21; Select <kjfh21,kjfh21>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 3, "5,5", "8,8", "19,19");
+    // call
+    queryStr = "call gasd; Select <gasd  ,  gasd>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 2, "7,7", "15,15");
+    // stmt
+    queryStr = "stmt awe1; Select <awe1, awe1>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 26, "1,1", "2,2", "3,3", "4,4",
+            "5,5", "6,6", "7,7", "8,8", "9,9", "10,10", "11,11", "12,12",
+            "13,13", "14,14", "15,15", "16,16", "17,17", "18,18", "19,19",
+            "20,20", "21,21", "22,22", "23,23", "24,24", "25,25", "26,26");
+    // progline
+    queryStr = " prog_line gfhns1#; Select  <gfhns1#  , gfhns1#>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 26, "1,1", "2,2", "3,3", "4,4",
+            "5,5", "6,6", "7,7", "8,8", "9,9", "10,10", "11,11", "12,12",
+            "13,13", "14,14", "15,15", "16,16", "17,17", "18,18", "19,19",
+            "20,20", "21,21", "22,22", "23,23", "24,24", "25,25", "26,26");
+    // stmtLst
+    queryStr = " stmtLst hhl5; Select <hhl5,hhl5>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 12, "1,1", "4,4", "6,6", "9,9",
+        "11,11", "12,12", "18,18", "20,20", "22,22", "24,24", "25,25",
+        "26,26");
+    // const
+    queryStr = " constant hhafd1; Select  <hhafd1 ,\t hhafd1> ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 2, "0,0", "55,55");
+    // var
+    queryStr = " variable  uts; Select  <uts,uts>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 42, "a,a", "aa,aa",
+            "am,am", "b,b", "bad,bad", "blah,blah",
+            "bye,bye", "cd,cd", "down,down", "ee,ee", "evil,evil",
+            "eye,eye", "f,f", "g,g", "gadfly,gadfly", "gg,gg",
+            "ggGGggGG,ggGGggGG", "good,good", "gt,gt",
+            "harryPotter,harryPotter", "harryPuttar,harryPuttar",
+            "heat,heat", "hell,hell", "hi,hi", "i,i", "ish,ish", "no,no",
+            "not,not", "orange,orange", "out,out", "red,red",
+            "sink,sink", "tify,tify", "tree,tree",
+            "true,true", "two,two", "x,x", "xc,xc", "xp,xp", "y,y",
+            "yea,yea", "yellow,yellow");
+    // procedure
+    queryStr = " procedure   h4Adfs; Select   <h4Adfs,h4Adfs>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 3, "pOne,pOne",
+            "twoProng,twoProng", "GGG,GGG");
+}

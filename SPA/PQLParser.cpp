@@ -906,9 +906,6 @@ void PQLParser::print_error(va_list ap)
     case PARSE_SELECT_UNDECLARED:
         sb.vsprintf(PARSE_SELECT_UNDECLARED_STR, ap);
         break;
-    case PARSE_SELECT_REPEATED:
-        sb.vsprintf(PARSE_SELECT_REPEATED_STR, ap);
-        break;
     case PARSE_ATTRREF_UNDECLARED:
         sb.vsprintf(PARSE_ATTRREF_UNDECLARED_STR, ap);
         break;
@@ -1548,10 +1545,6 @@ void PQLParser::error_add_select_tuple(ParseError parseErr_,
     switch (parseErr_) {
     case PARSE_SELECT_UNDECLARED:
         this->error(parseErr_, attrRef.syn.c_str());
-        break;
-    case PARSE_SELECT_REPEATED:
-        attrRef.dump_to_sb(sb);
-        this->error(parseErr_, sb.c_str());
         break;
     }
 }
@@ -2568,13 +2561,9 @@ ParseError QueryInfo::add_select_tuple(AttrRef attrRef)
     if (this->entTable.find(syn) == this->entTable.end()) {
         return PARSE_SELECT_UNDECLARED;
     }
-    if (this->selectTable.find(attrRef) != this->selectTable.end()) {
-        return PARSE_SELECT_REPEATED;
-    } else {
-        this->selectTable.insert(attrRef);
-        this->selectTuple.push_back(attrRef);
-        return PARSE_OK;
-    }
+    this->selectTable.insert(attrRef);
+    this->selectTuple.push_back(attrRef);
+    return PARSE_OK;
 }
 
 DesignEnt QueryInfo::retrieve_syn_type(const string &s) const
