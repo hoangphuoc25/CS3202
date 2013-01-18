@@ -115,6 +115,11 @@ set<int> PKB::get_all_const() const
     return this->stmtBank->get_all_const();
 }
 
+string PKB::get_call_procName(int callStmt) const
+{
+    return this->stmtBank->get_call_procName(callStmt);
+}
+
 // Variables
 string PKB::get_control_var(int stmtNo){
     if (is_valid_stmtNo(stmtNo)) {

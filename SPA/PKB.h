@@ -45,6 +45,13 @@ public:
     std::set<std::string> get_all_vars() const;
     std::set<std::string> get_all_procs() const;
     std::set<int> get_all_const() const;
+
+    /*
+     * Returns the procedure called by the call stmt, or an
+     * empty string if the statement does not exist or is not
+     * a call statement.
+     */
+    std::string get_call_procName(int callStmt) const;
     
     // Variables
     string get_control_var(int stmtNo);

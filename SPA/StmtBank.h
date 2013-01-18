@@ -12,6 +12,8 @@ enum stmtType {
 
 class StmtBank {
 public:
+    // returned by get_call_procName if the call stmt is invalid
+    static const std::string EMPTY_NAME;
     StmtBank(void);
     ~StmtBank(void);
 
@@ -35,6 +37,13 @@ public:
 
     // query methods
     bool has_const(int n) const;
+
+    /*
+     * Returns the procedure called by the call stmt, or an
+     * empty string if the statement does not exist or is not
+     * a call statement.
+     */
+    std::string get_call_procName(int callStmt) const;
 
     // Banks
     map<int, stmtType> get_directory();

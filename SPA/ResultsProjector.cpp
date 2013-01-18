@@ -1,5 +1,6 @@
 #include <cassert>
 #include <vector>
+#include <cstdlib>
 #include "ResultsProjector.h"
 #include "StringBuffer.h"
 
@@ -160,12 +161,12 @@ void ResultsProjector::get_results(
         int synId = this->synToSetIndex[attrRef.syn];
         this->synIndices.push_back(synId);
     }
-    this->recursive_generate(0, selectTuple, qinfo, results);
+    this->recursive_generate(0, selectTuple, qinfo, pkb, results);
 }
 
 void ResultsProjector::recursive_generate(int n,
         const vector<AttrRef>& selectTuple,
-        QueryInfo *qinfo, list<string>& results)
+        QueryInfo *qinfo, PKB *pkb, list<string>& results)
 {
     if (n >= this->nrSelect) {
         // generate results
@@ -178,14 +179,23 @@ void ResultsProjector::recursive_generate(int n,
             map<string, string>::const_iterator
                 it = this->synValues.find(attrRef.syn);
             assert(it != this->synValues.end());
-            this->sb.append(it->second);
+            // handle call.procName
+            if (attrRef.entType == ENT_CALL &&
+                    attrRef.attr == ATTR_PROCNAME) {
+                string callProcName =
+                        pkb->get_call_procName(atoi(it->second.c_str()));
+                assert(callProcName != StmtBank::EMPTY_NAME);
+                this->sb.append(callProcName);
+            } else {
+                this->sb.append(it->second);
+            }
         }
         results.push_back(this->sb.toString());
         return;
     }
     const AttrRef& attrRef = selectTuple[n];
     if (this->synRepeated[n]) {
-        this->recursive_generate(n+1, selectTuple, qinfo, results);
+        this->recursive_generate(n+1, selectTuple, qinfo, pkb, results);
     } else {
         bool useInt;
         switch (attrRef.entType) {
@@ -205,7 +215,7 @@ void ResultsProjector::recursive_generate(int n,
             } else {
                 this->synValues[attrRef.syn] = it->second;
             }
-            this->recursive_generate(n+1, selectTuple, qinfo, results);
+            this->recursive_generate(n+1, selectTuple, qinfo, pkb, results);
         }
     }
 }

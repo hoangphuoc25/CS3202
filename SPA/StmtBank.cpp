@@ -1,6 +1,8 @@
 #include "StmtBank.h"
 #include "SPAUtils.h"
 
+const string StmtBank::EMPTY_NAME = "";
+
 StmtBank::StmtBank(void)
 {
 }
@@ -175,6 +177,17 @@ const set<int>& StmtBank::get_all_stmtLst() const
 bool StmtBank::has_const(int n) const
 {
     return this->constBank.find(n) != this->constBank.end();
+}
+
+string StmtBank::get_call_procName(int callStmt) const
+{
+    map<int, Node *>::const_iterator it = this->callBank.find(callStmt);
+    if (it == this->callBank.end()) {
+        return EMPTY_NAME;
+    } else {
+        Node *n = it->second;
+        return n->get_name();
+    }
 }
 
 map<int, stmtType> StmtBank::get_directory()
