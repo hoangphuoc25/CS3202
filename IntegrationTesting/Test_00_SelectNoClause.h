@@ -8,6 +8,7 @@ CPPUNIT_TEST_SUITE(Test_00_SelectNoClause);
 CPPUNIT_TEST(test_select_one_syn);
 CPPUNIT_TEST(test_select_one_syn_attr);
 CPPUNIT_TEST(test_select_two_same_syn);
+CPPUNIT_TEST(test_select_syn_syn_attr);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -22,6 +23,11 @@ private:
      * eg. assign a; Select <a,a>
      */
     void test_select_two_same_syn();
+    /*
+     * Select synonym and its attribute.
+     * eg. stmt s; Select <s,s.stmt#>
+     */
+    void test_select_syn_syn_attr();
 };
 
 #endif

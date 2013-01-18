@@ -300,3 +300,90 @@ void Test_00_SelectNoClause::test_select_two_same_syn()
     this->compare_string_set(stringSet, 3, "pOne,pOne",
             "twoProng,twoProng", "GGG,GGG");
 }
+
+void Test_00_SelectNoClause::test_select_syn_syn_attr()
+{
+    string queryStr;
+    QueryEvaluator evaluator;
+    list<string> resultList;
+    set<string> stringSet;
+    const string& simpleProg = this->SELECT_ONE_SIMPLEPROG;
+    evaluator.parseSimple(simpleProg);
+    // assign
+    queryStr = "assign msfn; Select <msfn,msfn.stmt#>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 18, "1,1", "2,2", "4,4", "6,6",
+            "9,9", "11,11", "12,12", "13,13", "14,14", "16,16", "17,17",
+            "18,18", "20,20", "21,21", "22,22", "24,24", "25,25",
+            "26,26");
+    // if
+    queryStr = "if  ina; Select <ina,ina.stmt#>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 3, "3,3", "10,10", "23,23");
+    // while
+    queryStr = " while dh1; Select <dh1,dh1.stmt#>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 3, "5,5", "8,8", "19,19");
+    // call, call.stmt#
+    queryStr = "call jkjag; Select <jkjag  ,  jkjag.stmt#>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 2, "7,7", "15,15");
+    // call, call.procName
+    queryStr = "call Th2; Select <Th2  ,  Th2.procName>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 2, "7,twoProng", "15,GGG");
+    // stmt
+    queryStr = "stmt uea; Select <uea, uea.stmt#>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 26, "1,1", "2,2", "3,3", "4,4",
+            "5,5", "6,6", "7,7", "8,8", "9,9", "10,10", "11,11", "12,12",
+            "13,13", "14,14", "15,15", "16,16", "17,17", "18,18", "19,19",
+            "20,20", "21,21", "22,22", "23,23", "24,24", "25,25", "26,26");
+    // progline
+    queryStr = " prog_line xe1#; Select  <xe1#  , xe1#.stmt#>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 26, "1,1", "2,2", "3,3", "4,4",
+            "5,5", "6,6", "7,7", "8,8", "9,9", "10,10", "11,11", "12,12",
+            "13,13", "14,14", "15,15", "16,16", "17,17", "18,18", "19,19",
+            "20,20", "21,21", "22,22", "23,23", "24,24", "25,25", "26,26");
+    // stmtLst
+    queryStr = " stmtLst loa1; Select <loa1,loa1.stmt#>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 12, "1,1", "4,4", "6,6", "9,9",
+        "11,11", "12,12", "18,18", "20,20", "22,22", "24,24", "25,25",
+        "26,26");
+    // const
+    queryStr = " constant yar; Select  <yar ,\t yar.value> ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 2, "0,0", "55,55");
+    // var
+    queryStr = " variable  yabza; Select  <yabza,yabza.varName>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 42, "a,a", "aa,aa",
+            "am,am", "b,b", "bad,bad", "blah,blah",
+            "bye,bye", "cd,cd", "down,down", "ee,ee", "evil,evil",
+            "eye,eye", "f,f", "g,g", "gadfly,gadfly", "gg,gg",
+            "ggGGggGG,ggGGggGG", "good,good", "gt,gt",
+            "harryPotter,harryPotter", "harryPuttar,harryPuttar",
+            "heat,heat", "hell,hell", "hi,hi", "i,i", "ish,ish", "no,no",
+            "not,not", "orange,orange", "out,out", "red,red",
+            "sink,sink", "tify,tify", "tree,tree",
+            "true,true", "two,two", "x,x", "xc,xc", "xp,xp", "y,y",
+            "yea,yea", "yellow,yellow");
+    // procedure
+    queryStr = " procedure   pofs; Select   <pofs,pofs.procName>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 3, "pOne,pOne",
+            "twoProng,twoProng", "GGG,GGG");
+}
