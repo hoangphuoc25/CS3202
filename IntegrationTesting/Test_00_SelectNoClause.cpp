@@ -387,3 +387,169 @@ void Test_00_SelectNoClause::test_select_syn_syn_attr()
     this->compare_string_set(stringSet, 3, "pOne,pOne",
             "twoProng,twoProng", "GGG,GGG");
 }
+
+void Test_00_SelectNoClause::test_select_X_Y_Xattr()
+{
+    string simpleProg, queryStr;
+    QueryEvaluator evaluator;
+    list<string> resultList;
+    set<string> stringSet;
+
+    simpleProg =
+        "procedure pOne { \
+           a = b; \
+           call progTwo; \
+           while x { \
+             if as then { \
+               ya = lor; \
+               fly = away + 61; \
+             } else { \
+               xen = hypervisor + 425; \
+             } \
+             journey = ends; \
+           } \
+           call progTwo; \
+           time = travel - 781; \
+           sheldon = cooper * 2; \
+         } \
+         procedure progTwo { \
+           wow = cool; \
+           if true then { \
+             always = true; \
+             happy = new + year + 2013; \
+           } else { \
+             fun = times; \
+           } \
+           terrible = fate; \
+           call doSmth; \
+         } \
+         procedure doSmth { \
+           do = smth; \
+         } \
+         procedure unreachableProc { \
+           none = reaches + here; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    // assign, proc, assign.stmt#
+    queryStr = "assign a; procedure proc; Select <a, proc, a.stmt#>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 56, "1,pOne,1", "1,progTwo,1",
+            "1,doSmth,1", "1,unreachableProc,1", "5,pOne,5", "5,progTwo,5",
+            "5,doSmth,5", "5,unreachableProc,5", "6,pOne,6", "6,progTwo,6",
+            "6,doSmth,6", "6,unreachableProc,6", "7,pOne,7", "7,progTwo,7",
+            "7,doSmth,7", "7,unreachableProc,7", "8,pOne,8", "8,progTwo,8",
+            "8,doSmth,8", "8,unreachableProc,8", "10,pOne,10",
+            "10,progTwo,10", "10,doSmth,10", "10,unreachableProc,10",
+            "11,pOne,11", "11,progTwo,11", "11,doSmth,11",
+            "11,unreachableProc,11",
+            "12,pOne,12", "12,progTwo,12", "12,doSmth,12",
+            "12,unreachableProc,12",
+            "14,pOne,14", "14,progTwo,14", "14,doSmth,14",
+            "14,unreachableProc,14",
+            "15,pOne,15", "15,progTwo,15", "15,doSmth,15",
+            "15,unreachableProc,15",
+            "16,pOne,16", "16,progTwo,16", "16,doSmth,16",
+            "16,unreachableProc,16",
+            "17,pOne,17", "17,progTwo,17", "17,doSmth,17",
+            "17,unreachableProc,17",
+            "19,pOne,19", "19,progTwo,19", "19,doSmth,19",
+            "19,unreachableProc,19",
+            "20,pOne,20", "20,progTwo,20", "20,doSmth,20",
+            "20,unreachableProc,20");
+    // call, proc, call.stmt#
+    queryStr = "call hba; procedure ha1ga; Select <hba, ha1ga, hba.stmt#>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 12, "2,pOne,2", "2,progTwo,2",
+            "2,doSmth,2", "2,unreachableProc,2", "9,pOne,9", "9,progTwo,9",
+            "9,doSmth,9", "9,unreachableProc,9", "18,pOne,18",
+            "18,progTwo,18", "18,doSmth,18", "18,unreachableProc,18");
+    // call, proc, call.procName
+    queryStr = "call hba; procedure ha1ga; ";
+    queryStr += " Select <hba, ha1ga, hba.procName>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 12, "2,pOne,progTwo",
+            "2,progTwo,progTwo", "2,doSmth,progTwo",
+            "2,unreachableProc,progTwo", "9,pOne,progTwo",
+            "9,progTwo,progTwo", "9,doSmth,progTwo",
+            "9,unreachableProc,progTwo", "18,pOne,doSmth",
+            "18,progTwo,doSmth", "18,doSmth,doSmth",
+            "18,unreachableProc,doSmth");
+    // while, proc, while.stmt#
+    queryStr = " while bba1tgz; procedure pas;";
+    queryStr += " Select <bba1tgz, pas, bba1tgz.stmt#>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 4, "3,pOne,3", "3,progTwo,3",
+            "3,doSmth,3", "3,unreachableProc,3");
+    // if, proc, if.stmt#
+    queryStr = " if uyha; procedure tya; Select <uyha,tya,uyha.stmt#>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 8, "4,pOne,4", "4,progTwo,4",
+            "4,doSmth,4", "4,unreachableProc,4", "13,pOne,13",
+            "13,progTwo,13", "13,doSmth,13", "13,unreachableProc,13");
+    // variable, if, variable.varName
+    queryStr = " variable ha; if ixa; Select <ha, ixa, ha.varName>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 64, "a,4,a", "a,13,a",
+            "always,4,always", "always,13,always", "as,4,as", "as,13,as",
+            "away,4,away", "away,13,away", "b,4,b", "b,13,b", "cool,4,cool",
+            "cool,13,cool", "cooper,4,cooper", "cooper,13,cooper",
+            "do,4,do", "do,13,do", "ends,4,ends", "ends,13,ends",
+            "fate,4,fate", "fate,13,fate", "fly,4,fly", "fly,13,fly",
+            "fun,4,fun", "fun,13,fun", "happy,4,happy", "happy,13,happy",
+            "here,4,here", "here,13,here", "hypervisor,4,hypervisor",
+            "hypervisor,13,hypervisor", "journey,4,journey",
+            "journey,13,journey", "lor,4,lor", "lor,13,lor", "new,4,new",
+            "new,13,new", "none,4,none", "none,13,none", "reaches,4,reaches",
+            "reaches,13,reaches", "sheldon,4,sheldon", "sheldon,13,sheldon",
+            "smth,4,smth", "smth,13,smth", "terrible,4,terrible",
+            "terrible,13,terrible", "time,4,time", "time,13,time",
+            "times,4,times", "times,13,times", "travel,4,travel",
+            "travel,13,travel", "true,4,true", "true,13,true", "wow,4,wow",
+            "wow,13,wow", "x,4,x", "x,13,x", "xen,4,xen", "xen,13,xen",
+            "ya,4,ya", "ya,13,ya", "year,4,year", "year,13,year");
+    // constant, if, constant.value
+    queryStr = " constant ka1; if aa; Select <ka1, aa, ka1.value> ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 10, "2,4,2", "2,13,2", "61,4,61",
+            "61,13,61", "425,4,425", "425,13,425", "781,4,781", "781,13,781",
+            "2013,4,2013", "2013,13,2013");
+    // stmtLst, if, stmtLst.stmt#
+    queryStr = " stmtLst sa1; if nb; Select <sa1, nb, sa1.stmt#> ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 18, "1,4,1", "1,13,1", "4,4,4",
+            "4,13,4", "5,4,5", "5,13,5", "7,4,7", "7,13,7", "12,4,12",
+            "12,13,12", "14,4,14", "14,13,14", "16,4,16", "16,13,16",
+            "19,4,19", "19,13,19", "20,4,20", "20,13,20");
+    // stmt, if, stmt.stmt#
+    queryStr = " stmt xa; if bb; Select <xa, bb, xa.stmt#>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 40, "1,4,1", "1,13,1", "2,4,2",
+            "2,13,2", "3,4,3", "3,13,3", "4,4,4", "4,13,4", "5,4,5",
+            "5,13,5", "6,4,6", "6,13,6", "7,4,7", "7,13,7", "8,4,8",
+            "8,13,8", "9,4,9", "9,13,9", "10,4,10", "10,13,10", "11,4,11",
+            "11,13,11", "12,4,12", "12,13,12", "13,4,13", "13,13,13",
+            "14,4,14", "14,13,14", "15,4,15", "15,13,15", "16,4,16",
+            "16,13,16", "17,4,17", "17,13,17", "18,4,18", "18,13,18",
+            "19,4,19", "19,13,19", "20,4,20", "20,13,20");
+    // progline, if, progline.stmt#
+    queryStr = " prog_line pla1; if i; Select <pla1, i, pla1.stmt#>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 40, "1,4,1", "1,13,1", "2,4,2",
+            "2,13,2", "3,4,3", "3,13,3", "4,4,4", "4,13,4", "5,4,5",
+            "5,13,5", "6,4,6", "6,13,6", "7,4,7", "7,13,7", "8,4,8",
+            "8,13,8", "9,4,9", "9,13,9", "10,4,10", "10,13,10", "11,4,11",
+            "11,13,11", "12,4,12", "12,13,12", "13,4,13", "13,13,13",
+            "14,4,14", "14,13,14", "15,4,15", "15,13,15", "16,4,16",
+            "16,13,16", "17,4,17", "17,13,17", "18,4,18", "18,13,18",
+            "19,4,19", "19,13,19", "20,4,20", "20,13,20");
+}
