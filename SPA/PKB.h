@@ -33,12 +33,16 @@ public:
     std::set<std::string> get_all_vars_modified_by_call(int callStmt) const;
     std::set<std::string> get_all_vars_modified_by_stmt(int stmtNo) const;
     std::set<std::string>
+            get_all_vars_modified_by_progline(int progline) const;
+    std::set<std::string>
             get_all_vars_modified_by_procedure(const std::string& proc) const;
     std::set<int> get_all_assign_modifying_var(const std::string& var) const;
     std::set<int> get_all_call_modifying_var(const std::string& var) const;
     std::set<int> get_all_while_modifying_var(const std::string& var) const;
     std::set<int> get_all_if_modifying_var(const std::string& var) const;
     std::set<int> get_all_stmt_modifying_var(const std::string& var) const;
+    std::set<int>
+            get_all_progline_modifying_var(const std::string& var) const;
     std::set<std::string>
             get_all_procedures_modifying_var (const std::string& var) const;
 

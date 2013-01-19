@@ -60,6 +60,11 @@ set<string> PKB::get_all_vars_modified_by_stmt(int stmtNo) const
     }
 }
 
+set<string> PKB::get_all_vars_modified_by_progline(int progline) const
+{
+    return this->get_all_vars_modified_by_stmt(progline);
+}
+
 set<string>
 PKB::get_all_vars_modified_by_procedure(const string &procName) const
 {
@@ -89,6 +94,11 @@ set<int> PKB::get_all_if_modifying_var(const string& var) const
 set<int> PKB::get_all_stmt_modifying_var(const string& var) const
 {
     return this->varTable->get_stmt_modifying_var(var);
+}
+
+set<int> PKB::get_all_progline_modifying_var(const string& var) const
+{
+    return this->get_all_stmt_modifying_var(var);
 }
 
 set<string> PKB::get_all_procedures_modifying_var(const string& var) const

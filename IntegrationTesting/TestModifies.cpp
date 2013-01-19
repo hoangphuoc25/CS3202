@@ -301,4 +301,41 @@ void TestModifies::test_modifies_single()
     CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(19, "a", "aa", "b",
             "big", "dont", "g2", "hi", "im", "kerb", "noway", "thank",
             "vv", "well", "x", "xc", "xcz", "xyz", "y", "yes"));
+
+    // Modifies(prog_line, var); Select prog_line
+    queryStr = " prog_line plgf; variable v11; Select plgf such that ";
+    queryStr += " Modifies(plgf, v11)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(36, "1", "2", "3",
+            "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14",
+            "15", "16", "17", "18", "19", "20", "21", "22", "23", "24",
+            "25", "26", "27", "28", "29", "30", "31", "32", "33", "34",
+            "35", "36"));
+    // Modifies(prog_line, var); Select prog_line.stmt#
+    queryStr = "prog_line hga4; variable tas; Select hga4.stmt# such that ";
+    queryStr += " Modifies(hga4, tas)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(36, "1", "2", "3",
+            "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14",
+            "15", "16", "17", "18", "19", "20", "21", "22", "23", "24",
+            "25", "26", "27", "28", "29", "30", "31", "32", "33", "34",
+            "35", "36"));
+    // Modifies(prog_line,var); Select var
+    queryStr = " prog_line sx; variable mh; Select mh such that ";
+    queryStr += " Modifies(sx, mh)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(19, "a", "aa", "b",
+            "big", "dont", "g2", "hi", "im", "kerb", "noway", "thank",
+            "vv", "well", "x", "xc", "xcz", "xyz", "y", "yes"));
+    // Modifies(prog_line,var); Select var.varName
+    queryStr = " prog_line hgf; variable yw; Select yw.varName such that ";
+    queryStr += " Modifies(hgf, yw)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(19, "a", "aa", "b",
+            "big", "dont", "g2", "hi", "im", "kerb", "noway", "thank",
+            "vv", "well", "x", "xc", "xcz", "xyz", "y", "yes"));
 }
