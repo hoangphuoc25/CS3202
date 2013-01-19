@@ -1,7 +1,7 @@
 #include <string>
 #include <set>
 #include <list>
-#include "Test_00_SelectNoClause.h"
+#include "Test_01_SelectNoClause.h"
 #include "SetWrapper.h"
 #include "../SPA/QueryEvaluator.h"
 
@@ -9,7 +9,7 @@ using std::string;
 using std::set;
 using std::list;
 
-void Test_00_SelectNoClause::setUp()
+void Test_01_SelectNoClause::setUp()
 {
     this->SELECT_ONE_SIMPLEPROG =
         "procedure pOne { \n\
@@ -55,11 +55,11 @@ void Test_00_SelectNoClause::setUp()
          }";
 }
 
-void Test_00_SelectNoClause::tearDown() {}
+void Test_01_SelectNoClause::tearDown() {}
 
-CPPUNIT_TEST_SUITE_REGISTRATION(Test_00_SelectNoClause);
+CPPUNIT_TEST_SUITE_REGISTRATION(Test_01_SelectNoClause);
 
-void Test_00_SelectNoClause::test_select_one_syn()
+void Test_01_SelectNoClause::test_select_one_syn()
 {
     string queryStr;
     QueryEvaluator evaluator;
@@ -141,7 +141,7 @@ void Test_00_SelectNoClause::test_select_one_syn()
             SetWrapper<string>(3, "pOne", "twoProng", "GGG"));
 }
 
-void Test_00_SelectNoClause::test_select_one_syn_attr()
+void Test_01_SelectNoClause::test_select_one_syn_attr()
 {
     const string& simpleProg = this->SELECT_ONE_SIMPLEPROG;
     string queryStr;
@@ -230,7 +230,7 @@ void Test_00_SelectNoClause::test_select_one_syn_attr()
     CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(2, "twoProng", "GGG"));
 }
 
-void Test_00_SelectNoClause::test_select_two_same_syn()
+void Test_01_SelectNoClause::test_select_two_same_syn()
 {
     string queryStr;
     QueryEvaluator evaluator;
@@ -316,7 +316,7 @@ void Test_00_SelectNoClause::test_select_two_same_syn()
             "twoProng,twoProng", "GGG,GGG"));
 }
 
-void Test_00_SelectNoClause::test_select_syn_syn_attr()
+void Test_01_SelectNoClause::test_select_syn_syn_attr()
 {
     string queryStr;
     QueryEvaluator evaluator;
@@ -408,7 +408,7 @@ void Test_00_SelectNoClause::test_select_syn_syn_attr()
             "twoProng,twoProng", "GGG,GGG"));
 }
 
-void Test_00_SelectNoClause::test_select_X_Y_Xattr()
+void Test_01_SelectNoClause::test_select_X_Y_Xattr()
 {
     string simpleProg, queryStr;
     QueryEvaluator evaluator;

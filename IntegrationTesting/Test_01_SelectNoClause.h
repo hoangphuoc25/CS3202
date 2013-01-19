@@ -4,8 +4,8 @@
 #include <string>
 #include <cppunit/extensions/HelperMacros.h>
 
-class Test_00_SelectNoClause: public CPPUNIT_NS::TestFixture {
-CPPUNIT_TEST_SUITE(Test_00_SelectNoClause);
+class Test_01_SelectNoClause: public CPPUNIT_NS::TestFixture {
+CPPUNIT_TEST_SUITE(Test_01_SelectNoClause);
 CPPUNIT_TEST(test_select_one_syn);
 CPPUNIT_TEST(test_select_one_syn_attr);
 CPPUNIT_TEST(test_select_two_same_syn);
