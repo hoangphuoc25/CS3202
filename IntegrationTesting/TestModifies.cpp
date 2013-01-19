@@ -6,6 +6,7 @@
 #include <list>
 #include <utility>
 #include "TestModifies.h"
+#include "SetWrapper.h"
 #include "../SPA/QueryEvaluator.h"
 
 using std::string;
@@ -26,7 +27,7 @@ void TestModifies::test_modifies_single()
     string simpleProg, queryStr;
     QueryEvaluator evaluator;
     list<string> resultList;
-    set<string> stringSet;
+    SetWrapper<string> stringSet;
 
     simpleProg =
         "procedure procOne { \
@@ -151,81 +152,85 @@ void TestModifies::test_modifies_single()
     // Modifies(assign,var)
     queryStr = "assign a; variable v; Select v such that Modifies(a,v)";
     evaluator.evaluate(queryStr, resultList);
-    stringSet = set<string>(resultList.begin(), resultList.end());
-    this->compare_string_set(stringSet, 19, "x", "a", "b", "y", "kerb", "big",
-            "g2", "xcz", "well", "vv", "noway", "hi", "thank", "xyz",
-            "aa", "yes", "im", "dont", "xc");
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(19, "x", "a", "b",
+            "y", "kerb", "big", "g2", "xcz", "well", "vv", "noway",
+            "hi", "thank", "xyz", "aa", "yes", "im", "dont", "xc"));
     queryStr = "assign abb; variable jnah#; Select abb such that ";
     queryStr += " Modifies(abb, jnah#   \n)";
     evaluator.evaluate(queryStr, resultList);
-    stringSet = set<string>(resultList.begin(), resultList.end());
-    this->compare_string_set(stringSet, 26, "1", "2", "3", "5", "7", "8",
-            "9", "10", "13", "14", "16", "18", "19", "20", "22", "25", "26",
-            "27", "28", "29", "30", "31", "32", "33", "35", "36");
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(26, "1", "2", "3",
+            "5", "7", "8", "9", "10", "13", "14", "16", "18", "19", "20",
+            "22", "25", "26", "27", "28", "29", "30", "31", "32", "33",
+            "35", "36"));
     // Modifies(procedure,var)
     queryStr = " procedure pla1; variable xyz; Select pla1 such that ";
     queryStr += " Modifies(pla1, xyz)";
     evaluator.evaluate(queryStr, resultList);
-    stringSet = set<string>(resultList.begin(), resultList.end());
-    this->compare_string_set(stringSet, 4, "procOne", "ascP", "doSmth",
-            "cleanUp");
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(4, "procOne",
+            "ascP", "doSmth", "cleanUp"));
     // Modifies(call,var); Select call
     queryStr = " call ca1; variable vv; Select ca1 such that ";
     queryStr += " Modifies(ca1,vv)";
     evaluator.evaluate(queryStr, resultList);
-    stringSet = set<string>(resultList.begin(), resultList.end());
-    this->compare_string_set(stringSet, 3, "12", "15", "34");
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(3, "12", "15", "34"));
     // Modifies(call,var); Select call.stmt#
     queryStr = " call ba; variable v; Select ba.stmt# such that ";
     queryStr += " Modifies(ba,v)";
     evaluator.evaluate(queryStr, resultList);
-    stringSet = set<string>(resultList.begin(), resultList.end());
-    this->compare_string_set(stringSet, 3, "12", "15", "34");
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(3, "12", "15", "34"));
     // Modifies(call, var); Select call.procName
     queryStr = " call ab#as; variable xza; Select ab#as.procName such that ";
     queryStr += " Modifies(ab#as,  xza)";
     evaluator.evaluate(queryStr, resultList);
-    stringSet = set<string>(resultList.begin(), resultList.end());
-    this->compare_string_set(stringSet, 3, "ascP", "doSmth", "cleanUp");
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(3, "ascP", "doSmth",
+            "cleanUp"));
     // Modifies(call, var); Select var
     queryStr = " call aq1; variable hma; Select hma such that ";
     queryStr += " Modifies(aq1, hma)";
     evaluator.evaluate(queryStr, resultList);
-    stringSet = set<string>(resultList.begin(), resultList.end());
-    this->compare_string_set(stringSet, 11, "xcz", "a", "well", "x", "vv",
-            "noway", "hi", "thank", "yes", "im", "dont");
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(11, "xcz", "a",
+            "well", "x", "vv", "noway", "hi", "thank", "yes", "im", "dont"));
     // Modifies(call, var); Select var.varName
     queryStr = " call uja1; variable baqw; Select baqw.varName such that ";
     queryStr += " Modifies(uja1, baqw)";
     evaluator.evaluate(queryStr, resultList);
-    stringSet = set<string>(resultList.begin(), resultList.end());
-    this->compare_string_set(stringSet, 11, "xcz", "a", "well", "x", "vv",
-            "noway", "hi", "thank", "yes", "im", "dont");
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(11, "xcz", "a",
+            "well", "x", "vv", "noway", "hi", "thank", "yes", "im", "dont"));
 
     // Modifies(while, var); Select while
     queryStr = " while as; variable gaw; Select as such that ";
     queryStr += " Modifies(as, gaw)";
     evaluator.evaluate(queryStr, resultList);
-    stringSet = set<string>(resultList.begin(), resultList.end());
-    this->compare_string_set(stringSet, 3, "4", "23", "24");
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(3, "4", "23", "24"));
     // Modifies(while, var); Select while.stmt#
     queryStr = " while aa; variable yaa; Select aa.stmt# such that ";
     queryStr += " Modifies(aa,yaa)";
     evaluator.evaluate(queryStr, resultList);
-    stringSet = set<string>(resultList.begin(), resultList.end());
-    this->compare_string_set(stringSet, 3, "4", "23", "24");
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(3, "4", "23", "24"));
     // Modifies(while, var); Select var
     queryStr = " while xaz1; variable hasdfS; Select hasdfS such that ";
     queryStr += " Modifies(xaz1, hasdfS)";
     evaluator.evaluate(queryStr, resultList);
-    stringSet = set<string>(resultList.begin(), resultList.end());
-    this->compare_string_set(stringSet, 14, "a", "aa", "big", "g2", "hi",
-            "kerb", "noway", "thank", "vv", "well", "x", "xcz", "xyz", "y");
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(14, "a", "aa",
+            "big", "g2", "hi", "kerb", "noway", "thank", "vv", "well",
+            "x", "xcz", "xyz", "y"));
     // Modifies(while, var); Select var.varName
     queryStr = " while qw1; variable hHs; Select hHs.varName such that ";
     queryStr += " Modifies(qw1, hHs )";
     evaluator.evaluate(queryStr, resultList);
-    stringSet = set<string>(resultList.begin(), resultList.end());
-    this->compare_string_set(stringSet, 14, "a", "aa", "big", "g2", "hi",
-            "kerb", "noway", "thank", "vv", "well", "x", "xcz", "xyz", "y");
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(14, "a", "aa",
+            "big", "g2", "hi", "kerb", "noway", "thank", "vv", "well",
+            "x", "xcz", "xyz", "y"));
 }
