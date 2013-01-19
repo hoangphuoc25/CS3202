@@ -69,14 +69,12 @@
   <ItemGroup>
     <ClCompile Include="SetWrapper.cpp" />
     <ClCompile Include="source\IntegrationTest.cpp" />
-    <ClCompile Include="TestHelper.cpp" />
     <ClCompile Include="TestModifies.cpp" />
     <ClCompile Include="Test_00_SelectNoClause.cpp" />
     <ClCompile Include="Test_00_SetWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SetWrapper.h" />
-    <ClInclude Include="TestHelper.h" />
     <ClInclude Include="TestModifies.h" />
     <ClInclude Include="Test_00_SelectNoClause.h" />
     <ClInclude Include="Test_00_SetWrapper.h" />

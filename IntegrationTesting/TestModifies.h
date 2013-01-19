@@ -5,9 +5,8 @@
 #include <set>
 #include <string>
 #include <cppunit/extensions/HelperMacros.h>
-#include "TestHelper.h"
 
-class TestModifies: public TestHelper {
+class TestModifies: public CPPUNIT_NS::TestFixture {
 CPPUNIT_TEST_SUITE(TestModifies);
 CPPUNIT_TEST(test_modifies_single);
 CPPUNIT_TEST_SUITE_END();
