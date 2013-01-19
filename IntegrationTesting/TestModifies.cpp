@@ -169,4 +169,36 @@ void TestModifies::test_modifies_single()
     stringSet = set<string>(resultList.begin(), resultList.end());
     this->compare_string_set(stringSet, 4, "procOne", "ascP", "doSmth",
             "cleanUp");
+    // Modifies(call,var); Select call
+    queryStr = " call ca1; variable vv; Select ca1 such that ";
+    queryStr += " Modifies(ca1,vv)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 3, "12", "15", "34");
+    // Modifies(call,var); Select call.stmt#
+    queryStr = " call ba; variable v; Select ba.stmt# such that ";
+    queryStr += " Modifies(ba,v)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 3, "12", "15", "34");
+    // Modifies(call, var); Select call.procName
+    queryStr = " call ab#as; variable xza; Select ab#as.procName such that ";
+    queryStr += " Modifies(ab#as,  xza)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 3, "ascP", "doSmth", "cleanUp");
+    // Modifies(call, var); Select var
+    queryStr = " call aq1; variable hma; Select hma such that ";
+    queryStr += " Modifies(aq1, hma)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 11, "xcz", "a", "well", "x", "vv",
+            "noway", "hi", "thank", "yes", "im", "dont");
+    // Modifies(call, var); Select var.varName
+    queryStr = " call uja1; variable baqw; Select baqw.varName such that ";
+    queryStr += " Modifies(uja1, baqw)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 11, "xcz", "a", "well", "x", "vv",
+            "noway", "hi", "thank", "yes", "im", "dont");
 }

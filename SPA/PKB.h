@@ -35,6 +35,7 @@ public:
     std::set<std::string>
             get_all_vars_modified_by_procedure(const std::string& proc) const;
     std::set<int> get_all_assign_modifying_var(const std::string& var) const;
+    std::set<int> get_all_call_modifying_var(const std::string& var) const;
     std::set<std::string>
             get_all_procedures_modifying_var (const std::string& var) const;
 
