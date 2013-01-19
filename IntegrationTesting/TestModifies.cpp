@@ -233,4 +233,35 @@ void TestModifies::test_modifies_single()
     CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(14, "a", "aa",
             "big", "g2", "hi", "kerb", "noway", "thank", "vv", "well",
             "x", "xcz", "xyz", "y"));
+
+    // Modifies(if, var); Select if
+    queryStr = "if ia1; variable vx; Select ia1 such that ";
+    queryStr += " Modifies(ia1, vx)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(4, "6", "11", "17",
+            "21"));
+    // Modifies(if, var); Select if.stmt#
+    queryStr = "if bas; variable vtrq; Select bas.stmt# such that ";
+    queryStr += " Modifies(bas, vtrq)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(4, "6", "11", "17",
+            "21"));
+    // Modifies(if, var); Select var
+    queryStr = " if cbj; variable kl; Select kl such that ";
+    queryStr += " Modifies(cbj, kl)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(12, "a", "aa",
+            "big", "hi", "kerb", "noway", "thank", "vv", "well", "x",
+            "xcz", "xyz"));
+    // Modifies(if, var); Select var.varName
+    queryStr = " if ya; variable asd; Select asd.varName such that ";
+    queryStr += " Modifies(ya, asd)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(12, "a", "aa",
+            "big", "hi", "kerb", "noway", "thank", "vv", "well", "x",
+            "xcz", "xyz"));
 }

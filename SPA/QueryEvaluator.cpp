@@ -154,6 +154,20 @@ QueryEvaluator::QueryEvaluator():
     tmpDispatch.relRef_eval =
             &QueryEvaluator::ev_rr_ss_int_string_00_from_argOne;
     this->dispatchTable[evalSynArgDesc] = tmpDispatch;
+
+    // Modifies(if,var), 00
+    evalSynArgDesc = EvalSynArgDesc(REL_MODIFIES, SYN_SYN_00, ENT_IF,
+            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
+    tmpDispatch.reset();
+    tmpDispatch.get_all_int_argOne = &PKB::get_all_if;
+    tmpDispatch.get_all_string_argTwo = &PKB::get_all_vars;
+    tmpDispatch.get_int_set_argOne_from_string_argTwo =
+            &PKB::get_all_if_modifying_var;
+    tmpDispatch.get_string_set_argTwo_from_int_argOne =
+            &PKB::get_all_vars_modified_by_if;
+    tmpDispatch.relRef_eval =
+            &QueryEvaluator::ev_rr_ss_int_string_00_from_argOne;
+    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
 }
 
 void QueryEvaluator::parseSimple(const string& simple)
