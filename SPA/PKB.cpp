@@ -76,6 +76,11 @@ set<int> PKB::get_all_call_modifying_var(const string& var) const
     return this->varTable->get_call_modifying_var(var);
 }
 
+set<int> PKB::get_all_while_modifying_var(const string& var) const
+{
+    return this->varTable->get_while_modifying_var(var);
+}
+
 set<string> PKB::get_all_procedures_modifying_var(const string& var) const
 {
     return this->varTable->get_all_procedures_modifying(var);

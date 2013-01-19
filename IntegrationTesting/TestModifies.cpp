@@ -201,4 +201,31 @@ void TestModifies::test_modifies_single()
     stringSet = set<string>(resultList.begin(), resultList.end());
     this->compare_string_set(stringSet, 11, "xcz", "a", "well", "x", "vv",
             "noway", "hi", "thank", "yes", "im", "dont");
+
+    // Modifies(while, var); Select while
+    queryStr = " while as; variable gaw; Select as such that ";
+    queryStr += " Modifies(as, gaw)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 3, "4", "23", "24");
+    // Modifies(while, var); Select while.stmt#
+    queryStr = " while aa; variable yaa; Select aa.stmt# such that ";
+    queryStr += " Modifies(aa,yaa)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 3, "4", "23", "24");
+    // Modifies(while, var); Select var
+    queryStr = " while xaz1; variable hasdfS; Select hasdfS such that ";
+    queryStr += " Modifies(xaz1, hasdfS)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 14, "a", "aa", "big", "g2", "hi",
+            "kerb", "noway", "thank", "vv", "well", "x", "xcz", "xyz", "y");
+    // Modifies(while, var); Select var.varName
+    queryStr = " while qw1; variable hHs; Select hHs.varName such that ";
+    queryStr += " Modifies(qw1, hHs )";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 14, "a", "aa", "big", "g2", "hi",
+            "kerb", "noway", "thank", "vv", "well", "x", "xcz", "xyz", "y");
 }
