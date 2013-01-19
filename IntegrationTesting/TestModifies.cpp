@@ -264,4 +264,41 @@ void TestModifies::test_modifies_single()
     CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(12, "a", "aa",
             "big", "hi", "kerb", "noway", "thank", "vv", "well", "x",
             "xcz", "xyz"));
+
+    // Modifies(stmt, var); Select stmt
+    queryStr = "stmt s1; variable v11; Select s1 such that ";
+    queryStr += " Modifies(s1, v11)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(36, "1", "2", "3",
+            "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14",
+            "15", "16", "17", "18", "19", "20", "21", "22", "23", "24",
+            "25", "26", "27", "28", "29", "30", "31", "32", "33", "34",
+            "35", "36"));
+    // Modifies(stmt, var); Select stmt.stmt#
+    queryStr = "stmt hga4; variable tas; Select hga4.stmt# such that ";
+    queryStr += " Modifies(hga4, tas)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(36, "1", "2", "3",
+            "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14",
+            "15", "16", "17", "18", "19", "20", "21", "22", "23", "24",
+            "25", "26", "27", "28", "29", "30", "31", "32", "33", "34",
+            "35", "36"));
+    // Modifies(stmt,var); Select var
+    queryStr = " stmt sx; variable mh; Select mh such that ";
+    queryStr += " Modifies(sx, mh)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(19, "a", "aa", "b",
+            "big", "dont", "g2", "hi", "im", "kerb", "noway", "thank",
+            "vv", "well", "x", "xc", "xcz", "xyz", "y", "yes"));
+    // Modifies(stmt,var); Select var.varName
+    queryStr = " stmt hgf; variable yw; Select yw.varName such that ";
+    queryStr += " Modifies(hgf, yw)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(19, "a", "aa", "b",
+            "big", "dont", "g2", "hi", "im", "kerb", "noway", "thank",
+            "vv", "well", "x", "xc", "xcz", "xyz", "y", "yes"));
 }

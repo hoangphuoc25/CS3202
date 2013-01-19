@@ -38,6 +38,7 @@ public:
     std::set<int> get_all_call_modifying_var(const std::string& var) const;
     std::set<int> get_all_while_modifying_var(const std::string& var) const;
     std::set<int> get_all_if_modifying_var(const std::string& var) const;
+    std::set<int> get_all_stmt_modifying_var(const std::string& var) const;
     std::set<std::string>
             get_all_procedures_modifying_var (const std::string& var) const;
 
