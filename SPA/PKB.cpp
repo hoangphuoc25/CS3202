@@ -60,9 +60,20 @@ set<string> PKB::get_all_vars_modified_by_stmt(int stmtNo) const
     }
 }
 
+set<string>
+PKB::get_all_vars_modified_by_procedure(const string &procName) const
+{
+    return this->procTable->get_modifies(procName);
+}
+
 set<int> PKB::get_all_assign_modifying_var(const string& var) const
 {
     return this->varTable->get_assign_modifying_var(var);
+}
+
+set<string> PKB::get_all_procedures_modifying_var(const string& var) const
+{
+    return this->varTable->get_all_procedures_modifying(var);
 }
 
 set<int> PKB::get_all_assign() const

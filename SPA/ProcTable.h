@@ -31,7 +31,7 @@ class ProcTable{
 
 public:
     ProcTable();
-    int get_index(string procName);
+    int get_index(string procName) const;
     string get_proc_name(int index);
 
     void update_table(VarTable *vt);
@@ -56,7 +56,8 @@ public:
     set<string> get_called_by(string procName);
     set<string> get_called_by(int index);
 
-    set<string> get_modifies(string procName);
+    const std::set<std::string>&
+        get_modifies(const std::string& procName) const;
     set<string> get_uses(string procName);
     std::set<std::string> get_all_procs() const;
 

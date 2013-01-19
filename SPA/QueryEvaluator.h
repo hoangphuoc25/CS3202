@@ -83,6 +83,7 @@ struct EvalPKBDispatch {
              (RelRef *relRef, const EvalPKBDispatch&);
 
     EvalPKBDispatch();
+    void reset();
 };
 
 class QueryEvaluator {

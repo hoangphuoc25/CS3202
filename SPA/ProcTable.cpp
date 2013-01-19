@@ -8,9 +8,11 @@ ProcElements::ProcElements(string name){
 
 ProcTable::ProcTable(){}
 
-int ProcTable::get_index(string procName){
-    if (nameToIndex.find(procName) != nameToIndex.end()) {
-        return nameToIndex[procName];
+int ProcTable::get_index(string procName) const
+{
+    map<string, int>::const_iterator it = this->nameToIndex.find(procName);
+    if (it != this->nameToIndex.end()) {
+        return it->second;
     } else {
         return -1;
     }
@@ -198,9 +200,10 @@ set<string> ProcTable::get_called_by(int index){
     }
 }
 
-set<string> ProcTable::get_modifies(string procName){
-    int index = get_index(procName);
-    if (index != -1){
+const set<string>& ProcTable::get_modifies(const string& procName) const
+{
+    int index = this->get_index(procName);
+    if (index != -1) {
         return procTable[index].modifies;
     } else {
         return EMPTY_STRINGSET;

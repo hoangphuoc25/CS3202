@@ -215,6 +215,17 @@ const set<int>& VarTable::get_stmt_modifying_var(const string& var) const
     }
 }
 
+const set<string>&
+VarTable::get_all_procedures_modifying(const string& var) const
+{
+    int index = this->get_index(var);
+    if (index == -1) {
+        return EMPTY_STRINGSET;
+    } else {
+        return varTable[index].procModifying;
+    }
+}
+
 const set<int>& VarTable::get_modified_by(int index) const
 {
     int sz = varTable.size();

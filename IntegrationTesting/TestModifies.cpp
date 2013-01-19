@@ -162,4 +162,11 @@ void TestModifies::test_modifies_single()
     this->compare_string_set(stringSet, 26, "1", "2", "3", "5", "7", "8",
             "9", "10", "13", "14", "16", "18", "19", "20", "22", "25", "26",
             "27", "28", "29", "30", "31", "32", "33", "35", "36");
+    // Modifies(procedure,var)
+    queryStr = " procedure pla1; variable xyz; Select pla1 such that ";
+    queryStr += " Modifies(pla1, xyz)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = set<string>(resultList.begin(), resultList.end());
+    this->compare_string_set(stringSet, 4, "procOne", "ascP", "doSmth",
+            "cleanUp");
 }

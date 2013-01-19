@@ -59,6 +59,8 @@ public:
     const set<int>& get_while_modifying_var(const std::string& var) const;
     const set<int>& get_call_modifying_var(const std::string& var) const;
     const set<int>& get_stmt_modifying_var(const std::string& var) const;
+    const std::set<std::string>&
+        get_all_procedures_modifying(const std::string& var) const;
     const set<int>& get_modified_by(int index) const;
     const set<int>& get_used_by(string var) const;
     const set<int>& get_used_by(int index) const;
