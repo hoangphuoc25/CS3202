@@ -166,37 +166,43 @@ Node* ProcTable::get_root(int index){
     }
 }
 
-set<string> ProcTable::get_calls(string procName){
-    if (nameToIndex.find(procName) != nameToIndex.end()) {
-        return procTable[nameToIndex[procName]].calls;
+const set<string>& ProcTable::get_calls(const string& procName) const
+{
+    map<string, int>::const_iterator it = this->nameToIndex.find(procName);
+    if (it != this->nameToIndex.end()) {
+        return this->procTable[it->second].calls;
     } else {
         return EMPTY_STRINGSET;
     }
 }
 
-set<string> ProcTable::get_calls(int index){
+const set<string>& ProcTable::get_calls(int index) const
+{
     int sz = procTable.size();
     if (index < 0 || index >= sz) {
         return EMPTY_STRINGSET;
     } else {
-        return procTable[index].calls;
+        return this->procTable[index].calls;
     }
 }
 
-set<string> ProcTable::get_called_by(string procName){
-    if (nameToIndex.find(procName) != nameToIndex.end()) {
-        return procTable[nameToIndex[procName]].calledBy;
+const set<string>& ProcTable::get_called_by(const string& procName) const
+{
+    map<string, int>::const_iterator it = this->nameToIndex.find(procName);
+    if (it != this->nameToIndex.end()) {
+        return this->procTable[it->second].calledBy;
     } else {
         return EMPTY_STRINGSET;
     }
 }
 
-set<string> ProcTable::get_called_by(int index){
+const set<string>& ProcTable::get_called_by(int index) const
+{
     int sz = procTable.size();
     if (index < 0 || index >= sz) {
         return EMPTY_STRINGSET;
     } else {
-        return procTable[index].calledBy;
+        return this->procTable[index].calledBy;
     }
 }
 

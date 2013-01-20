@@ -51,10 +51,12 @@ public:
     Node* get_root(string procName);
     Node* get_root(int index);
 
-    set<string> get_calls(string procName);
-    set<string> get_calls(int index);
-    set<string> get_called_by(string procName);
-    set<string> get_called_by(int index);
+    const std::set<std::string>& get_calls(const std::string& procName)
+            const;
+    const std::set<std::string>& get_calls(int index) const;
+    const std::set<std::string>& get_called_by
+            (const std::string& procName) const;
+    const std::set<std::string>& get_called_by(int index) const;
 
     const std::set<std::string>&
         get_modifies(const std::string& procName) const;
