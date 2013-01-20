@@ -366,6 +366,22 @@ void QueryEvaluator::ev_rr_ss_string_string_00_from_argOne(RelRef *relRef,
 void QueryEvaluator::ev_rr_ss_string_string_00_from_argTwo(RelRef *relRef,
         const EvalPKBDispatch& disp)
 {
+    assert(disp.get_all_string_argTwo != NULL);
+    assert(disp.get_string_set_argOne_from_string_argTwo != NULL);
+    set<string> argTwoSet = (this->pkb->*(disp.get_all_string_argTwo))();
+    for (set<string>::const_iterator it = argTwoSet.begin();
+            it != argTwoSet.end(); it++) {
+        set<string> argOneSet =
+                (this->pkb->*
+                    (disp.get_string_set_argOne_from_string_argTwo))
+                        (relRef->argOneSyn, relRef->argTwoSyn, *it);
+        for (set<string>::const_iterator kt = argOneSet.begin();
+                kt != argOneSet.end(); kt++) {
+            this->results.add_edge(relRef->argOneSyn,
+                    relRef->argOneString, *kt, relRef->argTwoSyn,
+                    relRef->argTwoString, *it);
+        }
+    }
 }
 
 void QueryEvaluator::ev_rr_ss_string_string_01(RelRef *relRef,
@@ -386,11 +402,41 @@ void QueryEvaluator::ev_rr_ss_string_string_11(RelRef *relRef,
 void QueryEvaluator::ev_rr_ss_string_int_00_from_argOne(RelRef *relRef,
         const EvalPKBDispatch& disp)
 {
+    assert(disp.get_all_string_argOne != NULL);
+    assert(disp.get_int_set_argTwo_from_string_argOne != NULL);
+    set<string> argOneSet = (this->pkb->*(disp.get_all_string_argOne))();
+    for (set<string>::const_iterator it = argOneSet.begin();
+            it != argOneSet.end(); it++) {
+        set<int> argTwoSet =
+            (this->pkb->*(disp.get_int_set_argTwo_from_string_argOne))
+                    (relRef->argOneSyn, relRef->argTwoSyn, *it);
+        for (set<int>::const_iterator kt = argTwoSet.begin();
+                kt != argTwoSet.end(); kt++) {
+            this->results.add_edge(relRef->argOneSyn,
+                    relRef->argOneString, *it, relRef->argTwoSyn,
+                    relRef->argTwoString, *kt);
+        }
+    }
 }
 
 void QueryEvaluator::ev_rr_ss_string_int_00_from_argTwo(RelRef *relRef,
         const EvalPKBDispatch& disp)
 {
+    assert(disp.get_all_int_argTwo != NULL);
+    assert(disp.get_string_set_argOne_from_int_argTwo != NULL);
+    set<int> argTwoSet = (this->pkb->*(disp.get_all_int_argTwo))();
+    for (set<int>::const_iterator it = argTwoSet.begin();
+            it != argTwoSet.end(); it++) {
+        set<string> argOneSet =
+            (this->pkb->*(disp.get_string_set_argOne_from_int_argTwo))
+                    (relRef->argOneSyn, relRef->argTwoSyn, *it);
+        for (set<string>::const_iterator kt = argOneSet.begin();
+                kt != argOneSet.end(); kt++) {
+                    this->results.add_edge(relRef->argOneSyn,
+                            relRef->argOneString, *kt,
+                            relRef->argTwoSyn, relRef->argTwoString, *it);
+        }
+    }
 }
 
 void QueryEvaluator::ev_rr_ss_string_int_01(RelRef *relRef,
@@ -418,7 +464,7 @@ void QueryEvaluator::ev_rr_ss_int_string_00_from_argOne(RelRef *relRef,
             it != argOneSet.end(); it++) {
         set<string> argTwoSet =
                 (this->pkb->*(disp.get_string_set_argTwo_from_int_argOne))
-                    (relRef->argOneSyn, relRef->argTwoSyn, *it);
+                        (relRef->argOneSyn, relRef->argTwoSyn, *it);
         for (set<string>::const_iterator kt = argTwoSet.begin();
                 kt != argTwoSet.end(); kt++) {
             this->results.add_edge(relRef->argOneSyn, relRef->argOneString,
@@ -430,6 +476,21 @@ void QueryEvaluator::ev_rr_ss_int_string_00_from_argOne(RelRef *relRef,
 void QueryEvaluator::ev_rr_ss_int_string_00_from_argTwo(RelRef *relRef,
         const EvalPKBDispatch& disp)
 {
+    assert(disp.get_all_string_argTwo != NULL);
+    assert(disp.get_int_set_argOne_from_string_argTwo != NULL);
+    set<string> argTwoSet = (this->pkb->*(disp.get_all_string_argTwo))();
+    for (set<string>::const_iterator it = argTwoSet.begin();
+            it != argTwoSet.end(); it++) {
+        set<int> argOneSet =
+                (this->pkb->*(disp.get_int_set_argOne_from_string_argTwo))
+                        (relRef->argOneSyn, relRef->argTwoSyn, *it);
+        for (set<int>::const_iterator kt = argOneSet.begin();
+                kt != argOneSet.end(); kt++) {
+            this->results.add_edge(relRef->argOneSyn,
+                    relRef->argOneString, *kt, relRef->argTwoSyn,
+                    relRef->argTwoString, *it);
+        }
+    }
 }
 
 void QueryEvaluator::ev_rr_ss_int_string_01(RelRef *relRef,
@@ -450,11 +511,41 @@ void QueryEvaluator::ev_rr_ss_int_string_11(RelRef *relRef,
 void QueryEvaluator::ev_rr_ss_int_int_00_from_argOne(RelRef *relRef,
         const EvalPKBDispatch& disp)
 {
+    assert(disp.get_all_int_argOne != NULL);
+    assert(disp.get_int_set_argTwo_from_int_argOne != NULL);
+    set<int> argOneSet = (this->pkb->*(disp.get_all_int_argOne))();
+    for (set<int>::const_iterator it = argOneSet.begin();
+            it != argOneSet.end(); it++) {
+        set<int> argTwoSet =
+                (this->pkb->*(disp.get_int_set_argTwo_from_int_argOne))
+                        (relRef->argOneSyn, relRef->argTwoSyn, *it);
+        for (set<int>::const_iterator kt = argTwoSet.begin();
+                kt != argTwoSet.end(); kt++) {
+            this->results.add_edge(relRef->argOneSyn,
+                    relRef->argOneString, *it, relRef->argTwoSyn,
+                    relRef->argTwoString, *kt);
+        }
+    }
 }
 
 void QueryEvaluator::ev_rr_ss_int_int_00_from_argTwo(RelRef *relRef,
         const EvalPKBDispatch& disp)
 {
+    assert(disp.get_all_int_argTwo != NULL);
+    assert(disp.get_int_set_argOne_from_int_argTwo != NULL);
+    set<int> argTwoSet = (this->pkb->*(disp.get_all_int_argTwo))();
+    for (set<int>::const_iterator it = argTwoSet.begin();
+            it != argTwoSet.end(); it++) {
+        set<int> argOneSet =
+                (this->pkb->*(disp.get_int_set_argOne_from_int_argTwo))
+                        (relRef->argOneSyn, relRef->argTwoSyn, *it);
+        for (set<int>::const_iterator kt = argOneSet.begin();
+                kt != argOneSet.end(); kt++) {
+            this->results.add_edge(relRef->argOneSyn,
+                    relRef->argOneString, *kt, relRef->argTwoSyn,
+                    relRef->argTwoString, *it);
+        }
+    }
 }
 
 void QueryEvaluator::ev_rr_ss_int_int_01(RelRef *relRef,
