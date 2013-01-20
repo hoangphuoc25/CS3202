@@ -373,6 +373,19 @@ public:
     SelectType get_selectType() const;
     const std::vector<AttrRef>& get_selectTuple() const;
 
+    /*
+     * Returns true if a given entType is a valid synonym type for
+     * the first argument of a given RelRef.
+     */
+    static bool is_valid_argOne_syn_type(RelRefType relType,
+            DesignEnt entType);
+    /*
+     * Returns true if a given entType is a valid synonym type for
+     * the second argument of a given RelRef.
+     */
+    static bool is_valid_argTwo_syn_type(RelRefType relType,
+            DesignEnt entType);
+
 private:
     // entity declarations
     std::map<std::string, DesignEnt> entTable;
@@ -433,20 +446,20 @@ private:
     static DesignEnt NEXT_ARGTWO_TYPES_ARR[NEXT_ARGTWO_TYPES_ARR_SZ];
     static DesignEnt AFFECTS_ARGONE_TYPES_ARR[AFFECTS_ARGONE_TYPES_ARR_SZ];
     static DesignEnt AFFECTS_ARGTWO_TYPES_ARR[AFFECTS_ARGTWO_TYPES_ARR_SZ];
-    static std::set<DesignEnt> MODIFIES_ARGONE_TYPES;
-    static std::set<DesignEnt> MODIFIES_ARGTWO_TYPES;
-    static std::set<DesignEnt> USES_ARGONE_TYPES;
-    static std::set<DesignEnt> USES_ARGTWO_TYPES;
-    static std::set<DesignEnt> CALLS_ARGONE_TYPES;
-    static std::set<DesignEnt> CALLS_ARGTWO_TYPES;
-    static std::set<DesignEnt> PARENT_ARGONE_TYPES;
-    static std::set<DesignEnt> PARENT_ARGTWO_TYPES;
-    static std::set<DesignEnt> FOLLOWS_ARGONE_TYPES;
-    static std::set<DesignEnt> FOLLOWS_ARGTWO_TYPES;
-    static std::set<DesignEnt> NEXT_ARGONE_TYPES;
-    static std::set<DesignEnt> NEXT_ARGTWO_TYPES;
-    static std::set<DesignEnt> AFFECTS_ARGONE_TYPES;
-    static std::set<DesignEnt> AFFECTS_ARGTWO_TYPES;
+    static const std::set<DesignEnt> MODIFIES_ARGONE_TYPES;
+    static const std::set<DesignEnt> MODIFIES_ARGTWO_TYPES;
+    static const std::set<DesignEnt> USES_ARGONE_TYPES;
+    static const std::set<DesignEnt> USES_ARGTWO_TYPES;
+    static const std::set<DesignEnt> CALLS_ARGONE_TYPES;
+    static const std::set<DesignEnt> CALLS_ARGTWO_TYPES;
+    static const std::set<DesignEnt> PARENT_ARGONE_TYPES;
+    static const std::set<DesignEnt> PARENT_ARGTWO_TYPES;
+    static const std::set<DesignEnt> FOLLOWS_ARGONE_TYPES;
+    static const std::set<DesignEnt> FOLLOWS_ARGTWO_TYPES;
+    static const std::set<DesignEnt> NEXT_ARGONE_TYPES;
+    static const std::set<DesignEnt> NEXT_ARGTWO_TYPES;
+    static const std::set<DesignEnt> AFFECTS_ARGONE_TYPES;
+    static const std::set<DesignEnt> AFFECTS_ARGTWO_TYPES;
 };
 
 #endif

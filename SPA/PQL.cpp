@@ -732,62 +732,133 @@ DesignEnt QueryInfo::AFFECTS_ARGTWO_TYPES_ARR[AFFECTS_ARGTWO_TYPES_ARR_SZ] = {
     ENT_ASSIGN
 };
 
-set<DesignEnt> QueryInfo::MODIFIES_ARGONE_TYPES(
+const set<DesignEnt> QueryInfo::MODIFIES_ARGONE_TYPES(
         QueryInfo::MODIFIES_ARGONE_TYPES_ARR,
         QueryInfo::MODIFIES_ARGONE_TYPES_ARR+MODIFIES_ARGONE_TYPES_ARR_SZ);
 
-set<DesignEnt> QueryInfo::MODIFIES_ARGTWO_TYPES(
+const set<DesignEnt> QueryInfo::MODIFIES_ARGTWO_TYPES(
         QueryInfo::MODIFIES_ARGTWO_TYPES_ARR,
         QueryInfo::MODIFIES_ARGTWO_TYPES_ARR+MODIFIES_ARGTWO_TYPES_ARR_SZ);
 
-set<DesignEnt> QueryInfo::USES_ARGONE_TYPES(
+const set<DesignEnt> QueryInfo::USES_ARGONE_TYPES(
         QueryInfo::USES_ARGONE_TYPES_ARR,
         QueryInfo::USES_ARGONE_TYPES_ARR+USES_ARGONE_TYPES_ARR_SZ);
 
-set<DesignEnt> QueryInfo::USES_ARGTWO_TYPES(
+const set<DesignEnt> QueryInfo::USES_ARGTWO_TYPES(
         QueryInfo::USES_ARGTWO_TYPES_ARR,
         QueryInfo::USES_ARGTWO_TYPES_ARR+USES_ARGTWO_TYPES_ARR_SZ);
 
-set<DesignEnt> QueryInfo::CALLS_ARGONE_TYPES(
+const set<DesignEnt> QueryInfo::CALLS_ARGONE_TYPES(
         QueryInfo::CALLS_ARGONE_TYPES_ARR,
         QueryInfo::CALLS_ARGONE_TYPES_ARR+CALLS_ARGONE_TYPES_ARR_SZ);
 
-set<DesignEnt> QueryInfo::CALLS_ARGTWO_TYPES(
+const set<DesignEnt> QueryInfo::CALLS_ARGTWO_TYPES(
         QueryInfo::CALLS_ARGTWO_TYPES_ARR,
         QueryInfo::CALLS_ARGTWO_TYPES_ARR+CALLS_ARGTWO_TYPES_ARR_SZ);
 
-set<DesignEnt> QueryInfo::PARENT_ARGONE_TYPES(
+const set<DesignEnt> QueryInfo::PARENT_ARGONE_TYPES(
         QueryInfo::PARENT_ARGONE_TYPES_ARR,
         QueryInfo::PARENT_ARGONE_TYPES_ARR+PARENT_ARGONE_TYPES_ARR_SZ);
 
-set<DesignEnt> QueryInfo::PARENT_ARGTWO_TYPES(
+const set<DesignEnt> QueryInfo::PARENT_ARGTWO_TYPES(
         QueryInfo::PARENT_ARGTWO_TYPES_ARR,
         QueryInfo::PARENT_ARGTWO_TYPES_ARR+PARENT_ARGTWO_TYPES_ARR_SZ);
 
-set<DesignEnt> QueryInfo::FOLLOWS_ARGONE_TYPES(
+const set<DesignEnt> QueryInfo::FOLLOWS_ARGONE_TYPES(
         QueryInfo::FOLLOWS_ARGONE_TYPES_ARR,
         QueryInfo::FOLLOWS_ARGONE_TYPES_ARR+FOLLOWS_ARGONE_TYPES_ARR_SZ);
 
-set<DesignEnt> QueryInfo::FOLLOWS_ARGTWO_TYPES(
+const set<DesignEnt> QueryInfo::FOLLOWS_ARGTWO_TYPES(
         QueryInfo::FOLLOWS_ARGTWO_TYPES_ARR,
         QueryInfo::FOLLOWS_ARGTWO_TYPES_ARR+FOLLOWS_ARGTWO_TYPES_ARR_SZ);
 
-set<DesignEnt> QueryInfo::NEXT_ARGONE_TYPES(
+const set<DesignEnt> QueryInfo::NEXT_ARGONE_TYPES(
         QueryInfo::NEXT_ARGONE_TYPES_ARR,
         QueryInfo::NEXT_ARGONE_TYPES_ARR+NEXT_ARGONE_TYPES_ARR_SZ);
 
-set<DesignEnt> QueryInfo::NEXT_ARGTWO_TYPES(
+const set<DesignEnt> QueryInfo::NEXT_ARGTWO_TYPES(
         QueryInfo::NEXT_ARGTWO_TYPES_ARR,
         QueryInfo::NEXT_ARGTWO_TYPES_ARR+NEXT_ARGTWO_TYPES_ARR_SZ);
 
-set<DesignEnt> QueryInfo::AFFECTS_ARGONE_TYPES(
+const set<DesignEnt> QueryInfo::AFFECTS_ARGONE_TYPES(
         QueryInfo::AFFECTS_ARGONE_TYPES_ARR,
         QueryInfo::AFFECTS_ARGONE_TYPES_ARR+AFFECTS_ARGONE_TYPES_ARR_SZ);
 
-set<DesignEnt> QueryInfo::AFFECTS_ARGTWO_TYPES(
+const set<DesignEnt> QueryInfo::AFFECTS_ARGTWO_TYPES(
         QueryInfo::AFFECTS_ARGTWO_TYPES_ARR,
         QueryInfo::AFFECTS_ARGTWO_TYPES_ARR+AFFECTS_ARGTWO_TYPES_ARR_SZ);
 
+bool QueryInfo::is_valid_argOne_syn_type(RelRefType relType,
+        DesignEnt entType)
+{
+    assert(relType != REL_INVALID);
+    switch (relType) {
+    case REL_MODIFIES:
+        return (QueryInfo::MODIFIES_ARGONE_TYPES.find(entType) !=
+                QueryInfo::MODIFIES_ARGONE_TYPES.end());
+        break;
+    case REL_USES:
+        return (QueryInfo::USES_ARGONE_TYPES.find(entType) !=
+                QueryInfo::USES_ARGONE_TYPES.end());
+        break;
+    case REL_CALLS: case REL_CALLS_STAR:
+        return (QueryInfo::CALLS_ARGONE_TYPES.find(entType) !=
+                QueryInfo::CALLS_ARGONE_TYPES.end());
+        break;
+    case REL_PARENT: case REL_PARENT_STAR:
+        return (QueryInfo::PARENT_ARGONE_TYPES.find(entType) !=
+                QueryInfo::PARENT_ARGONE_TYPES.end());
+        break;
+    case REL_FOLLOWS: case REL_FOLLOWS_STAR:
+        return (QueryInfo::FOLLOWS_ARGONE_TYPES.find(entType) !=
+                QueryInfo::FOLLOWS_ARGONE_TYPES.end());
+        break;
+    case REL_NEXT: case REL_NEXT_STAR:
+        return (QueryInfo::NEXT_ARGONE_TYPES.find(entType) !=
+                QueryInfo::NEXT_ARGONE_TYPES.end());
+        break;
+    case REL_AFFECTS: case REL_AFFECTS_STAR:
+        return (QueryInfo::AFFECTS_ARGONE_TYPES.find(entType) !=
+                QueryInfo::AFFECTS_ARGONE_TYPES.end());
+        break;
+    }
+}
+
+bool QueryInfo::is_valid_argTwo_syn_type(RelRefType relType,
+        DesignEnt entType)
+{
+    assert(relType != REL_INVALID);
+    switch (relType) {
+    case REL_MODIFIES:
+        return (QueryInfo::MODIFIES_ARGTWO_TYPES.find(entType) !=
+                QueryInfo::MODIFIES_ARGTWO_TYPES.end());
+        break;
+    case REL_USES:
+        return (QueryInfo::USES_ARGTWO_TYPES.find(entType) !=
+                QueryInfo::USES_ARGTWO_TYPES.end());
+        break;
+    case REL_CALLS: case REL_CALLS_STAR:
+        return (QueryInfo::CALLS_ARGTWO_TYPES.find(entType) !=
+                QueryInfo::CALLS_ARGTWO_TYPES.end());
+        break;
+    case REL_PARENT: case REL_PARENT_STAR:
+        return (QueryInfo::PARENT_ARGTWO_TYPES.find(entType) !=
+                QueryInfo::PARENT_ARGTWO_TYPES.end());
+        break;
+    case REL_FOLLOWS: case REL_FOLLOWS_STAR:
+        return (QueryInfo::FOLLOWS_ARGTWO_TYPES.find(entType) !=
+                QueryInfo::FOLLOWS_ARGTWO_TYPES.end());
+        break;
+    case REL_NEXT: case REL_NEXT_STAR:
+        return (QueryInfo::NEXT_ARGTWO_TYPES.find(entType) !=
+                QueryInfo::NEXT_ARGTWO_TYPES.end());
+        break;
+    case REL_AFFECTS: case REL_AFFECTS_STAR:
+        return (QueryInfo::AFFECTS_ARGTWO_TYPES.find(entType) !=
+                QueryInfo::AFFECTS_ARGTWO_TYPES.end());
+        break;
+    }
+}
 
 QueryInfo::QueryInfo() {}
 
