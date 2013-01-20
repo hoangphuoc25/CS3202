@@ -245,6 +245,21 @@ void QueryEvaluator::setup_callsStar()
 
 void QueryEvaluator::setup_parent()
 {
+    EvalSynArgDesc evalSynArgDesc;
+    EvalPKBDispatch tmpDispatch;
+    // Parent(while,assign), 00
+    evalSynArgDesc = EvalSynArgDesc(REL_PARENT, SYN_SYN_00, ENT_WHILE,
+            ENT_ASSIGN, RELARG_INVALID, RELARG_INVALID);
+    tmpDispatch.reset();
+    tmpDispatch.get_all_int_argOne = &PKB::get_all_while;
+    tmpDispatch.get_all_int_argTwo = &PKB::get_all_assign;
+    tmpDispatch.get_int_set_argOne_from_int_argTwo =
+            &PKB::parent_X_Y_get_int_X_from_int_Y;
+    tmpDispatch.get_int_set_argTwo_from_int_argOne =
+            &PKB::parent_X_Y_get_int_Y_from_int_X;
+    tmpDispatch.relRef_eval =
+            &QueryEvaluator::ev_rr_ss_int_int_00_from_argOne;
+    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
 }
 
 void QueryEvaluator::setup_parentStar()

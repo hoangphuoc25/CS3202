@@ -163,13 +163,92 @@ set<string> PKB::callsStar_X_Y_get_string_Y_from_string_X
 set<int> PKB::parent_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
-    return EMPTY_INTSET;
+    assert(QueryInfo::is_valid_argOne_syn_type(REL_PARENT, xType));
+    assert(QueryInfo::is_valid_argTwo_syn_type(REL_PARENT, yType));
+    set<int> ret;
+    Node *node = NULL;
+    switch (xType) {
+    case ENT_ASSIGN:
+        node = this->stmtBank->get_assignNode(y);
+        break;
+    case ENT_CALL:
+        node = this->stmtBank->get_callNode(y);
+        break;
+    case ENT_IF:
+        node = this->stmtBank->get_ifNode(y);
+        break;
+    case ENT_WHILE:
+        node = this->stmtBank->get_whileNode(y);
+        break;
+    case ENT_STMT:
+    case ENT_PROGLINE:
+        node = this->stmtBank->get_stmtNode(y);
+        break;
+    }
+    if (node != NULL) {
+        Node *par = node->get_parent();
+        if (par != NULL) {
+            int parStmt = par->get_stmtNo();
+            if ((xType == ENT_WHILE &&
+                       this->stmtBank->is_stmtType(parStmt, WHILETYPE))
+                ||
+                (xType == ENT_IF &&
+                        this->stmtBank->is_stmtType(parStmt, IFTYPE))
+                ||
+                (xType == ENT_STMT || xType == ENT_PROGLINE)) {
+                ret.insert(parStmt);
+            }
+        }
+    }
+    return ret;
 }
 
 set<int> PKB::parent_X_Y_get_int_Y_from_int_X(DesignEnt xType,
         DesignEnt yType, int x) const
 {
-    return EMPTY_INTSET;
+    // TODO:
+    // Change how we obtain children nodes
+    //   might want to store set<int> of assign children, call children,
+    //   if children, etc.
+    assert(QueryInfo::is_valid_argOne_syn_type(REL_PARENT, xType));
+    assert(QueryInfo::is_valid_argTwo_syn_type(REL_PARENT, yType));
+    set<int> ret;
+    Node *node = NULL;
+    switch (xType) {
+    case ENT_WHILE:
+        node = this->stmtBank->get_whileNode(x);
+        break;
+    case ENT_IF:
+        node = this->stmtBank->get_ifNode(x);
+        break;
+    case ENT_STMT:
+    case ENT_PROGLINE:
+        node = this->stmtBank->get_stmtNode(x);
+        break;
+    }
+    if (node != NULL) {
+        vector<Node*> v = node->get_children();
+        int sz = v.size();
+        for(int i = 0; i < sz; i++) {
+            int stmt = v[i]->get_stmtNo();
+            if ((yType == ENT_ASSIGN &&
+                    this->stmtBank->is_stmtType(stmt, ASSIGNTYPE))
+                    ||
+                    (yType == ENT_CALL &&
+                        this->stmtBank->is_stmtType(stmt, CALLTYPE))
+                    ||
+                    (yType == ENT_IF &&
+                       this->stmtBank->is_stmtType(stmt, IFTYPE))
+                    ||
+                    (yType == ENT_WHILE &&
+                        this->stmtBank->is_stmtType(stmt, WHILETYPE))
+                    ||
+                    (yType == ENT_STMT || yType == ENT_PROGLINE)) {
+                ret.insert(stmt);
+            }
+        }
+    }
+    return ret;
 }
 
 set<int> PKB::parentStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
