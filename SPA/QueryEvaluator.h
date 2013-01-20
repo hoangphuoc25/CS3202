@@ -49,22 +49,22 @@ class QueryEvaluator;
 struct EvalPKBDispatch {
     // Retrieve all arg two satisfying a given arg one
     std::set<std::string> (PKB::*get_string_set_argTwo_from_string_argOne)
-                              (const std::string&) const;
+        (DesignEnt typeOne, DesignEnt typeTwo, const std::string&) const;
     std::set<std::string> (PKB::*get_string_set_argTwo_from_int_argOne)
-                              (int) const;
+        (DesignEnt typeOne, DesignEnt typeTwo, int) const;
     std::set<int> (PKB::*get_int_set_argTwo_from_string_argOne)
-                      (const std::string&) const;
+        (DesignEnt typeOne, DesignEnt typeTwo, const std::string&) const;
     std::set<int> (PKB::*get_int_set_argTwo_from_int_argOne)
-                      (int) const;
+        (DesignEnt typeOne, DesignEnt typeTwo, int) const;
     // Retrieve all arg one satisfying a given arg two
     std::set<std::string> (PKB::*get_string_set_argOne_from_string_argTwo)
-                              (const std::string&) const;
+        (DesignEnt typeOne, DesignEnt typeTwo, const std::string&) const;
     std::set<std::string> (PKB::*get_string_set_argOne_from_int_argTwo)
-                              (int) const;
+        (DesignEnt typeOne, DesignEnt typeTwo, int) const;
     std::set<int> (PKB::*get_int_set_argOne_from_string_argTwo)
-                      (const std::string&) const;
+        (DesignEnt typeOne, DesignEnt typeTwo, const std::string&) const;
     std::set<int> (PKB::*get_int_set_argOne_from_int_argTwo)
-                      (int) const;
+        (DesignEnt typeOne, DesignEnt typeTwo, int) const;
     // Retrieve all arg one / arg two
     std::set<std::string> (PKB::*get_all_string_argOne)() const;
     std::set<int> (PKB::*get_all_int_argOne)() const;

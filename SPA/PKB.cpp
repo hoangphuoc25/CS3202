@@ -1,3 +1,4 @@
+#include <cassert>
 #include "PKB.h"
 
 PKB::PKB(){}
@@ -10,49 +11,29 @@ PKB::PKB(Node *root, ProcTable *pt, VarTable *vt, StmtBank *sb, vector<CFGNode*>
     CFG = cfg;
 }
 
-set<string> PKB::get_all_vars_modified_by_assign(int assign) const
+set<string> PKB::get_all_vars_modified_by_int_X(DesignEnt xType,
+        DesignEnt useless, int stmt) const
 {
-    Node *assignNode = this->stmtBank->get_assignNode(assign);
-    if (assignNode == NULL) {
-        return set<string>();
-    } else {
-        return assignNode->get_modifies();
+    assert(QueryInfo::is_valid_argOne_syn_type(REL_MODIFIES, xType));
+    Node *node = NULL;
+    switch (xType) {
+    case ENT_ASSIGN:
+        node = this->stmtBank->get_assignNode(stmt);
+        break;
+    case ENT_IF:
+        node = this->stmtBank->get_ifNode(stmt);
+        break;
+    case ENT_WHILE:
+        node = this->stmtBank->get_whileNode(stmt);
+        break;
+    case ENT_CALL:
+        node = this->stmtBank->get_callNode(stmt);
+        break;
+    case ENT_STMT:
+    case ENT_PROGLINE:
+        node = this->stmtBank->get_stmtNode(stmt);
+        break;
     }
-}
-
-set<string> PKB::get_all_vars_modified_by_if(int ifStmt) const
-{
-    Node *ifNode = this->stmtBank->get_ifNode(ifStmt);
-    if (ifNode == NULL) {
-        return set<string>();
-    } else {
-        return ifNode->get_modifies();
-    }
-}
-
-set<string> PKB::get_all_vars_modified_by_while(int whileStmt) const
-{
-    Node *whileNode = this->stmtBank->get_whileNode(whileStmt);
-    if (whileNode == NULL) {
-        return set<string>();
-    } else {
-        return whileNode->get_modifies();
-    }
-}
-
-set<string> PKB::get_all_vars_modified_by_call(int callStmt) const
-{
-    Node *callNode = this->stmtBank->get_callNode(callStmt);
-    if (callNode == NULL) {
-        return set<string>();
-    } else {
-        return callNode->get_modifies();
-    }
-}
-
-set<string> PKB::get_all_vars_modified_by_stmt(int stmtNo) const
-{
-    Node *node = this->stmtBank->get_stmtNode(stmtNo);
     if (node == NULL) {
         return set<string>();
     } else {
@@ -60,50 +41,53 @@ set<string> PKB::get_all_vars_modified_by_stmt(int stmtNo) const
     }
 }
 
-set<string> PKB::get_all_vars_modified_by_progline(int progline) const
+set<string> PKB::get_all_vars_modified_by_string_X(DesignEnt xType,
+        DesignEnt useless, const string& x) const
 {
-    return this->get_all_vars_modified_by_stmt(progline);
+    assert(QueryInfo::is_valid_argOne_syn_type(REL_MODIFIES, xType));
+    switch (xType) {
+    case ENT_PROC:
+        return this->procTable->get_modifies(x);
+        break;
+    }
+    return set<string>();
 }
 
-set<string>
-PKB::get_all_vars_modified_by_procedure(const string &procName) const
+set<int> PKB::get_all_int_X_modifying_var(DesignEnt xType,
+        DesignEnt useless, const string& varName) const
 {
-    return this->procTable->get_modifies(procName);
+    assert(QueryInfo::is_valid_argOne_syn_type(REL_MODIFIES, xType));
+    switch (xType) {
+    case ENT_ASSIGN:
+        return this->varTable->get_assign_modifying_var(varName);
+        break;
+    case ENT_CALL:
+        return this->varTable->get_call_modifying_var(varName);
+        break;
+    case ENT_WHILE:
+        return this->varTable->get_while_modifying_var(varName);
+        break;
+    case ENT_IF:
+        return this->varTable->get_if_modifying_var(varName);
+        break;
+    case ENT_STMT:
+    case ENT_PROGLINE:
+        return this->varTable->get_stmt_modifying_var(varName);
+        break;
+    }
+    return set<int>();
 }
 
-set<int> PKB::get_all_assign_modifying_var(const string& var) const
+set<string> PKB::get_all_string_X_modifying_var(DesignEnt xType,
+        DesignEnt useless, const string& varName) const
 {
-    return this->varTable->get_assign_modifying_var(var);
-}
-
-set<int> PKB::get_all_call_modifying_var(const string& var) const
-{
-    return this->varTable->get_call_modifying_var(var);
-}
-
-set<int> PKB::get_all_while_modifying_var(const string& var) const
-{
-    return this->varTable->get_while_modifying_var(var);
-}
-
-set<int> PKB::get_all_if_modifying_var(const string& var) const
-{
-    return this->varTable->get_if_modifying_var(var);
-}
-
-set<int> PKB::get_all_stmt_modifying_var(const string& var) const
-{
-    return this->varTable->get_stmt_modifying_var(var);
-}
-
-set<int> PKB::get_all_progline_modifying_var(const string& var) const
-{
-    return this->get_all_stmt_modifying_var(var);
-}
-
-set<string> PKB::get_all_procedures_modifying_var(const string& var) const
-{
-    return this->varTable->get_all_procedures_modifying(var);
+    assert(QueryInfo::is_valid_argOne_syn_type(REL_MODIFIES, xType));
+    switch (xType) {
+    case ENT_PROC:
+        return this->varTable->get_all_procedures_modifying(varName);
+        break;
+    }
+    return set<string>();
 }
 
 set<int> PKB::get_all_assign() const

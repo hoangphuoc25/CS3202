@@ -925,193 +925,193 @@ void TestPKB::test_modifies()
             "h2", "a", "xe", "onceOnly", "all", "none", "harp", "nn",
             "pfg", "ue", "y", "x", "hoho", "haa", "fire", "good", "pe",
             "fol", "g2");
-    stringSet = pkb->get_all_vars_modified_by_assign(1);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_ASSIGN, ENT_VAR, 1);
     this->compare_string_set(stringSet, 1, "aone");
-    stringSet = pkb->get_all_vars_modified_by_assign(2);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_ASSIGN, ENT_VAR, 2);
     this->compare_string_set(stringSet, 1, "d3");
-    stringSet = pkb->get_all_vars_modified_by_while(3);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_WHILE, ENT_VAR, 3);
     this->compare_string_set(stringSet, 21, "this", "x1", "t1", "h2", "a",
             "xe", "onceOnly", "all", "none", "harp", "nn", "pfg", "ue",
             "y", "x", "hoho", "haa", "fire", "good", "pe", "fol");
-    stringSet = pkb->get_all_vars_modified_by_assign(4);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_ASSIGN, ENT_VAR, 4);
     this->compare_string_set(stringSet, 1, "this");
-    stringSet = pkb->get_all_vars_modified_by_while(5);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_WHILE, ENT_VAR, 5);
     this->compare_string_set(stringSet, 19, "x1", "t1", "h2", "a", "xe",
             "onceOnly", "all", "none", "harp", "nn", "pfg", "ue", "y",
             "x", "hoho", "haa", "fire", "good", "pe");
-    stringSet = pkb->get_all_vars_modified_by_assign(6);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_ASSIGN, ENT_VAR, 6);
     this->compare_string_set(stringSet, 1, "x1");
-    stringSet = pkb->get_all_vars_modified_by_if(7);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_IF, ENT_VAR, 7);
     this->compare_string_set(stringSet, 16, "t1", "h2", "a", "xe",
             "onceOnly", "all", "none", "harp", "nn", "pfg", "ue",
             "y", "x", "hoho", "haa", "fire");
-    stringSet = pkb->get_all_vars_modified_by_assign(8);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_ASSIGN, ENT_VAR, 8);
     this->compare_string_set(stringSet, 1, "t1");
-    stringSet = pkb->get_all_vars_modified_by_assign(9);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_ASSIGN, ENT_VAR, 9);
     this->compare_string_set(stringSet, 1, "h2");
-    stringSet = pkb->get_all_vars_modified_by_call(10);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_CALL, ENT_VAR, 10);
     this->compare_string_set(stringSet, 9, "a", "xe", "onceOnly", "all",
             "none", "harp", "nn", "pfg", "ue");
-    stringSet = pkb->get_all_vars_modified_by_while(11);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_WHILE, ENT_VAR, 11);
     this->compare_string_set(stringSet, 1, "y");
-    stringSet = pkb->get_all_vars_modified_by_assign(12);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_ASSIGN, ENT_VAR, 12);
     this->compare_string_set(stringSet, 1, "y");
-    stringSet = pkb->get_all_vars_modified_by_if(13);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_IF, ENT_VAR, 13);
     this->compare_string_set(stringSet, 4, "x", "hoho", "haa", "fire");
-    stringSet = pkb->get_all_vars_modified_by_while(14);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_WHILE, ENT_VAR, 14);
     this->compare_string_set(stringSet, 3, "x", "hoho", "haa");
-    stringSet = pkb->get_all_vars_modified_by_assign(15);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_ASSIGN, ENT_VAR, 15);
     this->compare_string_set(stringSet, 1, "x");
-    stringSet = pkb->get_all_vars_modified_by_call(16);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_CALL, ENT_VAR, 16);
     this->compare_string_set(stringSet, 2, "hoho", "haa");
-    stringSet = pkb->get_all_vars_modified_by_assign(17);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_ASSIGN, ENT_VAR, 17);
     this->compare_string_set(stringSet, 1, "fire");
-    stringSet = pkb->get_all_vars_modified_by_assign(18);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_ASSIGN, ENT_VAR, 18);
     this->compare_string_set(stringSet, 1, "xe");
-    stringSet = pkb->get_all_vars_modified_by_assign(19);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_ASSIGN, ENT_VAR, 19);
     this->compare_string_set(stringSet, 1, "good");
-    stringSet = pkb->get_all_vars_modified_by_assign(20);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_ASSIGN, ENT_VAR, 20);
     this->compare_string_set(stringSet, 1, "pe");
-    stringSet = pkb->get_all_vars_modified_by_assign(21);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_ASSIGN, ENT_VAR, 21);
     this->compare_string_set(stringSet, 1, "fol");
-    stringSet = pkb->get_all_vars_modified_by_assign(22);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_ASSIGN, ENT_VAR, 22);
     this->compare_string_set(stringSet, 1, "g2");
 
     stringSet = pkb->get_var_proc_modifies("secProc");
     this->compare_string_set(stringSet, 9, "a", "xe", "onceOnly", "all",
             "none", "harp", "nn", "pfg", "ue");
-    stringSet = pkb->get_all_vars_modified_by_assign(23);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_ASSIGN, ENT_VAR, 23);
     this->compare_string_set(stringSet, 1, "a");
-    stringSet = pkb->get_all_vars_modified_by_assign(24);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_ASSIGN, ENT_VAR, 24);
     this->compare_string_set(stringSet, 1, "xe");
-    stringSet = pkb->get_all_vars_modified_by_while(25);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_WHILE, ENT_VAR, 25);
     this->compare_string_set(stringSet, 5, "onceOnly", "all", "none",
             "harp", "nn");
-    stringSet = pkb->get_all_vars_modified_by_assign(26);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_ASSIGN, ENT_VAR, 26);
     this->compare_string_set(stringSet, 1, "onceOnly");
-    stringSet = pkb->get_all_vars_modified_by_if(27);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_IF, ENT_VAR, 27);
     this->compare_string_set(stringSet, 4, "all", "none", "harp", "nn");
-    stringSet = pkb->get_all_vars_modified_by_assign(28);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_ASSIGN, ENT_VAR, 28);
     this->compare_string_set(stringSet, 1, "all");
-    stringSet = pkb->get_all_vars_modified_by_assign(29);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_ASSIGN, ENT_VAR, 29);
     this->compare_string_set(stringSet, 1, "none");
-    stringSet = pkb->get_all_vars_modified_by_while(30);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_WHILE, ENT_VAR, 30);
     this->compare_string_set(stringSet, 2, "harp", "nn");
-    stringSet = pkb->get_all_vars_modified_by_if(31);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_IF, ENT_VAR, 31);
     this->compare_string_set(stringSet, 2, "harp", "nn");
-    stringSet = pkb->get_all_vars_modified_by_assign(32);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_ASSIGN, ENT_VAR, 32);
     this->compare_string_set(stringSet, 1, "harp");
-    stringSet = pkb->get_all_vars_modified_by_assign(33);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_ASSIGN, ENT_VAR, 33);
     this->compare_string_set(stringSet, 1, "nn");
-    stringSet = pkb->get_all_vars_modified_by_call(34);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_CALL, ENT_VAR, 34);
     this->compare_string_set(stringSet, 2, "pfg", "ue");
 
     stringSet = pkb->get_var_proc_modifies("thirdProc");
     this->compare_string_set(stringSet, 2, "hoho", "haa");
-    stringSet = pkb->get_all_vars_modified_by_assign(35);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_ASSIGN, ENT_VAR, 35);
     this->compare_string_set(stringSet, 1, "hoho");
-    stringSet = pkb->get_all_vars_modified_by_assign(36);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_ASSIGN, ENT_VAR, 36);
     this->compare_string_set(stringSet, 1, "haa");
 
     stringSet = pkb->get_var_proc_modifies("procFOUR");
     this->compare_string_set(stringSet, 2, "pfg", "ue");
-    stringSet = pkb->get_all_vars_modified_by_assign(37);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_ASSIGN, ENT_VAR, 37);
     this->compare_string_set(stringSet, 1, "pfg");
-    stringSet = pkb->get_all_vars_modified_by_while(38);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_WHILE, ENT_VAR, 38);
     this->compare_string_set(stringSet, 1, "ue");
-    stringSet = pkb->get_all_vars_modified_by_assign(39);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_ASSIGN, ENT_VAR, 39);
     this->compare_string_set(stringSet, 1, "ue");
 
     //////////////////////////////////////////////////////////////////
     // same as above, but using stmt
     //////////////////////////////////////////////////////////////////
-    stringSet = pkb->get_all_vars_modified_by_stmt(1);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 1);
     this->compare_string_set(stringSet, 1, "aone");
-    stringSet = pkb->get_all_vars_modified_by_stmt(2);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 2);
     this->compare_string_set(stringSet, 1, "d3");
-    stringSet = pkb->get_all_vars_modified_by_stmt(3);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 3);
     this->compare_string_set(stringSet, 21, "this", "x1", "t1", "h2", "a",
             "xe", "onceOnly", "all", "none", "harp", "nn", "pfg", "ue",
             "y", "x", "hoho", "haa", "fire", "good", "pe", "fol");
-    stringSet = pkb->get_all_vars_modified_by_stmt(4);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 4);
     this->compare_string_set(stringSet, 1, "this");
-    stringSet = pkb->get_all_vars_modified_by_stmt(5);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 5);
     this->compare_string_set(stringSet, 19, "x1", "t1", "h2", "a", "xe",
             "onceOnly", "all", "none", "harp", "nn", "pfg", "ue", "y",
             "x", "hoho", "haa", "fire", "good", "pe");
-    stringSet = pkb->get_all_vars_modified_by_stmt(6);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 6);
     this->compare_string_set(stringSet, 1, "x1");
-    stringSet = pkb->get_all_vars_modified_by_stmt(7);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 7);
     this->compare_string_set(stringSet, 16, "t1", "h2", "a", "xe",
             "onceOnly", "all", "none", "harp", "nn", "pfg", "ue",
             "y", "x", "hoho", "haa", "fire");
-    stringSet = pkb->get_all_vars_modified_by_stmt(8);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 8);
     this->compare_string_set(stringSet, 1, "t1");
-    stringSet = pkb->get_all_vars_modified_by_stmt(9);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 9);
     this->compare_string_set(stringSet, 1, "h2");
-    stringSet = pkb->get_all_vars_modified_by_stmt(10);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 10);
     this->compare_string_set(stringSet, 9, "a", "xe", "onceOnly", "all",
             "none", "harp", "nn", "pfg", "ue");
-    stringSet = pkb->get_all_vars_modified_by_stmt(11);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 11);
     this->compare_string_set(stringSet, 1, "y");
-    stringSet = pkb->get_all_vars_modified_by_stmt(12);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 12);
     this->compare_string_set(stringSet, 1, "y");
-    stringSet = pkb->get_all_vars_modified_by_stmt(13);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 13);
     this->compare_string_set(stringSet, 4, "x", "hoho", "haa", "fire");
-    stringSet = pkb->get_all_vars_modified_by_stmt(14);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 14);
     this->compare_string_set(stringSet, 3, "x", "hoho", "haa");
-    stringSet = pkb->get_all_vars_modified_by_stmt(15);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 15);
     this->compare_string_set(stringSet, 1, "x");
-    stringSet = pkb->get_all_vars_modified_by_stmt(16);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 16);
     this->compare_string_set(stringSet, 2, "hoho", "haa");
-    stringSet = pkb->get_all_vars_modified_by_stmt(17);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 17);
     this->compare_string_set(stringSet, 1, "fire");
-    stringSet = pkb->get_all_vars_modified_by_stmt(18);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 18);
     this->compare_string_set(stringSet, 1, "xe");
-    stringSet = pkb->get_all_vars_modified_by_stmt(19);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 19);
     this->compare_string_set(stringSet, 1, "good");
-    stringSet = pkb->get_all_vars_modified_by_stmt(20);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 20);
     this->compare_string_set(stringSet, 1, "pe");
-    stringSet = pkb->get_all_vars_modified_by_stmt(21);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 21);
     this->compare_string_set(stringSet, 1, "fol");
-    stringSet = pkb->get_all_vars_modified_by_stmt(22);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 22);
     this->compare_string_set(stringSet, 1, "g2");
 
-    stringSet = pkb->get_all_vars_modified_by_stmt(23);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 23);
     this->compare_string_set(stringSet, 1, "a");
-    stringSet = pkb->get_all_vars_modified_by_stmt(24);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 24);
     this->compare_string_set(stringSet, 1, "xe");
-    stringSet = pkb->get_all_vars_modified_by_stmt(25);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 25);
     this->compare_string_set(stringSet, 5, "onceOnly", "all", "none",
             "harp", "nn");
-    stringSet = pkb->get_all_vars_modified_by_stmt(26);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 26);
     this->compare_string_set(stringSet, 1, "onceOnly");
-    stringSet = pkb->get_all_vars_modified_by_stmt(27);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 27);
     this->compare_string_set(stringSet, 4, "all", "none", "harp", "nn");
-    stringSet = pkb->get_all_vars_modified_by_stmt(28);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 28);
     this->compare_string_set(stringSet, 1, "all");
-    stringSet = pkb->get_all_vars_modified_by_stmt(29);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 29);
     this->compare_string_set(stringSet, 1, "none");
-    stringSet = pkb->get_all_vars_modified_by_stmt(30);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 30);
     this->compare_string_set(stringSet, 2, "harp", "nn");
-    stringSet = pkb->get_all_vars_modified_by_stmt(31);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 31);
     this->compare_string_set(stringSet, 2, "harp", "nn");
-    stringSet = pkb->get_all_vars_modified_by_stmt(32);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 32);
     this->compare_string_set(stringSet, 1, "harp");
-    stringSet = pkb->get_all_vars_modified_by_stmt(33);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 33);
     this->compare_string_set(stringSet, 1, "nn");
-    stringSet = pkb->get_all_vars_modified_by_stmt(34);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 34);
     this->compare_string_set(stringSet, 2, "pfg", "ue");
 
-    stringSet = pkb->get_all_vars_modified_by_stmt(35);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 35);
     this->compare_string_set(stringSet, 1, "hoho");
-    stringSet = pkb->get_all_vars_modified_by_stmt(36);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 36);
     this->compare_string_set(stringSet, 1, "haa");
 
-    stringSet = pkb->get_all_vars_modified_by_stmt(37);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 37);
     this->compare_string_set(stringSet, 1, "pfg");
-    stringSet = pkb->get_all_vars_modified_by_stmt(38);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 38);
     this->compare_string_set(stringSet, 1, "ue");
-    stringSet = pkb->get_all_vars_modified_by_stmt(39);
+    stringSet = pkb->get_all_vars_modified_by_int_X(ENT_STMT, ENT_VAR, 39);
     this->compare_string_set(stringSet, 1, "ue");
 }

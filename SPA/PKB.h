@@ -5,6 +5,7 @@
 #include <string>
 #include <queue>
 #include <stack>
+#include "PQL.h"
 #include "ProcTable.h"
 #include "VarTable.h"
 #include "Node.h"
@@ -25,26 +26,49 @@ public:
     PKB();
     PKB(Node *root, ProcTable *pt, VarTable *vt, StmtBank *sb, vector<CFGNode*> *cfg);
 
-    // Query methods
-
-    std::set<std::string> get_all_vars_modified_by_assign(int assign) const;
-    std::set<std::string> get_all_vars_modified_by_if(int ifStmt) const;
-    std::set<std::string> get_all_vars_modified_by_while(int whileStmt) const;
-    std::set<std::string> get_all_vars_modified_by_call(int callStmt) const;
-    std::set<std::string> get_all_vars_modified_by_stmt(int stmtNo) const;
-    std::set<std::string>
-            get_all_vars_modified_by_progline(int progline) const;
-    std::set<std::string>
-            get_all_vars_modified_by_procedure(const std::string& proc) const;
-    std::set<int> get_all_assign_modifying_var(const std::string& var) const;
-    std::set<int> get_all_call_modifying_var(const std::string& var) const;
-    std::set<int> get_all_while_modifying_var(const std::string& var) const;
-    std::set<int> get_all_if_modifying_var(const std::string& var) const;
-    std::set<int> get_all_stmt_modifying_var(const std::string& var) const;
-    std::set<int>
-            get_all_progline_modifying_var(const std::string& var) const;
-    std::set<std::string>
-            get_all_procedures_modifying_var (const std::string& var) const;
+    /*
+     * Modifies(X,var); Retrieves all var modified by X, where X is
+     * a synonym represented by integers.
+     * @param xType type of X
+     * @param useless type of variable, which is ENT_VAR. Since the
+     *                second synonym argument of Modifies must be ENT_VAR,
+     *                this field is effectively useless and ignored
+     * @return a set of variable names modified by X
+     */
+    std::set<std::string> get_all_vars_modified_by_int_X(DesignEnt xType,
+            DesignEnt useless, int stmt) const;
+    /*
+     * Modifies(X,var); Retrieves all var modified by X, where X is
+     * a synonym represented by strings.
+     * @param useless type of variable, which is ENT_VAR. Since the
+     *                second synonym argument of Modifies must be ENT_VAR,
+     *                this field is effectively useless and ignored
+     * @return a set of variable names modified by X
+     */
+    std::set<std::string> get_all_vars_modified_by_string_X(DesignEnt xType,
+            DesignEnt useless, const std::string& x) const;
+    /*
+     * Modifies(X,var); Given a varname, retrieves all X modifying it,
+     * where X is a synonym with integer values.
+     * @param xType type of X
+     * @param useless type of variable, which is ENT_VAR. Since the
+     *                second synonym argument of Modifies must be ENT_VAR,
+     *                this field is effectively useless and ignored
+     * @param varName variable name
+     */
+    std::set<int> get_all_int_X_modifying_var(DesignEnt xType,
+            DesignEnt useless, const std::string& varName) const;
+    /*
+     * Modifies(X,var); Given a varname, retrieves all X modifying it,
+     * where X is a synonym with string values.
+     * @param xType type of X
+     * @param useless type of variable, which is ENT_VAR. Since the
+     *                second synonym argument of Modifies must be ENT_VAR,
+     *                this field is effectively useless and ignored
+     * @param varName variable name
+     */
+    std::set<std::string> get_all_string_X_modifying_var(DesignEnt xType,
+            DesignEnt useless, const std::string& varName) const;
 
     // Retrieve everything
     std::set<int> get_all_assign() const;

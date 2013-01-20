@@ -106,9 +106,9 @@ QueryEvaluator::QueryEvaluator():
     tmpDispatch.get_all_string_argTwo =
         &PKB::get_all_vars;
     tmpDispatch.get_string_set_argTwo_from_int_argOne =
-        &PKB::get_all_vars_modified_by_assign;
+        &PKB::get_all_vars_modified_by_int_X;
     tmpDispatch.get_int_set_argOne_from_string_argTwo =
-        &PKB::get_all_assign_modifying_var;
+        &PKB::get_all_int_X_modifying_var;
     tmpDispatch.relRef_eval =
         &QueryEvaluator::ev_rr_ss_int_string_00_from_argOne;
     this->dispatchTable[evalSynArgDesc] = tmpDispatch;
@@ -120,9 +120,9 @@ QueryEvaluator::QueryEvaluator():
     tmpDispatch.get_all_string_argOne = &PKB::get_all_procs;
     tmpDispatch.get_all_string_argTwo = &PKB::get_all_vars;
     tmpDispatch.get_string_set_argOne_from_string_argTwo =
-            &PKB::get_all_procedures_modifying_var;
+            &PKB::get_all_string_X_modifying_var;
     tmpDispatch.get_string_set_argTwo_from_string_argOne =
-            &PKB::get_all_vars_modified_by_procedure;
+            &PKB::get_all_vars_modified_by_string_X;
     tmpDispatch.relRef_eval =
             &QueryEvaluator::ev_rr_ss_string_string_00_from_argOne;
     this->dispatchTable[evalSynArgDesc] = tmpDispatch;
@@ -134,9 +134,9 @@ QueryEvaluator::QueryEvaluator():
     tmpDispatch.get_all_int_argOne = &PKB::get_all_call;
     tmpDispatch.get_all_string_argTwo = &PKB::get_all_vars;
     tmpDispatch.get_int_set_argOne_from_string_argTwo =
-            &PKB::get_all_call_modifying_var;
+            &PKB::get_all_int_X_modifying_var;
     tmpDispatch.get_string_set_argTwo_from_int_argOne =
-            &PKB::get_all_vars_modified_by_call;
+            &PKB::get_all_vars_modified_by_int_X;
     tmpDispatch.relRef_eval =
             &QueryEvaluator::ev_rr_ss_int_string_00_from_argOne;
     this->dispatchTable[evalSynArgDesc] = tmpDispatch;
@@ -148,9 +148,9 @@ QueryEvaluator::QueryEvaluator():
     tmpDispatch.get_all_int_argOne = &PKB::get_all_while;
     tmpDispatch.get_all_string_argTwo = &PKB::get_all_vars;
     tmpDispatch.get_int_set_argOne_from_string_argTwo =
-            &PKB::get_all_while_modifying_var;
+            &PKB::get_all_int_X_modifying_var;
     tmpDispatch.get_string_set_argTwo_from_int_argOne =
-            &PKB::get_all_vars_modified_by_while;
+            &PKB::get_all_vars_modified_by_int_X;
     tmpDispatch.relRef_eval =
             &QueryEvaluator::ev_rr_ss_int_string_00_from_argOne;
     this->dispatchTable[evalSynArgDesc] = tmpDispatch;
@@ -162,9 +162,9 @@ QueryEvaluator::QueryEvaluator():
     tmpDispatch.get_all_int_argOne = &PKB::get_all_if;
     tmpDispatch.get_all_string_argTwo = &PKB::get_all_vars;
     tmpDispatch.get_int_set_argOne_from_string_argTwo =
-            &PKB::get_all_if_modifying_var;
+            &PKB::get_all_int_X_modifying_var;
     tmpDispatch.get_string_set_argTwo_from_int_argOne =
-            &PKB::get_all_vars_modified_by_if;
+            &PKB::get_all_vars_modified_by_int_X;
     tmpDispatch.relRef_eval =
             &QueryEvaluator::ev_rr_ss_int_string_00_from_argOne;
     this->dispatchTable[evalSynArgDesc] = tmpDispatch;
@@ -176,9 +176,9 @@ QueryEvaluator::QueryEvaluator():
     tmpDispatch.get_all_int_argOne = &PKB::get_all_stmt;
     tmpDispatch.get_all_string_argTwo = &PKB::get_all_vars;
     tmpDispatch.get_int_set_argOne_from_string_argTwo =
-            &PKB::get_all_stmt_modifying_var;
+            &PKB::get_all_int_X_modifying_var;
     tmpDispatch.get_string_set_argTwo_from_int_argOne =
-            &PKB::get_all_vars_modified_by_stmt;
+            &PKB::get_all_vars_modified_by_int_X;
     tmpDispatch.relRef_eval =
             &QueryEvaluator::ev_rr_ss_int_string_00_from_argOne;
     this->dispatchTable[evalSynArgDesc] = tmpDispatch;
@@ -190,9 +190,9 @@ QueryEvaluator::QueryEvaluator():
     tmpDispatch.get_all_int_argOne = &PKB::get_all_progline;
     tmpDispatch.get_all_string_argTwo = &PKB::get_all_vars;
     tmpDispatch.get_int_set_argOne_from_string_argTwo =
-            &PKB::get_all_progline_modifying_var;
+            &PKB::get_all_int_X_modifying_var;
     tmpDispatch.get_string_set_argTwo_from_int_argOne =
-            &PKB::get_all_vars_modified_by_progline;
+            &PKB::get_all_vars_modified_by_int_X;
     tmpDispatch.relRef_eval =
             &QueryEvaluator::ev_rr_ss_int_string_00_from_argOne;
     this->dispatchTable[evalSynArgDesc] = tmpDispatch;
@@ -295,7 +295,7 @@ void QueryEvaluator::ev_rr_ss_string_string_00_from_argOne(RelRef *relRef,
             it != argOneSet.end(); it++) {
         set<string> argTwoSet =
                 (this->pkb->*(disp.get_string_set_argTwo_from_string_argOne))
-                                 (*it);
+                    (relRef->argOneSyn, relRef->argTwoSyn, *it);
         for (set<string>::const_iterator kt = argTwoSet.begin();
                 kt != argTwoSet.end(); kt++) {
             this->results.add_edge(relRef->argOneSyn, relRef->argOneString,
@@ -359,7 +359,7 @@ void QueryEvaluator::ev_rr_ss_int_string_00_from_argOne(RelRef *relRef,
             it != argOneSet.end(); it++) {
         set<string> argTwoSet =
                 (this->pkb->*(disp.get_string_set_argTwo_from_int_argOne))
-                                 (*it);
+                    (relRef->argOneSyn, relRef->argTwoSyn, *it);
         for (set<string>::const_iterator kt = argTwoSet.begin();
                 kt != argTwoSet.end(); kt++) {
             this->results.add_edge(relRef->argOneSyn, relRef->argOneString,
