@@ -4,7 +4,7 @@
 #include <string>
 #include <map>
 #include <set>
-#include "PQLParser.h"
+#include "PQL.h"
 
 // A note to the reader
 // DO NOT

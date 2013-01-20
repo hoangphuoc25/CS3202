@@ -7,7 +7,7 @@
 #include <map>
 #include <set>
 #include "PKB.h"
-#include "PQLParser.h"
+#include "PQL.h"
 #include "ResultsGraph.h"
 
 class ResultsProjector {
