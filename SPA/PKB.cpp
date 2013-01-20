@@ -11,7 +11,7 @@ PKB::PKB(Node *root, ProcTable *pt, VarTable *vt, StmtBank *sb, vector<CFGNode*>
     CFG = cfg;
 }
 
-set<string> PKB::get_all_vars_modified_by_int_X(DesignEnt xType,
+set<string> PKB::modifies_X_Y_get_string_Y_from_int_X(DesignEnt xType,
         DesignEnt useless, int stmt) const
 {
     assert(QueryInfo::is_valid_argOne_syn_type(REL_MODIFIES, xType));
@@ -41,7 +41,7 @@ set<string> PKB::get_all_vars_modified_by_int_X(DesignEnt xType,
     }
 }
 
-set<string> PKB::get_all_vars_modified_by_string_X(DesignEnt xType,
+set<string> PKB::modifies_X_Y_get_string_Y_from_string_X(DesignEnt xType,
         DesignEnt useless, const string& x) const
 {
     assert(QueryInfo::is_valid_argOne_syn_type(REL_MODIFIES, xType));
@@ -53,7 +53,7 @@ set<string> PKB::get_all_vars_modified_by_string_X(DesignEnt xType,
     return set<string>();
 }
 
-set<int> PKB::get_all_int_X_modifying_var(DesignEnt xType,
+set<int> PKB::modifies_X_Y_get_int_X_from_string_Y(DesignEnt xType,
         DesignEnt useless, const string& varName) const
 {
     assert(QueryInfo::is_valid_argOne_syn_type(REL_MODIFIES, xType));
@@ -78,7 +78,7 @@ set<int> PKB::get_all_int_X_modifying_var(DesignEnt xType,
     return set<int>();
 }
 
-set<string> PKB::get_all_string_X_modifying_var(DesignEnt xType,
+set<string> PKB::modifies_X_Y_get_string_X_from_string_Y(DesignEnt xType,
         DesignEnt useless, const string& varName) const
 {
     assert(QueryInfo::is_valid_argOne_syn_type(REL_MODIFIES, xType));

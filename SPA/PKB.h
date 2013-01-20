@@ -35,8 +35,8 @@ public:
      *                this field is effectively useless and ignored
      * @return a set of variable names modified by X
      */
-    std::set<std::string> get_all_vars_modified_by_int_X(DesignEnt xType,
-            DesignEnt useless, int stmt) const;
+    std::set<std::string> modifies_X_Y_get_string_Y_from_int_X
+        (DesignEnt xType, DesignEnt useless, int stmt) const;
     /*
      * Modifies(X,var); Retrieves all var modified by X, where X is
      * a synonym represented by strings.
@@ -45,8 +45,8 @@ public:
      *                this field is effectively useless and ignored
      * @return a set of variable names modified by X
      */
-    std::set<std::string> get_all_vars_modified_by_string_X(DesignEnt xType,
-            DesignEnt useless, const std::string& x) const;
+    std::set<std::string> modifies_X_Y_get_string_Y_from_string_X
+        (DesignEnt xType, DesignEnt useless, const std::string& x) const;
     /*
      * Modifies(X,var); Given a varname, retrieves all X modifying it,
      * where X is a synonym with integer values.
@@ -56,7 +56,7 @@ public:
      *                this field is effectively useless and ignored
      * @param varName variable name
      */
-    std::set<int> get_all_int_X_modifying_var(DesignEnt xType,
+    std::set<int> modifies_X_Y_get_int_X_from_string_Y(DesignEnt xType,
             DesignEnt useless, const std::string& varName) const;
     /*
      * Modifies(X,var); Given a varname, retrieves all X modifying it,
@@ -67,8 +67,9 @@ public:
      *                this field is effectively useless and ignored
      * @param varName variable name
      */
-    std::set<std::string> get_all_string_X_modifying_var(DesignEnt xType,
-            DesignEnt useless, const std::string& varName) const;
+    std::set<std::string> modifies_X_Y_get_string_X_from_string_Y
+        (DesignEnt xType, DesignEnt useless,
+            const std::string& varName) const;
 
     // Retrieve everything
     std::set<int> get_all_assign() const;
