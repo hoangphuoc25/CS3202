@@ -68,9 +68,269 @@ public:
      * @param varName variable name
      */
     std::set<std::string> modifies_X_Y_get_string_X_from_string_Y
-        (DesignEnt xType, DesignEnt useless,
-            const std::string& varName) const;
+            (DesignEnt xType, DesignEnt useless,
+                const std::string& varName) const;
 
+    /*
+     * Uses(X,Y); given synonym Y (string), retrieve all X (int)
+     * such that Uses(X,Y) holds.
+     * @param xType synonym type of X
+     * @param useless Currently, this can only be ENT_VAR. Hence
+     *                this argument is ignored.
+     * @param varName variable name of Y
+     * @return set of X such that Uses(X,Y)
+     */
+    std::set<int> uses_X_Y_get_int_X_from_string_Y(DesignEnt xType,
+            DesignEnt useless, const std::string& varName) const;
+    /*
+     * Uses(X,Y); given synonym Y (string), retrieve all X (string)
+     * such that Uses(X,Y) holds.
+     * @param xType synonym type of X
+     * @param useless Currently, this can only be ENT_VAR. Hence
+     *                this argument is ignored.
+     * @param varName variable name of Y
+     * @return set of X such that Uses(X,Y)
+     */
+    std::set<std::string> uses_X_Y_get_string_X_from_string_Y
+            (DesignEnt xType, DesignEnt useless,
+                const std::string& varName) const;
+    /*
+     * Uses(X,Y); given synonym X (int), retrieve all Y (string)
+     * such that Uses(X,Y) holds.
+     * @param xType synonym type of X
+     * @param useless Currently, this can only be ENT_VAR. Hence
+     *                this argument is ignored.
+     * @param stmtNo statement number of X
+     * @return set of Y such that Uses(X,Y)
+     */
+    std::set<std::string> uses_X_Y_get_string_Y_from_int_X
+            (DesignEnt xType, DesignEnt useless, int stmtNo) const;
+    /*
+     * Uses(X,Y); given synonym X (string), retrieve all Y (string)
+     * such that Uses(X,Y) holds.
+     * @param xType synonym type of X
+     * @param useless Currently, this can only be ENT_VAR. Hence
+     *                this argument is ignored.
+     * @param x string value of X
+     * @return set of Y such that Uses(X,Y)
+     */
+    std::set<std::string> uses_X_Y_get_string_Y_from_string_X
+            (DesignEnt xType, DesignEnt useless,
+                const std::string& x) const;
+
+    /*
+     * Calls(X,Y); given Y (string), get all X (string) such that
+     * Calls(X,Y)
+     * @param xType type of X
+     * @param yType type of Y
+     * @param y string value of Y
+     * @return set of X (string) such that Calls(X,Y)
+     */
+    std::set<std::string> calls_X_Y_get_string_X_from_string_Y
+            (DesignEnt xType, DesignEnt yType,
+                const std::string& y) const;
+    /*
+     * Calls(X,Y); given X (string), get all Y (string) such that
+     * Calls(X,Y)
+     * @param xType type of X
+     * @param yType type of Y
+     * @param x string value of X
+     * @return set of Y (string) such that Calls(X,Y)
+     */
+    std::set<std::string> calls_X_Y_get_string_Y_from_string_X
+            (DesignEnt xType, DesignEnt yType,
+                const std::string& x) const;
+
+    /*
+     * Calls*(X,Y); given Y (string), get all X (string) such that
+     * Calls*(X,Y)
+     * @param xType type of X
+     * @param yType type of Y
+     * @param y string value of Y
+     * @return set of X (string) such that Calls*(X,Y)
+     */
+    std::set<std::string> callsStar_X_Y_get_string_X_from_string_Y
+            (DesignEnt xType, DesignEnt yType,
+                const std::string& y) const;
+    /*
+     * Calls*(X,Y); given X (string), get all Y (string) such that
+     * Calls*(X,Y)
+     * @param xType type of X
+     * @param yType type of Y
+     * @param x string value of X
+     * @return set of Y (string) such that Calls*(X,Y)
+     */
+    std::set<std::string> callsStar_X_Y_get_string_Y_from_string_X
+            (DesignEnt xType, DesignEnt yType,
+                const std::string& x) const;
+
+    /*
+     * Parent(X,Y); given Y (int), retrieve all X (int) such that
+     * Parent(X,Y).
+     * @param xType type of X
+     * @param yType type of Y
+     * @param y integer value of Y
+     * @return set of X (int) such that Parent(X,Y)
+     */
+    std::set<int> parent_X_Y_get_int_X_from_int_Y(DesignEnt xType,
+            DesignEnt yType, int y) const;
+    /*
+     * Parent(X,Y); given X (int), retrieve all Y (int) such that
+     * Parent(X,Y).
+     * @param xType type of X
+     * @param yType type of Y
+     * @param x integer value of X
+     * @return set of Y (int) such that Parent(X,Y)
+     */
+    std::set<int> parent_X_Y_get_int_Y_from_int_X(DesignEnt xType,
+            DesignEnt yType, int x) const;
+
+    /*
+     * Parent*(X,Y); given Y (int), retrieve all X (int) such that
+     * Parent*(X,Y).
+     * @param xType type of X
+     * @param yType type of Y
+     * @param y integer value of Y
+     * @return set of X (int) such that Parent*(X,Y)
+     */
+    std::set<int> parentStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
+            DesignEnt yType, int y) const;
+    /*
+     * Parent*(X,Y); given X (int), retrieve all Y (int) such that
+     * Parent*(X,Y).
+     * @param xType type of X
+     * @param yType type of Y
+     * @param x integer value of X
+     * @return set of Y (int) such that Parent*(X,Y)
+     */
+    std::set<int> parentStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
+            DesignEnt yType, int x) const;
+
+    /*
+     * Follows(X,Y); given Y (int), retrieve all X (int) such that
+     * Follows(X,Y).
+     * @param xType type of X
+     * @param yType type of Y
+     * @param y integer value of Y
+     * @return set of X (int) such that Follows(X,Y)
+     */
+    std::set<int> follows_X_Y_get_int_X_from_int_Y(DesignEnt xType,
+            DesignEnt yType, int y) const;
+    /*
+     * Follows(X,Y); given X (int), retrieve all Y (int) such that
+     * Follows(X,Y).
+     * @param xType type of X
+     * @param yType type of Y
+     * @param x integer value of X
+     * @return set of Y (int) such that Follows(X,Y)
+     */
+    std::set<int> follows_X_Y_get_int_Y_from_int_X(DesignEnt xType,
+            DesignEnt yType, int x) const;
+
+    /*
+     * Follows*(X,Y); given Y (int), retrieve all X (int) such that
+     * Follows*(X,Y).
+     * @param xType type of X
+     * @param yType type of Y
+     * @param y integer value of Y
+     * @return set of X (int) such that Follows*(X,Y)
+     */
+    std::set<int> followsStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
+            DesignEnt yType, int y) const;
+    /*
+     * Follows*(X,Y); given X (int), retrieve all Y (int) such that
+     * Follows*(X,Y).
+     * @param xType type of X
+     * @param yType type of Y
+     * @param x integer value of X
+     * @return set of Y (int) such that Follows*(X,Y)
+     */
+    std::set<int> followsStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
+            DesignEnt yType, int x) const;
+
+    /*
+     * Next(X,Y); given Y (int), retrieve all X (int) such that
+     * Next(X,Y).
+     * @param xType type of X
+     * @param yType type of Y
+     * @param y integer value of Y
+     * @return set of X (int) such that Next(X,Y)
+     */
+    std::set<int> next_X_Y_get_int_X_from_int_Y(DesignEnt xType,
+            DesignEnt yType, int y) const;
+    /*
+     * Next(X,Y); given X (int), retrieve all Y (int) such that
+     * Next(X,Y).
+     * @param xType type of X
+     * @param yType type of Y
+     * @param x integer value of X
+     * @return set of Y (int) such that Next(X,Y)
+     */
+    std::set<int> next_X_Y_get_int_Y_from_int_X(DesignEnt xType,
+            DesignEnt yType, int x) const;
+
+    /*
+     * Next*(X,Y); given Y (int), retrieve all X (int) such that
+     * Next*(X,Y).
+     * @param xType type of X
+     * @param yType type of Y
+     * @param y integer value of Y
+     * @return set of X (int) such that Next*(X,Y)
+     */
+    std::set<int> nextStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
+            DesignEnt yType, int y) const;
+    /*
+     * Next*(X,Y); given X (int), retrieve all Y (int) such that
+     * Next*(X,Y).
+     * @param xType type of X
+     * @param yType type of Y
+     * @param x integer value of X
+     * @return set of Y (int) such that Next*(X,Y)
+     */
+    std::set<int> nextStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
+            DesignEnt yType, int x) const;
+
+    /*
+     * Affects(X,Y); given Y (int), retrieve all X (int) such that
+     * Affects(X,Y).
+     * @param xType type of X
+     * @param yType type of Y
+     * @param y integer value of Y
+     * @return set of X (int) such that Affects(X,Y)
+     */
+    std::set<int> affects_X_Y_get_int_X_from_int_Y(DesignEnt xType,
+            DesignEnt yType, int y) const;
+    /*
+     * Affects(X,Y); given X (int), retrieve all Y (int) such that
+     * Affects(X,Y).
+     * @param xType type of X
+     * @param yType type of Y
+     * @param x integer value of X
+     * @return set of Y (int) such that Affects(X,Y)
+     */
+    std::set<int> affects_X_Y_get_int_Y_from_int_X(DesignEnt xType,
+            DesignEnt yType, int x) const;
+
+    /*
+     * Affects*(X,Y); given Y (int), retrieve all X (int) such that
+     * Affects*(X,Y).
+     * @param xType type of X
+     * @param yType type of Y
+     * @param y integer value of Y
+     * @return set of X (int) such that Affects*(X,Y)
+     */
+    std::set<int> affectsStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
+            DesignEnt yType, int y) const;
+    /*
+     * Affects*(X,Y); given X (int), retrieve all Y (int) such that
+     * Affects*(X,Y).
+     * @param xType type of X
+     * @param yType type of Y
+     * @param x integer value of X
+     * @return set of Y (int) such that Affects*(X,Y)
+     */
+    std::set<int> affectsStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
+            DesignEnt yType, int x) const;
     // Retrieve everything
     std::set<int> get_all_assign() const;
     std::set<int> get_all_if() const;
