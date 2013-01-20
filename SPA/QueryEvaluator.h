@@ -96,6 +96,20 @@ public:
     void evaluate(const std::string& queryStr,
             std::list<std::string>& resultSet);
 private:
+    // Setup dispatch table for Modifies, Uses, etc
+    void setup_modifies();
+    void setup_uses();
+    void setup_calls();
+    void setup_callsStar();
+    void setup_parent();
+    void setup_parentStar();
+    void setup_follows();
+    void setup_followsStar();
+    void setup_next();
+    void setup_nextStar();
+    void setup_affects();
+    void setup_affectsStar();
+
     bool relRef_arg_use_string(DesignEnt entType) const;
     void evaluate_relRef(RelRef *relRef);
     void ev_relRef_syn_syn(RelRef *relRef);

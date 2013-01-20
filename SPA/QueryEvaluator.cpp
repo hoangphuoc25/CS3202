@@ -93,7 +93,22 @@ void EvalPKBDispatch::reset()
 QueryEvaluator::QueryEvaluator():
         pqlParser(), pkb(NULL), results(), resultsProjector()
 {
-    // set up dispatch table
+    this->setup_modifies();
+    this->setup_uses();
+    this->setup_calls();
+    this->setup_callsStar();
+    this->setup_parent();
+    this->setup_parentStar();
+    this->setup_follows();
+    this->setup_followsStar();
+    this->setup_next();
+    this->setup_nextStar();
+    this->setup_affects();
+    this->setup_affectsStar();
+}
+
+void QueryEvaluator::setup_modifies()
+{
     struct EvalPKBDispatch tmpDispatch;
     struct EvalSynArgDesc evalSynArgDesc;
 
@@ -196,6 +211,50 @@ QueryEvaluator::QueryEvaluator():
     tmpDispatch.relRef_eval =
             &QueryEvaluator::ev_rr_ss_int_string_00_from_argOne;
     this->dispatchTable[evalSynArgDesc] = tmpDispatch;
+}
+
+void QueryEvaluator::setup_uses()
+{
+}
+
+void QueryEvaluator::setup_calls()
+{
+}
+
+void QueryEvaluator::setup_callsStar()
+{
+}
+
+void QueryEvaluator::setup_parent()
+{
+}
+
+void QueryEvaluator::setup_parentStar()
+{
+}
+
+void QueryEvaluator::setup_follows()
+{
+}
+
+void QueryEvaluator::setup_followsStar()
+{
+}
+
+void QueryEvaluator::setup_next()
+{
+}
+
+void QueryEvaluator::setup_nextStar()
+{
+}
+
+void QueryEvaluator::setup_affects()
+{
+}
+
+void QueryEvaluator::setup_affectsStar()
+{
 }
 
 void QueryEvaluator::parseSimple(const string& simple)
