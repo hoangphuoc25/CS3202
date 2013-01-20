@@ -217,8 +217,26 @@ void QueryEvaluator::setup_uses()
 {
 }
 
+// TODO: Fix cyclic call chain issue with regards to updating
+//       modifies and uses, ie. A->B->C->A type of call chain
 void QueryEvaluator::setup_calls()
 {
+    EvalSynArgDesc evalSynArgDesc;
+    EvalPKBDispatch tmpDispatch;
+
+    // Calls(procedure,procedure), 00
+    evalSynArgDesc = EvalSynArgDesc(REL_CALLS, SYN_SYN_00, ENT_PROC,
+            ENT_PROC, RELARG_INVALID, RELARG_INVALID);
+    tmpDispatch.reset();
+    tmpDispatch.get_all_string_argOne = &PKB::get_all_procs;
+    tmpDispatch.get_all_string_argTwo = &PKB::get_all_procs;
+    tmpDispatch.get_string_set_argOne_from_string_argTwo =
+            &PKB::calls_X_Y_get_string_X_from_string_Y;
+    tmpDispatch.get_string_set_argTwo_from_string_argOne =
+            &PKB::calls_X_Y_get_string_Y_from_string_X;
+    tmpDispatch.relRef_eval =
+            &QueryEvaluator::ev_rr_ss_string_string_00_from_argOne;
+    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
 }
 
 void QueryEvaluator::setup_callsStar()

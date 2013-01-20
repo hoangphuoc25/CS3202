@@ -117,13 +117,35 @@ set<string> PKB::uses_X_Y_get_string_Y_from_string_X(DesignEnt xType,
 set<string> PKB::calls_X_Y_get_string_X_from_string_Y(DesignEnt xType,
         DesignEnt yType, const string& y) const
 {
-    return EMPTY_STRINGSET;
+    assert(QueryInfo::is_valid_argOne_syn_type(REL_CALLS, xType));
+    assert(QueryInfo::is_valid_argTwo_syn_type(REL_CALLS, yType));
+    switch (xType) {
+    case ENT_PROC:
+        switch (yType) {
+        case ENT_PROC:
+            return this->procTable->get_called_by(y);
+            break;
+        }
+        break;
+    }
+    return set<string>();
 }
 
 set<string> PKB::calls_X_Y_get_string_Y_from_string_X(DesignEnt xType,
         DesignEnt yType, const string& x) const
 {
-    return EMPTY_STRINGSET;
+    assert(QueryInfo::is_valid_argOne_syn_type(REL_CALLS, xType));
+    assert(QueryInfo::is_valid_argTwo_syn_type(REL_CALLS, yType));
+    switch (xType) {
+    case ENT_PROC:
+        switch (yType) {
+        case ENT_PROC:
+            return this->procTable->get_calls(x);
+            break;
+        }
+        break;
+    }
+    return set<string>();
 }
 
 set<string> PKB::callsStar_X_Y_get_string_X_from_string_Y
