@@ -73,10 +73,14 @@ struct EvalPKBDispatch {
 
     // Predicates
     bool (PKB::*f_string_argOne_string_argTwo)
-            (const std::string&, const std::string&) const;
-    bool (PKB::*f_string_argOne_int_argTwo)(const std::string&, int) const;
-    bool (PKB::*f_int_argOne_string_argTwo)(int, const std::string&) const;
-    bool (PKB::*f_int_argOne_int_argTwo)(int, int) const;
+            (DesignEnt argOneType, DesignEnt argTwoType,
+                const std::string&, const std::string&) const;
+    bool (PKB::*f_string_argOne_int_argTwo)(DesignEnt argOneType,
+             DesignEnt argTwType, const std::string&, int) const;
+    bool (PKB::*f_int_argOne_string_argTwo)(DesignEnt argOneType,
+             DesignEnt argTwoType, int, const std::string&) const;
+    bool (PKB::*f_int_argOne_int_argTwo)(DesignEnt argOneType,
+             DesignEnt argTwoType, int, int) const;
 
     // Generic QueryEvaluator evaluation function
     void (QueryEvaluator::*relRef_eval)
