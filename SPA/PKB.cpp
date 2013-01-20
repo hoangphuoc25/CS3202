@@ -189,13 +189,7 @@ set<int> PKB::parent_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         Node *par = node->get_parent();
         if (par != NULL) {
             int parStmt = par->get_stmtNo();
-            if ((xType == ENT_WHILE &&
-                       this->stmtBank->is_stmtType(parStmt, WHILETYPE))
-                ||
-                (xType == ENT_IF &&
-                        this->stmtBank->is_stmtType(parStmt, IFTYPE))
-                ||
-                (xType == ENT_STMT || xType == ENT_PROGLINE)) {
+            if (this->stmtBank->is_stmtType(parStmt, xType)) {
                 ret.insert(parStmt);
             }
         }
@@ -231,19 +225,7 @@ set<int> PKB::parent_X_Y_get_int_Y_from_int_X(DesignEnt xType,
         int sz = v.size();
         for(int i = 0; i < sz; i++) {
             int stmt = v[i]->get_stmtNo();
-            if ((yType == ENT_ASSIGN &&
-                    this->stmtBank->is_stmtType(stmt, ASSIGNTYPE))
-                    ||
-                    (yType == ENT_CALL &&
-                        this->stmtBank->is_stmtType(stmt, CALLTYPE))
-                    ||
-                    (yType == ENT_IF &&
-                       this->stmtBank->is_stmtType(stmt, IFTYPE))
-                    ||
-                    (yType == ENT_WHILE &&
-                        this->stmtBank->is_stmtType(stmt, WHILETYPE))
-                    ||
-                    (yType == ENT_STMT || yType == ENT_PROGLINE)) {
+            if (this->stmtBank->is_stmtType(stmt, yType)) {
                 ret.insert(stmt);
             }
         }
@@ -839,7 +821,7 @@ set<int> PKB::get_after_star(int stmtNo) {
 // Affects
 bool PKB::is_affects(int stmt1, int stmt2)
 {
-    if (!is_stmtType(stmt1, ASSIGNTYPE) || !is_stmtType(stmt2, ASSIGNTYPE)) {
+    if (!is_stmtType(stmt1, ENT_ASSIGN) || !is_stmtType(stmt2, ENT_ASSIGN)) {
         return false;
     }
 
@@ -883,7 +865,7 @@ bool PKB::is_affects(int stmt1, int stmt2)
                 return true;
             }
             // Check stmt only when it is assign stmt or calls
-            if (is_stmtType(n, ASSIGNTYPE) || is_stmtType(n, CALLTYPE)) {
+            if (is_stmtType(n, ENT_ASSIGN) || is_stmtType(n, ENT_CALL)) {
                 temp = get_var_stmt_modifies(n);
                 // Path broken
                 if (temp.find(var) != temp.end()) {
@@ -900,7 +882,7 @@ bool PKB::is_affects(int stmt1, int stmt2)
 
 bool PKB::is_affects_star(int stmt1, int stmt2)
 {
-    if (!is_stmtType(stmt1, ASSIGNTYPE) || !is_stmtType(stmt2, ASSIGNTYPE)) {
+    if (!is_stmtType(stmt1, ENT_ASSIGN) || !is_stmtType(stmt2, ENT_ASSIGN)) {
         return false;
     }
 
@@ -935,7 +917,7 @@ bool PKB::is_affects_star(int stmt1, int stmt2)
 
 set<int> PKB::get_affects(int stmtNo)
 {
-    if (!is_stmtType(stmtNo, ASSIGNTYPE)) {
+    if (!is_stmtType(stmtNo, ENT_ASSIGN)) {
         return EMPTY_INTSET;
     }
 
@@ -969,7 +951,7 @@ set<int> PKB::get_affects(int stmtNo)
         } else {
             visited.insert(n);
             // Check if calls modifies
-            if (is_stmtType(n, CALLTYPE)) {
+            if (is_stmtType(n, ENT_CALL)) {
                 temp = get_var_stmt_modifies(n);
                 // Current path broken.
                 if (temp.find(var) != temp.end()) {
@@ -978,7 +960,7 @@ set<int> PKB::get_affects(int stmtNo)
                 }
             }
             // Check stmt only when it is assign stmt
-            if (is_stmtType(n, ASSIGNTYPE)) {
+            if (is_stmtType(n, ENT_ASSIGN)) {
                 // stmt uses var: affects allows this stmt to modify var
                 temp = get_var_stmt_uses(n);
                 if (temp.find(var) != temp.end()){
@@ -1001,7 +983,7 @@ set<int> PKB::get_affects(int stmtNo)
 
 set<int> PKB::get_affects_star(int stmtNo)
 {
-    if (!is_stmtType(stmtNo, ASSIGNTYPE)) {
+    if (!is_stmtType(stmtNo, ENT_ASSIGN)) {
         return EMPTY_INTSET;
     }
     set<int> processed;
@@ -1030,7 +1012,7 @@ set<int> PKB::get_affects_star(int stmtNo)
 
 set<int> PKB::get_affected_by(int stmtNo)
 {
-    if (!is_stmtType(stmtNo, ASSIGNTYPE)) {
+    if (!is_stmtType(stmtNo, ENT_ASSIGN)) {
         return EMPTY_INTSET;
     }
     set<string> var = get_var_stmt_uses(stmtNo);
@@ -1051,7 +1033,7 @@ set<int> PKB::get_affected_by(int stmtNo)
 
 set<int> PKB::get_affected_by_star(int stmtNo)
 {
-    if (!is_stmtType(stmtNo, ASSIGNTYPE)) {
+    if (!is_stmtType(stmtNo, ENT_ASSIGN)) {
         return EMPTY_INTSET;
     }
     queue<int> q;
@@ -1090,7 +1072,7 @@ bool PKB::has_const(int n) const
 }
 
 // Others
-bool PKB::is_stmtType(int stmtNo, stmtType type){
+bool PKB::is_stmtType(int stmtNo, DesignEnt type){
     return stmtBank->is_stmtType(stmtNo, type);
 }
 
@@ -1141,7 +1123,7 @@ set<int> PKB::filter_by_proc(string procName, set<int> s){
     }
 }
 
-int PKB::filter_by_stmtType(stmtType type, int stmtNo){
+int PKB::filter_by_stmtType(DesignEnt type, int stmtNo){
     if(is_stmtType(stmtNo, type)) {
         return stmtNo;
     } else {
@@ -1149,10 +1131,10 @@ int PKB::filter_by_stmtType(stmtType type, int stmtNo){
     }
 }
 
-set<int> PKB::filter_by_stmtType(stmtType type, set<int> s){
+set<int> PKB::filter_by_stmtType(DesignEnt type, set<int> s){
     set<int> res;
     set<int>::iterator it;
-    map<int, stmtType> m = stmtBank->get_directory();
+    map<int, DesignEnt> m = stmtBank->get_directory();
     for (it = s.begin(); it != s.end(); it++) {
         if (m[*it] == type) {
             res.insert(*it);

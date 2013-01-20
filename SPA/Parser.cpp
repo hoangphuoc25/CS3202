@@ -274,7 +274,7 @@ void Parser::call_stmt()
     match(PROC_NAME);
     create_node(currToken.get_name(), CALL_STMT);
     currNode->link_stmt(nextNode);
-    stmtBank->add_node_entry(stmtNo, CALLTYPE, nextNode);
+    stmtBank->add_node_entry(stmtNo, ENT_CALL, nextNode);
     procTable->add_calls(procName, nextNode->get_name());
 
     match(";");
@@ -286,7 +286,7 @@ void Parser::while_stmt()
     match("while");
     create_node(currToken.get_name(), WHILE_STMT);
     currNode->link_stmt(nextNode);
-    stmtBank->add_node_entry(stmtNo, WHILETYPE, nextNode);
+    stmtBank->add_node_entry(stmtNo, ENT_WHILE, nextNode);
 
     match(VAR_NAME);
     string varName = currToken.get_name();
@@ -309,7 +309,7 @@ void Parser::if_stmt()
     match("if");
     create_node(currToken.get_name(), IF_STMT);
     currNode->link_stmt(nextNode);
-    stmtBank->add_node_entry(stmtNo, IFTYPE, nextNode);
+    stmtBank->add_node_entry(stmtNo, ENT_IF, nextNode);
 
     match(VAR_NAME);
     string varName = currToken.get_name();
@@ -345,7 +345,7 @@ void Parser::assign()
     create_node("=", ASSIGN_STMT);
     currNode->link_stmt(nextNode);
     nextNode->add_leaf(tempNode);
-    stmtBank->add_node_entry(stmtNo, ASSIGNTYPE, nextNode);
+    stmtBank->add_node_entry(stmtNo, ENT_ASSIGN, nextNode);
 
     add_modifies(nextNode, tempNode->get_name());
     assignNode = nextNode;
@@ -497,7 +497,7 @@ CFGNode* Parser::build_CFG(int stmtNo)
     Node *n, *branch;
     int next, if_succ;
     
-    if (stmtBank->is_stmt_type(stmtNo, IFTYPE)) {
+    if (stmtBank->is_stmt_type(stmtNo, ENT_IF)) {
          n = stmtBank->get_node(stmtNo)->get_successor();
          if (n != NULL) {
              if_succ = n->get_stmtNo();
@@ -531,7 +531,7 @@ CFGNode* Parser::build_CFG(int stmtNo)
              return 0;
          }
     } else {
-        if (stmtBank->is_stmt_type(stmtNo, WHILETYPE)) {
+        if (stmtBank->is_stmt_type(stmtNo, ENT_WHILE)) {
             n = stmtBank->get_node(stmtNo)->get_children()[0];
             next = n->get_stmtNo();
             CFG[stmtNo]->set_edge(CFG[next], OUT, 2);
@@ -564,7 +564,7 @@ CFGNode* Parser::build_CFG(int stmtNo){
     int succNo, childNo, thenNo, elseNo;
     CFGNode *next, *thenNode, *elseNode;
 
-    if (stmtBank->is_stmtType(stmtNo, IFTYPE)){
+    if (stmtBank->is_stmtType(stmtNo, ENT_IF)){
         thenNo = stmtNo + 1;
         set_edge(CFG->at(stmtNo), CFG->at(thenNo), 1, 1);
         thenNode = build_CFG(thenNo);
@@ -587,7 +587,7 @@ CFGNode* Parser::build_CFG(int stmtNo){
             return next;
         }
     } else {
-        if (stmtBank->is_stmtType(stmtNo, WHILETYPE)){
+        if (stmtBank->is_stmtType(stmtNo, ENT_WHILE)){
             child = stmtBank->get_node(stmtNo)->get_children()[0];
             childNo = child->get_stmtNo();
             set_edge(CFG->at(stmtNo), CFG->at(childNo), 2, 1);

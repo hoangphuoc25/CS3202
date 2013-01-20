@@ -3,12 +3,9 @@
 
 #include <map>
 #include "Node.h"
+#include "PQL.h"
 
 using std::map;
-
-enum stmtType {
-    CALLTYPE, WHILETYPE, IFTYPE, ASSIGNTYPE
-};
 
 class StmtBank {
 public:
@@ -17,7 +14,7 @@ public:
     StmtBank(void);
     ~StmtBank(void);
 
-    void add_node_entry(int stmtNo, stmtType type, Node* node);
+    void add_node_entry(int stmtNo, DesignEnt type, Node* node);
     bool add_constant(const std::string& n, char **errorMsg);
     void add_stmtLst(int stmtNo);
 
@@ -46,20 +43,20 @@ public:
     std::string get_call_procName(int callStmt) const;
 
     // Banks
-    map<int, stmtType> get_directory();
+    map<int, DesignEnt> get_directory();
     map<int, Node*> get_callBank();
     map<int, Node*> get_ifBank();
     map<int, Node*> get_whileBank();
     map<int, Node*> get_assignBank();
 
-    bool is_stmtType(int stmtNo, stmtType type);
+    bool is_stmtType(int stmtNo, DesignEnt type);
     bool is_valid_stmtNo(int stmtNo);
 
     //Utility
     Node* get_node(int stmtNo);
 
 private:
-    map<int, stmtType> directory; 
+    map<int, DesignEnt> directory;
     map<int, Node*> callBank;
     map<int, Node*> whileBank;
     map<int, Node*> ifBank;

@@ -304,7 +304,7 @@ void TestPKB::test_one(){
     CPPUNIT_ASSERT(s1.find(22) != s1.end());
     CPPUNIT_ASSERT(s1.find(23) != s1.end());
 
-    s1 = pkb.filter_by_stmtType(WHILETYPE, pkb.get_all_stmt());
+    s1 = pkb.filter_by_stmtType(ENT_WHILE, pkb.get_all_stmt());
     CPPUNIT_ASSERT_EQUAL(4, (int)s1.size());
     CPPUNIT_ASSERT(s1.find(9) != s1.end());
     CPPUNIT_ASSERT(s1.find(19) != s1.end());
@@ -357,18 +357,18 @@ void TestPKB::test_one(){
     CPPUNIT_ASSERT(s1.find(19) != s1.end());
 
     // Q5
-    s1 = pkb.filter_by_stmtType(WHILETYPE, pkb.get_parent_star(2));
+    s1 = pkb.filter_by_stmtType(ENT_WHILE, pkb.get_parent_star(2));
     CPPUNIT_ASSERT(s1.size() == 0);
-    s1 = pkb.filter_by_stmtType(WHILETYPE, pkb.get_parent_star(10));
+    s1 = pkb.filter_by_stmtType(ENT_WHILE, pkb.get_parent_star(10));
     CPPUNIT_ASSERT(s1.size() == 1);
     CPPUNIT_ASSERT(s1.find(9) != s1.end());
-    s1 = pkb.filter_by_stmtType(WHILETYPE, pkb.get_parent_star(13));
+    s1 = pkb.filter_by_stmtType(ENT_WHILE, pkb.get_parent_star(13));
     CPPUNIT_ASSERT(s1.size() == 1);
     CPPUNIT_ASSERT(s1.find(9) != s1.end());
-    s1 = pkb.filter_by_stmtType(WHILETYPE, pkb.get_parent_star(17));
+    s1 = pkb.filter_by_stmtType(ENT_WHILE, pkb.get_parent_star(17));
     CPPUNIT_ASSERT(s1.size() == 1);
     CPPUNIT_ASSERT(s1.find(9) != s1.end());
-    s1 = pkb.filter_by_stmtType(WHILETYPE, pkb.get_parent_star(22));
+    s1 = pkb.filter_by_stmtType(ENT_WHILE, pkb.get_parent_star(22));
     CPPUNIT_ASSERT(s1.size() == 1);
     CPPUNIT_ASSERT(s1.find(19) != s1.end());
 
@@ -380,15 +380,15 @@ void TestPKB::test_one(){
     CPPUNIT_ASSERT_EQUAL(-1, pkb.get_predecessor(19));
 
     // Q8
-    CPPUNIT_ASSERT_EQUAL(-1, pkb.filter_by_stmtType(ASSIGNTYPE,
+    CPPUNIT_ASSERT_EQUAL(-1, pkb.filter_by_stmtType(ENT_ASSIGN,
         pkb.get_predecessor(1)));
-    CPPUNIT_ASSERT_EQUAL(2, pkb.filter_by_stmtType(ASSIGNTYPE,
+    CPPUNIT_ASSERT_EQUAL(2, pkb.filter_by_stmtType(ENT_ASSIGN,
         pkb.get_predecessor(3)));
-    CPPUNIT_ASSERT_EQUAL(8, pkb.filter_by_stmtType(ASSIGNTYPE,
+    CPPUNIT_ASSERT_EQUAL(8, pkb.filter_by_stmtType(ENT_ASSIGN,
         pkb.get_predecessor(9)));
-    CPPUNIT_ASSERT_EQUAL(-1, pkb.filter_by_stmtType(ASSIGNTYPE,
+    CPPUNIT_ASSERT_EQUAL(-1, pkb.filter_by_stmtType(ENT_ASSIGN,
         pkb.get_predecessor(10)));
-    CPPUNIT_ASSERT_EQUAL(-1, pkb.filter_by_stmtType(ASSIGNTYPE,
+    CPPUNIT_ASSERT_EQUAL(-1, pkb.filter_by_stmtType(ENT_ASSIGN,
         pkb.get_predecessor(18)));
 
     // Q10
@@ -405,25 +405,25 @@ void TestPKB::test_one(){
     CPPUNIT_ASSERT(s1.find(20) != s1.end());
 
     // Q11
-    s1 = pkb.filter_by_stmtType(IFTYPE,pkb.get_predecessor_star(10));
+    s1 = pkb.filter_by_stmtType(ENT_IF,pkb.get_predecessor_star(10));
     CPPUNIT_ASSERT(s1.size() == 0);
-    s1 = pkb.filter_by_stmtType(IFTYPE,pkb.get_predecessor_star(17));
+    s1 = pkb.filter_by_stmtType(ENT_IF,pkb.get_predecessor_star(17));
     CPPUNIT_ASSERT(s1.size() == 1);
     CPPUNIT_ASSERT(s1.find(11) != s1.end());
 
     // Q12
-    s1 = pkb.filter_by_stmtType(ASSIGNTYPE,pkb.get_predecessor_star(4));
+    s1 = pkb.filter_by_stmtType(ENT_ASSIGN,pkb.get_predecessor_star(4));
     CPPUNIT_ASSERT(s1.size() == 3);
     CPPUNIT_ASSERT(s1.find(1) != s1.end());
     CPPUNIT_ASSERT(s1.find(2) != s1.end());
     CPPUNIT_ASSERT(s1.find(3) != s1.end());
-    s1 = pkb.filter_by_stmtType(ASSIGNTYPE,pkb.get_predecessor_star(5));
+    s1 = pkb.filter_by_stmtType(ENT_ASSIGN,pkb.get_predecessor_star(5));
     CPPUNIT_ASSERT(s1.size() == 4);
     CPPUNIT_ASSERT(s1.find(1) != s1.end());
     CPPUNIT_ASSERT(s1.find(2) != s1.end());
     CPPUNIT_ASSERT(s1.find(3) != s1.end());
     CPPUNIT_ASSERT(s1.find(4) != s1.end());
-    s1 = pkb.filter_by_stmtType(ASSIGNTYPE,pkb.get_predecessor_star(9));
+    s1 = pkb.filter_by_stmtType(ENT_ASSIGN,pkb.get_predecessor_star(9));
     CPPUNIT_ASSERT(s1.size() == 6);
     CPPUNIT_ASSERT(s1.find(1) != s1.end());
     CPPUNIT_ASSERT(s1.find(2) != s1.end());
@@ -431,10 +431,10 @@ void TestPKB::test_one(){
     CPPUNIT_ASSERT(s1.find(4) != s1.end());
     CPPUNIT_ASSERT(s1.find(6) != s1.end());
     CPPUNIT_ASSERT(s1.find(8) != s1.end());
-    s1 = pkb.filter_by_stmtType(ASSIGNTYPE,pkb.get_predecessor_star(17));
+    s1 = pkb.filter_by_stmtType(ENT_ASSIGN,pkb.get_predecessor_star(17));
     CPPUNIT_ASSERT(s1.size() == 1);
     CPPUNIT_ASSERT(s1.find(10) != s1.end());
-    s1 = pkb.filter_by_stmtType(ASSIGNTYPE,pkb.get_predecessor_star(22));
+    s1 = pkb.filter_by_stmtType(ENT_ASSIGN,pkb.get_predecessor_star(22));
     CPPUNIT_ASSERT(s1.size() == 1);
     CPPUNIT_ASSERT(s1.find(20) != s1.end());
 
@@ -461,11 +461,11 @@ void TestPKB::test_one(){
     CPPUNIT_ASSERT(s.find("z") != s.end());
 
     // Q14
-    s1 = pkb.filter_by_stmtType(WHILETYPE, pkb.get_stmt_modifies("i"));
+    s1 = pkb.filter_by_stmtType(ENT_WHILE, pkb.get_stmt_modifies("i"));
     CPPUNIT_ASSERT(s1.size() == 2);
     CPPUNIT_ASSERT(s1.find(9) != s1.end());
     CPPUNIT_ASSERT(s1.find(19) != s1.end());
-    s1 = pkb.filter_by_stmtType(WHILETYPE, pkb.get_stmt_modifies("y"));
+    s1 = pkb.filter_by_stmtType(ENT_WHILE, pkb.get_stmt_modifies("y"));
     CPPUNIT_ASSERT(s1.size() == 3);
     CPPUNIT_ASSERT(s1.find(9) != s1.end());
     CPPUNIT_ASSERT(s1.find(19) != s1.end());

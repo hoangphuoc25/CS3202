@@ -425,15 +425,15 @@ public:
     set<int> get_affected_by_star(int stmtNo);
 
     // Others
-    bool is_stmtType(int stmtNo, stmtType type);
+    bool is_stmtType(int stmtNo, DesignEnt type);
     bool is_valid_stmtNo(int stmtNo);
 
     set<int> get_all_stmt();
     set<int> get_all_stmt_by_proc(string procName);
 
     set<int> filter_by_proc(string procName, set<int> s);
-    set<int> filter_by_stmtType(stmtType type, set<int> s);
-    int filter_by_stmtType(stmtType type, int stmtNo);
+    set<int> filter_by_stmtType(DesignEnt type, set<int> s);
+    int filter_by_stmtType(DesignEnt type, int stmtNo);
 
     // Constant
     bool has_const(int n) const;
