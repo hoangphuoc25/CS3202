@@ -241,6 +241,19 @@ void QueryEvaluator::setup_uses()
     tmpDispatch.relRef_eval =
             &QueryEvaluator::ev_rr_ss_string_string_01;
     this->dispatchTable[evalSynArgDesc] = tmpDispatch;
+
+    // Uses(procedure,var), 10
+    evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_10, ENT_PROC,
+            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
+    tmpDispatch.reset();
+    tmpDispatch.get_all_string_argTwo = &PKB::get_all_vars;
+    tmpDispatch.get_string_set_argOne_from_string_argTwo =
+            &PKB::uses_X_Y_get_string_X_from_string_Y;
+    tmpDispatch.get_string_set_argTwo_from_string_argOne =
+            &PKB::uses_X_Y_get_string_Y_from_string_X;
+    tmpDispatch.relRef_eval =
+            &QueryEvaluator::ev_rr_ss_string_string_10;
+    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
 }
 
 // TODO: Fix cyclic call chain issue with regards to updating
@@ -468,6 +481,23 @@ void QueryEvaluator::ev_rr_ss_string_string_01(RelRef *relRef,
 void QueryEvaluator::ev_rr_ss_string_string_10(RelRef *relRef,
         const EvalPKBDispatch& disp)
 {
+    assert(disp.get_all_string_argTwo != NULL);
+    assert(disp.get_string_set_argTwo_from_string_argOne != NULL);
+    set<pair<int, string> > argOneSet =
+            this->results.get_synonym(relRef->argOneString);
+    for (set<pair<int, string> >::const_iterator argOneIt = argOneSet.begin();
+            argOneIt != argOneSet.end(); argOneIt++) {
+        const string& argOneVal = argOneIt->second;
+        set<string> argTwoSet =
+                (this->pkb->*(disp.get_string_set_argTwo_from_string_argOne))
+                        (relRef->argOneSyn, relRef->argTwoSyn, argOneVal);
+        for (set<string>::const_iterator argTwoIt = argTwoSet.begin();
+                argTwoIt != argTwoSet.end(); argTwoIt++) {
+            this->results.add_edge(relRef->argOneSyn, relRef->argOneString,
+                    argOneVal, relRef->argTwoSyn, relRef->argTwoString,
+                    *argTwoIt);
+        }
+    }
 }
 
 void QueryEvaluator::ev_rr_ss_string_string_11(RelRef *relRef,

@@ -113,8 +113,19 @@ set<string> PKB::uses_X_Y_get_string_Y_from_int_X(DesignEnt xType,
 }
 
 set<string> PKB::uses_X_Y_get_string_Y_from_string_X(DesignEnt xType,
-        DesignEnt useless, const string& x) const
+        DesignEnt yType, const string& x) const
 {
+    assert(QueryInfo::is_valid_argOne_syn_type(REL_USES, xType));
+    assert(QueryInfo::is_valid_argTwo_syn_type(REL_USES, yType));
+    switch (xType) {
+    case ENT_PROC:
+        switch (yType) {
+        case ENT_VAR:
+            return this->procTable->get_vars_used_by_proc(x);
+            break;
+        }
+        break;
+    }
     return EMPTY_STRINGSET;
 }
 
@@ -392,7 +403,7 @@ set<string> PKB::get_all_vars_by_proc(string procName){
     for (it = s.begin(); it != s.end(); it++) {
         res.insert(*it);
     }
-    s = procTable->get_uses(procName);
+    s = procTable->get_vars_used_by_proc(procName);
     for (it = s.begin(); it != s.end(); it++) {
         res.insert(*it);
     }
@@ -510,7 +521,7 @@ set<string> PKB::get_var_stmt_modifies(int stmtNo){
 
 // Uses
 bool PKB::is_uses(string procName, string varName){
-    set<string> s = procTable->get_uses(procName);
+    set<string> s = procTable->get_vars_used_by_proc(procName);
     return (s.find(varName) != s.end());
 }
 
@@ -531,8 +542,9 @@ set<int> PKB::get_stmt_uses(string var){
     return varTable->get_used_by(var);
 }
 
-set<string> PKB::get_var_proc_uses(string procName){
-    return procTable->get_uses(procName);
+set<string> PKB::get_var_proc_uses(string procName)
+{
+    return procTable->get_vars_used_by_proc(procName);
 }
 
 set<string> PKB::get_var_stmt_uses(int stmtNo){

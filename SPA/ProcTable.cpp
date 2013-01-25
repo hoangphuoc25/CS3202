@@ -60,7 +60,7 @@ void ProcTable::combine_up(string caller, string callee){
         varTable->add_proc_modifies_var(caller, *it);
     }
 
-    s = get_uses(callee);
+    s = this->get_vars_used_by_proc(callee);
     for (it = s.begin(); it != s.end(); it++) {
         procTable[index].uses.insert(*it);
         this->varTable->add_used_by(*it, ENT_PROC, caller);
@@ -216,7 +216,9 @@ const set<string>& ProcTable::get_modifies(const string& procName) const
     }
 }
 
-set<string> ProcTable::get_uses(string procName){
+const set<string>& ProcTable::get_vars_used_by_proc(
+        const string& procName) const
+{
     int index = get_index(procName);
     if (index != -1){
         return procTable[index].uses;

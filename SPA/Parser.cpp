@@ -150,7 +150,7 @@ void Parser::update_calls()
         for (sit = s.begin(); sit != s.end(); sit++) {
             varTable->add_call_modifies_var(callNodeStmtNo, *sit);
         }
-        s = procTable->get_uses(name);
+        s = procTable->get_vars_used_by_proc(name);
         callNode->set_uses(s);
         // Set call stmt to use variable
         for (sit = s.begin(); sit != s.end(); sit++) {

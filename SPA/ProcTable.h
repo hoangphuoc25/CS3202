@@ -60,7 +60,8 @@ public:
 
     const std::set<std::string>&
         get_modifies(const std::string& procName) const;
-    set<string> get_uses(string procName);
+    const std::set<std::string>& get_vars_used_by_proc(
+            const std::string& procName) const;
     std::set<std::string> get_all_procs() const;
 
     string which_proc(int stmtNo);

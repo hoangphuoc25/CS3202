@@ -110,3 +110,55 @@ void Test_20_SynSyn_RelRef::test_ev_rr_ss_string_string_01()
             "static,firstProc", "me,secProc", "static,secProc"),
             stringSet);
 }
+
+void Test_20_SynSyn_RelRef::test_ev_rr_ss_string_string_10()
+{
+    string simpleProg, queryStr;
+    list<string> resultList;
+    SetWrapper<string> stringSet;
+    QueryEvaluator evaluator;
+
+    // Modifies(proc,var1), Uses(proc,var2)
+    simpleProg =
+        "procedure Aleph { \
+           song = of + burchess; \
+           if nice then { \
+             clap = your + hands; \
+             while xt { \
+               aa = bb; \
+             } \
+           } else { \
+             melody = noise; \
+           } \
+           alittle = tired; \
+         } \
+         procedure GDay { \
+           good = morning; \
+           my = friends; \
+           if cool then { \
+             bb = alittle; \
+           } else { \
+             noise = met; \
+           } \
+         } \
+         procedure UsesNothing { \
+           this = 1 + 3; \
+           proc = 5 + 7 - 162; \
+           uses = 742; \
+           nothing = 864 + 721; \
+         } \
+         procedure UseFromCall { \
+           use = 73; \
+           from = 1246; \
+           call GDay; \
+         }";
+    queryStr = "procedure asdf1; variable V1gds, Vjju; ";
+    queryStr += " Select asdf1 such that Modifies(asdf1,V1gds) and ";
+    queryStr += " Uses(asdf1, Vjju)";
+    evaluator.parseSimple(simpleProg);
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(
+            SetWrapper<string>(3, "Aleph", "GDay", "UseFromCall"),
+            stringSet);
+}
