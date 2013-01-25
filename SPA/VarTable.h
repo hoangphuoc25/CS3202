@@ -74,6 +74,8 @@ public:
 
     const std::set<int>& get_X_using_var(DesignEnt entType,
             const std::string& var) const;
+    const std::set<std::string>& get_string_X_using_var(
+            DesignEnt entType, const std::string& var) const;
 
     set<string> get_modified_by_proc(string var);
     set<string> get_used_by_proc(string var);

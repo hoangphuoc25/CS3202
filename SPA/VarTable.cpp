@@ -315,6 +315,22 @@ const set<int>& VarTable::get_X_using_var(DesignEnt entType,
     return EMPTY_INTSET;
 }
 
+const set<string>& VarTable::get_string_X_using_var(DesignEnt entType,
+        const string& var) const
+{
+    assert(QueryInfo::is_valid_argOne_syn_type(REL_USES, entType));
+    int idx = get_index(var);
+    if (idx >= 0) {
+        const VarElements& varElem = this->varTable[idx];
+        switch (entType) {
+        case ENT_PROC:
+            return varElem.usedByProc;
+            break;
+        }
+    }
+    return EMPTY_STRINGSET;
+}
+
 set<string> VarTable::get_modified_by_proc(string var){
     int index = get_index(var);
     if (index == -1) {

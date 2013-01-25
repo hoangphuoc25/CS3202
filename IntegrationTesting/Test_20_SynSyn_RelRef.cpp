@@ -63,3 +63,50 @@ void Test_20_SynSyn_RelRef::test_uses_modifies_same_variable()
             "12,ab", "12,this", "15,apple", "15,x5", "15,ab", "15,this"),
             stringSet);
 }
+
+void Test_20_SynSyn_RelRef::test_ev_rr_ss_string_string_01()
+{
+    string simpleProg, queryStr;
+    list<string> resultList;
+    SetWrapper<string> stringSet;
+    QueryEvaluator evaluator;
+
+    simpleProg =
+        "procedure firstProc { \
+           a1 = hot + day; \
+           if i then { \
+             me = too; \
+           } else { \
+             assign = due; \
+           } \
+           hello = byebye + static; \
+         } \
+         procedure secProc { \
+           static = analysis; \
+           while m { \
+             what = now; \
+             nobody = is + answering - me; \
+             if you then { \
+               can = see; \
+               thenIs = good; \
+             } else { \
+               otherwise = good + luck + to - me; \
+             } \
+           } \
+         } ";
+    queryStr = " assign bhb; variable tax; procedure Mira; ";
+    queryStr += " Select <tax,Mira> such that Modifies(bhb, tax) ";
+    queryStr += " and Uses(Mira, tax)";
+    // Variables modified by assignment:
+    //   a1, assign, can, hello, me, nobody, otherwise, static,
+    //   thenIs, what
+    // Variables above that are used by some procedure:
+    //   me [secProc], static [firstProc]
+    // Procedures: firstProc, secProc
+    evaluator.parseSimple(simpleProg);
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "me,firstProc",
+            "static,firstProc", "me,secProc", "static,secProc"),
+            stringSet);
+}
