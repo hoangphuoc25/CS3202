@@ -63,7 +63,7 @@ void ProcTable::combine_up(string caller, string callee){
     s = get_uses(callee);
     for (it = s.begin(); it != s.end(); it++) {
         procTable[index].uses.insert(*it);
-        varTable->add_used_by(*it, caller);
+        this->varTable->add_used_by(*it, ENT_PROC, caller);
     }
 }
 

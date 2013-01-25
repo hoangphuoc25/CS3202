@@ -93,7 +93,9 @@ set<string> PKB::modifies_X_Y_get_string_X_from_string_Y(DesignEnt xType,
 set<int> PKB::uses_X_Y_get_int_X_from_string_Y(DesignEnt xType,
         DesignEnt useless, const string& varName) const
 {
-    return EMPTY_INTSET;
+    assert(QueryInfo::is_valid_argOne_syn_type(REL_USES, xType));
+    assert(QueryInfo::is_valid_argTwo_syn_type(REL_USES, useless));
+    return this->varTable->get_X_using_var(xType, varName);
 }
 
 set<string> PKB::uses_X_Y_get_string_X_from_string_Y(DesignEnt xType,

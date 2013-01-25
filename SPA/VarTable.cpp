@@ -1,3 +1,4 @@
+#include <cassert>
 #include <string>
 #include <vector>
 #include <utility>
@@ -25,6 +26,12 @@ VarElements::VarElements(const struct VarElements &other)
         ifModifying = other.ifModifying;
         whileModifying = other.whileModifying;
         stmtModifying = other.stmtModifying;
+        this->assignUsing = other.assignUsing;
+        this->ifUsing = other.ifUsing;
+        this->whileUsing = other.whileUsing;
+        this->callUsing = other.callUsing;
+        this->stmtUsing = other.stmtUsing;
+        this->usedByProc = other.usedByProc;
         usedBy = other.usedBy;
     }
 }
@@ -38,6 +45,12 @@ VarElements& VarElements::operator=(const struct VarElements &other)
         ifModifying = other.ifModifying;
         whileModifying = other.whileModifying;
         stmtModifying = other.stmtModifying;
+        this->assignUsing = other.assignUsing;
+        this->ifUsing = other.ifUsing;
+        this->whileUsing = other.whileUsing;
+        this->callUsing = other.callUsing;
+        this->stmtUsing = other.stmtUsing;
+        this->usedByProc = other.usedByProc;
         usedBy = other.usedBy;
     }
     return *this;
@@ -149,16 +162,35 @@ void VarTable::add_proc_modifies_var(const string& procName,
     }
 }
 
-void VarTable::add_used_by(string var, int stmtNo)
+void VarTable::add_used_by(string var, DesignEnt entType, int stmtNo)
 {
+    assert(QueryInfo::is_valid_argOne_syn_type(REL_USES, entType));
     int index = get_index(var);
     if (index >= 0) {
-        varTable[index].usedBy.insert(stmtNo);
+        VarElements& varElem = varTable[index];
+        switch (entType) {
+        case ENT_ASSIGN:
+            varElem.assignUsing.insert(stmtNo);
+            break;
+        case ENT_CALL:
+            varElem.callUsing.insert(stmtNo);
+            break;
+        case ENT_IF:
+            varElem.ifUsing.insert(stmtNo);
+            break;
+        case ENT_WHILE:
+            varElem.whileUsing.insert(stmtNo);
+            break;
+        }
+        // insert into used by stmt since every design ent here
+        // is of stmt type
+        varElem.stmtUsing.insert(stmtNo);
     }
 }
 
-void VarTable::add_used_by(string var, string procName)
+void VarTable::add_used_by(string var, DesignEnt entType, string procName)
 {
+    assert(entType == ENT_PROC);
     int index = get_index(var);
     if (index >= 0) {
         varTable[index].usedByProc.insert(procName);
@@ -251,6 +283,36 @@ const set<int>& VarTable::get_used_by(int index) const
         return EMPTY_INTSET;
     }
     return varTable[index].usedBy;
+}
+
+const set<int>& VarTable::get_X_using_var(DesignEnt entType,
+        const string& var) const
+{
+    assert(QueryInfo::is_valid_argOne_syn_type(REL_USES, entType));
+    int index = get_index(var);
+    if (index == -1) {
+        return EMPTY_INTSET;
+    }
+    const VarElements &varElem = this->varTable[index];
+    switch (entType) {
+    case ENT_ASSIGN:
+        return varElem.assignUsing;
+        break;
+    case ENT_CALL:
+        return varElem.callUsing;
+        break;
+    case ENT_IF:
+        return varElem.ifUsing;
+        break;
+    case ENT_WHILE:
+        return varElem.whileUsing;
+        break;
+    case ENT_STMT:
+    case ENT_PROGLINE:
+        return varElem.stmtUsing;
+        break;
+    }
+    return EMPTY_INTSET;
 }
 
 set<string> VarTable::get_modified_by_proc(string var){

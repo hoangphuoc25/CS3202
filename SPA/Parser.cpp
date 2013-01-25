@@ -116,10 +116,20 @@ void Parser::combine_node_up(Node *topNode, Node *botNode)
         this->varTable->add_stmt_modifies_var(stmtNo, *it);
     }
 
+    // if / while use the variables that its descendents use
+    DesignEnt topNodeEntType = ENT_INVALID;
+    switch (topNodeType) {
+    case IF_STMT:
+        topNodeEntType = ENT_IF;
+        break;
+    case WHILE_STMT:
+        topNodeEntType = ENT_WHILE;
+        break;
+    }
     s = botNode->get_uses();
     for (it = s.begin(); it != s.end(); it++) {
         topNode->add_uses(*it);
-        varTable->add_used_by(*it,stmtNo);
+        this->varTable->add_used_by(*it, topNodeEntType, stmtNo);
     }
 }
 
@@ -142,8 +152,9 @@ void Parser::update_calls()
         }
         s = procTable->get_uses(name);
         callNode->set_uses(s);
+        // Set call stmt to use variable
         for (sit = s.begin(); sit != s.end(); sit++) {
-            varTable->add_used_by(*sit, callNode->get_stmtNo());
+            this->varTable->add_used_by(*sit, ENT_CALL, callNode->get_stmtNo());
         }
     }
 }
@@ -645,8 +656,23 @@ void Parser::add_uses(Node* n, string var)
 {
     int stmt = n->get_stmtNo();
     varTable->insert_var(var);
-    varTable->add_used_by(var, stmt);
-    varTable->add_used_by(var, procName);
+    DesignEnt stmtEntType = ENT_INVALID;
+    switch (n->get_type()) {
+    case CALL_STMT:
+        stmtEntType = ENT_CALL;
+        break;
+    case WHILE_STMT:
+        stmtEntType = ENT_WHILE;
+        break;
+    case IF_STMT:
+        stmtEntType = ENT_IF;
+        break;
+    case ASSIGN_STMT:
+        stmtEntType = ENT_ASSIGN;
+        break;
+    }
+    this->varTable->add_used_by(var, stmtEntType, stmt);
+    this->varTable->add_used_by(var, ENT_PROC, procName);
     n->add_uses(var);
     procTable->add_uses(procName, var);
 }

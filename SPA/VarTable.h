@@ -5,6 +5,7 @@
 #include <string>
 #include <map>
 #include <set>
+#include "PQL.h"
 
 using std::vector;
 using std::pair;
@@ -23,6 +24,12 @@ struct VarElements {
     std::set<int> usedBy;
 
     std::set<std::string> procModifying;
+
+    std::set<int> assignUsing;
+    std::set<int> ifUsing;
+    std::set<int> whileUsing;
+    std::set<int> callUsing;
+    std::set<int> stmtUsing;
     set<string> usedByProc;
 
     VarElements();
@@ -51,8 +58,8 @@ public:
     void add_stmt_modifies_var(int stmtNo, const std::string& var);
     void add_proc_modifies_var(const std::string& procName,
             const std::string &var);
-    void add_used_by(string var, int stmtNo);
-    void add_used_by(string var, string procName);
+    void add_used_by(string var, DesignEnt entType, int stmtNo);
+    void add_used_by(string var, DesignEnt entType, string procName);
 
     const set<int>& get_assign_modifying_var(const std::string& var) const;
     const set<int>& get_if_modifying_var(const std::string& var) const;
@@ -64,6 +71,9 @@ public:
     const set<int>& get_modified_by(int index) const;
     const set<int>& get_used_by(string var) const;
     const set<int>& get_used_by(int index) const;
+
+    const std::set<int>& get_X_using_var(DesignEnt entType,
+            const std::string& var) const;
 
     set<string> get_modified_by_proc(string var);
     set<string> get_used_by_proc(string var);

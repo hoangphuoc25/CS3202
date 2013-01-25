@@ -74,6 +74,7 @@
     <ClCompile Include="Test_01_SelectNoClause.cpp" />
     <ClCompile Include="Test_10_Calls.cpp" />
     <ClCompile Include="Test_10_Parent.cpp" />
+    <ClCompile Include="Test_20_SynSyn_RelRef.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SetWrapper.h" />
@@ -82,6 +83,7 @@
     <ClInclude Include="Test_01_SelectNoClause.h" />
     <ClInclude Include="Test_10_Calls.h" />
     <ClInclude Include="Test_10_Parent.h" />
+    <ClInclude Include="Test_20_SynSyn_RelRef.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

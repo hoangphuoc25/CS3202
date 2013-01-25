@@ -150,6 +150,19 @@ private:
             const EvalPKBDispatch& disp);
     void ev_rr_ss_int_string_00_from_argTwo(RelRef *relRef,
             const EvalPKBDispatch& disp);
+    /*
+     * Evaluates RelRef where both arguments are synonyms; the
+     * first synonym has values of type integer and was not previously
+     * in any RelRef, the second synonym has values of type string and
+     *  was in at least one previous RelRef.
+     *
+     * Current evaluation strategy is to:
+     * 1. Get the set of valid values for 2nd synonym from the graph,
+     *    call this set Y.
+     * 2. For each element in Y, retrieve the set of X such that
+     *    RelRef(X,Y).
+     * 3. Add edge(X,Y) to the graph.
+     */
     void ev_rr_ss_int_string_01(RelRef *relRef,
             const EvalPKBDispatch& disp);
     void ev_rr_ss_int_string_10(RelRef *relRef,

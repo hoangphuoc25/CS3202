@@ -215,6 +215,20 @@ void QueryEvaluator::setup_modifies()
 
 void QueryEvaluator::setup_uses()
 {
+    EvalSynArgDesc evalSynArgDesc;
+    EvalPKBDispatch tmpDispatch;
+    // Uses(assign,var), 01
+    evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_01, ENT_ASSIGN,
+            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
+    tmpDispatch.reset();
+    tmpDispatch.get_all_int_argOne = &PKB::get_all_assign;
+    tmpDispatch.get_int_set_argOne_from_string_argTwo =
+            &PKB::uses_X_Y_get_int_X_from_string_Y;
+    tmpDispatch.get_string_set_argTwo_from_int_argOne =
+            &PKB::uses_X_Y_get_string_Y_from_int_X;
+    tmpDispatch.relRef_eval =
+            &QueryEvaluator::ev_rr_ss_int_string_01;
+    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
 }
 
 // TODO: Fix cyclic call chain issue with regards to updating
@@ -529,6 +543,24 @@ void QueryEvaluator::ev_rr_ss_int_string_00_from_argTwo(RelRef *relRef,
 void QueryEvaluator::ev_rr_ss_int_string_01(RelRef *relRef,
         const EvalPKBDispatch& disp)
 {
+    assert(disp.get_int_set_argOne_from_string_argTwo != NULL);
+    set<pair<int, string> > argTwoSet =
+            this->results.get_synonym(relRef->argTwoString);
+    for (set<pair<int, string> >::const_iterator argTwoIt =
+            argTwoSet.begin(); argTwoIt != argTwoSet.end(); argTwoIt++) {
+        const string& argTwoVal = argTwoIt->second;
+        set<int> argOneSet =
+                (this->pkb->*
+                        (disp.get_int_set_argOne_from_string_argTwo))
+                                (relRef->argOneSyn, relRef->argTwoSyn,
+                                 argTwoVal);
+        for (set<int>::const_iterator argOneIt = argOneSet.begin();
+                argOneIt != argOneSet.end(); argOneIt++){
+            this->results.add_edge(relRef->argOneSyn,
+                    relRef->argOneString, *argOneIt, relRef->argTwoSyn,
+                    relRef->argTwoString, argTwoVal);
+        }
+    }
 }
 
 void QueryEvaluator::ev_rr_ss_int_string_10(RelRef *relRef,
