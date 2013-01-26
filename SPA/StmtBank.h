@@ -52,8 +52,12 @@ public:
     bool is_stmtType(int stmtNo, DesignEnt type);
     bool is_valid_stmtNo(int stmtNo);
 
-    //Utility
-    Node* get_node(int stmtNo);
+    /*
+     * Retrieves a Node given by the statement number
+     * @param stmtNo statement number
+     * @return a pointer to Node representing that statement
+     */
+    Node *get_node(int stmtNo) const;
 
 private:
     map<int, DesignEnt> directory;

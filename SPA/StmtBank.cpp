@@ -1,3 +1,4 @@
+#include <cassert>
 #include "StmtBank.h"
 #include "SPAUtils.h"
 
@@ -229,25 +230,35 @@ bool StmtBank::is_valid_stmtNo(int stmtNo)
     return (directory.find(stmtNo) != directory.end());
 }
 
-Node* StmtBank::get_node(int stmtNo)
+Node* StmtBank::get_node(int stmtNo) const
 {
-    if (directory.find(stmtNo) != directory.end()) {
-        DesignEnt type = directory[stmtNo];
+    map<int, DesignEnt>::const_iterator it =
+            this->directory.find(stmtNo);
+    map<int, Node *>::const_iterator nodeIt;
+    if (it != this->directory.end()) {
+        DesignEnt type = it->second;
         switch(type) {
         case ENT_CALL:
-            return callBank[stmtNo];
+            nodeIt = this->callBank.find(stmtNo);
+            assert(nodeIt != this->callBank.end());
+            return nodeIt->second;
             break;
         case ENT_WHILE:
-            return whileBank[stmtNo];
+            nodeIt = this->whileBank.find(stmtNo);
+            assert(nodeIt != this->whileBank.end());
+            return nodeIt->second;
             break;
         case ENT_IF:
-            return ifBank[stmtNo];
+            nodeIt = this->ifBank.find(stmtNo);
+            assert(nodeIt != this->ifBank.end());
+            return nodeIt->second;
             break;
         case ENT_ASSIGN:
-            return assignBank[stmtNo];
+            nodeIt = this->assignBank.find(stmtNo);
+            assert(nodeIt != this->assignBank.end());
+            return nodeIt->second;
             break;
         }
-    } else {
-        return NULL;
     }
+    return NULL;
 }
