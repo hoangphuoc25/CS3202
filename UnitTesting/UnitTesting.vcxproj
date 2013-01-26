@@ -69,6 +69,7 @@
   <ItemGroup>
     <ClCompile Include="source\UnitTest.cpp" />
     <ClCompile Include="Test_00_StringBuffer.cpp" />
+    <ClCompile Include="Test_01_SetWrapper.cpp" />
     <ClCompile Include="Test_20_PQLParser.cpp" />
     <ClCompile Include="Test_21_ResultsGraph.cpp" />
     <ClCompile Include="TestParser.cpp" />
@@ -76,6 +77,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Test_00_StringBuffer.h" />
+    <ClInclude Include="Test_01_SetWrapper.h" />
     <ClInclude Include="Test_20_PQLParser.h" />
     <ClInclude Include="Test_21_ResultsGraph.h" />
     <ClInclude Include="TestParser.h" />

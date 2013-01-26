@@ -1,13 +1,10 @@
-#ifndef T11_TEST_00_SET_WRAPPER_H
-#define T11_TEST_00_SET_WRAPPER_H
-
-#ifndef T11_TEST_HELPER_H
-#define T11_TEST_HELPER_H
+#ifndef T11_TEST_01_SET_WRAPPER_H
+#define T11_TEST_01_SET_WRAPPER_H
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class Test_00_SetWrapper: public CPPUNIT_NS::TestFixture {
-CPPUNIT_TEST_SUITE(Test_00_SetWrapper);
+class Test_01_SetWrapper: public CPPUNIT_NS::TestFixture {
+CPPUNIT_TEST_SUITE(Test_01_SetWrapper);
 CPPUNIT_TEST(test_set_ctor);
 CPPUNIT_TEST(test_list_ctor);
 CPPUNIT_TEST(test_copy_ctor);
@@ -22,7 +19,5 @@ protected:
     void test_copy_ctor();
     void test_equality();
 };
-
-#endif
 
 #endif

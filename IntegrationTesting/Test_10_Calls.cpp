@@ -2,7 +2,7 @@
 #include <set>
 #include <string>
 #include "Test_10_Calls.h"
-#include "SetWrapper.h"
+#include "../SPA/SetWrapper.h"
 #include "../SPA/QueryEvaluator.h"
 
 using std::list;

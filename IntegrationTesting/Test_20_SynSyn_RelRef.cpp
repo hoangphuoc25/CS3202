@@ -2,7 +2,7 @@
 #include <set>
 #include <list>
 #include "Test_20_SynSyn_RelRef.h"
-#include "SetWrapper.h"
+#include "../SPA/SetWrapper.h"
 #include "../SPA/QueryEvaluator.h"
 
 using std::string;

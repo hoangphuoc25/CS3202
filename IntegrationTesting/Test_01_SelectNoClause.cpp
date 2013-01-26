@@ -2,7 +2,7 @@
 #include <set>
 #include <list>
 #include "Test_01_SelectNoClause.h"
-#include "SetWrapper.h"
+#include "../SPA/SetWrapper.h"
 #include "../SPA/QueryEvaluator.h"
 
 using std::string;

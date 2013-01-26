@@ -1,5 +1,5 @@
-#include "Test_00_SetWrapper.h"
-#include "SetWrapper.h"
+#include "Test_01_SetWrapper.h"
+#include "../SPA/SetWrapper.h"
 
 #include <list>
 #include <set>
@@ -9,13 +9,13 @@ using std::list;
 using std::set;
 using std::string;
 
-void Test_00_SetWrapper::setUp() {}
+void Test_01_SetWrapper::setUp() {}
 
-void Test_00_SetWrapper::tearDown() {}
+void Test_01_SetWrapper::tearDown() {}
 
-CPPUNIT_TEST_SUITE_REGISTRATION(Test_00_SetWrapper);
+CPPUNIT_TEST_SUITE_REGISTRATION(Test_01_SetWrapper);
 
-void Test_00_SetWrapper::test_set_ctor()
+void Test_01_SetWrapper::test_set_ctor()
 {
     set<string> S;
     S.insert("well");
@@ -26,7 +26,7 @@ void Test_00_SetWrapper::test_set_ctor()
             stringSet.toString());
 }
 
-void Test_00_SetWrapper::test_list_ctor()
+void Test_01_SetWrapper::test_list_ctor()
 {
     list<string> l;
     l.push_back("aa");
@@ -40,7 +40,7 @@ void Test_00_SetWrapper::test_list_ctor()
             stringSet.toString());
 }
 
-void Test_00_SetWrapper::test_copy_ctor()
+void Test_01_SetWrapper::test_copy_ctor()
 {
     set<string> S;
     S.insert("5");
@@ -64,7 +64,7 @@ void Test_00_SetWrapper::test_copy_ctor()
             anotherSet.toString());
 }
 
-void Test_00_SetWrapper::test_equality()
+void Test_01_SetWrapper::test_equality()
 {
     set<string> S;
     S.insert("because");

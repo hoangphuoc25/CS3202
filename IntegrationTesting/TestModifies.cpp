@@ -6,7 +6,7 @@
 #include <list>
 #include <utility>
 #include "TestModifies.h"
-#include "SetWrapper.h"
+#include "../SPA/SetWrapper.h"
 #include "../SPA/QueryEvaluator.h"
 
 using std::string;

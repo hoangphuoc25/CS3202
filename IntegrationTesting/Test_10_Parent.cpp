@@ -4,7 +4,7 @@
 
 #include "Test_10_Parent.h"
 #include "../SPA/QueryEvaluator.h"
-#include "SetWrapper.h"
+#include "../SPA/SetWrapper.h"
 
 using std::list;
 using std::set;

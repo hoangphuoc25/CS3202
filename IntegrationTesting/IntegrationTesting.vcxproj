@@ -67,19 +67,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="SetWrapper.cpp" />
     <ClCompile Include="source\IntegrationTest.cpp" />
     <ClCompile Include="TestModifies.cpp" />
-    <ClCompile Include="Test_00_SetWrapper.cpp" />
     <ClCompile Include="Test_01_SelectNoClause.cpp" />
     <ClCompile Include="Test_10_Calls.cpp" />
     <ClCompile Include="Test_10_Parent.cpp" />
     <ClCompile Include="Test_20_SynSyn_RelRef.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SetWrapper.h" />
     <ClInclude Include="TestModifies.h" />
-    <ClInclude Include="Test_00_SetWrapper.h" />
     <ClInclude Include="Test_01_SelectNoClause.h" />
     <ClInclude Include="Test_10_Calls.h" />
     <ClInclude Include="Test_10_Parent.h" />
