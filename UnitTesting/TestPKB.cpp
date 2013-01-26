@@ -43,7 +43,7 @@ void TestPKB::test_one(){
     CPPUNIT_ASSERT(s.find("z") != s.end());
     CPPUNIT_ASSERT(s.find("r") == s.end());
 
-    s = pkb.get_all_vars_by_proc("Bill");
+    s = pkb.uses_X_Y_get_string_Y_from_string_X(ENT_PROC, ENT_VAR, "Bill");
     CPPUNIT_ASSERT_EQUAL(6, (int)s.size());
     CPPUNIT_ASSERT(s.find("d") != s.end());
     CPPUNIT_ASSERT(s.find("e") != s.end());
@@ -52,7 +52,7 @@ void TestPKB::test_one(){
     CPPUNIT_ASSERT(s.find("y") != s.end());
     CPPUNIT_ASSERT(s.find("z") != s.end());
 
-    s = pkb.get_all_vars_by_proc("Mary");
+    s = pkb.uses_X_Y_get_string_Y_from_string_X(ENT_PROC, ENT_VAR, "Mary");
     CPPUNIT_ASSERT_EQUAL(6, (int)s.size());
     CPPUNIT_ASSERT(s.find("d") != s.end());
     CPPUNIT_ASSERT(s.find("e") != s.end());
@@ -61,13 +61,13 @@ void TestPKB::test_one(){
     CPPUNIT_ASSERT(s.find("y") != s.end());
     CPPUNIT_ASSERT(s.find("z") != s.end());
 
-    s = pkb.get_all_vars_by_proc("Jane");
+    s = pkb.uses_X_Y_get_string_Y_from_string_X(ENT_PROC, ENT_VAR, "Jane");
     CPPUNIT_ASSERT_EQUAL(3, (int)s.size());
     CPPUNIT_ASSERT(s.find("d") != s.end());
     CPPUNIT_ASSERT(s.find("x") != s.end());
     CPPUNIT_ASSERT(s.find("z") != s.end());
 
-    s = pkb.get_all_vars_by_proc("John");
+    s = pkb.uses_X_Y_get_string_Y_from_string_X(ENT_PROC, ENT_VAR, "John");
     CPPUNIT_ASSERT_EQUAL(6, (int)s.size());
     CPPUNIT_ASSERT(s.find("d") != s.end());
     CPPUNIT_ASSERT(s.find("e") != s.end());
@@ -114,13 +114,13 @@ void TestPKB::test_one(){
     CPPUNIT_ASSERT_EQUAL(true, pkb.is_modifies(1, "z"));
     CPPUNIT_ASSERT_EQUAL(true, pkb.is_modifies(30, "z"));
 
-    s = pkb.get_proc_modifies("i");
+    s = pkb.modifies_X_Y_get_string_X_from_string_Y(ENT_PROC, ENT_VAR, "i");
     CPPUNIT_ASSERT_EQUAL(2, (int)s.size());
     CPPUNIT_ASSERT(s.find("Bill") != s.end());
     CPPUNIT_ASSERT(s.find("Jane") == s.end());
     CPPUNIT_ASSERT(s.find("Mary") != s.end());
 
-    s1 = pkb.get_stmt_modifies("i");
+    s1 = pkb.modifies_X_Y_get_int_X_from_string_Y(ENT_STMT, ENT_VAR, "i");
     CPPUNIT_ASSERT_EQUAL(7, (int)s1.size());
     CPPUNIT_ASSERT(s1.find(13) != s1.end());
     CPPUNIT_ASSERT(s1.find(16) != s1.end());
@@ -130,19 +130,20 @@ void TestPKB::test_one(){
     CPPUNIT_ASSERT(s1.find(19) != s1.end());
     CPPUNIT_ASSERT(s1.find(18) != s1.end());
 
-    s = pkb.get_var_proc_modifies("Jane");
+    s = pkb.modifies_X_Y_get_string_Y_from_string_X(ENT_PROC, ENT_VAR,
+            "Jane");
     CPPUNIT_ASSERT_EQUAL(2, (int)s.size());
     CPPUNIT_ASSERT(s.find("x") != s.end());
     CPPUNIT_ASSERT(s.find("z") != s.end());
 
-    s = pkb.get_var_stmt_modifies(6);
+    s = pkb.modifies_X_Y_get_string_Y_from_int_X(ENT_STMT, ENT_VAR, 6);
     CPPUNIT_ASSERT_EQUAL(1, (int)s.size());
     CPPUNIT_ASSERT(s.find("d") != s.end());
     
-    s = pkb.get_var_stmt_modifies(15);
+    s = pkb.modifies_X_Y_get_string_Y_from_int_X(ENT_STMT, ENT_VAR, 15);
     CPPUNIT_ASSERT_EQUAL(2, (int)s.size());
 
-    s = pkb.get_var_stmt_modifies(9);
+    s = pkb.modifies_X_Y_get_string_Y_from_int_X(ENT_STMT, ENT_VAR, 9);
     CPPUNIT_ASSERT_EQUAL(5, (int)s.size());
     CPPUNIT_ASSERT(s.find("e") != s.end());
     CPPUNIT_ASSERT(s.find("i") != s.end());
@@ -158,14 +159,14 @@ void TestPKB::test_one(){
     CPPUNIT_ASSERT_EQUAL(true, pkb.is_uses(9, "y"));
     CPPUNIT_ASSERT_EQUAL(true, pkb.is_uses(21, "i"));
 
-    s = pkb.get_proc_uses("d");
+    s = pkb.uses_X_Y_get_string_X_from_string_Y(ENT_PROC, ENT_VAR, "d");
     CPPUNIT_ASSERT_EQUAL(4, (int)s.size());
     CPPUNIT_ASSERT(s.find("Bill") != s.end());
     CPPUNIT_ASSERT(s.find("John") != s.end());
     CPPUNIT_ASSERT(s.find("Mary") != s.end());
     CPPUNIT_ASSERT(s.find("Jane") != s.end());
 
-    s1 = pkb.get_stmt_uses("i");
+    s1 = pkb.uses_X_Y_get_int_X_from_string_Y(ENT_STMT, ENT_VAR, "i");
     CPPUNIT_ASSERT_EQUAL(11, (int)s1.size());
     CPPUNIT_ASSERT(s1.find(9) != s1.end());
     CPPUNIT_ASSERT(s1.find(11) != s1.end());
@@ -179,7 +180,7 @@ void TestPKB::test_one(){
     CPPUNIT_ASSERT(s1.find(21) != s1.end());
     CPPUNIT_ASSERT(s1.find(27) != s1.end());
 
-    s = pkb.get_var_proc_uses("Jane");
+    s = pkb.uses_X_Y_get_string_Y_from_string_X(ENT_PROC, ENT_VAR, "Jane");
     CPPUNIT_ASSERT_EQUAL(3, (int)s.size());
     CPPUNIT_ASSERT(s.find("d") != s.end());
     CPPUNIT_ASSERT(s.find("x") != s.end());
@@ -442,18 +443,18 @@ void TestPKB::test_one(){
     s = pkb.get_var_stmt_modifies(3);
     CPPUNIT_ASSERT(s.size() == 1);
     CPPUNIT_ASSERT(s.find("y") != s.end());
-    s = pkb.get_var_stmt_modifies(5);
+    s = pkb.modifies_X_Y_get_string_Y_from_int_X(ENT_STMT, ENT_VAR, 5);
     CPPUNIT_ASSERT(s.size() == 2);
     CPPUNIT_ASSERT(s.find("y") != s.end());
     CPPUNIT_ASSERT(s.find("z") != s.end());
-    s = pkb.get_var_stmt_modifies(9);
+    s = pkb.modifies_X_Y_get_string_Y_from_int_X(ENT_STMT, ENT_VAR, 9);
     CPPUNIT_ASSERT(s.size() == 5);
     CPPUNIT_ASSERT(s.find("e") != s.end());
     CPPUNIT_ASSERT(s.find("i") != s.end());
     CPPUNIT_ASSERT(s.find("x") != s.end());
     CPPUNIT_ASSERT(s.find("y") != s.end());
     CPPUNIT_ASSERT(s.find("z") != s.end());
-    s = pkb.get_var_stmt_modifies(11);
+    s = pkb.modifies_X_Y_get_string_Y_from_int_X(ENT_STMT, ENT_VAR, 11);
     CPPUNIT_ASSERT(s.size() == 4);
     CPPUNIT_ASSERT(s.find("i") != s.end());
     CPPUNIT_ASSERT(s.find("x") != s.end());
@@ -472,14 +473,15 @@ void TestPKB::test_one(){
     CPPUNIT_ASSERT(s1.find(27) != s1.end());
 
     // Q15
-    s = pkb.get_var_proc_modifies("Mary");
+    s = pkb.modifies_X_Y_get_string_Y_from_string_X(ENT_PROC, ENT_VAR,
+            "Mary");
     CPPUNIT_ASSERT_EQUAL(3, (int)s.size());
     CPPUNIT_ASSERT(s.find("i") != s.end());
     CPPUNIT_ASSERT(s.find("y") != s.end());
     CPPUNIT_ASSERT(s.find("z") != s.end());
 
     // Q16
-    s1 = pkb.get_stmt_uses("i");
+    s1 = pkb.uses_X_Y_get_int_X_from_string_Y(ENT_STMT, ENT_VAR, "i");
     CPPUNIT_ASSERT_EQUAL(11, (int)s1.size());
     CPPUNIT_ASSERT(s1.find(5) != s1.end());
     CPPUNIT_ASSERT(s1.find(9) != s1.end());
@@ -492,7 +494,7 @@ void TestPKB::test_one(){
     CPPUNIT_ASSERT(s1.find(23) != s1.end());
     CPPUNIT_ASSERT(s1.find(27) != s1.end());
     CPPUNIT_ASSERT(s1.find(28) != s1.end());
-    s1 = pkb.get_stmt_uses("y");
+    s1 = pkb.uses_X_Y_get_int_X_from_string_Y(ENT_STMT, ENT_VAR, "y");
     CPPUNIT_ASSERT_EQUAL(17, (int)s1.size());
     CPPUNIT_ASSERT(s1.find(4) != s1.end());
     CPPUNIT_ASSERT(s1.find(5) != s1.end());
