@@ -30,92 +30,80 @@ public:
      * Modifies(X,var); Retrieves all var modified by X, where X is
      * a synonym represented by integers.
      * @param xType type of X
-     * @param useless type of variable, which is ENT_VAR. Since the
-     *                second synonym argument of Modifies must be ENT_VAR,
-     *                this field is effectively useless and ignored
+     * @param yType type of Y. This can only be ENT_VAR
      * @return a set of variable names modified by X
      */
     std::set<std::string> modifies_X_Y_get_string_Y_from_int_X
-        (DesignEnt xType, DesignEnt useless, int stmt) const;
+        (DesignEnt xType, DesignEnt yType, int stmt) const;
     /*
      * Modifies(X,var); Retrieves all var modified by X, where X is
      * a synonym represented by strings.
-     * @param useless type of variable, which is ENT_VAR. Since the
-     *                second synonym argument of Modifies must be ENT_VAR,
-     *                this field is effectively useless and ignored
+     * @param yType type of Y. This can only be ENT_VAR
      * @return a set of variable names modified by X
      */
     std::set<std::string> modifies_X_Y_get_string_Y_from_string_X
-        (DesignEnt xType, DesignEnt useless, const std::string& x) const;
+        (DesignEnt xType, DesignEnt yType, const std::string& x) const;
     /*
      * Modifies(X,var); Given a varname, retrieves all X modifying it,
      * where X is a synonym with integer values.
      * @param xType type of X
-     * @param useless type of variable, which is ENT_VAR. Since the
-     *                second synonym argument of Modifies must be ENT_VAR,
-     *                this field is effectively useless and ignored
+     * @param yType type of Y. This can only be ENT_VAR
      * @param varName variable name
      */
     std::set<int> modifies_X_Y_get_int_X_from_string_Y(DesignEnt xType,
-            DesignEnt useless, const std::string& varName) const;
+            DesignEnt yType, const std::string& varName) const;
     /*
      * Modifies(X,var); Given a varname, retrieves all X modifying it,
      * where X is a synonym with string values.
      * @param xType type of X
-     * @param useless type of variable, which is ENT_VAR. Since the
-     *                second synonym argument of Modifies must be ENT_VAR,
-     *                this field is effectively useless and ignored
+     * @param yType type of Y. This can only be ENT_VAR
      * @param varName variable name
      */
     std::set<std::string> modifies_X_Y_get_string_X_from_string_Y
-            (DesignEnt xType, DesignEnt useless,
+            (DesignEnt xType, DesignEnt yType,
                 const std::string& varName) const;
 
     /*
      * Uses(X,Y); given synonym Y (string), retrieve all X (int)
      * such that Uses(X,Y) holds.
-     * @param xType synonym type of X
-     * @param useless Currently, this can only be ENT_VAR. Hence
-     *                this argument is ignored.
+     * @param xType type of X
+     * @param yType type of Y. This can only be ENT_VAR
      * @param varName variable name of Y
      * @return set of X such that Uses(X,Y)
      */
     std::set<int> uses_X_Y_get_int_X_from_string_Y(DesignEnt xType,
-            DesignEnt useless, const std::string& varName) const;
+            DesignEnt yType, const std::string& varName) const;
     /*
      * Uses(X,Y); given synonym Y (string), retrieve all X (string)
      * such that Uses(X,Y) holds.
-     * @param xType synonym type of X
-     * @param useless Currently, this can only be ENT_VAR. Hence
-     *                this argument is ignored.
+     * @param xType type of X
+     * @param yType type of Y. This can only be ENT_VAR
      * @param varName variable name of Y
      * @return set of X such that Uses(X,Y)
      */
     std::set<std::string> uses_X_Y_get_string_X_from_string_Y
-            (DesignEnt xType, DesignEnt useless,
+            (DesignEnt xType, DesignEnt yType,
                 const std::string& varName) const;
     /*
      * Uses(X,Y); given synonym X (int), retrieve all Y (string)
      * such that Uses(X,Y) holds.
-     * @param xType synonym type of X
-     * @param useless Currently, this can only be ENT_VAR. Hence
-     *                this argument is ignored.
+     * @param xType type of X
+     * @param yType type of Y. This can only be ENT_VAR
      * @param stmtNo statement number of X
      * @return set of Y such that Uses(X,Y)
      */
     std::set<std::string> uses_X_Y_get_string_Y_from_int_X
-            (DesignEnt xType, DesignEnt useless, int stmtNo) const;
+            (DesignEnt xType, DesignEnt yType, int stmtNo) const;
     /*
      * Uses(X,Y); given synonym X (string), retrieve all Y (string)
      * such that Uses(X,Y) holds.
-     * @param xType synonym type of X
-     * @param useless Currently, this can only be ENT_VAR. Hence
-     *                this argument is ignored.
+     * @param xType type of X
+     * @param yType type of Y. This can only be ENT_VAR
      * @param x string value of X
      * @return set of Y such that Uses(X,Y)
      */
     std::set<std::string> uses_X_Y_get_string_Y_from_string_X
-            (DesignEnt xType, DesignEnt useless,
+            (DesignEnt xType, DesignEnt yType,
                 const std::string& x) const;
 
     /*

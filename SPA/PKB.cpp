@@ -12,9 +12,10 @@ PKB::PKB(Node *root, ProcTable *pt, VarTable *vt, StmtBank *sb, vector<CFGNode*>
 }
 
 set<string> PKB::modifies_X_Y_get_string_Y_from_int_X(DesignEnt xType,
-        DesignEnt useless, int stmt) const
+        DesignEnt yType, int stmt) const
 {
     assert(QueryInfo::is_valid_argOne_syn_type(REL_MODIFIES, xType));
+    assert(yType == ENT_VAR);
     Node *node = NULL;
     switch (xType) {
     case ENT_ASSIGN:
@@ -42,9 +43,10 @@ set<string> PKB::modifies_X_Y_get_string_Y_from_int_X(DesignEnt xType,
 }
 
 set<string> PKB::modifies_X_Y_get_string_Y_from_string_X(DesignEnt xType,
-        DesignEnt useless, const string& x) const
+        DesignEnt yType, const string& x) const
 {
     assert(QueryInfo::is_valid_argOne_syn_type(REL_MODIFIES, xType));
+    assert(yType == ENT_VAR);
     switch (xType) {
     case ENT_PROC:
         return this->procTable->get_modifies(x);
@@ -54,9 +56,10 @@ set<string> PKB::modifies_X_Y_get_string_Y_from_string_X(DesignEnt xType,
 }
 
 set<int> PKB::modifies_X_Y_get_int_X_from_string_Y(DesignEnt xType,
-        DesignEnt useless, const string& varName) const
+        DesignEnt yType, const string& varName) const
 {
     assert(QueryInfo::is_valid_argOne_syn_type(REL_MODIFIES, xType));
+    assert(yType == ENT_VAR);
     switch (xType) {
     case ENT_ASSIGN:
         return this->varTable->get_assign_modifying_var(varName);
@@ -79,9 +82,10 @@ set<int> PKB::modifies_X_Y_get_int_X_from_string_Y(DesignEnt xType,
 }
 
 set<string> PKB::modifies_X_Y_get_string_X_from_string_Y(DesignEnt xType,
-        DesignEnt useless, const string& varName) const
+        DesignEnt yType, const string& varName) const
 {
     assert(QueryInfo::is_valid_argOne_syn_type(REL_MODIFIES, xType));
+    assert(yType == ENT_VAR);
     switch (xType) {
     case ENT_PROC:
         return this->varTable->get_all_procedures_modifying(varName);
@@ -91,23 +95,23 @@ set<string> PKB::modifies_X_Y_get_string_X_from_string_Y(DesignEnt xType,
 }
 
 set<int> PKB::uses_X_Y_get_int_X_from_string_Y(DesignEnt xType,
-        DesignEnt useless, const string& varName) const
+        DesignEnt yType, const string& varName) const
 {
     assert(QueryInfo::is_valid_argOne_syn_type(REL_USES, xType));
-    assert(QueryInfo::is_valid_argTwo_syn_type(REL_USES, useless));
+    assert(yType == ENT_VAR);
     return this->varTable->get_X_using_var(xType, varName);
 }
 
 set<string> PKB::uses_X_Y_get_string_X_from_string_Y(DesignEnt xType,
-        DesignEnt useless, const string& varName) const
+        DesignEnt yType, const string& varName) const
 {
     assert(QueryInfo::is_valid_argOne_syn_type(REL_USES, xType));
-    assert(QueryInfo::is_valid_argTwo_syn_type(REL_USES, useless));
+    assert(yType == ENT_VAR);
     return this->varTable->get_string_X_using_var(xType, varName);
 }
 
 set<string> PKB::uses_X_Y_get_string_Y_from_int_X(DesignEnt xType,
-        DesignEnt useless, int stmtNo) const
+        DesignEnt yType, int stmtNo) const
 {
     return EMPTY_STRINGSET;
 }
@@ -116,14 +120,10 @@ set<string> PKB::uses_X_Y_get_string_Y_from_string_X(DesignEnt xType,
         DesignEnt yType, const string& x) const
 {
     assert(QueryInfo::is_valid_argOne_syn_type(REL_USES, xType));
-    assert(QueryInfo::is_valid_argTwo_syn_type(REL_USES, yType));
+    assert(yType == ENT_VAR);
     switch (xType) {
     case ENT_PROC:
-        switch (yType) {
-        case ENT_VAR:
-            return this->procTable->get_vars_used_by_proc(x);
-            break;
-        }
+        return this->procTable->get_vars_used_by_proc(x);
         break;
     }
     return EMPTY_STRINGSET;
