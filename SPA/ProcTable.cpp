@@ -220,7 +220,7 @@ const set<string>& ProcTable::get_vars_used_by_proc(
         const string& procName) const
 {
     int index = get_index(procName);
-    if (index != -1){
+    if (index != -1) {
         return procTable[index].uses;
     } else {
         return EMPTY_STRINGSET;

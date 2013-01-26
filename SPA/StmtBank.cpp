@@ -175,6 +175,16 @@ const set<int>& StmtBank::get_all_stmtLst() const
     return this->stmtLstSet;
 }
 
+ const set<string>& StmtBank::get_vars_used_by_stmt(int stmtNo) const
+ {
+    Node *n = this->get_node(stmtNo);
+    if (n != NULL) {
+        return n->get_uses();
+    } else {
+        return EMPTY_STRINGSET;
+    }
+ }
+
 bool StmtBank::has_const(int n) const
 {
     return this->constBank.find(n) != this->constBank.end();

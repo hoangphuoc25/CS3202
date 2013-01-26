@@ -32,6 +32,13 @@ public:
     std::set<int> get_all_stmt() const;
     const std::set<int>& get_all_stmtLst() const;
 
+    /*
+     * Retrieves the set of variables used by a statement.
+     * @param stmtNo statement number
+     * @return a set of variables (strings) used by that statement
+     */
+    const std::set<std::string>& get_vars_used_by_stmt(int stmtNo) const;
+
     // query methods
     bool has_const(int n) const;
 
@@ -67,6 +74,7 @@ private:
     map<int, Node*> assignBank;
     std::set<int> constBank;
     std::set<int> stmtLstSet;
+    const std::set<std::string> EMPTY_STRINGSET;
 };
 
 #endif

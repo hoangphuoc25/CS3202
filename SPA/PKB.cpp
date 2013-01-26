@@ -113,6 +113,18 @@ set<string> PKB::uses_X_Y_get_string_X_from_string_Y(DesignEnt xType,
 set<string> PKB::uses_X_Y_get_string_Y_from_int_X(DesignEnt xType,
         DesignEnt yType, int stmtNo) const
 {
+    assert(QueryInfo::is_valid_argOne_syn_type(REL_USES, xType));
+    assert(yType == ENT_VAR);
+    switch (xType) {
+    case ENT_ASSIGN:
+    case ENT_CALL:
+    case ENT_IF:
+    case ENT_WHILE:
+    case ENT_STMT:
+    case ENT_PROGLINE:
+        return this->stmtBank->get_vars_used_by_stmt(stmtNo);
+        break;
+    }
     return EMPTY_STRINGSET;
 }
 

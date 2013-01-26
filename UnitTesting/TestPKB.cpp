@@ -1,11 +1,13 @@
 #include <cstdarg>
 #include <string>
 #include <map>
+#include <memory>
 #include "TestPKB.h"
 #include "../SPA/Parser.h"
 #include "../SPA/PKB.h"
 #include "../SPA/SetWrapper.h"
 
+using std::auto_ptr;
 using std::string;
 using std::map;
 
@@ -509,7 +511,6 @@ void TestPKB::test_one(){
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "8"), stringSet);
 }
-
 
 // Test procTable
 void TestPKB::test_two(){
@@ -1081,4 +1082,121 @@ void TestPKB::test_modifies()
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 39);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "ue"), stringSet);
+}
+
+void TestPKB::test_uses()
+{
+    string simpleProg, queryStr;
+    set<int> intSet;
+    SetWrapper<string> stringSet;
+
+    simpleProg =
+        "procedure pOne { \
+            aone = b + c; \
+            d3 = 5 + 7; \
+            while x { \
+              this = bx + d3; \
+              while a { \
+                x1 = b + ha; \
+                if g2 then { \
+                  t1 = t + bab; \
+                  h2 = 2 + ga; \
+                  call secProc; \
+                  while ten { \
+                    y = y + ue; \
+                  } \
+                  if tp then { \
+                    while one { \
+                      x = y + z; \
+                      call thirdProc; \
+                    } \
+                  } else { \
+                    fire = a + fire; \
+                  } \
+                } else { \
+                  xe = a * cab; \
+                } \
+                good = evil + evil; \
+                pe = 2 * 3 + zt1; \
+              } \
+              fol = y + g2; \
+            } \
+            g2 = xz + brave; \
+          } \
+          procedure secProc { \
+            a = b + c; \
+            xe = 2 + 73; \
+            while gg { \
+              onceOnly = true; \
+              if twice then { \
+                all = 3 * 5; \
+              } else { \
+                none = bba; \
+                while p { \
+                  if xe then { \
+                    harp = 41; \
+                  } else { \
+                    nn = ba1; \
+                  } \
+                } \
+              } \
+            } \
+            call procFOUR; \
+          } \
+          procedure thirdProc { \
+            hoho = merry + christmas; \
+            haa = haas; \
+          } \
+          procedure procFOUR { \
+            pfg = pf + g; \
+            while x { \
+              ue = no ; \
+            } \
+          } \
+          procedure execute { \
+            this = 4 + 5; \
+            proc = 542 - 1; \
+            uses = 77 + 14 * 7231; \
+            nothing = 62 + 51 + 666; \
+          } \
+          procedure useCall { \
+            this = 62 - 721; \
+            proc = 673 + 89811; \
+            usesThings = 5124 + 777; \
+            byCalling = 11 - 5 * 712; \
+            call procFOUR; \
+          }";
+
+    Parser parser(simpleProg, FROMSTRING);
+    parser.init();
+    auto_ptr<PKB> pkb(parser.get_pkb());
+    // Uses(Procedure,var), get vars
+    stringSet = pkb->uses_X_Y_get_string_Y_from_string_X(ENT_PROC,
+            ENT_VAR, "pOne");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(36, "a", "b", "ba1", "bab",
+            "bba", "brave", "bx", "c", "cab", "christmas", "d3", "evil",
+            "fire", "g", "g2", "ga", "gg", "ha", "haas", "merry", "no",
+            "one", "p", "pf", "t", "ten", "tp", "true", "twice", "ue",
+            "x", "xe", "xz", "y", "z", "zt1"),
+            stringSet);
+    stringSet = pkb->uses_X_Y_get_string_Y_from_string_X(ENT_PROC,
+            ENT_VAR, "secProc");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(13, "b", "ba1", "bba", "c",
+            "g", "gg", "no", "p", "pf", "true", "twice", "x", "xe"),
+            stringSet);
+    stringSet = pkb->uses_X_Y_get_string_Y_from_string_X(ENT_PROC,
+            ENT_VAR, "thirdProc");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "christmas", "haas",
+            "merry"), stringSet);
+    stringSet = pkb->uses_X_Y_get_string_Y_from_string_X(ENT_PROC,
+            ENT_VAR, "procFOUR");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "g", "no", "pf", "x"),
+            stringSet);
+    stringSet = pkb->uses_X_Y_get_string_Y_from_string_X(ENT_PROC,
+            ENT_VAR, "execute");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
+    stringSet = pkb->uses_X_Y_get_string_Y_from_string_X(ENT_PROC,
+            ENT_VAR, "useCall");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "g", "no", "pf", "x"),
+            stringSet);
 }
