@@ -8,6 +8,7 @@ CPPUNIT_TEST_SUITE(Test_01_SetWrapper);
 CPPUNIT_TEST(test_set_ctor);
 CPPUNIT_TEST(test_list_ctor);
 CPPUNIT_TEST(test_copy_ctor);
+CPPUNIT_TEST(test_int_set_ctor);
 CPPUNIT_TEST(test_equality);
 CPPUNIT_TEST_SUITE_END();
 public:
@@ -17,6 +18,7 @@ protected:
     void test_set_ctor();
     void test_list_ctor();
     void test_copy_ctor();
+    void test_int_set_ctor();
     void test_equality();
 };
 

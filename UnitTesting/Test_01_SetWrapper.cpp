@@ -64,6 +64,19 @@ void Test_01_SetWrapper::test_copy_ctor()
             anotherSet.toString());
 }
 
+void Test_01_SetWrapper::test_int_set_ctor()
+{
+    set<int> intSet;
+    intSet.insert(615);
+    intSet.insert(0);
+    intSet.insert(9563);
+    intSet.insert(2147483647);
+    intSet.insert(7573821);
+    SetWrapper<string> stringSet(intSet);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5, "615", "0", "9563",
+            "2147483647", "7573821"), stringSet);
+}
+
 void Test_01_SetWrapper::test_equality()
 {
     set<string> S;

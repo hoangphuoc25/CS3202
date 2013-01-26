@@ -11,6 +11,7 @@ public:
     SetWrapper();
     SetWrapper(int n, ...);
     SetWrapper(const std::set<T>&);
+    template<typename U> SetWrapper(const std::set<U>&);
     SetWrapper(const std::list<T>&);
     SetWrapper(const SetWrapper<T>&);
     SetWrapper<T>& operator=(const SetWrapper<T>&);

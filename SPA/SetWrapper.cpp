@@ -1,7 +1,8 @@
 #include <cstdarg>
 #include <string>
 #include "SetWrapper.h"
-#include "../SPA/StringBuffer.h"
+#include "StringBuffer.h"
+#include "SPAUtils.h"
 
 using std::list;
 using std::set;
@@ -24,6 +25,18 @@ SetWrapper<string>::SetWrapper(int n, ...)
 
 template<>
 SetWrapper<string>::SetWrapper(const set<string>& s): actualSet(s) {}
+
+template<>
+template<>
+SetWrapper<string>::SetWrapper(const set<int>& s)
+{
+    StringBuffer sb;
+    for (set<int>::const_iterator it = s.begin(); it != s.end(); it++) {
+        sb.clear();
+        sb.append_int(*it);
+        this->actualSet.insert(sb.toString());
+    }
+}
 
 template<>
 SetWrapper<string>::SetWrapper(const list<string>& l)
