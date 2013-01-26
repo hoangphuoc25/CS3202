@@ -571,7 +571,8 @@ CFGNode* Parser::build_CFG(int stmtNo)
 }*/
 
 CFGNode* Parser::build_CFG(int stmtNo){
-    Node *succ, *child, *temp;
+    Node *succ, *child, *temp, *ifNode, *ifNodeChild2, *ifNodeGrandChild0;
+    Node *whileNode, *stmtNode;
     int succNo, childNo, thenNo, elseNo;
     CFGNode *next, *thenNode, *elseNode;
 
@@ -579,12 +580,16 @@ CFGNode* Parser::build_CFG(int stmtNo){
         thenNo = stmtNo + 1;
         set_edge(CFG->at(stmtNo), CFG->at(thenNo), 1, 1);
         thenNode = build_CFG(thenNo);
-        temp = stmtBank->get_node(stmtNo)->get_leaves()[2]->get_leaves()[0];
-        elseNo = temp->get_stmtNo();
+        ifNode = stmtBank->get_node(stmtNo);
+        assert(ifNode != NULL);
+        ifNodeChild2 = ifNode->get_leaves()[2];
+        assert(ifNodeChild2 != NULL);
+        ifNodeGrandChild0 = ifNodeChild2->get_leaves()[0];
+        elseNo = ifNodeGrandChild0->get_stmtNo();
         set_edge(CFG->at(stmtNo), CFG->at(elseNo), 2, 1);
         elseNode = build_CFG(elseNo);
 
-        succ = stmtBank->get_node(stmtNo)->get_successor();
+        succ = ifNode->get_successor();
             
         next = new CFGNode(-1);
         set_edge(thenNode, next, 1, 1);
@@ -599,13 +604,18 @@ CFGNode* Parser::build_CFG(int stmtNo){
         }
     } else {
         if (stmtBank->is_stmtType(stmtNo, ENT_WHILE)){
-            child = stmtBank->get_node(stmtNo)->get_children()[0];
+            whileNode = stmtBank->get_node(stmtNo);
+            assert(whileNode != NULL);
+            child = whileNode->get_children()[0];
+            assert(child != NULL);
             childNo = child->get_stmtNo();
             set_edge(CFG->at(stmtNo), CFG->at(childNo), 2, 1);
             next = build_CFG(childNo);
             set_edge(next, CFG->at(stmtNo), 1, 2);
         }
-        succ = stmtBank->get_node(stmtNo)->get_successor();
+        stmtNode = stmtBank->get_node(stmtNo);
+        assert(stmtNode != NULL);
+        succ = stmtNode->get_successor();
         if (succ != NULL) {
             succNo = succ->get_stmtNo();
             set_edge(CFG->at(stmtNo), CFG->at(succNo), 1, 1);
@@ -628,9 +638,14 @@ void Parser::make_CFG()
     }
 }
 
-void Parser::set_edge(CFGNode* outNode, CFGNode* inNode, int out, int in){
-    outNode->set_edge(inNode, OUT, out);
-    inNode->set_edge(outNode, IN, in);
+void Parser::set_edge(CFGNode* outNode, CFGNode* inNode, int out, int in)
+{
+    if (outNode != NULL) {
+        outNode->set_edge(inNode, OUT, out);
+    }
+    if (inNode != NULL) {
+        inNode->set_edge(outNode, IN, in);
+    }
 }
 
 
