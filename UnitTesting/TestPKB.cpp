@@ -4,6 +4,7 @@
 #include "TestPKB.h"
 #include "../SPA/Parser.h"
 #include "../SPA/PKB.h"
+#include "../SPA/SetWrapper.h"
 
 using std::string;
 using std::map;
@@ -22,6 +23,7 @@ void TestPKB::test_one(){
     p.init();
     PKB pkb = *p.get_pkb();
 
+    SetWrapper<string> stringSet;
     set<string> s;
     set<int> s1;
     set<int> intSet;
@@ -34,47 +36,28 @@ void TestPKB::test_one(){
     CPPUNIT_ASSERT_EQUAL(string("i"), pkb.get_control_var(28));
 
     s = pkb.get_all_vars();
-    CPPUNIT_ASSERT_EQUAL(6, (int)s.size());
-    CPPUNIT_ASSERT(s.find("d") != s.end());
-    CPPUNIT_ASSERT(s.find("e") != s.end());
-    CPPUNIT_ASSERT(s.find("i") != s.end());
-    CPPUNIT_ASSERT(s.find("x") != s.end());
-    CPPUNIT_ASSERT(s.find("y") != s.end());
-    CPPUNIT_ASSERT(s.find("z") != s.end());
-    CPPUNIT_ASSERT(s.find("r") == s.end());
+    stringSet = SetWrapper<string>(s);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "d", "e", "i", "x", "y",
+            "z"), stringSet);
 
     s = pkb.uses_X_Y_get_string_Y_from_string_X(ENT_PROC, ENT_VAR, "Bill");
-    CPPUNIT_ASSERT_EQUAL(6, (int)s.size());
-    CPPUNIT_ASSERT(s.find("d") != s.end());
-    CPPUNIT_ASSERT(s.find("e") != s.end());
-    CPPUNIT_ASSERT(s.find("i") != s.end());
-    CPPUNIT_ASSERT(s.find("x") != s.end());
-    CPPUNIT_ASSERT(s.find("y") != s.end());
-    CPPUNIT_ASSERT(s.find("z") != s.end());
+    stringSet = SetWrapper<string>(s);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "d", "e", "i", "x", "y",
+            "z"), stringSet);
 
     s = pkb.uses_X_Y_get_string_Y_from_string_X(ENT_PROC, ENT_VAR, "Mary");
-    CPPUNIT_ASSERT_EQUAL(6, (int)s.size());
-    CPPUNIT_ASSERT(s.find("d") != s.end());
-    CPPUNIT_ASSERT(s.find("e") != s.end());
-    CPPUNIT_ASSERT(s.find("i") != s.end());
-    CPPUNIT_ASSERT(s.find("x") != s.end());
-    CPPUNIT_ASSERT(s.find("y") != s.end());
-    CPPUNIT_ASSERT(s.find("z") != s.end());
+    stringSet = SetWrapper<string>(s);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "d", "e", "i", "x", "y",
+            "z"), stringSet);
 
     s = pkb.uses_X_Y_get_string_Y_from_string_X(ENT_PROC, ENT_VAR, "Jane");
-    CPPUNIT_ASSERT_EQUAL(3, (int)s.size());
-    CPPUNIT_ASSERT(s.find("d") != s.end());
-    CPPUNIT_ASSERT(s.find("x") != s.end());
-    CPPUNIT_ASSERT(s.find("z") != s.end());
+    stringSet = SetWrapper<string>(s);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "d", "x", "z"), stringSet);
 
     s = pkb.uses_X_Y_get_string_Y_from_string_X(ENT_PROC, ENT_VAR, "John");
-    CPPUNIT_ASSERT_EQUAL(6, (int)s.size());
-    CPPUNIT_ASSERT(s.find("d") != s.end());
-    CPPUNIT_ASSERT(s.find("e") != s.end());
-    CPPUNIT_ASSERT(s.find("i") != s.end());
-    CPPUNIT_ASSERT(s.find("x") != s.end());
-    CPPUNIT_ASSERT(s.find("y") != s.end());
-    CPPUNIT_ASSERT(s.find("z") != s.end());
+        stringSet = SetWrapper<string>(s);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "d", "e", "i", "x", "y",
+            "z"), stringSet);
     
     // Calls 
     CPPUNIT_ASSERT_EQUAL(true, pkb.is_calls("Mary", "John"));
@@ -84,28 +67,24 @@ void TestPKB::test_one(){
     CPPUNIT_ASSERT_EQUAL(true, pkb.is_calls_star("Bill", "John"));
 
     s = pkb.get_calls("Bill");
-    CPPUNIT_ASSERT_EQUAL(3, (int)s.size());
-    CPPUNIT_ASSERT(s.find("John") != s.end());
-    CPPUNIT_ASSERT(s.find("Jane") != s.end());
-    CPPUNIT_ASSERT(s.find("Mary") != s.end());
+    stringSet = SetWrapper<string>(s);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "John", "Jane", "Mary"),
+            stringSet);
 
     s = pkb.get_calls_star("Bill");
-    CPPUNIT_ASSERT_EQUAL(3, (int)s.size());
-    CPPUNIT_ASSERT(s.find("John") != s.end());
-    CPPUNIT_ASSERT(s.find("Jane") != s.end());
-    CPPUNIT_ASSERT(s.find("Mary") != s.end());
+    stringSet = SetWrapper<string>(s);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "John", "Jane", "Mary"),
+            stringSet);
 
     s = pkb.get_called_by("John");
-    CPPUNIT_ASSERT_EQUAL(2, (int)s.size());
-    CPPUNIT_ASSERT(s.find("Bill") != s.end());
-    CPPUNIT_ASSERT(s.find("Jane") == s.end());
-    CPPUNIT_ASSERT(s.find("Mary") != s.end());
+    stringSet = SetWrapper<string>(s);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "Bill", "Mary"),
+            stringSet);
 
     s = pkb.get_called_by_star("John");
-    CPPUNIT_ASSERT_EQUAL(2, (int)s.size());
-    CPPUNIT_ASSERT(s.find("Bill") != s.end());
-    CPPUNIT_ASSERT(s.find("Jane") == s.end());
-    CPPUNIT_ASSERT(s.find("Mary") != s.end());
+        stringSet = SetWrapper<string>(s);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "Bill", "Mary"),
+            stringSet);
 
     // Modifies
     CPPUNIT_ASSERT_EQUAL(true, pkb.is_modifies("Mary", "z"));
@@ -115,41 +94,32 @@ void TestPKB::test_one(){
     CPPUNIT_ASSERT_EQUAL(true, pkb.is_modifies(30, "z"));
 
     s = pkb.modifies_X_Y_get_string_X_from_string_Y(ENT_PROC, ENT_VAR, "i");
-    CPPUNIT_ASSERT_EQUAL(2, (int)s.size());
-    CPPUNIT_ASSERT(s.find("Bill") != s.end());
-    CPPUNIT_ASSERT(s.find("Jane") == s.end());
-    CPPUNIT_ASSERT(s.find("Mary") != s.end());
+    stringSet = SetWrapper<string>(s);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "Bill", "Mary"),
+            stringSet);
 
     s1 = pkb.modifies_X_Y_get_int_X_from_string_Y(ENT_STMT, ENT_VAR, "i");
-    CPPUNIT_ASSERT_EQUAL(7, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(13) != s1.end());
-    CPPUNIT_ASSERT(s1.find(16) != s1.end());
-    CPPUNIT_ASSERT(s1.find(22) != s1.end());
-    CPPUNIT_ASSERT(s1.find(9) != s1.end());
-    CPPUNIT_ASSERT(s1.find(11) != s1.end());
-    CPPUNIT_ASSERT(s1.find(19) != s1.end());
-    CPPUNIT_ASSERT(s1.find(18) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(7, "13", "16", "22", "9",
+            "11", "19", "18"), stringSet);
 
     s = pkb.modifies_X_Y_get_string_Y_from_string_X(ENT_PROC, ENT_VAR,
             "Jane");
-    CPPUNIT_ASSERT_EQUAL(2, (int)s.size());
-    CPPUNIT_ASSERT(s.find("x") != s.end());
-    CPPUNIT_ASSERT(s.find("z") != s.end());
+    stringSet = SetWrapper<string>(s);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "x", "z"), stringSet);
 
     s = pkb.modifies_X_Y_get_string_Y_from_int_X(ENT_STMT, ENT_VAR, 6);
-    CPPUNIT_ASSERT_EQUAL(1, (int)s.size());
-    CPPUNIT_ASSERT(s.find("d") != s.end());
+    stringSet = SetWrapper<string>(s);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "d"), stringSet);
     
     s = pkb.modifies_X_Y_get_string_Y_from_int_X(ENT_STMT, ENT_VAR, 15);
-    CPPUNIT_ASSERT_EQUAL(2, (int)s.size());
+        stringSet = SetWrapper<string>(s);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "x", "z"), stringSet);
 
     s = pkb.modifies_X_Y_get_string_Y_from_int_X(ENT_STMT, ENT_VAR, 9);
-    CPPUNIT_ASSERT_EQUAL(5, (int)s.size());
-    CPPUNIT_ASSERT(s.find("e") != s.end());
-    CPPUNIT_ASSERT(s.find("i") != s.end());
-    CPPUNIT_ASSERT(s.find("x") != s.end());
-    CPPUNIT_ASSERT(s.find("y") != s.end());
-    CPPUNIT_ASSERT(s.find("z") != s.end());
+    stringSet = SetWrapper<string>(s);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5, "e", "i", "x", "y", "z"),
+            stringSet);
 
     // Uses
     CPPUNIT_ASSERT_EQUAL(true, pkb.is_uses("Mary", "x"));
@@ -160,39 +130,23 @@ void TestPKB::test_one(){
     CPPUNIT_ASSERT_EQUAL(true, pkb.is_uses(21, "i"));
 
     s = pkb.uses_X_Y_get_string_X_from_string_Y(ENT_PROC, ENT_VAR, "d");
-    CPPUNIT_ASSERT_EQUAL(4, (int)s.size());
-    CPPUNIT_ASSERT(s.find("Bill") != s.end());
-    CPPUNIT_ASSERT(s.find("John") != s.end());
-    CPPUNIT_ASSERT(s.find("Mary") != s.end());
-    CPPUNIT_ASSERT(s.find("Jane") != s.end());
+    stringSet = SetWrapper<string>(s);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "Bill", "John", "Mary",
+            "Jane"), stringSet);
 
     s1 = pkb.uses_X_Y_get_int_X_from_string_Y(ENT_STMT, ENT_VAR, "i");
-    CPPUNIT_ASSERT_EQUAL(11, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(9) != s1.end());
-    CPPUNIT_ASSERT(s1.find(11) != s1.end());
-    CPPUNIT_ASSERT(s1.find(16) != s1.end());
-    CPPUNIT_ASSERT(s1.find(19) != s1.end());
-    CPPUNIT_ASSERT(s1.find(18) != s1.end());
-    CPPUNIT_ASSERT(s1.find(22) != s1.end());
-    CPPUNIT_ASSERT(s1.find(23) != s1.end());
-    CPPUNIT_ASSERT(s1.find(28) != s1.end());
-    CPPUNIT_ASSERT(s1.find(5) != s1.end());
-    CPPUNIT_ASSERT(s1.find(21) != s1.end());
-    CPPUNIT_ASSERT(s1.find(27) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(11, "9", "11", "16", "19",
+            "18", "22", "23", "28", "5", "21", "27"), stringSet);
 
     s = pkb.uses_X_Y_get_string_Y_from_string_X(ENT_PROC, ENT_VAR, "Jane");
-    CPPUNIT_ASSERT_EQUAL(3, (int)s.size());
-    CPPUNIT_ASSERT(s.find("d") != s.end());
-    CPPUNIT_ASSERT(s.find("x") != s.end());
-    CPPUNIT_ASSERT(s.find("z") != s.end());
+    stringSet = SetWrapper<string>(s);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "d", "x", "z"), stringSet);
 
     s = pkb.get_var_stmt_uses(9);
-    CPPUNIT_ASSERT_EQUAL(5, (int)s.size());
-    CPPUNIT_ASSERT(s.find("d") != s.end());
-    CPPUNIT_ASSERT(s.find("i") != s.end());
-    CPPUNIT_ASSERT(s.find("x") != s.end());
-    CPPUNIT_ASSERT(s.find("y") != s.end());
-    CPPUNIT_ASSERT(s.find("z") != s.end());
+    stringSet = SetWrapper<string>(s);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5, "d", "i", "x", "y", "z"),
+            stringSet);
 
     // Parent
 
@@ -205,37 +159,24 @@ void TestPKB::test_one(){
     CPPUNIT_ASSERT(11 == pkb.get_parent(15));
 
     s1 = pkb.get_parent_star(16);
-    CPPUNIT_ASSERT_EQUAL(2, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(9) != s1.end());
-    CPPUNIT_ASSERT(s1.find(11) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "9", "11"), stringSet);
 
     s1 = pkb.get_children_star(9);
-    CPPUNIT_ASSERT_EQUAL(8, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(10) != s1.end());
-    CPPUNIT_ASSERT(s1.find(11) != s1.end());
-    CPPUNIT_ASSERT(s1.find(12) != s1.end());
-    CPPUNIT_ASSERT(s1.find(13) != s1.end());
-    CPPUNIT_ASSERT(s1.find(14) != s1.end());
-    CPPUNIT_ASSERT(s1.find(15) != s1.end());
-    CPPUNIT_ASSERT(s1.find(16) != s1.end());
-    CPPUNIT_ASSERT(s1.find(17) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(8, "10", "11", "12", "13",
+            "14", "15", "16", "17"), stringSet);
 
     s1 = pkb.get_children(9);
-    CPPUNIT_ASSERT_EQUAL(3, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(10) != s1.end());
-    CPPUNIT_ASSERT(s1.find(11) != s1.end());
-    CPPUNIT_ASSERT(s1.find(17) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "10", "11", "17"),
+            stringSet);
 
     s1 = pkb.get_children_star(9);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(8, "10", "11", "12", "13",
+            "14", "15", "16", "17"), stringSet);
     CPPUNIT_ASSERT_EQUAL(8, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(10) != s1.end());
-    CPPUNIT_ASSERT(s1.find(11) != s1.end());
-    CPPUNIT_ASSERT(s1.find(12) != s1.end());
-    CPPUNIT_ASSERT(s1.find(13) != s1.end());
-    CPPUNIT_ASSERT(s1.find(14) != s1.end());
-    CPPUNIT_ASSERT(s1.find(15) != s1.end());
-    CPPUNIT_ASSERT(s1.find(16) != s1.end());
-    CPPUNIT_ASSERT(s1.find(17) != s1.end());
 
     // Follows
     CPPUNIT_ASSERT(pkb.is_follows(9, 18));
@@ -249,21 +190,17 @@ void TestPKB::test_one(){
     CPPUNIT_ASSERT_EQUAL(26, pkb.get_successor(24));
 
     s1 = pkb.get_successor_star(7);
-    CPPUNIT_ASSERT_EQUAL(3, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(8) != s1.end());
-    CPPUNIT_ASSERT(s1.find(9) != s1.end());
-    CPPUNIT_ASSERT(s1.find(18) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "8", "9", "18"),
+            stringSet);
 
     CPPUNIT_ASSERT_EQUAL(19, pkb.get_predecessor(23));
     CPPUNIT_ASSERT_EQUAL(24, pkb.get_predecessor(26));
 
     s1 = pkb.get_predecessor_star(6);
-    CPPUNIT_ASSERT_EQUAL(5, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(2) != s1.end());
-    CPPUNIT_ASSERT(s1.find(3) != s1.end());
-    CPPUNIT_ASSERT(s1.find(4) != s1.end());
-    CPPUNIT_ASSERT(s1.find(5) != s1.end());
-    CPPUNIT_ASSERT(s1.find(1) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5, "2", "3", "4", "5", "1"),
+            stringSet);
 
     // Constant
     CPPUNIT_ASSERT(pkb.has_const(3));
@@ -271,46 +208,32 @@ void TestPKB::test_one(){
     CPPUNIT_ASSERT(!pkb.has_const(100));
 
     intSet = pkb.get_all_const();
-    CPPUNIT_ASSERT_EQUAL(7, (int)intSet.size());
-    CPPUNIT_ASSERT(intSet.find(10) != intSet.end());
-    CPPUNIT_ASSERT(intSet.find(5) != intSet.end());
-    CPPUNIT_ASSERT(intSet.find(4) != intSet.end());
-    CPPUNIT_ASSERT(intSet.find(12) != intSet.end());
-    CPPUNIT_ASSERT(intSet.find(1) != intSet.end());
-    CPPUNIT_ASSERT(intSet.find(3) != intSet.end());
-    CPPUNIT_ASSERT(intSet.find(2) != intSet.end());
+    stringSet = SetWrapper<string>(intSet);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(7, "10", "5", "4", "12",
+            "1", "3", "2"), stringSet);
 
     // Others
     s1 = pkb.get_all_stmt();
-    CPPUNIT_ASSERT_EQUAL(30, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(2) != s1.end());
-    CPPUNIT_ASSERT(s1.find(10) != s1.end());
-    CPPUNIT_ASSERT(s1.find(15) != s1.end());
-    CPPUNIT_ASSERT(s1.find(22) != s1.end());
-    CPPUNIT_ASSERT(s1.find(30) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(30, "1", "2", "3", "4", "5",
+            "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16",
+            "17", "18", "19", "20", "21", "22", "23", "24", "25", "26",
+            "27", "28", "29", "30"), stringSet);
 
     s1 = pkb.get_all_stmt_by_proc("Mary");
-    CPPUNIT_ASSERT_EQUAL(5, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(19) != s1.end());
-    CPPUNIT_ASSERT(s1.find(20) != s1.end());
-    CPPUNIT_ASSERT(s1.find(21) != s1.end());
-    CPPUNIT_ASSERT(s1.find(22) != s1.end());
-    CPPUNIT_ASSERT(s1.find(23) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5, "19", "20", "21", "22",
+            "23"), stringSet);
 
     s1 = pkb.filter_by_proc("Mary", pkb.get_all_stmt());
-    CPPUNIT_ASSERT_EQUAL(5, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(19) != s1.end());
-    CPPUNIT_ASSERT(s1.find(20) != s1.end());
-    CPPUNIT_ASSERT(s1.find(21) != s1.end());
-    CPPUNIT_ASSERT(s1.find(22) != s1.end());
-    CPPUNIT_ASSERT(s1.find(23) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5, "19", "20", "21", "22",
+            "23"), stringSet);
 
     s1 = pkb.filter_by_stmtType(ENT_WHILE, pkb.get_all_stmt());
-    CPPUNIT_ASSERT_EQUAL(4, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(9) != s1.end());
-    CPPUNIT_ASSERT(s1.find(19) != s1.end());
-    CPPUNIT_ASSERT(s1.find(24) != s1.end());
-    CPPUNIT_ASSERT(s1.find(27) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "9", "19", "24", "27"),
+            stringSet);
 
     // Assignment 1
     // Q1
@@ -327,51 +250,50 @@ void TestPKB::test_one(){
 
     // Q3
     s1 = pkb.get_children(2);
-    CPPUNIT_ASSERT(s1.size() == 0);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
     s1 = pkb.get_children(9);
-    CPPUNIT_ASSERT(s1.size() == 3);
-    CPPUNIT_ASSERT(s1.find(10) != s1.end());
-    CPPUNIT_ASSERT(s1.find(11) != s1.end());
-    CPPUNIT_ASSERT(s1.find(17) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "10", "11", "17"),
+            stringSet);
     s1 = pkb.get_children(10);
-    CPPUNIT_ASSERT(s1.size() == 0);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
     s1 = pkb.get_children(11);
-    CPPUNIT_ASSERT(s1.size() == 5);
-    CPPUNIT_ASSERT(s1.find(12) != s1.end());
-    CPPUNIT_ASSERT(s1.find(13) != s1.end());
-    CPPUNIT_ASSERT(s1.find(14) != s1.end());
-    CPPUNIT_ASSERT(s1.find(15) != s1.end());
-    CPPUNIT_ASSERT(s1.find(16) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5, "12", "13", "14", "15",
+            "16"), stringSet);
 
     // Q4
-    s1 =pkb.get_parent_star(2);
-    CPPUNIT_ASSERT(s1.size() == 0);
-    s1 =pkb.get_parent_star(10);
-    CPPUNIT_ASSERT(s1.size() == 1);
-    CPPUNIT_ASSERT(s1.find(9) != s1.end());
-    s1 =pkb.get_parent_star(15);
-    CPPUNIT_ASSERT(s1.size() == 2);
-    CPPUNIT_ASSERT(s1.find(9) != s1.end());
-    CPPUNIT_ASSERT(s1.find(11) != s1.end());
-    s1 =pkb.get_parent_star(21);
-    CPPUNIT_ASSERT(s1.size() == 1);
-    CPPUNIT_ASSERT(s1.find(19) != s1.end());
+    s1 = pkb.get_parent_star(2);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
+    s1 = pkb.get_parent_star(10);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "9"), stringSet);
+    s1 = pkb.get_parent_star(15);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "9", "11"), stringSet);
+    s1 = pkb.get_parent_star(21);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "19"), stringSet);
 
     // Q5
     s1 = pkb.filter_by_stmtType(ENT_WHILE, pkb.get_parent_star(2));
-    CPPUNIT_ASSERT(s1.size() == 0);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
     s1 = pkb.filter_by_stmtType(ENT_WHILE, pkb.get_parent_star(10));
-    CPPUNIT_ASSERT(s1.size() == 1);
-    CPPUNIT_ASSERT(s1.find(9) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "9"), stringSet);
     s1 = pkb.filter_by_stmtType(ENT_WHILE, pkb.get_parent_star(13));
-    CPPUNIT_ASSERT(s1.size() == 1);
-    CPPUNIT_ASSERT(s1.find(9) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "9"), stringSet);
     s1 = pkb.filter_by_stmtType(ENT_WHILE, pkb.get_parent_star(17));
-    CPPUNIT_ASSERT(s1.size() == 1);
-    CPPUNIT_ASSERT(s1.find(9) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "9"), stringSet);
     s1 = pkb.filter_by_stmtType(ENT_WHILE, pkb.get_parent_star(22));
-    CPPUNIT_ASSERT(s1.size() == 1);
-    CPPUNIT_ASSERT(s1.find(19) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "19"), stringSet);
 
     // Q7
     CPPUNIT_ASSERT_EQUAL(-1, pkb.get_predecessor(1));
@@ -394,191 +316,146 @@ void TestPKB::test_one(){
 
     // Q10
     s1 = pkb.get_predecessor_star(2);
-    CPPUNIT_ASSERT(s1.size() == 1);
-    CPPUNIT_ASSERT(s1.find(1) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "1"), stringSet);
     s1 = pkb.get_predecessor_star(10);
-    CPPUNIT_ASSERT(s1.size() == 0);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
     s1 = pkb.get_predecessor_star(11);
-    CPPUNIT_ASSERT(s1.size() == 1);
-    CPPUNIT_ASSERT(s1.find(10) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "10"), stringSet);
     s1 = pkb.get_predecessor_star(21);
-    CPPUNIT_ASSERT(s1.size() == 1);
-    CPPUNIT_ASSERT(s1.find(20) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "20"), stringSet);
 
     // Q11
     s1 = pkb.filter_by_stmtType(ENT_IF,pkb.get_predecessor_star(10));
-    CPPUNIT_ASSERT(s1.size() == 0);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
     s1 = pkb.filter_by_stmtType(ENT_IF,pkb.get_predecessor_star(17));
-    CPPUNIT_ASSERT(s1.size() == 1);
-    CPPUNIT_ASSERT(s1.find(11) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "11"), stringSet);
 
     // Q12
     s1 = pkb.filter_by_stmtType(ENT_ASSIGN,pkb.get_predecessor_star(4));
-    CPPUNIT_ASSERT(s1.size() == 3);
-    CPPUNIT_ASSERT(s1.find(1) != s1.end());
-    CPPUNIT_ASSERT(s1.find(2) != s1.end());
-    CPPUNIT_ASSERT(s1.find(3) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "1", "2", "3"),
+            stringSet);
     s1 = pkb.filter_by_stmtType(ENT_ASSIGN,pkb.get_predecessor_star(5));
-    CPPUNIT_ASSERT(s1.size() == 4);
-    CPPUNIT_ASSERT(s1.find(1) != s1.end());
-    CPPUNIT_ASSERT(s1.find(2) != s1.end());
-    CPPUNIT_ASSERT(s1.find(3) != s1.end());
-    CPPUNIT_ASSERT(s1.find(4) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "1", "2", "3", "4"),
+            stringSet);
     s1 = pkb.filter_by_stmtType(ENT_ASSIGN,pkb.get_predecessor_star(9));
-    CPPUNIT_ASSERT(s1.size() == 6);
-    CPPUNIT_ASSERT(s1.find(1) != s1.end());
-    CPPUNIT_ASSERT(s1.find(2) != s1.end());
-    CPPUNIT_ASSERT(s1.find(3) != s1.end());
-    CPPUNIT_ASSERT(s1.find(4) != s1.end());
-    CPPUNIT_ASSERT(s1.find(6) != s1.end());
-    CPPUNIT_ASSERT(s1.find(8) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "1", "2", "3", "4", "6",
+            "8"), stringSet);
     s1 = pkb.filter_by_stmtType(ENT_ASSIGN,pkb.get_predecessor_star(17));
-    CPPUNIT_ASSERT(s1.size() == 1);
-    CPPUNIT_ASSERT(s1.find(10) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "10"), stringSet);
     s1 = pkb.filter_by_stmtType(ENT_ASSIGN,pkb.get_predecessor_star(22));
-    CPPUNIT_ASSERT(s1.size() == 1);
-    CPPUNIT_ASSERT(s1.find(20) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "20"), stringSet);
 
     // Q13
     s = pkb.get_var_stmt_modifies(3);
-    CPPUNIT_ASSERT(s.size() == 1);
-    CPPUNIT_ASSERT(s.find("y") != s.end());
+    stringSet = SetWrapper<string>(s);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "y"), stringSet);
     s = pkb.modifies_X_Y_get_string_Y_from_int_X(ENT_STMT, ENT_VAR, 5);
-    CPPUNIT_ASSERT(s.size() == 2);
-    CPPUNIT_ASSERT(s.find("y") != s.end());
-    CPPUNIT_ASSERT(s.find("z") != s.end());
+    stringSet = SetWrapper<string>(s);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "y", "z"), stringSet);
     s = pkb.modifies_X_Y_get_string_Y_from_int_X(ENT_STMT, ENT_VAR, 9);
-    CPPUNIT_ASSERT(s.size() == 5);
-    CPPUNIT_ASSERT(s.find("e") != s.end());
-    CPPUNIT_ASSERT(s.find("i") != s.end());
-    CPPUNIT_ASSERT(s.find("x") != s.end());
-    CPPUNIT_ASSERT(s.find("y") != s.end());
-    CPPUNIT_ASSERT(s.find("z") != s.end());
+    stringSet = SetWrapper<string>(s);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5, "e", "i", "x", "y", "z"),
+            stringSet);
     s = pkb.modifies_X_Y_get_string_Y_from_int_X(ENT_STMT, ENT_VAR, 11);
-    CPPUNIT_ASSERT(s.size() == 4);
-    CPPUNIT_ASSERT(s.find("i") != s.end());
-    CPPUNIT_ASSERT(s.find("x") != s.end());
-    CPPUNIT_ASSERT(s.find("y") != s.end());
-    CPPUNIT_ASSERT(s.find("z") != s.end());
+    stringSet = SetWrapper<string>(s);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "i", "x", "y", "z"),
+            stringSet);
 
     // Q14
     s1 = pkb.filter_by_stmtType(ENT_WHILE, pkb.get_stmt_modifies("i"));
-    CPPUNIT_ASSERT(s1.size() == 2);
-    CPPUNIT_ASSERT(s1.find(9) != s1.end());
-    CPPUNIT_ASSERT(s1.find(19) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "9", "19"), stringSet);
     s1 = pkb.filter_by_stmtType(ENT_WHILE, pkb.get_stmt_modifies("y"));
-    CPPUNIT_ASSERT(s1.size() == 3);
-    CPPUNIT_ASSERT(s1.find(9) != s1.end());
-    CPPUNIT_ASSERT(s1.find(19) != s1.end());
-    CPPUNIT_ASSERT(s1.find(27) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "9", "19", "27"),
+            stringSet);
 
     // Q15
     s = pkb.modifies_X_Y_get_string_Y_from_string_X(ENT_PROC, ENT_VAR,
             "Mary");
-    CPPUNIT_ASSERT_EQUAL(3, (int)s.size());
-    CPPUNIT_ASSERT(s.find("i") != s.end());
-    CPPUNIT_ASSERT(s.find("y") != s.end());
-    CPPUNIT_ASSERT(s.find("z") != s.end());
+    stringSet = SetWrapper<string>(s);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "i", "y", "z"),
+            stringSet);
 
     // Q16
     s1 = pkb.uses_X_Y_get_int_X_from_string_Y(ENT_STMT, ENT_VAR, "i");
-    CPPUNIT_ASSERT_EQUAL(11, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(5) != s1.end());
-    CPPUNIT_ASSERT(s1.find(9) != s1.end());
-    CPPUNIT_ASSERT(s1.find(11) != s1.end());
-    CPPUNIT_ASSERT(s1.find(16) != s1.end());
-    CPPUNIT_ASSERT(s1.find(18) != s1.end());
-    CPPUNIT_ASSERT(s1.find(19) != s1.end());
-    CPPUNIT_ASSERT(s1.find(21) != s1.end());
-    CPPUNIT_ASSERT(s1.find(22) != s1.end());
-    CPPUNIT_ASSERT(s1.find(23) != s1.end());
-    CPPUNIT_ASSERT(s1.find(27) != s1.end());
-    CPPUNIT_ASSERT(s1.find(28) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(11, "5", "9", "11", "16",
+            "18", "19", "21", "22", "23", "27", "28"), stringSet);
     s1 = pkb.uses_X_Y_get_int_X_from_string_Y(ENT_STMT, ENT_VAR, "y");
-    CPPUNIT_ASSERT_EQUAL(17, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(4) != s1.end());
-    CPPUNIT_ASSERT(s1.find(5) != s1.end());
-    CPPUNIT_ASSERT(s1.find(9) != s1.end());
-    CPPUNIT_ASSERT(s1.find(10) != s1.end());
-    CPPUNIT_ASSERT(s1.find(11) != s1.end());
-    CPPUNIT_ASSERT(s1.find(12) != s1.end());
-    CPPUNIT_ASSERT(s1.find(13) != s1.end());
-    CPPUNIT_ASSERT(s1.find(14) != s1.end());
-    CPPUNIT_ASSERT(s1.find(17) != s1.end());
-    CPPUNIT_ASSERT(s1.find(18) != s1.end());
-    CPPUNIT_ASSERT(s1.find(19) != s1.end());
-    CPPUNIT_ASSERT(s1.find(20) != s1.end());
-    CPPUNIT_ASSERT(s1.find(21) != s1.end());
-    CPPUNIT_ASSERT(s1.find(23) != s1.end());
-    CPPUNIT_ASSERT(s1.find(27) != s1.end());
-    CPPUNIT_ASSERT(s1.find(28) != s1.end());
-    CPPUNIT_ASSERT(s1.find(30) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(17, "4", "5", "9", "10",
+            "11", "12", "13", "14", "17", "18", "19", "20", "21", "23",
+            "27", "28", "30"), stringSet);
 
     // Q17
     s = pkb.get_var_stmt_uses(10);
-    CPPUNIT_ASSERT_EQUAL(2, (int)s.size());
-    CPPUNIT_ASSERT(s.find("x") != s.end());
-    CPPUNIT_ASSERT(s.find("y") != s.end());
+    stringSet = SetWrapper<string>(s);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "x", "y"), stringSet);
     s = pkb.get_var_stmt_uses(18);
-    CPPUNIT_ASSERT_EQUAL(6, (int)s.size());
-    CPPUNIT_ASSERT(s.find("d") != s.end());
-    CPPUNIT_ASSERT(s.find("e") != s.end());
-    CPPUNIT_ASSERT(s.find("i") != s.end());
-    CPPUNIT_ASSERT(s.find("x") != s.end());
-    CPPUNIT_ASSERT(s.find("y") != s.end());
-    CPPUNIT_ASSERT(s.find("z") != s.end());
+    stringSet = SetWrapper<string>(s);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "d", "e", "i", "x", "y",
+            "z"), stringSet);
 
     // Q23
     s = pkb.get_called_by_star("John");
-    CPPUNIT_ASSERT_EQUAL(2, (int)s.size());
-    CPPUNIT_ASSERT(s.find("Bill") != s.end());
-    CPPUNIT_ASSERT(s.find("Jane") == s.end());
-    CPPUNIT_ASSERT(s.find("Mary") != s.end());
+    stringSet = SetWrapper<string>(s);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "Bill", "Mary"),
+            stringSet);
 
     // Q39
     s1 = pkb.get_after(1);
-    CPPUNIT_ASSERT_EQUAL(1, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(2) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "2"), stringSet);
     s1 = pkb.get_after(9);
-    CPPUNIT_ASSERT_EQUAL(2, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(10) != s1.end());
-    CPPUNIT_ASSERT(s1.find(18) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "10", "18"), stringSet);
     s1 = pkb.get_after(11);
-    CPPUNIT_ASSERT_EQUAL(2, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(12) != s1.end());
-    CPPUNIT_ASSERT(s1.find(14) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "12", "14"), stringSet);
     s1 = pkb.get_after(13);
-    CPPUNIT_ASSERT_EQUAL(1, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(17) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "17"), stringSet);
     s1 = pkb.get_after(15);
-    CPPUNIT_ASSERT_EQUAL(1, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(16) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "16"), stringSet);
     s1 = pkb.get_after(17);
-    CPPUNIT_ASSERT_EQUAL(1, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(9) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "9"), stringSet);
     s1 = pkb.get_after(18);
-    CPPUNIT_ASSERT_EQUAL(0, (int)s1.size());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
 
     // Q40
     s1 = pkb.get_before(1);
-    CPPUNIT_ASSERT_EQUAL(0, (int)s1.size());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
     s1 = pkb.get_before(9);
-    CPPUNIT_ASSERT_EQUAL(2, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(8) != s1.end());
-    CPPUNIT_ASSERT(s1.find(17) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "8", "17"), stringSet);
     s1 = pkb.get_before(10);
-    CPPUNIT_ASSERT_EQUAL(1, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(9) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "9"), stringSet);
     s1 = pkb.get_before(17);
-    CPPUNIT_ASSERT_EQUAL(2, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(13) != s1.end());
-    CPPUNIT_ASSERT(s1.find(16) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "13", "16"), stringSet);
     s1 = pkb.get_before(18);
-    CPPUNIT_ASSERT_EQUAL(1, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(9) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "9"), stringSet);
     s1 = pkb.get_before(19);
-    CPPUNIT_ASSERT_EQUAL(1, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(22) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "22"), stringSet);
 
     // Q43
     CPPUNIT_ASSERT_EQUAL(true, pkb.is_affects(1, 2));
@@ -592,22 +469,21 @@ void TestPKB::test_one(){
 
     // Q44
     s1 = pkb.get_affected_by(1);
-    CPPUNIT_ASSERT_EQUAL(0, (int)s1.size());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
     s1 = pkb.get_affected_by(10);
     CPPUNIT_ASSERT_EQUAL(true, pkb.is_affects(17, 10));
     CPPUNIT_ASSERT_EQUAL(true, pkb.is_affects(12, 10));
-    CPPUNIT_ASSERT_EQUAL(2, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(12) != s1.end());
-    CPPUNIT_ASSERT(s1.find(17) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "12", "17"), stringSet);
 
     // Q45
     s1 = pkb.get_affects(1);
-    CPPUNIT_ASSERT_EQUAL(2, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(2) != s1.end());
-    CPPUNIT_ASSERT(s1.find(3) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "2", "3"), stringSet);
     s1 = pkb.get_affects(13);
-    CPPUNIT_ASSERT_EQUAL(1, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(16) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "16"), stringSet);
 
     // Q46
     CPPUNIT_ASSERT_EQUAL(true, pkb.is_affects_star(1, 2));
@@ -619,17 +495,19 @@ void TestPKB::test_one(){
 
     // Q47
     s1 = pkb.get_affected_by_star(12);
-    CPPUNIT_ASSERT_EQUAL(0, (int)s1.size());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
     s1 = pkb.get_affected_by_star(26);
-    CPPUNIT_ASSERT_EQUAL(1, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(25) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "25"), stringSet);
 
     // Q48
     s1 = pkb.get_affects_star(20);
-    CPPUNIT_ASSERT_EQUAL(0, (int)s1.size());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
     s1 = pkb.get_affects_star(6);
-    CPPUNIT_ASSERT_EQUAL(1, (int)s1.size());
-    CPPUNIT_ASSERT(s1.find(8) != s1.end());
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "8"), stringSet);
 }
 
 
@@ -643,46 +521,12 @@ void TestPKB::test_three(){
 
 }
 
-void TestPKB::compare_int_set(const set<int>& S, int n, ...) const
-{
-    int expectedSize = S.size();
-    CPPUNIT_ASSERT_EQUAL((int)S.size(), n);
-    set<int> tmpSet;
-    va_list ap;
-    va_start(ap, n);
-    for (int i = 0; i < n; i++) {
-        int value = va_arg(ap, int);
-        CPPUNIT_ASSERT_EQUAL(1, (int)S.count(value));
-        CPPUNIT_ASSERT_EQUAL(0, (int)tmpSet.count(value));
-        tmpSet.insert(value);
-    }
-    va_end(ap);
-    CPPUNIT_ASSERT_EQUAL(expectedSize, (int)tmpSet.size());
-}
-
-void TestPKB::compare_string_set(const set<string>& S, int n, ...) const
-{
-    int expectedSize = S.size();
-    CPPUNIT_ASSERT_EQUAL((int)S.size(), n);
-    set<string> tmpSet;
-    va_list ap;
-    va_start(ap, n);
-    for (int i = 0; i < n; i++) {
-        char *apStr = va_arg(ap, char*);
-        string str = string(apStr);
-        CPPUNIT_ASSERT_EQUAL(1, (int)S.count(str));
-        CPPUNIT_ASSERT_EQUAL(0, (int)tmpSet.count(str));
-        tmpSet.insert(str);
-    }
-    va_end(ap);
-    CPPUNIT_ASSERT_EQUAL(expectedSize, (int)tmpSet.size());
-}
-
 void TestPKB::test_retrieve_all_X()
 {
     string simpleProg, queryStr;
+    set<string> S;
     set<int> intSet;
-    set<string> stringSet;
+    SetWrapper<string> stringSet;
     simpleProg =
         "procedure Xproc { \
            a = x + y + 3; \
@@ -741,40 +585,57 @@ void TestPKB::test_retrieve_all_X()
     PKB *pkb = parser.get_pkb();
     // assign
     intSet = pkb->get_all_assign();
-    this->compare_int_set(intSet, 26, 1, 2, 4, 5, 6, 8, 11, 13, 14, 15, 16,
-            17, 18, 19, 21, 22, 23, 24, 27, 28, 29, 30, 31, 32, 34, 35);
+    stringSet = SetWrapper<string>(intSet);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(26, "1", "2", "4", "5", "6",
+            "8", "11", "13", "14", "15", "16", "17", "18", "19", "21",
+            "22", "23", "24", "27", "28", "29", "30", "31", "32", "34",
+            "35"), stringSet);
     // if
     intSet = pkb->get_all_if();
-    this->compare_int_set(intSet, 3, 3, 9, 25);
+    stringSet = SetWrapper<string>(intSet);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "3", "9", "25"),
+            stringSet);
     // while
     intSet = pkb->get_all_while();
-    this->compare_int_set(intSet, 3, 7, 12, 33);
+    stringSet = SetWrapper<string>(intSet);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "7", "12", "33"),
+            stringSet);
     // call
     intSet = pkb->get_all_call();
-    this->compare_int_set(intSet, 3, 10, 20, 26);
+    stringSet = SetWrapper<string>(intSet);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "10", "20", "26"),
+            stringSet);
     // const
     intSet = pkb->get_all_const();
-    this->compare_int_set(intSet, 9, 3, 62, 2, 73, 156, 511,
-                0, 675, 1);
+    stringSet = SetWrapper<string>(intSet);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(9, "3", "62", "2", "73",
+            "156", "511", "0", "675", "1"), stringSet);
     // stmt
     intSet = pkb->get_all_stmt();
-    this->compare_int_set(intSet, 35, 1, 2, 3, 4, 5, 6, 7, 8,
-                9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-                21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32,
-                33, 34, 35);
+    stringSet = SetWrapper<string>(intSet);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(35, "1", "2", "3", "4", "5",
+            "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16",
+            "17", "18", "19", "20", "21", "22", "23", "24", "25", "26",
+            "27", "28", "29", "30", "31", "32", "33", "34", "35"),
+            stringSet);
     // progline
     intSet = pkb->get_all_progline();
-    this->compare_int_set(intSet, 35, 1, 2, 3, 4, 5, 6, 7, 8,
-                9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-                21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32,
-                33, 34, 35);
+    stringSet = SetWrapper<string>(intSet);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(35, "1", "2", "3", "4", "5",
+            "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16",
+            "17", "18", "19", "20", "21", "22", "23", "24", "25", "26",
+            "27", "28", "29", "30", "31", "32", "33", "34", "35"),
+            stringSet);
     // stmtLst
     intSet = pkb->get_all_stmtLst();
-    this->compare_int_set(intSet, 13, 1, 4, 8, 10, 12, 13, 20,
-            23, 26, 28, 30, 33, 34);
+    stringSet = SetWrapper<string>(intSet);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(13, "1", "4", "8", "10", "12",
+            "13", "20", "23", "26", "28", "30", "33", "34"),
+            stringSet);
     // variable
-    stringSet = pkb->get_all_vars();
-    this->compare_string_set(stringSet, 48, "a", "b73", "bc", "bill",
+    S = pkb->get_all_vars();
+    stringSet = SetWrapper<string>(S);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(48, "a", "b73", "bc", "bill",
             "cleanup", "cond", "cool", "doStuff", "done",
             "eat", "elseVar", "execVar", "exitVal", "fighter",
             "follows", "food", "gather", "good", "hell",
@@ -782,11 +643,14 @@ void TestPKB::test_retrieve_all_X()
             "no", "notEmpty", "one", "P", "pacman", "paid", "pkgmgr",
             "program", "retVal", "sad", "sameName", "save",
             "sleep", "star", "state", "stuff", "tie", "tired",
-            "true", "twoThree", "varHere", "x", "xid", "y");
+            "true", "twoThree", "varHere", "x", "xid", "y"),
+            stringSet);
     // procedure
-    stringSet = pkb->get_all_procs();
-    this->compare_string_set(stringSet, 4, "Xproc", "execVE", "oneTwoThree",
-            "lastProc");
+    S = pkb->get_all_procs();
+    stringSet = SetWrapper<string>(S);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "Xproc", "execVE",
+            "oneTwoThree", "lastProc"),
+            stringSet);
 }
 
 void TestPKB::test_modifies()
@@ -858,7 +722,8 @@ void TestPKB::test_modifies()
     parser.init();
     PKB *pkb = parser.get_pkb();
     set<int> intSet;
-    set<string> stringSet;
+    set<string> S;
+    SetWrapper<string> stringSet;
 
     // pOne modifies:
     // aone, d3, this, x1, t1, h2, a, xe, onceOnly, all, none, harp, nn
@@ -922,276 +787,298 @@ void TestPKB::test_modifies()
     // stmt 37 [assign] - pfg
     // stmt 38 [while] - ue
     // stmt 39 [assign] - ue
-    stringSet = pkb->get_var_proc_modifies("pOne");
-    this->compare_string_set(stringSet, 24, "aone", "d3", "this", "x1", "t1",
+    S = pkb->get_var_proc_modifies("pOne");
+    stringSet = SetWrapper<string>(S);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(24, "aone", "d3", "this",
+            "x1", "t1", "h2", "a", "xe", "onceOnly", "all", "none",
+            "harp", "nn", "pfg", "ue", "y", "x", "hoho", "haa", "fire",
+            "good", "pe", "fol", "g2"),
+            stringSet);
+    S = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
+            ENT_VAR, 1);
+    stringSet = SetWrapper<string>(S);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "aone"), stringSet);
+    S = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
+            ENT_VAR, 2);
+    stringSet = SetWrapper<string>(S);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "d3"), stringSet);
+    S = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_WHILE,
+            ENT_VAR, 3);
+    stringSet = SetWrapper<string>(S);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(21, "this", "x1", "t1",
             "h2", "a", "xe", "onceOnly", "all", "none", "harp", "nn",
             "pfg", "ue", "y", "x", "hoho", "haa", "fire", "good", "pe",
-            "fol", "g2");
-    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
-            ENT_VAR, 1);
-    this->compare_string_set(stringSet, 1, "aone");
-    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
-            ENT_VAR, 2);
-    this->compare_string_set(stringSet, 1, "d3");
-    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_WHILE,
-            ENT_VAR, 3);
-    this->compare_string_set(stringSet, 21, "this", "x1", "t1", "h2", "a",
-            "xe", "onceOnly", "all", "none", "harp", "nn", "pfg", "ue",
-            "y", "x", "hoho", "haa", "fire", "good", "pe", "fol");
+            "fol"),
+            stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
             ENT_VAR, 4);
-    this->compare_string_set(stringSet, 1, "this");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "this"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_WHILE,
             ENT_VAR, 5);
-    this->compare_string_set(stringSet, 19, "x1", "t1", "h2", "a", "xe",
-            "onceOnly", "all", "none", "harp", "nn", "pfg", "ue", "y",
-            "x", "hoho", "haa", "fire", "good", "pe");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(19, "x1", "t1", "h2", "a",
+            "xe", "onceOnly", "all", "none", "harp", "nn", "pfg", "ue",
+            "y", "x", "hoho", "haa", "fire", "good", "pe"),
+            stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
             ENT_VAR, 6);
-    this->compare_string_set(stringSet, 1, "x1");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "x1"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_IF,
             ENT_VAR, 7);
-    this->compare_string_set(stringSet, 16, "t1", "h2", "a", "xe",
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(16, "t1", "h2", "a", "xe",
             "onceOnly", "all", "none", "harp", "nn", "pfg", "ue",
-            "y", "x", "hoho", "haa", "fire");
+            "y", "x", "hoho", "haa", "fire"),
+            stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
             ENT_VAR, 8);
-    this->compare_string_set(stringSet, 1, "t1");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "t1"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
             ENT_VAR, 9);
-    this->compare_string_set(stringSet, 1, "h2");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "h2"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_CALL,
             ENT_VAR, 10);
-    this->compare_string_set(stringSet, 9, "a", "xe", "onceOnly", "all",
-            "none", "harp", "nn", "pfg", "ue");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(9, "a", "xe", "onceOnly",
+            "all", "none", "harp", "nn", "pfg", "ue"),
+            stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_WHILE,
             ENT_VAR, 11);
-    this->compare_string_set(stringSet, 1, "y");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "y"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
             ENT_VAR, 12);
-    this->compare_string_set(stringSet, 1, "y");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "y"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_IF,
             ENT_VAR, 13);
-    this->compare_string_set(stringSet, 4, "x", "hoho", "haa", "fire");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "x", "hoho", "haa",
+            "fire"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_WHILE,
             ENT_VAR, 14);
-    this->compare_string_set(stringSet, 3, "x", "hoho", "haa");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "x", "hoho", "haa"),
+            stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
             ENT_VAR, 15);
-    this->compare_string_set(stringSet, 1, "x");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "x"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_CALL,
             ENT_VAR, 16);
-    this->compare_string_set(stringSet, 2, "hoho", "haa");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "hoho", "haa"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
             ENT_VAR, 17);
-    this->compare_string_set(stringSet, 1, "fire");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "fire"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
             ENT_VAR, 18);
-    this->compare_string_set(stringSet, 1, "xe");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "xe"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
             ENT_VAR, 19);
-    this->compare_string_set(stringSet, 1, "good");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "good"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
             ENT_VAR, 20);
-    this->compare_string_set(stringSet, 1, "pe");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "pe"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
             ENT_VAR, 21);
-    this->compare_string_set(stringSet, 1, "fol");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "fol"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
             ENT_VAR, 22);
-    this->compare_string_set(stringSet, 1, "g2");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "g2"), stringSet);
 
     stringSet = pkb->get_var_proc_modifies("secProc");
-    this->compare_string_set(stringSet, 9, "a", "xe", "onceOnly", "all",
-            "none", "harp", "nn", "pfg", "ue");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(9, "a", "xe", "onceOnly",
+            "all", "none", "harp", "nn", "pfg", "ue"),
+            stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
             ENT_VAR, 23);
-    this->compare_string_set(stringSet, 1, "a");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "a"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
             ENT_VAR, 24);
-    this->compare_string_set(stringSet, 1, "xe");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "xe"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_WHILE,
             ENT_VAR, 25);
-    this->compare_string_set(stringSet, 5, "onceOnly", "all", "none",
-            "harp", "nn");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5, "onceOnly", "all", "none",
+            "harp", "nn"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
             ENT_VAR, 26);
-    this->compare_string_set(stringSet, 1, "onceOnly");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "onceOnly"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_IF,
             ENT_VAR, 27);
-    this->compare_string_set(stringSet, 4, "all", "none", "harp", "nn");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "all", "none", "harp",
+            "nn"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
             ENT_VAR, 28);
-    this->compare_string_set(stringSet, 1, "all");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "all"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
             ENT_VAR, 29);
-    this->compare_string_set(stringSet, 1, "none");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "none"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_WHILE,
             ENT_VAR, 30);
-    this->compare_string_set(stringSet, 2, "harp", "nn");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "harp", "nn"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_IF,
             ENT_VAR, 31);
-    this->compare_string_set(stringSet, 2, "harp", "nn");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "harp", "nn"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
             ENT_VAR, 32);
-    this->compare_string_set(stringSet, 1, "harp");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "harp"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
             ENT_VAR, 33);
-    this->compare_string_set(stringSet, 1, "nn");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "nn"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_CALL,
             ENT_VAR, 34);
-    this->compare_string_set(stringSet, 2, "pfg", "ue");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "pfg", "ue"), stringSet);
 
     stringSet = pkb->get_var_proc_modifies("thirdProc");
-    this->compare_string_set(stringSet, 2, "hoho", "haa");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "hoho", "haa"),
+            stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
             ENT_VAR, 35);
-    this->compare_string_set(stringSet, 1, "hoho");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "hoho"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
             ENT_VAR, 36);
-    this->compare_string_set(stringSet, 1, "haa");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "haa"), stringSet);
 
     stringSet = pkb->get_var_proc_modifies("procFOUR");
-    this->compare_string_set(stringSet, 2, "pfg", "ue");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "pfg", "ue"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
             ENT_VAR, 37);
-    this->compare_string_set(stringSet, 1, "pfg");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "pfg"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_WHILE,
             ENT_VAR, 38);
-    this->compare_string_set(stringSet, 1, "ue");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "ue"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
             ENT_VAR, 39);
-    this->compare_string_set(stringSet, 1, "ue");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "ue"), stringSet);
 
     //////////////////////////////////////////////////////////////////
     // same as above, but using stmt
     //////////////////////////////////////////////////////////////////
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 1);
-    this->compare_string_set(stringSet, 1, "aone");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "aone"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 2);
-    this->compare_string_set(stringSet, 1, "d3");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "d3"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 3);
-    this->compare_string_set(stringSet, 21, "this", "x1", "t1", "h2", "a",
-            "xe", "onceOnly", "all", "none", "harp", "nn", "pfg", "ue",
-            "y", "x", "hoho", "haa", "fire", "good", "pe", "fol");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(21, "this", "x1", "t1", "h2",
+            "a", "xe", "onceOnly", "all", "none", "harp", "nn", "pfg",
+            "ue", "y", "x", "hoho", "haa", "fire", "good", "pe", "fol"),
+            stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 4);
-    this->compare_string_set(stringSet, 1, "this");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "this"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 5);
-    this->compare_string_set(stringSet, 19, "x1", "t1", "h2", "a", "xe",
-            "onceOnly", "all", "none", "harp", "nn", "pfg", "ue", "y",
-            "x", "hoho", "haa", "fire", "good", "pe");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(19, "x1", "t1", "h2", "a",
+            "xe", "onceOnly", "all", "none", "harp", "nn", "pfg", "ue",
+            "y", "x", "hoho", "haa", "fire", "good", "pe"),
+            stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 6);
-    this->compare_string_set(stringSet, 1, "x1");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "x1"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 7);
-    this->compare_string_set(stringSet, 16, "t1", "h2", "a", "xe",
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(16, "t1", "h2", "a", "xe",
             "onceOnly", "all", "none", "harp", "nn", "pfg", "ue",
-            "y", "x", "hoho", "haa", "fire");
+            "y", "x", "hoho", "haa", "fire"),
+            stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 8);
-    this->compare_string_set(stringSet, 1, "t1");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "t1"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 9);
-    this->compare_string_set(stringSet, 1, "h2");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "h2"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 10);
-    this->compare_string_set(stringSet, 9, "a", "xe", "onceOnly", "all",
-            "none", "harp", "nn", "pfg", "ue");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(9, "a", "xe", "onceOnly",
+            "all", "none", "harp", "nn", "pfg", "ue"),
+            stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 11);
-    this->compare_string_set(stringSet, 1, "y");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "y"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 12);
-    this->compare_string_set(stringSet, 1, "y");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "y"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 13);
-    this->compare_string_set(stringSet, 4, "x", "hoho", "haa", "fire");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "x", "hoho", "haa",
+            "fire"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 14);
-    this->compare_string_set(stringSet, 3, "x", "hoho", "haa");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "x", "hoho", "haa"),
+            stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 15);
-    this->compare_string_set(stringSet, 1, "x");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "x"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 16);
-    this->compare_string_set(stringSet, 2, "hoho", "haa");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "hoho", "haa"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 17);
-    this->compare_string_set(stringSet, 1, "fire");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "fire"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 18);
-    this->compare_string_set(stringSet, 1, "xe");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "xe"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 19);
-    this->compare_string_set(stringSet, 1, "good");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "good"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 20);
-    this->compare_string_set(stringSet, 1, "pe");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "pe"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 21);
-    this->compare_string_set(stringSet, 1, "fol");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "fol"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 22);
-    this->compare_string_set(stringSet, 1, "g2");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "g2"), stringSet);
 
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 23);
-    this->compare_string_set(stringSet, 1, "a");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "a"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 24);
-    this->compare_string_set(stringSet, 1, "xe");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "xe"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 25);
-    this->compare_string_set(stringSet, 5, "onceOnly", "all", "none",
-            "harp", "nn");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5, "onceOnly", "all",
+            "none", "harp", "nn"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 26);
-    this->compare_string_set(stringSet, 1, "onceOnly");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "onceOnly"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 27);
-    this->compare_string_set(stringSet, 4, "all", "none", "harp", "nn");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "all", "none", "harp",
+            "nn"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 28);
-    this->compare_string_set(stringSet, 1, "all");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "all"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 29);
-    this->compare_string_set(stringSet, 1, "none");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "none"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 30);
-    this->compare_string_set(stringSet, 2, "harp", "nn");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "harp", "nn"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 31);
-    this->compare_string_set(stringSet, 2, "harp", "nn");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "harp", "nn"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 32);
-    this->compare_string_set(stringSet, 1, "harp");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "harp"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 33);
-    this->compare_string_set(stringSet, 1, "nn");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "nn"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 34);
-    this->compare_string_set(stringSet, 2, "pfg", "ue");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "pfg", "ue"), stringSet);
 
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 35);
-    this->compare_string_set(stringSet, 1, "hoho");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "hoho"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 36);
-    this->compare_string_set(stringSet, 1, "haa");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "haa"), stringSet);
 
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 37);
-    this->compare_string_set(stringSet, 1, "pfg");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "pfg"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 38);
-    this->compare_string_set(stringSet, 1, "ue");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "ue"), stringSet);
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 39);
-    this->compare_string_set(stringSet, 1, "ue");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "ue"), stringSet);
 }

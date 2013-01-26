@@ -23,8 +23,6 @@ public:
     void tearDown();
 
 private:
-    void compare_int_set(const std::set<int>& S, int n, ...) const;
-    void compare_string_set(const std::set<std::string>& S, int n,...) const;
     void test_one();
     void test_retrieve_all_X();
     void test_modifies();
