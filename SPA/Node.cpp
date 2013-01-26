@@ -76,9 +76,9 @@ const set<string>& Node::get_modifies() const
     return modifies;
 }
 
-set<string> Node::get_uses()
+const set<string>& Node::get_uses() const
 {
-    return uses;
+    return this->uses;
 }
 
 string Node::get_control_var()

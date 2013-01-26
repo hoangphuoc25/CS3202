@@ -38,7 +38,7 @@ public:
     Node* get_predecessor();
     Node* get_successor();
     const std::set<std::string>& get_modifies() const;
-    set<string> get_uses();
+    const std::set<std::string>& get_uses() const;
     string get_control_var();
 
     void add_child(Node* n);
