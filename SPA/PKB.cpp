@@ -141,6 +141,14 @@ set<string> PKB::uses_X_Y_get_string_Y_from_string_X(DesignEnt xType,
     return EMPTY_STRINGSET;
 }
 
+bool PKB::uses_query_string_X_string_Y(DesignEnt xType, const string& x,
+        DesignEnt yType, const string& y) const
+{
+    assert(xType == ENT_PROC);
+    assert(yType == ENT_VAR);
+    return this->procTable->uses_query_procedure_var(x, y);
+}
+
 set<string> PKB::calls_X_Y_get_string_X_from_string_Y(DesignEnt xType,
         DesignEnt yType, const string& y) const
 {

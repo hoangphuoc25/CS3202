@@ -201,3 +201,51 @@ void Test_20_SynSyn_RelRef::test_ev_rr_ss_string_string_10()
             SetWrapper<string>(3, "Aleph", "GDay", "UseFromCall"),
             stringSet);
 }
+
+void Test_20_SynSyn_RelRef::test_ev_rr_ss_string_string_11()
+{
+    string simpleProg, queryStr;
+    QueryEvaluator evaluator;
+    list<string> resultList;
+    SetWrapper<string> stringSet;
+
+    simpleProg =
+        "procedure Aone { \
+           today = is + sunday; \
+           i = am + coding - today; \
+           while true { \
+             this = is + an; \
+             infinite = loop; \
+             if my then { \
+               teammates = can + help; \
+               it = will - be * good; \
+             } else { \
+               but = they + just - cant; \
+               help = me; \
+             } \
+             so = i + have; \
+             to = solo; \
+           } \
+           end = time; \
+         } \
+         procedure storyCont { \
+           you = will - not; \
+           notice = this + message; \
+           but = you + will - browse; \
+           the = code; \
+         } \
+         procedure noCount { \
+           my = 1; \
+           a = 2; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    queryStr = "procedure pavaA1; variable GJA; Select <pavaA1, GJA> ";
+    queryStr += " such that Modifies(pavaA1, GJA) and Uses(pavaA1, GJA)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(12, "Aone,help", "Aone,i",
+            "Aone,my", "Aone,this", "Aone,today", "Aone,you",
+            "storyCont,help", "storyCont,i", "storyCont,my",
+            "storyCont,this", "storyCont,today", "storyCont,you"),
+            stringSet);
+}

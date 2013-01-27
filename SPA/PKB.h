@@ -105,6 +105,17 @@ public:
     std::set<std::string> uses_X_Y_get_string_Y_from_string_X
             (DesignEnt xType, DesignEnt yType,
                 const std::string& x) const;
+    /*
+     * Given X (string) and Y (string), checks if Uses(X,Y) is true.
+     * @param xType type of X
+     * @param x value of X
+     * @param yType type of Y
+     * @param y value of Y
+     * @return true if Uses(X,Y), false otherwise
+     */
+    bool uses_query_string_X_string_Y(DesignEnt xType,
+            const std::string& x, DesignEnt yType, const std::string& y)
+                const;
 
     /*
      * Calls(X,Y); given Y (string), get all X (string) such that

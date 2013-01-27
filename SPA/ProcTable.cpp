@@ -238,6 +238,17 @@ set<string> ProcTable::get_all_procs() const
     return result;
 }
 
+bool ProcTable::uses_query_procedure_var(const string& proc,
+            const string& var) const
+{
+    int idx = this->get_index(proc);
+    if (idx >= 0) {
+        const ProcElements& p = this->procTable[idx];
+        return (p.uses.find(var) != p.uses.end());
+    }
+    return false;
+}
+
 string ProcTable::which_proc(int stmtNo)
 {
     return procFinder.lower_bound(stmtNo)->second;

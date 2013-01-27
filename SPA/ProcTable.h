@@ -64,6 +64,16 @@ public:
             const std::string& procName) const;
     std::set<std::string> get_all_procs() const;
 
+    /*
+     * Given a procedure proc and variable var, returns true if
+     * Uses(proc, var)
+     * @param proc name of procedure
+     * @param var name of variable
+     * @return true if Uses(proc,var), false otherwise
+     */
+    bool uses_query_procedure_var(const std::string& proc,
+            const std::string& var) const;
+
     string which_proc(int stmtNo);
 
 private:
