@@ -14,6 +14,70 @@ using std::map;
 
 void TestPKB::setUp()
 {
+    this->TEST_MODIFIES_SIMPLE_PROG =
+        "procedure pOne { \
+           aone = b + c; \
+           d3 = 5 + 7; \
+           while x { \
+             this = bx + d3; \
+             while a { \
+               x1 = b + ha; \
+               if g2 then { \
+                 t1 = t + bab; \
+                 h2 = 2 + ga; \
+                 call secProc; \
+                 while ten { \
+                   y = y + ue; \
+                 } \
+                 if tp then { \
+                   while one { \
+                     x = y + z; \
+                     call thirdProc; \
+                   } \
+                 } else { \
+                   fire = a + fire; \
+                 } \
+               } else { \
+                 xe = a * cab; \
+               } \
+               good = evil + evil; \
+               pe = 2 * 3 + zt1; \
+             } \
+             fol = y + g2; \
+           } \
+           g2 = xz + brave; \
+         } \
+         procedure secProc { \
+           a = b + c; \
+           xe = 2 + 73; \
+           while gg { \
+             onceOnly = true; \
+             if twice then { \
+               all = 3 * 5; \
+             } else { \
+               none = bba; \
+               while p { \
+                 if xe then { \
+                   harp = 41; \
+                 } else { \
+                   nn = ba1; \
+                 } \
+               } \
+             } \
+           } \
+           call procFOUR; \
+         } \
+         procedure thirdProc { \
+           hoho = merry + christmas; \
+           haa = haas; \
+         } \
+         procedure procFOUR { \
+           pfg = pf + g; \
+           while x { \
+             ue = no ; \
+           } \
+         }";
+
     this->TEST_USES_SIMPLE_PROG =
         "procedure pOne { \
            aone = b + c; \
@@ -738,69 +802,7 @@ void TestPKB::test_retrieve_all_X()
 
 void TestPKB::test_modifies()
 {
-    string simpleProg =
-        "procedure pOne { \
-           aone = b + c; \
-           d3 = 5 + 7; \
-           while x { \
-             this = bx + d3; \
-             while a { \
-               x1 = b + ha; \
-               if g2 then { \
-                 t1 = t + bab; \
-                 h2 = 2 + ga; \
-                 call secProc; \
-                 while ten { \
-                   y = y + ue; \
-                 } \
-                 if tp then { \
-                   while one { \
-                     x = y + z; \
-                     call thirdProc; \
-                   } \
-                 } else { \
-                   fire = a + fire; \
-                 } \
-               } else { \
-                 xe = a * cab; \
-               } \
-               good = evil + evil; \
-               pe = 2 * 3 + zt1; \
-             } \
-             fol = y + g2; \
-           } \
-           g2 = xz + brave; \
-         } \
-         procedure secProc { \
-           a = b + c; \
-           xe = 2 + 73; \
-           while gg { \
-             onceOnly = true; \
-             if twice then { \
-               all = 3 * 5; \
-             } else { \
-               none = bba; \
-               while p { \
-                 if xe then { \
-                   harp = 41; \
-                 } else { \
-                   nn = ba1; \
-                 } \
-               } \
-             } \
-           } \
-           call procFOUR; \
-         } \
-         procedure thirdProc { \
-           hoho = merry + christmas; \
-           haa = haas; \
-         } \
-         procedure procFOUR { \
-           pfg = pf + g; \
-           while x { \
-             ue = no ; \
-           } \
-         }";
+    const string& simpleProg = this->TEST_MODIFIES_SIMPLE_PROG;
     Parser parser(simpleProg, FROMSTRING);
     parser.init();
     PKB *pkb = parser.get_pkb();

@@ -30,6 +30,7 @@ public:
     void tearDown();
 
 private:
+    std::string TEST_MODIFIES_SIMPLE_PROG;
     std::string TEST_USES_SIMPLE_PROG;
 
     void test_one();
