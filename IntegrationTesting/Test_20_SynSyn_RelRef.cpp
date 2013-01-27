@@ -64,6 +64,45 @@ void Test_20_SynSyn_RelRef::test_uses_modifies_same_variable()
             stringSet);
 }
 
+void Test_20_SynSyn_RelRef::test_ev_rr_ss_string_string_00_from_argOne()
+{
+    string simpleProg, queryStr;
+    list<string> resultList;
+    SetWrapper<string> stringSet;
+    QueryEvaluator evaluator;
+
+    simpleProg =
+        "procedure evRRss { \
+           a = b + cd - efg; \
+           iOne = iTwo + ple; \
+           while i { \
+             mm = 2 + 35 - 63; \
+             if well then { \
+               no = choice; \
+             } else { \
+               thats = what + youve + got; \
+             } \
+             be = a - man; \
+           } \
+           my = friend; \
+         } \
+         procedure twoProc { \
+           yes = man; \
+           obey = the + command; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    queryStr = "procedure psa; variable jsa; Select <psa,jsa> such that ";
+    queryStr += " Modifies(psa,jsa)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(18, "evRRss,a", "evRRss,iOne",
+            "evRRss,mm", "evRRss,no", "evRRss,thats", "evRRss,be",
+            "evRRss,my", "evRRss,yes", "evRRss,obey", "twoProc,a",
+            "twoProc,iOne", "twoProc,mm", "twoProc,no", "twoProc,thats",
+            "twoProc,be", "twoProc,my", "twoProc,yes", "twoProc,obey"),
+            stringSet);
+}
+
 void Test_20_SynSyn_RelRef::test_ev_rr_ss_string_string_01()
 {
     string simpleProg, queryStr;
