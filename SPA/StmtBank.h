@@ -34,10 +34,12 @@ public:
 
     /*
      * Retrieves the set of variables used by a statement.
+     * @param entType type of statement
      * @param stmtNo statement number
      * @return a set of variables (strings) used by that statement
      */
-    const std::set<std::string>& get_vars_used_by_stmt(int stmtNo) const;
+    const std::set<std::string>& get_vars_used_by_stmt(DesignEnt entType,
+            int stmtNo) const;
 
     // query methods
     bool has_const(int n) const;

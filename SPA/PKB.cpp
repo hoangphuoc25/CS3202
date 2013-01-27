@@ -122,7 +122,7 @@ set<string> PKB::uses_X_Y_get_string_Y_from_int_X(DesignEnt xType,
     case ENT_WHILE:
     case ENT_STMT:
     case ENT_PROGLINE:
-        return this->stmtBank->get_vars_used_by_stmt(stmtNo);
+        return this->stmtBank->get_vars_used_by_stmt(xType, stmtNo);
         break;
     }
     return EMPTY_STRINGSET;

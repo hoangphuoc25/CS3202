@@ -175,14 +175,31 @@ const set<int>& StmtBank::get_all_stmtLst() const
     return this->stmtLstSet;
 }
 
- const set<string>& StmtBank::get_vars_used_by_stmt(int stmtNo) const
+ const set<string>& StmtBank::get_vars_used_by_stmt(DesignEnt entType,
+        int stmtNo) const
  {
     Node *n = this->get_node(stmtNo);
     if (n != NULL) {
-        return n->get_uses();
-    } else {
-        return EMPTY_STRINGSET;
+        bool returnUses = true;
+        switch (n->get_type()) {
+        case CALL_STMT:
+            returnUses = (entType == ENT_CALL);
+            break;
+        case WHILE_STMT:
+            returnUses = (entType == ENT_WHILE);
+            break;
+        case IF_STMT:
+            returnUses = (entType == ENT_IF);
+            break;
+        case ASSIGN_STMT:
+            returnUses = (entType == ENT_ASSIGN);
+            break;
+        }
+        if (returnUses) {
+            return n->get_uses();
+        }
     }
+    return EMPTY_STRINGSET;
  }
 
 bool StmtBank::has_const(int n) const
