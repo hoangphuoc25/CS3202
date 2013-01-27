@@ -1056,6 +1056,83 @@ void TestPKB::test_modifies_assign_var()
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
             ENT_VAR, 40);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "zzz"), stringSet);
+
+    // Modifies(assign,var), get assign
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+            ENT_VAR, "a");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "23"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+            ENT_VAR, "all");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "28"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+            ENT_VAR, "aone");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "1"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+            ENT_VAR, "d3");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "2"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+            ENT_VAR, "fire");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "17"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+            ENT_VAR, "fol");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "21"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+            ENT_VAR, "g2");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "22"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+            ENT_VAR, "good");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "19"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+            ENT_VAR, "h2");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "9"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+            ENT_VAR, "haa");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "36"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+            ENT_VAR, "harp");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "32"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+            ENT_VAR, "hoho");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "35"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+            ENT_VAR, "nn");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "33"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+            ENT_VAR, "none");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "29"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+            ENT_VAR, "onceOnly");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "26"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+            ENT_VAR, "pe");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "20"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+            ENT_VAR, "pfg");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "37"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+            ENT_VAR, "t1");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "8"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+            ENT_VAR, "this");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "4"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+            ENT_VAR, "ue");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "39"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+            ENT_VAR, "x");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "15"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+            ENT_VAR, "x1");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "6"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+            ENT_VAR, "xe");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "18", "24"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+            ENT_VAR, "y");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "12"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+            ENT_VAR, "zzz");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "40"), stringSet);
 }
 
 void TestPKB::test_modifies_call_var()
