@@ -3,7 +3,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <set>
-
+#include <string>
 
 using std::set;
 
@@ -14,7 +14,13 @@ CPPUNIT_TEST_SUITE(TestPKB);
 CPPUNIT_TEST(test_one);
 CPPUNIT_TEST(test_retrieve_all_X);
 CPPUNIT_TEST(test_modifies);
-CPPUNIT_TEST(test_uses);
+CPPUNIT_TEST(test_uses_procedure_var);
+CPPUNIT_TEST(test_uses_assign_var);
+CPPUNIT_TEST(test_uses_call_var);
+CPPUNIT_TEST(test_uses_if_var);
+CPPUNIT_TEST(test_uses_while_var);
+CPPUNIT_TEST(test_uses_stmt_var);
+CPPUNIT_TEST(test_uses_progline_var);
 //CPPUNIT_TEST(test_two);
 //CPPUNIT_TEST(test_three);
 CPPUNIT_TEST_SUITE_END();
@@ -24,6 +30,8 @@ public:
     void tearDown();
 
 private:
+    std::string TEST_USES_SIMPLE_PROG;
+
     void test_one();
     void test_retrieve_all_X();
     void test_modifies();
@@ -161,7 +169,13 @@ private:
     // useOne uses:
     // zzz
     // stmt 49 [assign] - zzz
-    void test_uses();
+    void test_uses_procedure_var();
+    void test_uses_assign_var();
+    void test_uses_call_var();
+    void test_uses_if_var();
+    void test_uses_while_var();
+    void test_uses_stmt_var();
+    void test_uses_progline_var();
     void test_two();
     void test_three();
 };

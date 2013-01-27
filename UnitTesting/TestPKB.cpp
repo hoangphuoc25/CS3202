@@ -12,7 +12,89 @@ using std::string;
 using std::map;
 
 
-void TestPKB::setUp() {}
+void TestPKB::setUp()
+{
+    this->TEST_USES_SIMPLE_PROG =
+        "procedure pOne { \
+           aone = b + c; \
+           d3 = 5 + 7; \
+           while x { \
+             this = bx + d3; \
+             while a { \
+               x1 = b + ha; \
+               if g2 then { \
+                 t1 = t + bab; \
+                 h2 = 2 + ga; \
+                 call secProc; \
+                 while ten { \
+                   y = y + ue; \
+                 } \
+                 if tp then { \
+                   while one { \
+                     x = y + z; \
+                     call thirdProc; \
+                   } \
+                 } else { \
+                   fire = a + fire; \
+                 } \
+               } else { \
+                 xe = a * cab; \
+               } \
+               good = evil + evil; \
+               pe = 2 * 3 + zt1; \
+             } \
+             fol = y + g2; \
+           } \
+           g2 = xz + brave; \
+         } \
+         procedure secProc { \
+           a = b + c; \
+           xe = 2 + 73; \
+           while gg { \
+             onceOnly = true; \
+             if twice then { \
+               all = 3 * 5; \
+             } else { \
+               none = bba; \
+               while p { \
+                 if xe then { \
+                   harp = 41; \
+                 } else { \
+                   nn = ba1; \
+                 } \
+               } \
+             } \
+           } \
+           call procFOUR; \
+         } \
+         procedure thirdProc { \
+           hoho = merry + christmas; \
+           haa = haas; \
+         } \
+         procedure procFOUR { \
+           pfg = pf + g; \
+           while x { \
+             ue = no ; \
+           } \
+         } \
+         procedure execute { \
+           this = 4 + 5; \
+           proc = 542 - 1; \
+           uses = 77 + 14 * 7231; \
+           nothing = 62 + 51 + 666; \
+         } \
+         procedure useCall { \
+           this = 62 - 721; \
+           proc = 673 + 89811; \
+           usesThings = 5124 + 777; \
+           byCalling = 11 - 5 * 712; \
+           call procFOUR; \
+         } \
+         procedure useOne { \
+           a = zzz; \
+         }";
+}
+
 void TestPKB::tearDown() {}
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestPKB);
@@ -1084,91 +1166,12 @@ void TestPKB::test_modifies()
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "ue"), stringSet);
 }
 
-void TestPKB::test_uses()
+void TestPKB::test_uses_procedure_var()
 {
-    string simpleProg, queryStr;
+    const string& simpleProg = this->TEST_USES_SIMPLE_PROG;
+    string queryStr;
     set<int> intSet;
     SetWrapper<string> stringSet;
-
-    simpleProg =
-        "procedure pOne { \
-            aone = b + c; \
-            d3 = 5 + 7; \
-            while x { \
-              this = bx + d3; \
-              while a { \
-                x1 = b + ha; \
-                if g2 then { \
-                  t1 = t + bab; \
-                  h2 = 2 + ga; \
-                  call secProc; \
-                  while ten { \
-                    y = y + ue; \
-                  } \
-                  if tp then { \
-                    while one { \
-                      x = y + z; \
-                      call thirdProc; \
-                    } \
-                  } else { \
-                    fire = a + fire; \
-                  } \
-                } else { \
-                  xe = a * cab; \
-                } \
-                good = evil + evil; \
-                pe = 2 * 3 + zt1; \
-              } \
-              fol = y + g2; \
-            } \
-            g2 = xz + brave; \
-          } \
-          procedure secProc { \
-            a = b + c; \
-            xe = 2 + 73; \
-            while gg { \
-              onceOnly = true; \
-              if twice then { \
-                all = 3 * 5; \
-              } else { \
-                none = bba; \
-                while p { \
-                  if xe then { \
-                    harp = 41; \
-                  } else { \
-                    nn = ba1; \
-                  } \
-                } \
-              } \
-            } \
-            call procFOUR; \
-          } \
-          procedure thirdProc { \
-            hoho = merry + christmas; \
-            haa = haas; \
-          } \
-          procedure procFOUR { \
-            pfg = pf + g; \
-            while x { \
-              ue = no ; \
-            } \
-          } \
-          procedure execute { \
-            this = 4 + 5; \
-            proc = 542 - 1; \
-            uses = 77 + 14 * 7231; \
-            nothing = 62 + 51 + 666; \
-          } \
-          procedure useCall { \
-            this = 62 - 721; \
-            proc = 673 + 89811; \
-            usesThings = 5124 + 777; \
-            byCalling = 11 - 5 * 712; \
-            call procFOUR; \
-          } \
-          procedure useOne { \
-            a = zzz; \
-          }";
 
     Parser parser(simpleProg, FROMSTRING);
     parser.init();
@@ -1337,7 +1340,18 @@ void TestPKB::test_uses()
     stringSet = pkb->uses_X_Y_get_string_X_from_string_Y(ENT_PROC,
             ENT_VAR, "zzz");
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "useOne"), stringSet);
+}
 
+void TestPKB::test_uses_assign_var()
+{
+    const string& simpleProg = this->TEST_USES_SIMPLE_PROG;
+    string queryStr;
+    set<int> intSet;
+    SetWrapper<string> stringSet;
+
+    Parser parser(simpleProg, FROMSTRING);
+    parser.init();
+    auto_ptr<PKB> pkb(parser.get_pkb());
     // Uses(assign,var), get var
     stringSet = pkb->uses_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
             ENT_VAR, 1);
@@ -1604,7 +1618,18 @@ void TestPKB::test_uses()
     stringSet = pkb->uses_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
             ENT_VAR, "zzz");
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "49"), stringSet);
+}
 
+void TestPKB::test_uses_call_var()
+{
+    const string& simpleProg = this->TEST_USES_SIMPLE_PROG;
+    string queryStr;
+    set<int> intSet;
+    SetWrapper<string> stringSet;
+
+    Parser parser(simpleProg, FROMSTRING);
+    parser.init();
+    auto_ptr<PKB> pkb(parser.get_pkb());
     // Uses(call,var), get var
     stringSet = pkb->uses_X_Y_get_string_Y_from_int_X(ENT_CALL,
             ENT_VAR, 1);
@@ -1876,7 +1901,18 @@ void TestPKB::test_uses()
     stringSet = pkb->uses_X_Y_get_int_X_from_string_Y(ENT_CALL,
             ENT_VAR, "zzz");
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
+}
 
+void TestPKB::test_uses_if_var()
+{
+    const string& simpleProg = this->TEST_USES_SIMPLE_PROG;
+    string queryStr;
+    set<int> intSet;
+    SetWrapper<string> stringSet;
+
+    Parser parser(simpleProg, FROMSTRING);
+    parser.init();
+    auto_ptr<PKB> pkb(parser.get_pkb());
     // Uses(if,var), get var
     stringSet = pkb->uses_X_Y_get_string_Y_from_int_X(ENT_IF,
             ENT_VAR, 1);
@@ -2146,7 +2182,18 @@ void TestPKB::test_uses()
     stringSet = pkb->uses_X_Y_get_int_X_from_string_Y(ENT_IF,
             ENT_VAR, "zzz");
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
+}
 
+void TestPKB::test_uses_while_var()
+{
+    const string& simpleProg = this->TEST_USES_SIMPLE_PROG;
+    string queryStr;
+    set<int> intSet;
+    SetWrapper<string> stringSet;
+
+    Parser parser(simpleProg, FROMSTRING);
+    parser.init();
+    auto_ptr<PKB> pkb(parser.get_pkb());
     // Uses(while,var), get var
     stringSet = pkb->uses_X_Y_get_string_Y_from_int_X(ENT_WHILE,
             ENT_VAR, 1);
@@ -2441,7 +2488,18 @@ void TestPKB::test_uses()
     stringSet = pkb->uses_X_Y_get_int_X_from_string_Y(ENT_WHILE,
             ENT_VAR, "zzz");
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
+}
 
+void TestPKB::test_uses_stmt_var()
+{
+    const string& simpleProg = this->TEST_USES_SIMPLE_PROG;
+    string queryStr;
+    set<int> intSet;
+    SetWrapper<string> stringSet;
+
+    Parser parser(simpleProg, FROMSTRING);
+    parser.init();
+    auto_ptr<PKB> pkb(parser.get_pkb());
     // Uses(stmt,var), get var
     stringSet = pkb->uses_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 1);
@@ -2788,7 +2846,18 @@ void TestPKB::test_uses()
     stringSet = pkb->uses_X_Y_get_int_X_from_string_Y(ENT_STMT,
             ENT_VAR, "zzz");
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "49"), stringSet);
+}
 
+void TestPKB::test_uses_progline_var()
+{
+    const string& simpleProg = this->TEST_USES_SIMPLE_PROG;
+    string queryStr;
+    set<int> intSet;
+    SetWrapper<string> stringSet;
+
+    Parser parser(simpleProg, FROMSTRING);
+    parser.init();
+    auto_ptr<PKB> pkb(parser.get_pkb());
     // Uses(prog_line,var), get var
     stringSet = pkb->uses_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
             ENT_VAR, 1);
