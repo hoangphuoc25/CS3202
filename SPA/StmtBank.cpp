@@ -180,20 +180,25 @@ const set<int>& StmtBank::get_all_stmtLst() const
  {
     Node *n = this->get_node(stmtNo);
     if (n != NULL) {
-        bool returnUses = true;
-        switch (n->get_type()) {
-        case CALL_STMT:
-            returnUses = (entType == ENT_CALL);
-            break;
-        case WHILE_STMT:
-            returnUses = (entType == ENT_WHILE);
-            break;
-        case IF_STMT:
-            returnUses = (entType == ENT_IF);
-            break;
-        case ASSIGN_STMT:
-            returnUses = (entType == ENT_ASSIGN);
-            break;
+        bool returnUses = false;
+        NodeType nodeType = n->get_type();
+        if (entType == ENT_STMT || entType == ENT_PROGLINE) {
+            returnUses = true;
+        } else {
+            switch (n->get_type()) {
+            case CALL_STMT:
+                returnUses = (entType == ENT_CALL);
+                break;
+            case WHILE_STMT:
+                returnUses = (entType == ENT_WHILE);
+                break;
+            case IF_STMT:
+                returnUses = (entType == ENT_IF);
+                break;
+            case ASSIGN_STMT:
+                returnUses = (entType == ENT_ASSIGN);
+                break;
+            }
         }
         if (returnUses) {
             return n->get_uses();
