@@ -26,13 +26,14 @@ VarElements::VarElements(const struct VarElements &other)
         ifModifying = other.ifModifying;
         whileModifying = other.whileModifying;
         stmtModifying = other.stmtModifying;
+        usedBy = other.usedBy;
+        this->procModifying = other.procModifying;
         this->assignUsing = other.assignUsing;
         this->ifUsing = other.ifUsing;
         this->whileUsing = other.whileUsing;
         this->callUsing = other.callUsing;
         this->stmtUsing = other.stmtUsing;
         this->usedByProc = other.usedByProc;
-        usedBy = other.usedBy;
     }
 }
 
@@ -45,13 +46,14 @@ VarElements& VarElements::operator=(const struct VarElements &other)
         ifModifying = other.ifModifying;
         whileModifying = other.whileModifying;
         stmtModifying = other.stmtModifying;
+        this->procModifying = other.procModifying;
+        usedBy = other.usedBy;
         this->assignUsing = other.assignUsing;
         this->ifUsing = other.ifUsing;
         this->whileUsing = other.whileUsing;
         this->callUsing = other.callUsing;
         this->stmtUsing = other.stmtUsing;
         this->usedByProc = other.usedByProc;
-        usedBy = other.usedBy;
     }
     return *this;
 }

@@ -13,7 +13,13 @@ class TestPKB: public CPPUNIT_NS::TestFixture {
 CPPUNIT_TEST_SUITE(TestPKB);
 CPPUNIT_TEST(test_one);
 CPPUNIT_TEST(test_retrieve_all_X);
-CPPUNIT_TEST(test_modifies);
+CPPUNIT_TEST(test_modifies_procedure_var);
+CPPUNIT_TEST(test_modifies_assign_var);
+CPPUNIT_TEST(test_modifies_call_var);
+CPPUNIT_TEST(test_modifies_if_var);
+CPPUNIT_TEST(test_modifies_while_var);
+CPPUNIT_TEST(test_modifies_stmt_var);
+CPPUNIT_TEST(test_modifies_progline_var);
 CPPUNIT_TEST(test_uses_procedure_var);
 CPPUNIT_TEST(test_uses_assign_var);
 CPPUNIT_TEST(test_uses_call_var);
@@ -35,7 +41,117 @@ private:
 
     void test_one();
     void test_retrieve_all_X();
-    void test_modifies();
+    // pOne modifies:
+    // a, all, aone, d3, fire, fol, g2, good, h2, haa, harp, hoho, nn,
+    // none, onceOnly, pe, pfg, t1, this, ue, x, x1, xe, y
+    //
+    // secProc modifies:
+    // a, all, harp, nn, none, onceOnly, pfg, ue, xe
+    //
+    // thirdProc modifies:
+    // haa, hoho
+    //
+    // procFOUR modifies:
+    // pfg, ue
+    //
+    // cleanUP modifies:
+    // zzz
+    //
+    // a - 3 [while], 5 [while], 7 [if], 10 [call], 23 [assign]
+    // all - 3 [while], 5 [while], 7 [if], 10 [call], 25 [while],
+    //       27 [if], 28 [assign]
+    // aone - 1 [assign]
+    // d3 - 2 [assign]
+    // fire - 3 [while], 5 [while], 7 [if], 13 [if], 17 [assign]
+    // fol - 3 [while], 21 [assign]
+    // g2 - 22 [assign]
+    // good - 3 [while], 5 [while], 19 [assign]
+    // h2 - 3 [while], 5 [while], 7 [if], 9 [assign]
+    // haa - 3 [while], 5 [while], 7 [if], 13 [if], 14 [while],
+    //       16 [call], 36 [assign]
+    // harp - 3 [while], 5 [while], 7 [if], 10 [call], 25 [while],
+    //        27 [if], 30 [while], 31 [if], 32 [assign]
+    // hoho - 3 [while], 5 [while], 7 [if], 13 [if], 14 [while],
+    //        16 [call], 35 [assign]
+    // nn - 3 [while], 5 [while], 7 [if], 10 [call], 25 [while],
+    //      27 [if], 30 [while], 31 [if], 33 [assign]
+    // none - 3 [while], 5 [while], 7 [if], 10 [call], 25 [while],
+    //        27 [if], 29 [assign]
+    // onceOnly - 3 [while], 5 [while], 7 [if], 10 [call], 25 [while],
+    //            26 [assign]
+    // pe - 3 [while], 5 [while], 20 [assign]
+    // pfg - 3 [while], 5 [while], 7 [if], 10 [call], 34 [call],
+    //       37 [assign]
+    // t1 - 3 [while], 5 [while], 7 [if], 8 [assign]
+    // this - 3 [while], 4 [assign]
+    // ue - 5 [while], 7 [if], 10 [call], 34 [call], 38 [while],
+    //      39 [assign]
+    // x - 3 [while], 5 [while], 7 [if], 13 [if], 14 [while],
+    //     15 [assign]
+    // x1 - 3 [while], 5 [while], 6 [assign]
+    // xe - 3 [while], 5 [while], 10 [call], 18 [assign], 24 [assign],
+    // y - 3 [while], 5 [while], 7 [if], 11 [while], 12 [assign]
+    // zzz - 40 [assign]
+    //
+    // stmt 1 [assign] - aone
+    // stmt 2 [assign] - d3
+    // stmt 3 [while] - a, all, fire, fol, good, h2, haa, harp, hoho,
+    //                  nn, none, onceOnly, pe, pfg, t1, ue, this, x,
+    //                  x1, xe, y
+    // stmt 4 [assign] - this
+    // stmt 5 [while] - a, all, fire, good, h2, haa, harp, hoho,
+    //                  onceOnly, nn, none, pe, pfg, t1, ue, x, x1, xe, y
+    // stmt 6 [assign] - x1
+    // stmt 7 [if] - a, all, fire, h2, haa, harp, hoho, nn, none, pfg,
+    //               xe, onceOnly, t1, ue, x, y
+    // stmt 8 [assign] - t1
+    // stmt 9 [assign] - h2
+    // stmt 10 [call] - a, all, harp, nn, none, onceOnly, pfg, ue, xe
+    // stmt 11 [while] - y
+    // stmt 12 [assign] - y
+    // stmt 13 [if] - fire, haa, hoho, x
+    // stmt 14 [while] - haa, hoho, x
+    // stmt 15 [assign] - x
+    // stmt 16 [call] - haa, hoho
+    // stmt 17 [assign] - fire
+    // stmt 18 [assign] - xe
+    // stmt 19 [assign] - good
+    // stmt 20 [assign] - pe
+    // stmt 21 [assign] - fol
+    // stmt 22 [assign] - g2
+    //
+    // secProc
+    // stmt 23 [assign] - a
+    // stmt 24 [assign] - xe
+    // stmt 25 [while] - all, harp, nn, none, onceOnly
+    // stmt 26 [assign] - onceOnly
+    // stmt 27 [if] - all, harp, nn, none
+    // stmt 28 [assign] - all
+    // stmt 29 [assign] - none
+    // stmt 30 [while] - harp, nn
+    // stmt 31 [if] - harp, nn
+    // stmt 32 [assign] - harp
+    // stmt 33 [assign] - nn
+    // stmt 34 [call] - pfg, ue
+    //
+    // thirdProc
+    // stmt 35 [assign] - hoho
+    // stmt 36 [assign] - haa
+    //
+    // procFour
+    // stmt 37 [assign] - pfg
+    // stmt 38 [while] - ue
+    // stmt 39 [assign] - ue
+    //
+    // cleanUP
+    // stmt 40 [assign] - zzz
+    void test_modifies_procedure_var();
+    void test_modifies_assign_var();
+    void test_modifies_call_var();
+    void test_modifies_if_var();
+    void test_modifies_while_var();
+    void test_modifies_stmt_var();
+    void test_modifies_progline_var();
 
     // Test Uses: variables - Statements which use them
     // a - 3 [while], 5 [while], 7 [if], 13 [if], 17 [assign], 18 [assign]
