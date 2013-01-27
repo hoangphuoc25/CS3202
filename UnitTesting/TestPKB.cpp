@@ -2043,6 +2043,259 @@ void TestPKB::test_modifies_stmt_var()
 
 void TestPKB::test_modifies_progline_var()
 {
+    const string& simpleProg = this->TEST_MODIFIES_SIMPLE_PROG;
+    Parser parser(simpleProg, FROMSTRING);
+    parser.init();
+    PKB *pkb = parser.get_pkb();
+    set<int> intSet;
+    SetWrapper<string> stringSet;
+
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "aone"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 2);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "d3"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 3);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(21, "this", "x1", "t1", "h2",
+            "a", "xe", "onceOnly", "all", "none", "harp", "nn", "pfg",
+            "ue", "y", "x", "hoho", "haa", "fire", "good", "pe", "fol"),
+            stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 4);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "this"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 5);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(19, "x1", "t1", "h2", "a",
+            "xe", "onceOnly", "all", "none", "harp", "nn", "pfg", "ue",
+            "y", "x", "hoho", "haa", "fire", "good", "pe"),
+            stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 6);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "x1"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 7);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(16, "t1", "h2", "a", "xe",
+            "onceOnly", "all", "none", "harp", "nn", "pfg", "ue",
+            "y", "x", "hoho", "haa", "fire"),
+            stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 8);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "t1"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 9);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "h2"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 10);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(9, "a", "xe", "onceOnly",
+            "all", "none", "harp", "nn", "pfg", "ue"),
+            stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 11);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "y"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 12);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "y"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 13);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "x", "hoho", "haa",
+            "fire"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 14);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "x", "hoho", "haa"),
+            stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 15);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "x"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 16);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "hoho", "haa"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 17);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "fire"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 18);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "xe"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 19);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "good"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 20);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "pe"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 21);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "fol"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 22);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "g2"), stringSet);
+
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 23);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "a"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 24);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "xe"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 25);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5, "onceOnly", "all",
+            "none", "harp", "nn"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 26);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "onceOnly"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 27);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "all", "none", "harp",
+            "nn"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 28);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "all"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 29);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "none"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 30);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "harp", "nn"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 31);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "harp", "nn"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 32);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "harp"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 33);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "nn"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 34);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "pfg", "ue"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 35);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "hoho"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 36);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "haa"), stringSet);
+
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 37);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "pfg"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 38);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "ue"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 39);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "ue"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_PROGLINE,
+            ENT_VAR, 40);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "zzz"), stringSet);
+
+    // Modifies(stmt,var), get stmt
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_PROGLINE,
+            ENT_VAR, "a");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5, "3", "5", "7", "10",
+            "23"),
+            stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_PROGLINE,
+            ENT_VAR, "all");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(7, "3", "5", "7", "10",
+            "25", "27", "28"),
+            stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_PROGLINE,
+            ENT_VAR, "aone");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "1"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_PROGLINE,
+            ENT_VAR, "d3");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "2"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_PROGLINE,
+            ENT_VAR, "fire");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5, "3", "5", "7", "13",
+            "17"),
+            stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_PROGLINE,
+            ENT_VAR, "fol");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "3", "21"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_PROGLINE,
+            ENT_VAR, "g2");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "22"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_PROGLINE,
+            ENT_VAR, "good");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "3", "5", "19"),
+            stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_PROGLINE,
+            ENT_VAR, "h2");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "3", "5", "7", "9"),
+            stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_PROGLINE,
+            ENT_VAR, "haa");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(7, "3", "5", "7", "13",
+            "14", "16", "36"),
+            stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_PROGLINE,
+            ENT_VAR, "harp");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(9, "3", "5", "7", "10",
+            "25", "27", "30", "31", "32"),
+            stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_PROGLINE,
+            ENT_VAR, "hoho");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(7, "3", "5", "7", "13",
+            "14", "16", "35"),
+            stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_PROGLINE,
+            ENT_VAR, "nn");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(9, "3", "5", "7", "10",
+            "25", "27", "30", "31", "33"),
+            stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_PROGLINE,
+            ENT_VAR, "none");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(7, "3", "5", "7", "10",
+            "25", "27", "29"),
+            stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_PROGLINE,
+            ENT_VAR, "onceOnly");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "3", "5", "7", "10",
+            "25", "26"),
+            stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_PROGLINE,
+            ENT_VAR, "pe");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "3", "5", "20"),
+            stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_PROGLINE,
+            ENT_VAR, "pfg");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "3", "5", "7", "10",
+            "34", "37"),
+            stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_PROGLINE,
+            ENT_VAR, "t1");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "3", "5", "7", "8"),
+            stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_PROGLINE,
+            ENT_VAR, "this");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "3", "4"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_PROGLINE,
+            ENT_VAR, "ue");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(7, "3", "5", "7", "10",
+            "34", "38", "39"),
+            stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_PROGLINE,
+            ENT_VAR, "x");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "3", "5", "7", "13",
+            "14", "15"),
+            stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_PROGLINE,
+            ENT_VAR, "x1");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "3", "5", "6"),
+            stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_PROGLINE,
+            ENT_VAR, "xe");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "3", "5", "7", "10",
+            "18", "24"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_PROGLINE,
+            ENT_VAR, "y");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5, "3", "5", "7", "11",
+            "12"),
+            stringSet);
+    stringSet = pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_PROGLINE,
+            ENT_VAR, "zzz");
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "40"), stringSet);
 }
 
 void TestPKB::test_uses_procedure_var()
