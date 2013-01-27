@@ -1012,6 +1012,9 @@ void TestPKB::test_modifies_assign_var()
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
             ENT_VAR, 39);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "ue"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
+            ENT_VAR, 40);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "zzz"), stringSet);
 }
 
 void TestPKB::test_modifies_call_var()
@@ -1249,6 +1252,9 @@ void TestPKB::test_modifies_stmt_var()
     stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_STMT,
             ENT_VAR, 39);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "ue"), stringSet);
+    stringSet = pkb->modifies_X_Y_get_string_Y_from_int_X(ENT_ASSIGN,
+            ENT_VAR, 40);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "zzz"), stringSet);
 }
 
 void TestPKB::test_modifies_progline_var()
