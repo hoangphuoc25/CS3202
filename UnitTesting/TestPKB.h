@@ -89,7 +89,8 @@ private:
     // x - 3 [while], 5 [while], 7 [if], 13 [if], 14 [while],
     //     15 [assign]
     // x1 - 3 [while], 5 [while], 6 [assign]
-    // xe - 3 [while], 5 [while], 10 [call], 18 [assign], 24 [assign],
+    // xe - 3 [while], 5 [while], 7 [if], 10 [call], 18 [assign]
+    //      24 [assign]
     // y - 3 [while], 5 [while], 7 [if], 11 [while], 12 [assign]
     // zzz - 40 [assign]
     //
@@ -103,7 +104,7 @@ private:
     //                  onceOnly, nn, none, pe, pfg, t1, ue, x, x1, xe, y
     // stmt 6 [assign] - x1
     // stmt 7 [if] - a, all, fire, h2, haa, harp, hoho, nn, none, pfg,
-    //               xe, onceOnly, t1, ue, x, y
+    //               onceOnly, t1, ue, x, xe, y
     // stmt 8 [assign] - t1
     // stmt 9 [assign] - h2
     // stmt 10 [call] - a, all, harp, nn, none, onceOnly, pfg, ue, xe
