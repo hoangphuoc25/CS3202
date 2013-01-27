@@ -84,8 +84,8 @@ private:
     //       37 [assign]
     // t1 - 3 [while], 5 [while], 7 [if], 8 [assign]
     // this - 3 [while], 4 [assign]
-    // ue - 5 [while], 7 [if], 10 [call], 34 [call], 38 [while],
-    //      39 [assign]
+    // ue - 3 [while], 5 [while], 7 [if], 10 [call], 34 [call],
+    //      38 [while], 39 [assign]
     // x - 3 [while], 5 [while], 7 [if], 13 [if], 14 [while],
     //     15 [assign]
     // x1 - 3 [while], 5 [while], 6 [assign]
