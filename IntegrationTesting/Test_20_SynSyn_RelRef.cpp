@@ -372,3 +372,64 @@ void Test_20_SynSyn_RelRef::test_ev_rr_ss_int_string_10()
             "testing,11", "this,11", "time,11", "way,11"),
             stringSet);
 }
+
+void Test_20_SynSyn_RelRef::test_ev_rr_ss_int_string_11()
+{
+    string simpleProg, queryStr;
+    QueryEvaluator evaluator;
+    list<string> resultList;
+    SetWrapper<string> stringSet;
+
+    simpleProg =
+        "procedure progAnalyse { \
+           ax = bc - seventy; \
+           horse = rider; \
+           well = i + am - well; \
+           if true then { \
+             point = here + point - there; \
+           } else { \
+             no = point; \
+           } \
+           while xt { \
+             greater = than; \
+             while good { \
+               tt = gg; \
+               if seen then { \
+                 answer = this; \
+               } else { \
+                 hard = stuff; \
+                 too = easy - too; \
+               } \
+               cannot = unsee; \
+             } \
+             if meet then { \
+               cancel = it; \
+               too = too - good; \
+             } else { \
+               ter = good + ter; \
+             } \
+           } \
+           x5 = 4 + 7; \
+         } \
+         procedure chopList { \
+           due = now; \
+           date = date - now; \
+           true = words; \
+         }";
+    // 3, 5, 6, 14, 18, 19, 22
+    // date, point, ter, too, well
+    evaluator.parseSimple(simpleProg);
+    queryStr = "assign abc; variable vtya; Select <abc,vtya> such that ";
+    queryStr += " Modifies(abc,vtya) and Uses(abc,vtya)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(35, "3,date", "3,point",
+            "3,ter", "3,too", "3,well", "5,date", "5,point",
+            "5,ter", "5,too", "5,well", "6,date", "6,point",
+            "6,ter", "6,too", "6,well", "14,date", "14,point",
+            "14,ter", "14,too", "14,well", "18,date", "18,point",
+            "18,ter", "18,too", "18,well", "19,date", "19,point",
+            "19,ter", "19,too", "19,well", "22,date", "22,point",
+            "22,ter", "22,too", "22,well"),
+            stringSet);
+}
