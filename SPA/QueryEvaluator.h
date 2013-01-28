@@ -128,6 +128,7 @@ private:
     //                   all arg 1. Hence from_argOne
     void ev_rr_ss_string_string_00_from_argOne(RelRef *relRef,
             const EvalPKBDispatch& disp);
+    // Currently, nothing uses this and it does not seem it will be used
     void ev_rr_ss_string_string_00_from_argTwo(RelRef *relRef,
             const EvalPKBDispatch& disp);
     void ev_rr_ss_string_string_01(RelRef *relRef,
@@ -136,14 +137,19 @@ private:
             const EvalPKBDispatch& disp);
     void ev_rr_ss_string_string_11(RelRef *relRef,
             const EvalPKBDispatch& disp);
+    // Currently, nothing uses this and it does not seem it will be used
     void ev_rr_ss_string_int_00_from_argOne(RelRef *relRef,
             const EvalPKBDispatch& disp);
+    // Currently, nothing uses this and it does not seem it will be used
     void ev_rr_ss_string_int_00_from_argTwo(RelRef *relRef,
             const EvalPKBDispatch& disp);
+    // Currently, nothing uses this and it does not seem it will be used
     void ev_rr_ss_string_int_01(RelRef *relRef,
             const EvalPKBDispatch& disp);
+    // Currently, nothing uses this and it does not seem it will be used
     void ev_rr_ss_string_int_10(RelRef *relRef,
             const EvalPKBDispatch& disp);
+    // Currently, nothing uses this and it does not seem it will be used
     void ev_rr_ss_string_int_11(RelRef *relRef,
             const EvalPKBDispatch& disp);
     void ev_rr_ss_int_string_00_from_argOne(RelRef *relRef,
