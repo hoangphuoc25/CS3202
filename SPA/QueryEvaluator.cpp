@@ -618,6 +618,7 @@ void QueryEvaluator::ev_rr_ss_int_string_00_from_argOne(RelRef *relRef,
     }
 }
 
+// not used for now
 void QueryEvaluator::ev_rr_ss_int_string_00_from_argTwo(RelRef *relRef,
         const EvalPKBDispatch& disp)
 {

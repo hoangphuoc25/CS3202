@@ -154,6 +154,7 @@ private:
             const EvalPKBDispatch& disp);
     void ev_rr_ss_int_string_00_from_argOne(RelRef *relRef,
             const EvalPKBDispatch& disp);
+    // not used for now
     void ev_rr_ss_int_string_00_from_argTwo(RelRef *relRef,
             const EvalPKBDispatch& disp);
     /*
