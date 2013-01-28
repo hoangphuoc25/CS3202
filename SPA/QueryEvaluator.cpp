@@ -255,6 +255,19 @@ void QueryEvaluator::setup_uses()
             &QueryEvaluator::ev_rr_ss_string_string_10;
     this->dispatchTable[evalSynArgDesc] = tmpDispatch;
 
+    // Uses(assign,var), 10
+    evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_10, ENT_ASSIGN,
+            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
+    tmpDispatch.reset();
+    tmpDispatch.get_all_string_argTwo = &PKB::get_all_vars;
+    tmpDispatch.get_int_set_argOne_from_string_argTwo =
+            &PKB::uses_X_Y_get_int_X_from_string_Y;
+    tmpDispatch.get_string_set_argTwo_from_int_argOne =
+            &PKB::uses_X_Y_get_string_Y_from_int_X;
+    tmpDispatch.relRef_eval =
+            &QueryEvaluator::ev_rr_ss_int_string_10;
+    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
+
     // Uses(procedure,var), 11
     evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_11, ENT_PROC,
             ENT_VAR, RELARG_INVALID, RELARG_INVALID);
@@ -665,6 +678,25 @@ void QueryEvaluator::ev_rr_ss_int_string_01(RelRef *relRef,
 void QueryEvaluator::ev_rr_ss_int_string_10(RelRef *relRef,
         const EvalPKBDispatch& disp)
 {
+    assert(disp.get_string_set_argTwo_from_int_argOne != NULL);
+    set<pair<int, string> > argOneSet =
+            this->results.get_synonym(relRef->argOneString);
+    for (set<pair<int, string> >::const_iterator argOneIt =
+            argOneSet.begin(); argOneIt != argOneSet.end();
+            argOneIt++) {
+        int argOneVal = argOneIt->first;
+        set<string> argTwoSet =
+                (this->pkb->*(disp.get_string_set_argTwo_from_int_argOne))
+                        (relRef->argOneSyn, relRef->argTwoSyn,
+                         argOneVal);
+        for (set<string>::const_iterator argTwoIt = argTwoSet.begin();
+                argTwoIt != argTwoSet.end(); argTwoIt++) {
+            const string& argTwoVal = *argTwoIt;
+            this->results.add_edge(relRef->argOneSyn, relRef->argOneString,
+                    argOneVal, relRef->argTwoSyn, relRef->argTwoString,
+                    argTwoVal);
+        }
+    }
 }
 
 void QueryEvaluator::ev_rr_ss_int_string_11(RelRef *relRef,

@@ -321,3 +321,54 @@ void Test_20_SynSyn_RelRef::test_ev_rr_ss_int_string_01()
             "2,test", "2,white"),
             stringSet);
 }
+
+void Test_20_SynSyn_RelRef::test_ev_rr_ss_int_string_10()
+{
+    string simpleProg, queryStr;
+    QueryEvaluator evaluator;
+    list<string> resultList;
+    SetWrapper<string> stringSet;
+
+    simpleProg =
+        "procedure Xone { \
+           well = this + is; \
+           just = a + test; \
+           while true { \
+             prioritize = stuff; \
+           } \
+           easy = test; \
+           if t then { \
+             efficient = way; \
+           } else { \
+             limited = time; \
+           } \
+           different = techniques; \
+         } \
+         procedure ptwo { \
+           exhaustive = testing; \
+           combination = test; \
+           ncr = 15; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    queryStr = " assign gga; variable vy, v443; Select <v443, gga> ";
+    queryStr += " such that Modifies(gga, vy) and Uses(gga,v443)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(81, "a,1", "is,1",
+            "stuff,1", "techniques,1", "test,1", "testing,1", "this,1",
+            "time,1", "way,1", "a,2", "is,2", "stuff,2", "techniques,2",
+            "test,2", "testing,2", "this,2", "time,2", "way,2", "a,4",
+            "is,4", "stuff,4", "techniques,4", "test,4", "testing,4",
+            "this,4", "time,4", "way,4", "a,5", "is,5", "stuff,5",
+            "techniques,5", "test,5", "testing,5", "this,5", "time,5",
+            "way,5", "a,7", "is,7", "stuff,7", "techniques,7", "test,7",
+            "testing,7", "this,7", "time,7", "way,7", "a,8", "is,8",
+            "stuff,8", "techniques,8", "test,8", "testing,8", "this,8",
+            "time,8", "way,8", "a,9", "is,9", "stuff,9", "techniques,9",
+            "test,9", "testing,9", "this,9", "time,9", "way,9", "a,10",
+            "is,10", "stuff,10", "techniques,10", "test,10",
+            "testing,10", "this,10", "time,10", "way,10", "a,11",
+            "is,11", "stuff,11", "techniques,11", "test,11",
+            "testing,11", "this,11", "time,11", "way,11"),
+            stringSet);
+}
