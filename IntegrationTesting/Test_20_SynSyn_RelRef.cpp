@@ -249,3 +249,39 @@ void Test_20_SynSyn_RelRef::test_ev_rr_ss_string_string_11()
             "storyCont,this", "storyCont,today", "storyCont,you"),
             stringSet);
 }
+
+void Test_20_SynSyn_RelRef::test_ev_rr_ss_int_string_00_from_argOne()
+{
+    string simpleProg, queryStr;
+    QueryEvaluator evaluator;
+    list<string> resultList;
+    SetWrapper<string> stringSet;
+
+    simpleProg =
+        "procedure toDo { \
+           term = factor + factor; \
+           if fault then { \
+             version = control; \
+           } else { \
+             numb = to + pain; \
+           } \
+           numb = yes; \
+         } \
+         procedure explodeStr { \
+           monotonic = increasing + function; \
+           complete = lattice - ascending; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    queryStr = " assign a12; variable Tgs; Select <a12, Tgs> ";
+    queryStr += " such that Modifies(a12, Tgs)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(30, "1,term", "1,version",
+            "1,numb", "1,monotonic", "1,complete", "3,term", "3,version",
+            "3,numb", "3,monotonic", "3,complete", "4,term", "4,version",
+            "4,numb", "4,monotonic", "4,complete", "5,term", "5,version",
+            "5,numb", "5,monotonic", "5,complete", "6,term", "6,version",
+            "6,numb", "6,monotonic", "6,complete", "7,term", "7,version",
+            "7,numb", "7,monotonic", "7,complete"),
+            stringSet);
+}
