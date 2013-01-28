@@ -118,6 +118,17 @@ public:
                 const;
 
     /*
+     * Given X (int) and Y (string), checks if Uses(X,Y) is true.
+     * @param xType type of X
+     * @param x value of X
+     * @param yType type of Y
+     * @param y value of Y
+     * @return true if Uses(X,Y), false otherwise
+     */
+    bool uses_query_int_X_string_Y(DesignEnt xType, int x,
+            DesignEnt yType, const std::string& y) const;
+
+    /*
      * Calls(X,Y); given Y (string), get all X (string) such that
      * Calls(X,Y)
      * @param xType type of X

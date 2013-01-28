@@ -287,6 +287,39 @@ const set<int>& VarTable::get_used_by(int index) const
     return varTable[index].usedBy;
 }
 
+bool VarTable::uses_query_int_X_var(DesignEnt xType, int x,
+            const string& var) const
+{
+    int idx = this->get_index(var);
+    if (idx >= 0) {
+        const VarElements& varElement = this->varTable[idx];
+        switch (xType) {
+        case ENT_ASSIGN:
+            return (varElement.assignUsing.find(x) !=
+                    varElement.assignUsing.end());
+            break;
+        case ENT_CALL:
+            return (varElement.callUsing.find(x) !=
+                    varElement.callUsing.end());
+            break;
+        case ENT_IF:
+            return (varElement.ifUsing.find(x) !=
+                    varElement.ifUsing.end());
+            break;
+        case ENT_WHILE:
+            return (varElement.whileUsing.find(x) !=
+                    varElement.whileUsing.end());
+            break;
+        case ENT_STMT:
+        case ENT_PROGLINE:
+            return (varElement.stmtUsing.find(x) !=
+                    varElement.stmtUsing.end());
+            break;
+        }
+    }
+    return false;
+}
+
 const set<int>& VarTable::get_X_using_var(DesignEnt entType,
         const string& var) const
 {

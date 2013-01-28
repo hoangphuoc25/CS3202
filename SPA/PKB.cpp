@@ -149,6 +149,14 @@ bool PKB::uses_query_string_X_string_Y(DesignEnt xType, const string& x,
     return this->procTable->uses_query_procedure_var(x, y);
 }
 
+bool PKB::uses_query_int_X_string_Y(DesignEnt xType, int x,
+            DesignEnt yType, const string& y) const
+{
+    assert(QueryInfo::is_valid_argOne_syn_type(REL_USES, xType));
+    assert(yType == ENT_VAR);
+    return this->varTable->uses_query_int_X_var(xType, x, y);
+}
+
 set<string> PKB::calls_X_Y_get_string_X_from_string_Y(DesignEnt xType,
         DesignEnt yType, const string& y) const
 {

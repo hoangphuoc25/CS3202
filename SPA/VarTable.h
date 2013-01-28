@@ -72,6 +72,16 @@ public:
     const set<int>& get_used_by(string var) const;
     const set<int>& get_used_by(int index) const;
 
+    /*
+     * Given X (int) and Y (variable), checks if Uses(X,Y) is true.
+     * @param xType type of X
+     * @param x value of X
+     * @param var value of variable Y
+     * @return true if Uses(X,Y), false otherwise
+     */
+    bool uses_query_int_X_var(DesignEnt xType, int x,
+            const std::string& var) const;
+
     const std::set<int>& get_X_using_var(DesignEnt entType,
             const std::string& var) const;
     const std::set<std::string>& get_string_X_using_var(
