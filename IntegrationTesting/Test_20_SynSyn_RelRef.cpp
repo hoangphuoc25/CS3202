@@ -285,3 +285,39 @@ void Test_20_SynSyn_RelRef::test_ev_rr_ss_int_string_00_from_argOne()
             "7,numb", "7,monotonic", "7,complete"),
             stringSet);
 }
+
+void Test_20_SynSyn_RelRef::test_ev_rr_ss_int_string_01()
+{
+    string simpleProg, queryStr;
+    QueryEvaluator evaluator;
+    list<string> resultList;
+    SetWrapper<string> stringSet;
+
+    simpleProg =
+        "procedure iiProc { \
+           test = pyramid; \
+           white = box + testing; \
+           unit = test; \
+           while notTested { \
+             unit = test - cases; \
+             interactions = scenario; \
+             less = integration; \
+           } \
+           blackbox = testing; \
+         } \
+         procedure burnMoney { \
+           never = productive; \
+           dont = test + function; \
+           at = scheme - of * app; \
+           select = white; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    queryStr = " assign axc, aeEx; variable pib#1; ";
+    queryStr += " Select <aeEx, pib#1> such that Modifies(aeEx,pib#1) ";
+    queryStr += " and Uses(axc, pib#1)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "1,test", "1,white",
+            "2,test", "2,white"),
+            stringSet);
+}

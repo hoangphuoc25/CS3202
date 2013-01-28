@@ -12,6 +12,7 @@ CPPUNIT_TEST(test_ev_rr_ss_string_string_01);
 CPPUNIT_TEST(test_ev_rr_ss_string_string_10);
 CPPUNIT_TEST(test_ev_rr_ss_string_string_11);
 CPPUNIT_TEST(test_ev_rr_ss_int_string_00_from_argOne);
+CPPUNIT_TEST(test_ev_rr_ss_int_string_01);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -24,6 +25,7 @@ private:
     void test_ev_rr_ss_string_string_10();
     void test_ev_rr_ss_string_string_11();
     void test_ev_rr_ss_int_string_00_from_argOne();
+    void test_ev_rr_ss_int_string_01();
 };
 
 #endif
