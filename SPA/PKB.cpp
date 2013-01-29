@@ -194,12 +194,14 @@ set<string> PKB::calls_X_Y_get_string_Y_from_string_X(DesignEnt xType,
 set<string> PKB::callsStar_X_Y_get_string_X_from_string_Y
         (DesignEnt xType, DesignEnt yType, const string& y) const
 {
+    // TODO: Please implement
     return EMPTY_STRINGSET;
 }
 
 set<string> PKB::callsStar_X_Y_get_string_Y_from_string_X
         (DesignEnt xType, DesignEnt yType, const string& x) const
 {
+    // TODO: Please implement
     return EMPTY_STRINGSET;
 }
 
@@ -279,84 +281,98 @@ set<int> PKB::parent_X_Y_get_int_Y_from_int_X(DesignEnt xType,
 set<int> PKB::parentStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
+    // TODO: Please implement
     return EMPTY_INTSET;
 }
 
 set<int> PKB::parentStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
         DesignEnt yType, int x) const
 {
+    // TODO: Please implement
     return EMPTY_INTSET;
 }
 
 set<int> PKB::follows_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
+    // TODO: Please implement
     return EMPTY_INTSET;
 }
 
 set<int> PKB::follows_X_Y_get_int_Y_from_int_X(DesignEnt xType,
         DesignEnt yType, int x) const
 {
+    // TODO: Please implement
     return EMPTY_INTSET;
 }
 
 set<int> PKB::followsStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
+    // TODO: Please implement
     return EMPTY_INTSET;
 }
 
 set<int> PKB::followsStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
         DesignEnt yType, int x) const
 {
+    // TODO: Please implement
     return EMPTY_INTSET;
 }
 
 set<int> PKB::next_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
+    // TODO: Please implement
     return EMPTY_INTSET;
 }
 
 set<int> PKB::next_X_Y_get_int_Y_from_int_X(DesignEnt xType,
         DesignEnt yType, int x) const
 {
+    // TODO: Please implement
     return EMPTY_INTSET;
 }
 
 set<int> PKB::nextStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
+    // TODO: Please implement
     return EMPTY_INTSET;
 }
 
 set<int> PKB::nextStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
         DesignEnt yType, int x) const
 {
+    // TODO: Please implement
     return EMPTY_INTSET;
 }
 
 set<int> PKB::affects_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
+    // TODO: Please implement
     return EMPTY_INTSET;
 }
 
 set<int> PKB::affects_X_Y_get_int_Y_from_int_X(DesignEnt xType,
         DesignEnt yType, int x) const
 {
+    // TODO: Please implement
     return EMPTY_INTSET;
 }
 
 set<int> PKB::affectsStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
+    // TODO: Please implement
     return EMPTY_INTSET;
 }
 
 set<int> PKB::affectsStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
         DesignEnt yType, int x) const
 {
+    // TODO: Please implement
     return EMPTY_INTSET;
 }
 
