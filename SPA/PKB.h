@@ -525,6 +525,11 @@ public:
      * a call statement.
      */
     std::string get_call_procName(int callStmt) const;
+    /*
+     * Returns all call stmts that call a certain procedure.
+     * @proc name of procedure being called
+     */
+    std::set<int> get_call_stmt_calling(const std::string& proc) const;
     
     // Variables
     string get_control_var(int stmtNo);
