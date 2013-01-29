@@ -94,6 +94,20 @@ set<string> PKB::modifies_X_Y_get_string_X_from_string_Y(DesignEnt xType,
     return set<string>();
 }
 
+bool PKB::modifies_query_string_X_string_Y(DesignEnt xType,
+        const string& x, DesignEnt yType, const string& y) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::modifies_query_int_X_string_Y(DesignEnt xType,
+        int x, DesignEnt yType, const string& y) const
+{
+    // TODO: Please implement
+    return false;
+}
+
 set<int> PKB::uses_X_Y_get_int_X_from_string_Y(DesignEnt xType,
         DesignEnt yType, const string& varName) const
 {
@@ -191,6 +205,13 @@ set<string> PKB::calls_X_Y_get_string_Y_from_string_X(DesignEnt xType,
     return set<string>();
 }
 
+bool PKB::calls_query_string_X_string_Y(DesignEnt xType,
+        const string& x, DesignEnt yType, const string& y) const
+{
+    // TODO: Please implement
+    return false;
+}
+
 set<string> PKB::callsStar_X_Y_get_string_X_from_string_Y
         (DesignEnt xType, DesignEnt yType, const string& y) const
 {
@@ -203,6 +224,13 @@ set<string> PKB::callsStar_X_Y_get_string_Y_from_string_X
 {
     // TODO: Please implement
     return EMPTY_STRINGSET;
+}
+
+bool PKB::callsStar_query_string_X_string_Y(DesignEnt xType,
+        const string& x, DesignEnt yType, const string& y) const
+{
+    // TODO: Please implement
+    return false;
 }
 
 set<int> PKB::parent_X_Y_get_int_X_from_int_Y(DesignEnt xType,
@@ -278,6 +306,13 @@ set<int> PKB::parent_X_Y_get_int_Y_from_int_X(DesignEnt xType,
     return ret;
 }
 
+bool PKB::parent_query_int_X_int_Y(DesignEnt xType, int x,
+        DesignEnt yType, int y) const
+{
+    // TODO: Please implement
+    return false;
+}
+
 set<int> PKB::parentStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
@@ -290,6 +325,13 @@ set<int> PKB::parentStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
 {
     // TODO: Please implement
     return EMPTY_INTSET;
+}
+
+bool PKB::parentStar_query_int_X_int_Y(DesignEnt xType, int x,
+        DesignEnt yType, int y) const
+{
+    // TODO: Please implement
+    return false;
 }
 
 set<int> PKB::follows_X_Y_get_int_X_from_int_Y(DesignEnt xType,
@@ -306,6 +348,13 @@ set<int> PKB::follows_X_Y_get_int_Y_from_int_X(DesignEnt xType,
     return EMPTY_INTSET;
 }
 
+bool PKB::follows_query_int_X_int_Y(DesignEnt xType, int x,
+        DesignEnt yType, int y) const
+{
+    // TODO: Please implement
+    return false;
+}
+
 set<int> PKB::followsStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
@@ -318,6 +367,13 @@ set<int> PKB::followsStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
 {
     // TODO: Please implement
     return EMPTY_INTSET;
+}
+
+bool PKB::followsStar_query_int_X_int_Y(DesignEnt xType, int x,
+        DesignEnt yType, int y) const
+{
+    // TODO: Please implement
+    return false;
 }
 
 set<int> PKB::next_X_Y_get_int_X_from_int_Y(DesignEnt xType,
@@ -334,6 +390,13 @@ set<int> PKB::next_X_Y_get_int_Y_from_int_X(DesignEnt xType,
     return EMPTY_INTSET;
 }
 
+bool PKB::next_query_int_X_int_Y(DesignEnt xType, int x,
+        DesignEnt yType, int y) const
+{
+    // TODO: Please implement
+    return false;
+}
+
 set<int> PKB::nextStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
@@ -346,6 +409,13 @@ set<int> PKB::nextStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
 {
     // TODO: Please implement
     return EMPTY_INTSET;
+}
+
+bool PKB::nextStar_query_int_X_int_Y(DesignEnt xType, int x,
+        DesignEnt yType, int y) const
+{
+    // TODO: Please implement
+    return false;
 }
 
 set<int> PKB::affects_X_Y_get_int_X_from_int_Y(DesignEnt xType,
@@ -362,6 +432,13 @@ set<int> PKB::affects_X_Y_get_int_Y_from_int_X(DesignEnt xType,
     return EMPTY_INTSET;
 }
 
+bool PKB::affects_query_int_X_int_Y(DesignEnt xType, int x,
+        DesignEnt yType, int y) const
+{
+    // TODO: Please implement
+    return false;
+}
+
 set<int> PKB::affectsStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
@@ -374,6 +451,13 @@ set<int> PKB::affectsStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
 {
     // TODO: Please implement
     return EMPTY_INTSET;
+}
+
+bool PKB::affectsStar_query_int_X_int_Y(DesignEnt xType, int x,
+        DesignEnt yType, int y) const
+{
+    // TODO: Please implement
+    return false;
 }
 
 set<int> PKB::get_all_assign() const
