@@ -510,6 +510,66 @@ set<int> PKB::get_all_const() const
     return this->stmtBank->get_all_const();
 }
 
+bool PKB::has_assign(int assign) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::has_call(int callStmt) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::has_if (int ifStmt) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::has_while(int whileStmt) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::has_stmt(int stmtNo) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::has_progline(int progLine) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::has_variable(const std::string& varName) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::has_procedure(const std::string& procName) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::has_const(int n) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::has_stmtLst(int stmtNo) const
+{
+    // TODO: Please implement
+    return false;
+}
+
 string PKB::get_call_procName(int callStmt) const
 {
     return this->stmtBank->get_call_procName(callStmt);

@@ -489,6 +489,36 @@ public:
     std::set<std::string> get_all_procs() const;
     std::set<int> get_all_const() const;
 
+    bool has_assign(int assign) const;
+    bool has_call(int callStmt) const;
+    bool has_if (int ifStmt) const;
+    bool has_while(int whileStmt) const;
+    bool has_stmt(int stmtNo) const;
+    bool has_progline(int progLine) const;
+    bool has_variable(const std::string& varName) const;
+    bool has_procedure(const std::string& procName) const;
+    bool has_const(int n) const;
+    bool has_stmtLst(int stmtNo) const;
+
+    //////////////////////////////////////////////////////////////////
+    // For pattern clause
+    //////////////////////////////////////////////////////////////////
+    /*
+     * Returns the control variable of a given statement.
+     * @param entType type of the statement
+     * @param stmtNo statement number
+     */
+    const std::string& get_control_variable(DesignEnt entType,
+            int stmtNo) const;
+    /*
+     * Checks if a given variable is the control variable of a stmt
+     * @param entType type of the statement
+     * @param stmtNo statement number
+     * @param varName name of variable
+     */
+    bool has_control_variable(DesignEnt entType,
+            int stmtNo, const std::string& varName) const;
+
     /*
      * Returns the procedure called by the call stmt, or an
      * empty string if the statement does not exist or is not
@@ -580,9 +610,6 @@ public:
     set<int> filter_by_proc(string procName, set<int> s);
     set<int> filter_by_stmtType(DesignEnt type, set<int> s);
     int filter_by_stmtType(DesignEnt type, int stmtNo);
-
-    // Constant
-    bool has_const(int n) const;
 
     // Debuggers
     Node* get_progRoot();
