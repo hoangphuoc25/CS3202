@@ -560,8 +560,7 @@ bool PKB::has_procedure(const std::string& procName) const
 
 bool PKB::has_const(int n) const
 {
-    // TODO: Please implement
-    return false;
+    return this->stmtBank->has_const(n);
 }
 
 bool PKB::has_stmtLst(int stmtNo) const
@@ -1270,15 +1269,6 @@ set<int> PKB::get_affected_by_star(int stmtNo)
         }
     }
     return res;
-}
-
-
-
-
-// Constant
-bool PKB::has_const(int n) const
-{
-    return this->stmtBank->has_const(n);
 }
 
 // Others
