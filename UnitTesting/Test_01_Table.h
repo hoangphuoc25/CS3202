@@ -18,6 +18,8 @@ CPPUNIT_TEST(test_add_row_r_si);
 CPPUNIT_TEST(test_add_row_r_is);
 CPPUNIT_TEST(test_add_row_r_ii);
 CPPUNIT_TEST(test_add_row_dead);
+CPPUNIT_TEST(test_mark_row);
+CPPUNIT_TEST(test_mark_row_dead);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -38,6 +40,8 @@ private:
     void test_add_row_r_is();
     void test_add_row_r_ii();
     void test_add_row_dead();
+    void test_mark_row();
+    void test_mark_row_dead();
 };
 
 #endif

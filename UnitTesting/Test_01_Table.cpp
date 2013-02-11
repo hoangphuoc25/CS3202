@@ -645,3 +645,44 @@ void Test_01_Table::test_add_row_dead()
     table.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(false, table.is_alive());
 }
+
+void Test_01_Table::test_mark_row()
+{
+    Table table;
+    CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    table.add_rows_transaction_begin();
+    table.add_row("aOne", "a");
+    table.add_row("aOne", "bad");
+    table.add_row("aOne", "damn");
+    table.add_row("aOne", "great");
+    table.add_rows_transaction_end();
+    CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    table.mark_rows_transaction_begin();
+    table.mark_row_ok(0);
+    table.mark_row_ok(3);
+    table.mark_rows_transaction_end();
+    CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    const vector<Record>& records = table.get_records();
+    Record record;
+    record.reset();
+    record.add_synonym("a");
+    CPPUNIT_ASSERT_EQUAL(record, records[0]);
+    record.reset();
+    record.add_synonym("great");
+    CPPUNIT_ASSERT_EQUAL(record, records[1]);
+}
+
+void Test_01_Table::test_mark_row_dead()
+{
+    Table table;
+    CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    table.add_rows_transaction_begin();
+    table.add_row("aOne", "a");
+    table.add_row("aOne", "bad");
+    table.add_row("aOne", "damn");
+    table.add_rows_transaction_end();
+    CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    table.mark_rows_transaction_begin();
+    table.mark_rows_transaction_end();
+    CPPUNIT_ASSERT_EQUAL(false, table.is_alive());
+}
