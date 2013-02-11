@@ -287,11 +287,18 @@ struct AttrRef: public GenericRef {
     std::string syn;
     DesignEnt entType;
     AttrType attr;
+
     AttrRef();
+    AttrRef(const AttrRef& o);
+    AttrRef& operator=(const AttrRef &o);
+    ~AttrRef();
     AttrRef(std::string s, DesignEnt et, AttrType a);
     void dump_to_sb(StringBuffer &sb) const;
     std::string toPeriodString() const;
     void dummy();
+
+private:
+    void swap(AttrRef& one, AttrRef& two);
 };
 
 struct AttrRefCmp {
@@ -322,6 +329,9 @@ struct RelRef: public GenericRef {
     std::string dump(void) const;
     static bool valid(const struct RelRef &r);
     void dummy();
+
+private:
+    void swap(RelRef& one, RelRef& two);
 };
 
 // For comparing RelRef so that we will not insert repeated relref

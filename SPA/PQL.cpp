@@ -252,6 +252,26 @@ AttrRef::AttrRef(): syn(""), entType(ENT_INVALID), attr(ATTR_INVALID) {}
 AttrRef::AttrRef(string s, DesignEnt et, AttrType a)
     : syn(s), entType(et), attr(a) {}
 
+AttrRef::AttrRef(const AttrRef& o)
+    : syn(o.syn), entType(o.entType), attr(o.attr) {}
+
+AttrRef& AttrRef::operator=(const AttrRef &o)
+{
+    AttrRef tmp(o);
+    this->swap(*this, tmp);
+    return *this;
+}
+
+AttrRef::~AttrRef() {}
+
+void AttrRef::swap(AttrRef& one, AttrRef& two)
+{
+    using std::swap;
+    swap(one.syn, two.syn);
+    swap(one.entType, two.entType);
+    swap(one.attr, two.attr);
+}
+
 void AttrRef::dump_to_sb(StringBuffer &sb) const
 {
     sb.append(entity_type_to_string(entType));
@@ -299,69 +319,34 @@ RelRef::RelRef(): relType(REL_INVALID), argOneType(RELARG_INVALID),
     argTwoString(), argTwoInt(0) {}
 
 RelRef::RelRef(const RelRef &o)
-{
-    if (this != &o) {
-        this->relType = o.relType;
-        this->argOneType = o.argOneType;
-        switch (this->argOneType) {
-        case RELARG_SYN:
-            this->argOneSyn = o.argOneSyn;
-            // fall through
-        case RELARG_STRING:
-            this->argOneString = o.argOneString;
-            break;
-        case RELARG_INT:
-            this->argOneInt = o.argOneInt;
-            break;
-        }
-        this->argTwoType = o.argTwoType;
-        switch (this->argTwoType) {
-        case RELARG_SYN:
-            this->argTwoSyn = o.argTwoSyn;
-            // fall through
-        case RELARG_STRING:
-            this->argTwoString = o.argTwoString;
-            break;
-        case RELARG_INT:
-            this->argTwoInt = o.argTwoInt;
-            break;
-        }
-    }
-}
+    : relType(o.relType), argOneType(o.argOneType),
+      argOneSyn(o.argOneSyn), argOneString(o.argOneString),
+      argOneInt(o.argOneInt), argTwoType(o.argTwoType),
+      argTwoSyn(o.argTwoSyn),  argTwoString(o.argTwoString),
+      argTwoInt(o.argTwoInt) {}
 
 RelRef& RelRef::operator=(const RelRef &o)
 {
-    if (this != &o) {
-        this->relType = o.relType;
-        this->argOneType = o.argOneType;
-        switch (this->argOneType) {
-        case RELARG_SYN:
-            this->argOneSyn = o.argOneSyn;
-            // fall through
-        case RELARG_STRING:
-            this->argOneString = o.argOneString;
-            break;
-        case RELARG_INT:
-            this->argOneInt = o.argOneInt;
-            break;
-        }
-        this->argTwoType = o.argTwoType;
-        switch (this->argTwoType) {
-        case RELARG_SYN:
-            this->argTwoSyn = o.argTwoSyn;
-            // fall through
-        case RELARG_STRING:
-            this->argTwoString = o.argTwoString;
-            break;
-        case RELARG_INT:
-            this->argTwoInt = o.argTwoInt;
-            break;
-        }
-    }
+    RelRef tmp(o);
+    this->swap(*this, tmp);
     return *this;
 }
 
 RelRef::~RelRef() {}
+
+void RelRef::swap(RelRef& one, RelRef& two)
+{
+    using std::swap;
+    swap(one.relType, two.relType);
+    swap(one.argOneType, two.argOneType);
+    swap(one.argOneSyn, two.argOneSyn);
+    swap(one.argOneString, two.argOneString);
+    swap(one.argOneInt, two.argOneInt);
+    swap(one.argTwoType, two.argTwoType);
+    swap(one.argTwoSyn, two.argTwoSyn);
+    swap(one.argTwoString, two.argTwoString);
+    swap(one.argTwoInt, two.argTwoInt);
+}
 
 ParseError RelRef::set_arg_one(RelRefArgType argType, StringBuffer &sb,
         char **errorMsg)
