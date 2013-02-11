@@ -18,9 +18,10 @@
     <ClCompile Include="PQL.cpp" />
     <ClCompile Include="PQLParser.cpp" />
     <ClCompile Include="QueryEvaluator.cpp" />
-    <ClCompile Include="ResultsGraph.cpp" />
     <ClCompile Include="ProcTable.cpp" />
+    <ClCompile Include="ResultsGraph.cpp" />
     <ClCompile Include="ResultsProjector.cpp" />
+    <ClCompile Include="ResultsTable.cpp" />
     <ClCompile Include="SetWrapper.cpp" />
     <ClCompile Include="SPAUtils.cpp" />
     <ClCompile Include="StmtBank.cpp" />
@@ -37,9 +38,10 @@
     <ClInclude Include="PQL.h" />
     <ClInclude Include="PQLParser.h" />
     <ClInclude Include="QueryEvaluator.h" />
-    <ClInclude Include="ResultsGraph.h" />
     <ClInclude Include="ProcTable.h" />
+    <ClInclude Include="ResultsGraph.h" />
     <ClInclude Include="ResultsProjector.h" />
+    <ClInclude Include="ResultsTable.h" />
     <ClInclude Include="SetWrapper.h" />
     <ClInclude Include="SPAUtils.h" />
     <ClInclude Include="StmtBank.h" />

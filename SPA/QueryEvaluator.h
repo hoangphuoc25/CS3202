@@ -2,10 +2,12 @@
 #define T11_QUERY_EVALUATOR_H
 
 #include <list>
+#include <set>
 #include <string>
 #include "PKB.h"
 #include "PQLParser.h"
 #include "ResultsGraph.h"
+#include "ResultsTable.h"
 #include "ResultsProjector.h"
 
 // Used when one/both RelRef arguments are synonyms.
@@ -114,6 +116,16 @@ private:
     void setup_affects();
     void setup_affectsStar();
 
+    void partition_evaluation(QueryInfo *qinfo);
+    void partition_process_relRef(int idx, RelRef *relRef);
+    void partition_process_patCl(int idx, PatCl *patCl);
+    int partition_add_vertex(int idx, const std::string& syn);
+    void partition_add_edge(int idx, const std::string& synOne,
+            const std::string& synTwo);
+    void partition_evaluation_cc();
+    void partition_evaluation_cc_bfs(int v);
+    void partition_evaluation_partition(int nrClauses);
+
     bool relRef_arg_use_string(DesignEnt entType) const;
     void evaluate_relRef(RelRef *relRef);
     void ev_relRef_syn_syn(RelRef *relRef);
@@ -201,6 +213,17 @@ private:
     ResultsProjector resultsProjector;
     std::map<EvalSynArgDesc, EvalPKBDispatch,
              EvalSynArgDescCmp> dispatchTable;
+    bool isAlive;
+
+    // graph construction purposes
+    std::map<std::string, int> graph_synMap;
+    std::vector<std::set<int> > graph_adjList;
+    std::vector<int> graph_refToVertex;
+    std::vector<int> graph_vertexCC;
+    int graph_nrVertexCC;
+    std::set<int> graph_isolatedRef;
+    std::vector<std::vector<int> > partitionedClauses;
+    std::vector<ResultsTable> resultsTable;
 };
 
 #endif

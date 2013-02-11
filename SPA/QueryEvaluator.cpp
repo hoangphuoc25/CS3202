@@ -3,10 +3,14 @@
 
 #include <cstring>
 #include <cassert>
+#include <queue>
+#include <set>
 
 using std::list;
 using std::string;
 using std::map;
+using std::queue;
+using std::set;
 
 //////////////////////////////////////////////////////////////////////
 // EvalSynArgDesc
@@ -91,7 +95,8 @@ void EvalPKBDispatch::reset()
 //////////////////////////////////////////////////////////////////////
 
 QueryEvaluator::QueryEvaluator():
-        pqlParser(), pkb(NULL), results(), resultsProjector()
+        pqlParser(), pkb(NULL), results(), resultsProjector(),
+        isAlive(true)
 {
     this->setup_modifies();
     this->setup_uses();
@@ -381,11 +386,21 @@ void QueryEvaluator::evaluate(const string& queryStr,
     results.reset();
     this->pqlParser.parse(queryStr, true, true);
     qinfo = this->pqlParser.get_queryinfo();
-    qinfo->optimize();
+    this->partition_evaluation(qinfo);
+
+    // Evaluate isolated refs
+    for (set<int>::const_iterator it = this->graph_isolatedRef.begin();
+            this->isAlive && it != this->graph_isolatedRef.end(); it++) {
+        // TODO: Implement
+    }
+    if (this->isAlive) {
+    }
+
+    /*
     int nrClauses = qinfo->get_nr_clauses();
     GenericRef *genericRef;
-    RelRef *relRef;
-    PatCl *patCl;
+    for (int i = 0; i < nrClauses; i++) {
+    }
     ClauseType clauseType;
     for (int i = 0; i < nrClauses && this->results.is_alive(); i++) {
         clauseType = qinfo->get_nth_clause_type(i);
@@ -409,6 +424,162 @@ void QueryEvaluator::evaluate(const string& queryStr,
         }
     }
     this->resultsProjector.get_results(this->results, qinfo, pkb, resultSet);
+    */
+}
+
+void QueryEvaluator::partition_evaluation(QueryInfo *qinfo)
+{
+    ClauseType clauseType;
+    GenericRef *genericRef;
+    RelRef *relRef;
+    AttrRef *attrRef;
+    PatCl *patCl;
+    int nrClauses = qinfo->get_nr_clauses();
+    this->graph_synMap.clear();
+    this->graph_adjList.clear();
+    this->graph_refToVertex = vector<int>(nrClauses+5, -1);
+    this->graph_vertexCC.clear();
+    this->graph_isolatedRef.clear();
+
+    // Build graph based on clauses
+    for (int i = 0; i < nrClauses; i++) {
+        clauseType = qinfo->get_nth_clause_type(i);
+        assert(clauseType != INVALID_CLAUSE);
+        genericRef = qinfo->get_nth_clause(i);
+        assert(genericRef != NULL);
+        switch (clauseType) {
+        case SUCHTHAT_CLAUSE:
+            relRef = dynamic_cast<RelRef *>(genericRef);
+            assert(relRef != NULL);
+            this->partition_process_relRef(i, relRef);
+            break;
+        case WITH_CLAUSE:
+            // TODO: Implement
+            break;
+        case PATTERN_CLAUSE:
+            patCl = dynamic_cast<PatCl *>(genericRef);
+            assert(patCl != NULL);
+            this->partition_process_patCl(i, patCl);
+            break;
+        }
+    }
+
+    // Connected components for synonym graph
+    this->partition_evaluation_cc();
+    // Actual partitioning
+    this->partition_evaluation_partition(nrClauses);
+}
+
+void QueryEvaluator::partition_process_relRef(int clauseIdx, RelRef *relRef)
+{
+    assert(relRef->relType != REL_INVALID);
+    if (relRef->argOneType == RELARG_SYN &&
+            relRef->argTwoType == RELARG_SYN) {
+        this->partition_add_edge(clauseIdx, relRef->argOneString,
+                relRef->argTwoString);
+    } else if (relRef->argOneType == RELARG_SYN) {
+        this->partition_add_vertex(clauseIdx, relRef->argOneString);
+    } else if (relRef->argTwoType == RELARG_SYN) {
+        this->partition_add_vertex(clauseIdx, relRef->argTwoString);
+    } else {
+        // no synonym, push to isolated
+        this->graph_isolatedRef.insert(clauseIdx);
+    }
+}
+
+void QueryEvaluator::partition_process_patCl(int idx, PatCl *patCl)
+{
+    assert(patCl->type != PATCL_INVALID);
+    if (patCl->varRefType == PATVARREF_SYN) {
+        this->partition_add_edge(idx, patCl->syn, patCl->varRefString);
+    } else {
+        this->partition_add_vertex(idx, patCl->syn);
+    }
+}
+
+int QueryEvaluator::partition_add_vertex(int clauseIdx, const string& syn)
+{
+    map<string, int>::const_iterator it = this->graph_synMap.find(syn);
+    if (it == this->graph_synMap.end()) {
+        int nextLabel = this->graph_synMap.size();
+        this->graph_synMap[syn] = nextLabel;
+        this->graph_adjList.push_back(set<int>());
+        this->graph_refToVertex[clauseIdx] = nextLabel;
+        return nextLabel;
+    } else {
+        return this->graph_refToVertex[clauseIdx] = it->second;
+    }
+}
+
+void QueryEvaluator::partition_add_edge(int clauseIdx, const string& synOne,
+        const string& synTwo)
+{
+    int vertexOne = this->partition_add_vertex(clauseIdx, synOne);
+    int vertexTwo = this->partition_add_vertex(clauseIdx, synTwo);
+    if (vertexOne != vertexTwo) {
+        set<int>& adjOne = this->graph_adjList[vertexOne];
+        set<int>& adjTwo = this->graph_adjList[vertexTwo];
+        adjOne.insert(vertexTwo);
+        adjTwo.insert(vertexOne);
+    }
+}
+
+void QueryEvaluator::partition_evaluation_cc()
+{
+    int nrSyn = this->graph_synMap.size();
+    this->graph_vertexCC = vector<int>(nrSyn+5, -1);
+    this->graph_nrVertexCC = 0;
+    for (int i = 0; i < nrSyn; i++) {
+        if (this->graph_vertexCC[i] == -1) {
+            partition_evaluation_cc_bfs(i);
+            this->graph_nrVertexCC++;
+        }
+    }
+}
+
+void QueryEvaluator::partition_evaluation_cc_bfs(int syn)
+{
+    queue<int> q;
+    q.push(syn);
+    int v;
+    while (!q.empty()) {
+        v = q.front();
+        q.pop();
+        if (this->graph_vertexCC[v] == -1) {
+            this->graph_vertexCC[v] = this->graph_nrVertexCC;
+            const set<int>& adjList = this->graph_adjList[syn];
+            for (set<int>::const_iterator it = adjList.begin();
+                    it != adjList.end(); it++) {
+                if (this->graph_vertexCC[*it] == -1) {
+                    q.push(*it);
+                }
+            }
+        }
+    }
+}
+
+void QueryEvaluator::partition_evaluation_partition(int nrClauses)
+{
+    this->partitionedClauses.clear();
+    this->resultsTable.clear();
+    for (int i = 0; i < this->graph_nrVertexCC; i++) {
+        this->partitionedClauses.push_back(vector<int>());
+    }
+    for (int i = 0; i < this->graph_nrVertexCC; i++) {
+        this->resultsTable.push_back(ResultsTable());
+    }
+    // map clauses to component
+    int component;
+    for (int i = 0; i < nrClauses; i++) {
+        if (this->graph_refToVertex[i] == -1) {
+            // no synonym
+            assert(this->graph_isolatedRef.find(i) !=
+                    this->graph_isolatedRef.end());
+        } else {
+            component = this->graph_vertexCC[this->graph_refToVertex[i]];
+            this->partitionedClauses[component].push_back(i);
+        }
+    }
 }
 
 void QueryEvaluator::evaluate_relRef(RelRef *relRef)
