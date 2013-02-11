@@ -280,10 +280,12 @@ const char *attrType_to_string(AttrType attrType);
 
 // Interface inherited by AttrRef, RelRef, PatCl
 struct GenericRef {
+public:
     virtual void dummy();
 };
 
 struct AttrRef: public GenericRef {
+public:
     std::string syn;
     DesignEnt entType;
     AttrType attr;
@@ -306,6 +308,7 @@ struct AttrRefCmp {
 };
 
 struct RelRef: public GenericRef {
+public:
     RelRefType relType;
     RelRefArgType argOneType;
     DesignEnt argOneSyn;
@@ -341,6 +344,7 @@ struct RelRefCmp {
 
 // Pattern clauses
 struct PatCl: public GenericRef {
+public:
     enum PatClType type;
     std::string syn;
     enum PatClVarRefType varRefType;
