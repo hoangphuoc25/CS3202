@@ -22,8 +22,8 @@ public:
     friend std::ostream& operator<<(std::ostream& os,
             const Record& rec);
 
-    void add_synonym(const std::string& val);
-    void add_synonym(int val);
+    void add_value(const std::string& val);
+    void add_value(int val);
     const std::pair<std::string, int>& get_synonym(int idx) const;
 private:
     std::vector<std::pair<std::string, int> > values;

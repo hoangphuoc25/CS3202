@@ -58,12 +58,12 @@ void Record::reset()
     this->values.clear();
 }
 
-void Record::add_synonym(const string& val)
+void Record::add_value(const string& val)
 {
     this->values.push_back(make_pair(val, -1));
 }
 
-void Record::add_synonym(int val)
+void Record::add_value(int val)
 {
     this->values.push_back(make_pair("", val));
 }

@@ -37,13 +37,13 @@ void Test_01_Table::test_add_row_s()
     const vector<Record>& records = table.get_records();
     CPPUNIT_ASSERT_EQUAL(3, (int)records.size());
     Record record;
-    record.add_synonym("a");
+    record.add_value("a");
     CPPUNIT_ASSERT_EQUAL(record, records[0]);
     record.reset();
-    record.add_synonym("bad");
+    record.add_value("bad");
     CPPUNIT_ASSERT_EQUAL(record, records[1]);
     record.reset();
-    record.add_synonym("damn");
+    record.add_value("damn");
     CPPUNIT_ASSERT_EQUAL(record, records[2]);
 }
 
@@ -70,10 +70,10 @@ void Test_01_Table::test_add_row_i()
     const vector<Record>& records = table.get_records();
     CPPUNIT_ASSERT_EQUAL(2, (int)records.size());
     Record record;
-    record.add_synonym(126);
+    record.add_value(126);
     CPPUNIT_ASSERT_EQUAL(record, records[0]);
     record.reset();
-    record.add_synonym(1718);
+    record.add_value(1718);
     CPPUNIT_ASSERT_EQUAL(record, records[1]);
 }
 
@@ -107,20 +107,20 @@ void Test_01_Table::test_add_row_ss()
     const vector<Record>& records = table.get_records();
     CPPUNIT_ASSERT_EQUAL(4, (int)records.size());
     Record record;
-    record.add_synonym("man");
-    record.add_synonym("great");
+    record.add_value("man");
+    record.add_value("great");
     CPPUNIT_ASSERT_EQUAL(record, records[0]);
     record.reset();
-    record.add_synonym("hell");
-    record.add_synonym("cell");
+    record.add_value("hell");
+    record.add_value("cell");
     CPPUNIT_ASSERT_EQUAL(record, records[1]);
     record.reset();
-    record.add_synonym("yui");
-    record.add_synonym("framework");
+    record.add_value("yui");
+    record.add_value("framework");
     CPPUNIT_ASSERT_EQUAL(record, records[2]);
     record.reset();
-    record.add_synonym("ummmmS");
-    record.add_synonym("amIright");
+    record.add_value("ummmmS");
+    record.add_value("amIright");
     CPPUNIT_ASSERT_EQUAL(record, records[3]);
 }
 
@@ -153,16 +153,16 @@ void Test_01_Table::test_add_row_si()
     const vector<Record>& records = table.get_records();
     CPPUNIT_ASSERT_EQUAL(3, (int)records.size());
     Record record;
-    record.add_synonym("gee");
-    record.add_synonym(9321);
+    record.add_value("gee");
+    record.add_value(9321);
     CPPUNIT_ASSERT_EQUAL(record, records[0]);
     record.reset();
-    record.add_synonym("testMAn");
-    record.add_synonym(7);
+    record.add_value("testMAn");
+    record.add_value(7);
     CPPUNIT_ASSERT_EQUAL(record, records[1]);
     record.reset();
-    record.add_synonym("ide");
-    record.add_synonym(33);
+    record.add_value("ide");
+    record.add_value(33);
     CPPUNIT_ASSERT_EQUAL(record, records[2]);
 }
 
@@ -194,12 +194,12 @@ void Test_01_Table::test_add_row_is()
     const vector<Record>& records = table.get_records();
     CPPUNIT_ASSERT_EQUAL(2, (int)records.size());
     Record record;
-    record.add_synonym(89467);
-    record.add_synonym("aday");
+    record.add_value(89467);
+    record.add_value("aday");
     CPPUNIT_ASSERT_EQUAL(record, records[0]);
     record.reset();
-    record.add_synonym(15);
-    record.add_synonym("Fha1");
+    record.add_value(15);
+    record.add_value("Fha1");
     CPPUNIT_ASSERT_EQUAL(record, records[1]);
 }
 
@@ -232,16 +232,16 @@ void Test_01_Table::test_add_row_ii()
     const vector<Record>& records = table.get_records();
     CPPUNIT_ASSERT_EQUAL(3, (int)records.size());
     Record record;
-    record.add_synonym(8468);
-    record.add_synonym(66);
+    record.add_value(8468);
+    record.add_value(66);
     CPPUNIT_ASSERT_EQUAL(record, records[0]);
     record.reset();
-    record.add_synonym(12465);
-    record.add_synonym(1);
+    record.add_value(12465);
+    record.add_value(1);
     CPPUNIT_ASSERT_EQUAL(record, records[1]);
     record.reset();
-    record.add_synonym(342467);
-    record.add_synonym(8);
+    record.add_value(342467);
+    record.add_value(8);
     CPPUNIT_ASSERT_EQUAL(record, records[2]);
 }
 
@@ -289,19 +289,19 @@ void Test_01_Table::test_add_row_r_s()
     const vector<Record>& records = table.get_records();
     CPPUNIT_ASSERT_EQUAL(3, (int)records.size());
     Record record;
-    record.add_synonym(3);
-    record.add_synonym("good");
-    record.add_synonym("a");
+    record.add_value(3);
+    record.add_value("good");
+    record.add_value("a");
     CPPUNIT_ASSERT_EQUAL(record, records[0]);
     record.reset();
-    record.add_synonym(72);
-    record.add_synonym("mkbma");
-    record.add_synonym("bad");
+    record.add_value(72);
+    record.add_value("mkbma");
+    record.add_value("bad");
     CPPUNIT_ASSERT_EQUAL(record, records[1]);
     record.reset();
-    record.add_synonym(6246);
-    record.add_synonym("gsg");
-    record.add_synonym("damn");
+    record.add_value(6246);
+    record.add_value("gsg");
+    record.add_value("damn");
     CPPUNIT_ASSERT_EQUAL(record, records[2]);
 }
 
@@ -347,14 +347,14 @@ void Test_01_Table::test_add_row_r_i()
     const vector<Record>& records = table.get_records();
     CPPUNIT_ASSERT_EQUAL(2, (int)records.size());
     Record record;
-    record.add_synonym(3);
-    record.add_synonym("good");
-    record.add_synonym(126);
+    record.add_value(3);
+    record.add_value("good");
+    record.add_value(126);
     CPPUNIT_ASSERT_EQUAL(record, records[0]);
     record.reset();
-    record.add_synonym(72);
-    record.add_synonym("mkbma");
-    record.add_synonym(1718);
+    record.add_value(72);
+    record.add_value("mkbma");
+    record.add_value(1718);
     CPPUNIT_ASSERT_EQUAL(record, records[1]);
 }
 
@@ -411,22 +411,22 @@ void Test_01_Table::test_add_row_r_ss()
     const vector<Record>& records = table.get_records();
     CPPUNIT_ASSERT_EQUAL(3, (int)records.size());
     Record record;
-    record.add_synonym(3);
-    record.add_synonym("good");
-    record.add_synonym("man");
-    record.add_synonym("great");
+    record.add_value(3);
+    record.add_value("good");
+    record.add_value("man");
+    record.add_value("great");
     CPPUNIT_ASSERT_EQUAL(record, records[0]);
     record.reset();
-    record.add_synonym(72);
-    record.add_synonym("mkbma");
-    record.add_synonym("hell");
-    record.add_synonym("cell");
+    record.add_value(72);
+    record.add_value("mkbma");
+    record.add_value("hell");
+    record.add_value("cell");
     CPPUNIT_ASSERT_EQUAL(record, records[1]);
     record.reset();
-    record.add_synonym(6246);
-    record.add_synonym("gsg");
-    record.add_synonym("yui");
-    record.add_synonym("framework");
+    record.add_value(6246);
+    record.add_value("gsg");
+    record.add_value("yui");
+    record.add_value("framework");
     CPPUNIT_ASSERT_EQUAL(record, records[2]);
 }
 
@@ -483,22 +483,22 @@ void Test_01_Table::test_add_row_r_si()
     const vector<Record>& records = table.get_records();
     CPPUNIT_ASSERT_EQUAL(3, (int)records.size());
     Record record;
-    record.add_synonym(3);
-    record.add_synonym("good");
-    record.add_synonym("gee");
-    record.add_synonym(9321);
+    record.add_value(3);
+    record.add_value("good");
+    record.add_value("gee");
+    record.add_value(9321);
     CPPUNIT_ASSERT_EQUAL(record, records[0]);
     record.reset();
-    record.add_synonym(72);
-    record.add_synonym("mkbma");
-    record.add_synonym("testMAn");
-    record.add_synonym(7);
+    record.add_value(72);
+    record.add_value("mkbma");
+    record.add_value("testMAn");
+    record.add_value(7);
     CPPUNIT_ASSERT_EQUAL(record, records[1]);
     record.reset();
-    record.add_synonym(6246);
-    record.add_synonym("gsg");
-    record.add_synonym("ide");
-    record.add_synonym(33);
+    record.add_value(6246);
+    record.add_value("gsg");
+    record.add_value("ide");
+    record.add_value(33);
     CPPUNIT_ASSERT_EQUAL(record, records[2]);
 }
 
@@ -552,16 +552,16 @@ void Test_01_Table::test_add_row_r_is()
     const vector<Record>& records = table.get_records();
     CPPUNIT_ASSERT_EQUAL(2, (int)records.size());
     Record record;
-    record.add_synonym(3);
-    record.add_synonym("good");
-    record.add_synonym(89467);
-    record.add_synonym("aday");
+    record.add_value(3);
+    record.add_value("good");
+    record.add_value(89467);
+    record.add_value("aday");
     CPPUNIT_ASSERT_EQUAL(record, records[0]);
     record.reset();
-    record.add_synonym(72);
-    record.add_synonym("mkbma");
-    record.add_synonym(15);
-    record.add_synonym("Fha1");
+    record.add_value(72);
+    record.add_value("mkbma");
+    record.add_value(15);
+    record.add_value("Fha1");
     CPPUNIT_ASSERT_EQUAL(record, records[1]);
 }
 
@@ -618,22 +618,22 @@ void Test_01_Table::test_add_row_r_ii()
     const vector<Record>& records = table.get_records();
     CPPUNIT_ASSERT_EQUAL(3, (int)records.size());
     Record record;
-    record.add_synonym(3);
-    record.add_synonym("good");
-    record.add_synonym(8468);
-    record.add_synonym(66);
+    record.add_value(3);
+    record.add_value("good");
+    record.add_value(8468);
+    record.add_value(66);
     CPPUNIT_ASSERT_EQUAL(record, records[0]);
     record.reset();
-    record.add_synonym(72);
-    record.add_synonym("mkbma");
-    record.add_synonym(12465);
-    record.add_synonym(1);
+    record.add_value(72);
+    record.add_value("mkbma");
+    record.add_value(12465);
+    record.add_value(1);
     CPPUNIT_ASSERT_EQUAL(record, records[1]);
     record.reset();
-    record.add_synonym(6246);
-    record.add_synonym("gsg");
-    record.add_synonym(342467);
-    record.add_synonym(8);
+    record.add_value(6246);
+    record.add_value("gsg");
+    record.add_value(342467);
+    record.add_value(8);
     CPPUNIT_ASSERT_EQUAL(record, records[2]);
 }
 
@@ -665,10 +665,10 @@ void Test_01_Table::test_mark_row()
     const vector<Record>& records = table.get_records();
     Record record;
     record.reset();
-    record.add_synonym("a");
+    record.add_value("a");
     CPPUNIT_ASSERT_EQUAL(record, records[0]);
     record.reset();
-    record.add_synonym("great");
+    record.add_value("great");
     CPPUNIT_ASSERT_EQUAL(record, records[1]);
 }
 
@@ -710,14 +710,14 @@ void Test_01_Table::test_augment_row_s()
     CPPUNIT_ASSERT_EQUAL(2, (int)records.size());
     Record record;
     record.reset();
-    record.add_synonym("down");
-    record.add_synonym("up");
-    record.add_synonym("X");
+    record.add_value("down");
+    record.add_value("up");
+    record.add_value("X");
     CPPUNIT_ASSERT_EQUAL(record, records[0]);
     record.reset();
-    record.add_synonym("blasphemy");
-    record.add_synonym("nope");
-    record.add_synonym("up");
+    record.add_value("blasphemy");
+    record.add_value("nope");
+    record.add_value("up");
     CPPUNIT_ASSERT_EQUAL(record, records[1]);
 }
 
@@ -743,19 +743,19 @@ void Test_01_Table::test_augment_row_i()
     CPPUNIT_ASSERT_EQUAL(3, (int)records.size());
     Record record;
     record.reset();
-    record.add_synonym("down");
-    record.add_synonym("up");
-    record.add_synonym(61);
+    record.add_value("down");
+    record.add_value("up");
+    record.add_value(61);
     CPPUNIT_ASSERT_EQUAL(record, records[0]);
     record.reset();
-    record.add_synonym("down");
-    record.add_synonym("areFired");
-    record.add_synonym(1567);
+    record.add_value("down");
+    record.add_value("areFired");
+    record.add_value(1567);
     CPPUNIT_ASSERT_EQUAL(record, records[1]);
     record.reset();
-    record.add_synonym("no");
-    record.add_synonym("way");
-    record.add_synonym(71882);
+    record.add_value("no");
+    record.add_value("way");
+    record.add_value(71882);
     CPPUNIT_ASSERT_EQUAL(record, records[2]);
 }
 

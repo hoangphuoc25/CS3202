@@ -101,7 +101,7 @@ void Table::add_row(const string& syn, const string& val)
 {
     this->add_row_syn_preamble(TS_ADD_ROW_S, syn);
     Record row;
-    row.add_synonym(val);
+    row.add_value(val);
     this->auxRecords->push_back(row);
 }
 
@@ -109,7 +109,7 @@ void Table::add_row(const string& syn, int val)
 {
     this->add_row_syn_preamble(TS_ADD_ROW_I, syn);
     Record row;
-    row.add_synonym(val);
+    row.add_value(val);
     this->auxRecords->push_back(row);
 }
 
@@ -118,8 +118,8 @@ void Table::add_row(const string& synOne, const string& valOne,
 {
     this->add_row_syn_syn_preamble(TS_ADD_ROW_SS, synOne, synTwo);
     Record row;
-    row.add_synonym(valOne);
-    row.add_synonym(valTwo);
+    row.add_value(valOne);
+    row.add_value(valTwo);
     this->auxRecords->push_back(row);
 }
 
@@ -128,8 +128,8 @@ void Table::add_row(const string& synOne, const string& valOne,
 {
     this->add_row_syn_syn_preamble(TS_ADD_ROW_SI, synOne, synTwo);
     Record row;
-    row.add_synonym(valOne);
-    row.add_synonym(valTwo);
+    row.add_value(valOne);
+    row.add_value(valTwo);
     this->auxRecords->push_back(row);
 }
 
@@ -138,8 +138,8 @@ void Table::add_row(const string& synOne, int valOne,
 {
     this->add_row_syn_syn_preamble(TS_ADD_ROW_IS, synOne, synTwo);
     Record row;
-    row.add_synonym(valOne);
-    row.add_synonym(valTwo);
+    row.add_value(valOne);
+    row.add_value(valTwo);
     this->auxRecords->push_back(row);
 }
 
@@ -148,8 +148,8 @@ void Table::add_row(const string& synOne, int valOne,
 {
     this->add_row_syn_syn_preamble(TS_ADD_ROW_II, synOne, synTwo);
     Record row;
-    row.add_synonym(valOne);
-    row.add_synonym(valTwo);
+    row.add_value(valOne);
+    row.add_value(valTwo);
     this->auxRecords->push_back(row);
 }
 
@@ -158,7 +158,7 @@ void Table::add_row(const Table& table, const Record& rec,
 {
     this->add_row_record_syn_preamble(TS_ADD_ROW_R_S, table, syn);
     Record row(rec);
-    row.add_synonym(val);
+    row.add_value(val);
     this->auxRecords->push_back(row);
 }
 
@@ -167,7 +167,7 @@ void Table::add_row(const Table& table, const Record& rec,
 {
     this->add_row_record_syn_preamble(TS_ADD_ROW_R_I, table, syn);
     Record row(rec);
-    row.add_synonym(val);
+    row.add_value(val);
     this->auxRecords->push_back(row);
 }
 
@@ -178,8 +178,8 @@ void Table::add_row(const Table& table, const Record& rec,
     this->add_row_record_syn_syn_preamble(TS_ADD_ROW_R_SS, table,
             synOne, synTwo);
     Record row(rec);
-    row.add_synonym(valOne);
-    row.add_synonym(valTwo);
+    row.add_value(valOne);
+    row.add_value(valTwo);
     this->auxRecords->push_back(row);
 }
 
@@ -190,8 +190,8 @@ void Table::add_row(const Table& table, const Record& rec,
     this->add_row_record_syn_syn_preamble(TS_ADD_ROW_R_SI, table,
             synOne, synTwo);
     Record row(rec);
-    row.add_synonym(valOne);
-    row.add_synonym(valTwo);
+    row.add_value(valOne);
+    row.add_value(valTwo);
     this->auxRecords->push_back(row);
 }
 
@@ -202,8 +202,8 @@ void Table::add_row(const Table& table, const Record& rec,
     this->add_row_record_syn_syn_preamble(TS_ADD_ROW_R_IS, table,
             synOne, synTwo);
     Record row(rec);
-    row.add_synonym(valOne);
-    row.add_synonym(valTwo);
+    row.add_value(valOne);
+    row.add_value(valTwo);
     this->auxRecords->push_back(row);
 }
 
@@ -214,8 +214,8 @@ void Table::add_row(const Table& table, const Record& rec,
     this->add_row_record_syn_syn_preamble(TS_ADD_ROW_R_II, table,
             synOne, synTwo);
     Record row(rec);
-    row.add_synonym(valOne);
-    row.add_synonym(valTwo);
+    row.add_value(valOne);
+    row.add_value(valTwo);
     this->auxRecords->push_back(row);
 }
 
@@ -377,7 +377,7 @@ void Table::augment_row(int row, const string& syn, const string& val)
     }
     int nrRecords = this->curRecords->size();
     if (row >= 0 && row < nrRecords) {
-        (*(this->curRecords))[row].add_synonym(val);
+        (*(this->curRecords))[row].add_value(val);
         this->preserveRow[row] = 1;
     }
 }
@@ -393,7 +393,7 @@ void Table::augment_row(int row, const string& syn, int val)
     }
     int nrRecords = this->curRecords->size();
     if (row >= 0 && row < nrRecords) {
-        (*(this->curRecords))[row].add_synonym(val);
+        (*(this->curRecords))[row].add_value(val);
         this->preserveRow[row] = 1;
     }
 }
