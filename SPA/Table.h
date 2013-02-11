@@ -13,7 +13,8 @@ enum TableState {
     TS_ADD_ROW_SS, TS_ADD_ROW_SI, TS_ADD_ROW_IS, TS_ADD_ROW_II,
     TS_ADD_ROW_R_S, TS_ADD_ROW_R_I,
     TS_ADD_ROW_R_SS, TS_ADD_ROW_R_SI, TS_ADD_ROW_R_IS, TS_ADD_ROW_R_II,
-    TS_MARK_ROW
+    TS_MARK_ROW,
+    TS_AUGMENT_ROW, TS_AUGMENT_ROW_S, TS_AUGMENT_ROW_I
 };
 
 class Table {
@@ -59,9 +60,17 @@ public:
     void mark_rows_transaction_end();
     void mark_row_ok(int row);
 
+    void augment_rows_transaction_begin();
+    void augment_rows_transaction_end();
+    void augment_row(int row, const std::string& syn,
+            const std::string& val);
+    void augment_row(int row, const std::string& syn, int val);
+
 private:
     static TableState VALID_ADD_ROW_STATES_ARR[13];
     static const std::set<TableState> VALID_ADD_ROW_STATES;
+    static TableState VALID_AUGMENT_ROW_STATES_ARR[3];
+    static const std::set<TableState> VALID_AUGMENT_ROW_STATES;
 
     void add_row_syn_preamble(const TableState idealState,
             const std::string& syn);
@@ -73,6 +82,7 @@ private:
             const Table& table, const std::string& synOne,
             const std::string& synTwo);
     void add_synonym(const std::string& syn);
+    void add_synonym_to_cur(const std::string& syn);
     void add_synonyms_in_table(const Table& table);
 
     enum TableState tableState;

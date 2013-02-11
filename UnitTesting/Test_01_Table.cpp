@@ -686,3 +686,89 @@ void Test_01_Table::test_mark_row_dead()
     table.mark_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(false, table.is_alive());
 }
+
+void Test_01_Table::test_augment_row_s()
+{
+    Table table;
+    CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    table.add_rows_transaction_begin();
+    table.add_row("c130", "down", "f16", "up");
+    table.add_row("c130", "aa", "f16", "bb");
+    table.add_row("c130", "you", "f16", "areFired");
+    table.add_row("c130", "no", "f16", "way");
+    table.add_row("c130", "blasphemy", "f16", "nope");
+    table.add_rows_transaction_end();
+    CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    table.augment_rows_transaction_begin();
+    table.augment_row(0, "third", "X");
+    table.augment_row(4, "third", "up");
+    // augment non-existent row
+    table.augment_row(141, "third", "blah");
+    table.augment_rows_transaction_end();
+    CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    const vector<Record>& records = table.get_records();
+    CPPUNIT_ASSERT_EQUAL(2, (int)records.size());
+    Record record;
+    record.reset();
+    record.add_synonym("down");
+    record.add_synonym("up");
+    record.add_synonym("X");
+    CPPUNIT_ASSERT_EQUAL(record, records[0]);
+    record.reset();
+    record.add_synonym("blasphemy");
+    record.add_synonym("nope");
+    record.add_synonym("up");
+    CPPUNIT_ASSERT_EQUAL(record, records[1]);
+}
+
+void Test_01_Table::test_augment_row_i()
+{
+    Table table;
+    CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    table.add_rows_transaction_begin();
+    table.add_row("c130", "down", "f16", "up");
+    table.add_row("c130", "aa", "f16", "bb");
+    table.add_row("c130", "down", "f16", "areFired");
+    table.add_row("c130", "no", "f16", "way");
+    table.add_row("c130", "blasphemy", "f16", "nope");
+    table.add_rows_transaction_end();
+    CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    table.augment_rows_transaction_begin();
+    table.augment_row(0, "third", 61);
+    table.augment_row(3, "third", 71882);
+    table.augment_row(2, "third", 1567);
+    table.augment_rows_transaction_end();
+    CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    const vector<Record>& records = table.get_records();
+    CPPUNIT_ASSERT_EQUAL(3, (int)records.size());
+    Record record;
+    record.reset();
+    record.add_synonym("down");
+    record.add_synonym("up");
+    record.add_synonym(61);
+    CPPUNIT_ASSERT_EQUAL(record, records[0]);
+    record.reset();
+    record.add_synonym("down");
+    record.add_synonym("areFired");
+    record.add_synonym(1567);
+    CPPUNIT_ASSERT_EQUAL(record, records[1]);
+    record.reset();
+    record.add_synonym("no");
+    record.add_synonym("way");
+    record.add_synonym(71882);
+    CPPUNIT_ASSERT_EQUAL(record, records[2]);
+}
+
+void Test_01_Table::test_augment_row_dead()
+{
+    Table table;
+    CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    table.add_rows_transaction_begin();
+    table.add_row("colOne", "valOne", "colTwo", 2);
+    table.add_row("colOne", "valTwo", "colTwo", 141);
+    table.add_rows_transaction_end();
+    CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    table.augment_rows_transaction_begin();
+    table.augment_rows_transaction_end();
+    CPPUNIT_ASSERT_EQUAL(false, table.is_alive());
+}

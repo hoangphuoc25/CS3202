@@ -17,6 +17,14 @@ const set<TableState> Table::VALID_ADD_ROW_STATES(
         Table::VALID_ADD_ROW_STATES_ARR,
         Table::VALID_ADD_ROW_STATES_ARR+13);
 
+TableState Table::VALID_AUGMENT_ROW_STATES_ARR[3] = {
+    TS_AUGMENT_ROW, TS_AUGMENT_ROW_S, TS_AUGMENT_ROW_I
+};
+
+const set<TableState> Table::VALID_AUGMENT_ROW_STATES(
+        Table::VALID_AUGMENT_ROW_STATES_ARR,
+        Table::VALID_AUGMENT_ROW_STATES_ARR+3);
+
 Table::Table()
     : tableState(TS_START), alive(true), RECORDS(), SYNTOCOLS(),
       COLTOSYN()
@@ -276,6 +284,15 @@ void Table::add_synonym(const string& syn)
     (*(this->auxColToSyn))[nextCol] = syn;
 }
 
+void Table::add_synonym_to_cur(const string& syn)
+{
+    assert(this->curSynToCol->find(syn) == this->curSynToCol->end());
+    int nextCol = (int)this->curSynToCol->size();
+    assert(this->curColToSyn->find(nextCol) == this->curColToSyn->end());
+    (*(this->curSynToCol))[syn] = nextCol;
+    (*(this->curColToSyn))[nextCol] = syn;
+}
+
 void Table::add_synonyms_in_table(const Table& o)
 {
     assert(o.curSynToCol != this->auxSynToCol);
@@ -321,4 +338,62 @@ void Table::mark_row_ok(int row)
 {
     assert(TS_MARK_ROW == this->tableState);
     this->preserveRow[row] = 1;
+}
+
+void Table::augment_rows_transaction_begin()
+{
+    assert(TS_START == this->tableState);
+    this->auxSynToCol->clear();
+    this->auxColToSyn->clear();
+    this->preserveRow = vector<int>((int)this->curRecords->size() + 5, 0);
+    this->tableState = TS_AUGMENT_ROW;
+}
+
+void Table::augment_rows_transaction_end()
+{
+    using std::swap;
+    assert(Table::VALID_AUGMENT_ROW_STATES.find(this->tableState)
+            != Table::VALID_AUGMENT_ROW_STATES.end());
+    this->auxRecords->clear();
+    int nrRecords = this->curRecords->size();
+    for (int i = 0; i < nrRecords; i++) {
+        if (this->preserveRow[i]) {
+            this->auxRecords->push_back((*(this->curRecords))[i]);
+        }
+    }
+    swap(this->curRecords, this->auxRecords);
+    this->alive = (this->curRecords->size() > 0);
+    this->tableState = TS_START;
+}
+
+void Table::augment_row(int row, const string& syn, const string& val)
+{
+    assert(TS_AUGMENT_ROW == this->tableState ||
+            TS_AUGMENT_ROW_S == this->tableState);
+    if (TS_AUGMENT_ROW == this->tableState) {
+        assert(!this->has_synonym(syn));
+        this->add_synonym_to_cur(syn);
+        this->tableState = TS_AUGMENT_ROW_S;
+    }
+    int nrRecords = this->curRecords->size();
+    if (row >= 0 && row < nrRecords) {
+        (*(this->curRecords))[row].add_synonym(val);
+        this->preserveRow[row] = 1;
+    }
+}
+
+void Table::augment_row(int row, const string& syn, int val)
+{
+    assert(TS_AUGMENT_ROW == this->tableState ||
+            TS_AUGMENT_ROW_I == this->tableState);
+    if (TS_AUGMENT_ROW == this->tableState) {
+        assert(!this->has_synonym(syn));
+        this->add_synonym_to_cur(syn);
+        this->tableState = TS_AUGMENT_ROW_I;
+    }
+    int nrRecords = this->curRecords->size();
+    if (row >= 0 && row < nrRecords) {
+        (*(this->curRecords))[row].add_synonym(val);
+        this->preserveRow[row] = 1;
+    }
 }
