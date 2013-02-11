@@ -19,6 +19,7 @@
     <ClCompile Include="PQLParser.cpp" />
     <ClCompile Include="QueryEvaluator.cpp" />
     <ClCompile Include="ProcTable.cpp" />
+    <ClCompile Include="Record.cpp" />
     <ClCompile Include="ResultsGraph.cpp" />
     <ClCompile Include="ResultsProjector.cpp" />
     <ClCompile Include="ResultsTable.cpp" />
@@ -26,6 +27,7 @@
     <ClCompile Include="SPAUtils.cpp" />
     <ClCompile Include="StmtBank.cpp" />
     <ClCompile Include="StringBuffer.cpp" />
+    <ClCompile Include="Table.cpp" />
     <ClCompile Include="Token.cpp" />
     <ClCompile Include="Tokenizer.cpp" />
     <ClCompile Include="VarTable.cpp" />
@@ -39,6 +41,7 @@
     <ClInclude Include="PQLParser.h" />
     <ClInclude Include="QueryEvaluator.h" />
     <ClInclude Include="ProcTable.h" />
+    <ClInclude Include="Record.h" />
     <ClInclude Include="ResultsGraph.h" />
     <ClInclude Include="ResultsProjector.h" />
     <ClInclude Include="ResultsTable.h" />
@@ -46,6 +49,7 @@
     <ClInclude Include="SPAUtils.h" />
     <ClInclude Include="StmtBank.h" />
     <ClInclude Include="StringBuffer.h" />
+    <ClInclude Include="Table.h" />
     <ClInclude Include="Token.h" />
     <ClInclude Include="Tokenizer.h" />
     <ClInclude Include="VarTable.h" />
