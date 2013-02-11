@@ -383,24 +383,28 @@ void QueryEvaluator::evaluate(const string& queryStr,
     qinfo = this->pqlParser.get_queryinfo();
     qinfo->optimize();
     int nrClauses = qinfo->get_nr_clauses();
+    GenericRef *genericRef;
     RelRef *relRef;
     PatCl *patCl;
-    void *retPtr;
     ClauseType clauseType;
     for (int i = 0; i < nrClauses && this->results.is_alive(); i++) {
-        retPtr = NULL;
-        clauseType = qinfo->get_nth_clause(i, &retPtr);
+        clauseType = qinfo->get_nth_clause_type(i);
         assert(clauseType != INVALID_CLAUSE);
+        genericRef = qinfo->get_nth_clause(i);
+        assert(genericRef != NULL);
         switch (clauseType) {
         case SUCHTHAT_CLAUSE:
-            relRef = reinterpret_cast<RelRef *>(retPtr);
+            relRef = dynamic_cast<RelRef *>(genericRef);
+            assert(relRef != NULL);
             this->evaluate_relRef(relRef);
             break;
         case WITH_CLAUSE:
             // TODO: Implement when pql parser is done
             break;
         case PATTERN_CLAUSE:
-            patCl = reinterpret_cast<PatCl *>(retPtr);
+            patCl = dynamic_cast<PatCl *>(genericRef);
+            assert(patCl != NULL);
+            this->evaluate_patCl(patCl);
             break;
         }
     }

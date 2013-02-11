@@ -278,7 +278,12 @@ const char *relRefType_to_string(RelRefType relType);
 const char *entity_type_to_string(DesignEnt entType);
 const char *attrType_to_string(AttrType attrType);
 
-struct AttrRef {
+// Interface inherited by AttrRef, RelRef, PatCl
+struct GenericRef {
+    virtual void dummy();
+};
+
+struct AttrRef: public GenericRef {
     std::string syn;
     DesignEnt entType;
     AttrType attr;
@@ -286,13 +291,14 @@ struct AttrRef {
     AttrRef(std::string s, DesignEnt et, AttrType a);
     void dump_to_sb(StringBuffer &sb) const;
     std::string toPeriodString() const;
+    void dummy();
 };
 
 struct AttrRefCmp {
     bool operator()(const AttrRef &a, const AttrRef &b) const;
 };
 
-struct RelRef {
+struct RelRef: public GenericRef {
     RelRefType relType;
     RelRefArgType argOneType;
     DesignEnt argOneSyn;
@@ -315,6 +321,7 @@ struct RelRef {
             char **errorMsg);
     std::string dump(void) const;
     static bool valid(const struct RelRef &r);
+    void dummy();
 };
 
 // For comparing RelRef so that we will not insert repeated relref
@@ -323,7 +330,7 @@ struct RelRefCmp {
 };
 
 // Pattern clauses
-struct PatCl {
+struct PatCl: public GenericRef {
     enum PatClType type;
     std::string syn;
     enum PatClVarRefType varRefType;
@@ -332,6 +339,9 @@ struct PatCl {
     std::string exprString;
 
     PatCl();
+    PatCl(const PatCl& o);
+    PatCl& operator=(const PatCl& o);
+    ~PatCl();
     void set_pat_assign(const std::string &s, enum PatClVarRefType vrType,
             const std::string& vr, enum PatClExprType exType,
             const std::string& ex);
@@ -341,6 +351,10 @@ struct PatCl {
             const std::string& vr);
     std::string toString(bool showType=false) const;
     static bool valid(const PatCl &p);
+    void dummy();
+
+private:
+    void swap(PatCl &one, PatCl &two);
 };
 
 struct PatClCmp {
@@ -356,6 +370,7 @@ public:
     QueryInfo();
     QueryInfo(const std::map<std::string, DesignEnt>& etab,
         const std::vector<std::pair<DesignEnt, std::string> >& eVec);
+    ~QueryInfo();
     void optimize(enum PQLOptimization method=PQL_OPTIMIZE_NONE);
     void reset(const std::map<std::string, DesignEnt> &etab,
         const std::vector<std::pair<DesignEnt, std::string> >& eVec);
@@ -368,7 +383,8 @@ public:
     void dump(FILE *f) const;
     std::string dump_to_string() const;
     std::string dump_optimized_to_string() const;
-    ClauseType get_nth_clause(int n, void **r);
+    ClauseType get_nth_clause_type(int n) const;
+    GenericRef *get_nth_clause(int n);
     int get_nr_clauses() const;
     SelectType get_selectType() const;
     const std::vector<AttrRef>& get_selectTuple() const;
@@ -399,6 +415,7 @@ private:
     std::set<RelRef, RelRefCmp> relRefsSet;
     std::vector<PatCl> patCls;
     std::set<PatCl, PatClCmp> patClSet;
+    std::vector<GenericRef *> clauses;
 
     char errorBuf[QINFO_ERROR_LEN+5];
 

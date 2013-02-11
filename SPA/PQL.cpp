@@ -239,6 +239,11 @@ const char *attrType_to_string(AttrType attrType)
 }
 
 //////////////////////////////////////////////////////////////////////
+// GenericRef
+//////////////////////////////////////////////////////////////////////
+void GenericRef::dummy() {}
+
+//////////////////////////////////////////////////////////////////////
 // AttrRef
 //////////////////////////////////////////////////////////////////////
 
@@ -266,6 +271,8 @@ string AttrRef::toPeriodString() const
     sb.append(attrType_to_string(attr));
     return sb.toString();
 }
+
+void AttrRef::dummy() {}
 
 bool AttrRefCmp::operator()(const AttrRef &a, const AttrRef &b) const
 {
@@ -459,6 +466,8 @@ string RelRef::dump(void) const
     return sb.toString();
 }
 
+void RelRef::dummy() {}
+
 bool RelRefCmp::operator()(const RelRef &a, const RelRef &b) const
 {
     #define RELREF_ARGTWO_CMP() do {\
@@ -514,10 +523,38 @@ bool RelRefCmp::operator()(const RelRef &a, const RelRef &b) const
 //////////////////////////////////////////////////////////////////////
 // PatCl
 //////////////////////////////////////////////////////////////////////
+
 PatCl::PatCl():
     type(PATCL_INVALID), syn(),
     varRefType(PATVARREF_INVALID), varRefString(),
     exprType(PATEXPR_INVALID), exprString() {}
+
+PatCl::PatCl(const PatCl &o)
+    : type(o.type), syn(o.syn), varRefType(o.varRefType),
+      varRefString(o.varRefString), exprType(o.exprType),
+      exprString(o.exprString)
+{
+}
+
+PatCl& PatCl::operator=(const PatCl& o)
+{
+    PatCl tmp(o);
+    swap(*this, tmp);
+    return *this;
+}
+
+PatCl::~PatCl() {}
+
+void PatCl::swap(PatCl &one, PatCl &two)
+{
+    using std::swap;
+    swap(one.type, two.type);
+    swap(one.syn, two.syn);
+    swap(one.varRefType, two.varRefType);
+    swap(one.varRefString, two.varRefString);
+    swap(one.exprType, two.exprType);
+    swap(one.exprString, two.exprString);
+}
 
 void PatCl::set_pat_assign(const string& syn_, enum PatClVarRefType vrType,
         const string& vr, enum PatClExprType exType,
@@ -637,6 +674,8 @@ bool PatCl::valid(const PatCl &p)
 {
     return p.type != PATCL_INVALID;
 }
+
+void PatCl::dummy() {}
 
 bool PatClCmp::operator()(const PatCl &a, const PatCl &b) const
 {
@@ -868,6 +907,14 @@ QueryInfo::QueryInfo(const map<string, DesignEnt>& etab,
     this->reset(etab, eVec);
 }
 
+QueryInfo::~QueryInfo()
+{
+    int sz = this->clauses.size();
+    for (int i = 0; i < sz; i++) {
+        delete (this->clauses[i]);
+    }
+}
+
 void QueryInfo::reset(const map<string, DesignEnt>& etab,
         const vector<pair<DesignEnt, string> > &eVec)
 {
@@ -887,6 +934,7 @@ void QueryInfo::reset(const map<string, DesignEnt>& etab,
     this->relRefsSet.clear();
     this->patCls.clear();
     this->patClSet.clear();
+    this->clauses.clear();
 }
 
 void QueryInfo::set_select_boolean()
@@ -929,6 +977,7 @@ void QueryInfo::insert_relRef(const RelRef &relRef, char **errorMsg)
             make_pair(SUCHTHAT_CLAUSE, this->relRefs.size()));
         this->relRefsSet.insert(relRef);
         this->relRefs.push_back(relRef);
+        this->clauses.push_back(new RelRef(relRef));
     } else {
         // else duplicate relRef, dont insert
         if (errorMsg) {
@@ -1058,6 +1107,7 @@ ParseError QueryInfo::add_patCl(const PatCl &p, char **errorMsg)
                 make_pair(PATTERN_CLAUSE, this->patCls.size()));
         this->patClSet.insert(p);
         this->patCls.push_back(p);
+        this->clauses.push_back(new PatCl(p));
     }
     return ret;
 }
@@ -1156,32 +1206,25 @@ int QueryInfo::get_nr_clauses() const
     return (int)this->evalOrder.size();
 }
 
-ClauseType QueryInfo::get_nth_clause(int n, void **r)
+ClauseType QueryInfo::get_nth_clause_type(int n) const
 {
     int len = this->evalOrder.size();
     ClauseType ret = INVALID_CLAUSE;
     if (n >= len) {
         return INVALID_CLAUSE;
     } else {
-        ret = this->evalOrder[n].first;
-        int idx = this->evalOrder[n].second;
-        switch (this->evalOrder[n].first) {
-        case SUCHTHAT_CLAUSE:
-            if (r) {
-                *r = (void *)&(this->relRefs[idx]);
-            }
-            break;
-        case WITH_CLAUSE:
-            // TODO: Implement once with clause is done
-            break;
-        case PATTERN_CLAUSE:
-            if (r) {
-                *r = (void *)&(this->patCls[idx]);
-            }
-            break;
-        }
+        return this->evalOrder[n].first;
     }
-    return ret;
+}
+
+GenericRef *QueryInfo::get_nth_clause(int n)
+{
+    int len = this->evalOrder.size();
+    if (n >= len) {
+        return NULL;
+    } else {
+        return this->clauses[n];
+    }
 }
 
 SelectType QueryInfo::get_selectType() const
