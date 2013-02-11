@@ -1,10 +1,31 @@
 #include <cassert>
 #include "Record.h"
+#include "StringBuffer.h"
 
 using std::make_pair;
+using std::ostream;
 using std::pair;
 using std::set;
 using std::string;
+
+std::ostream& operator<<(std::ostream& os, const Record& rec)
+{
+    StringBuffer sb;
+    int len = rec.values.size();
+    for (int i = 0; i < len; i++) {
+        if (i > 0) {
+            sb.append('\t');
+        }
+        const pair<string, int>& siPair = rec.values[i];
+        sb.append('(');
+        sb.append(siPair.first);
+        sb.append(',');
+        sb.append_int(siPair.second);
+        sb.append(')');
+    }
+    os << sb.toString();
+    return os;
+}
 
 Record::Record()
     : values() {}
@@ -26,6 +47,16 @@ void swap(Record& one, Record& two)
 }
 
 Record::~Record() {}
+
+bool Record::operator==(const Record& o) const
+{
+    return this->values == o.values;
+}
+
+void Record::reset()
+{
+    this->values.clear();
+}
 
 void Record::add_synonym(const string& val)
 {

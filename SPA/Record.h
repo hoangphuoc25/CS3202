@@ -2,9 +2,11 @@
 #define T11_RECORD_H
 
 #include <map>
+#include <ostream>
 #include <set>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "PQL.h"
 
@@ -15,6 +17,10 @@ public:
     Record& operator=(const Record& o);
     friend void swap(Record& one, Record& two);
     ~Record();
+    bool operator==(const Record& o) const;
+    void reset();
+    friend std::ostream& operator<<(std::ostream& os,
+            const Record& rec);
 
     void add_synonym(const std::string& val);
     void add_synonym(int val);

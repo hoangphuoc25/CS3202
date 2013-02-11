@@ -158,7 +158,7 @@ void Table::add_row(const Table& table, const Record& rec,
         const string& syn, int val)
 {
     this->add_row_record_syn_preamble(TS_ADD_ROW_R_I, table, syn);
-    Record row;
+    Record row(rec);
     row.add_synonym(val);
     this->auxRecords->push_back(row);
 }
@@ -169,7 +169,7 @@ void Table::add_row(const Table& table, const Record& rec,
 {
     this->add_row_record_syn_syn_preamble(TS_ADD_ROW_R_SS, table,
             synOne, synTwo);
-    Record row;
+    Record row(rec);
     row.add_synonym(valOne);
     row.add_synonym(valTwo);
     this->auxRecords->push_back(row);
@@ -181,7 +181,7 @@ void Table::add_row(const Table& table, const Record& rec,
 {
     this->add_row_record_syn_syn_preamble(TS_ADD_ROW_R_SI, table,
             synOne, synTwo);
-    Record row;
+    Record row(rec);
     row.add_synonym(valOne);
     row.add_synonym(valTwo);
     this->auxRecords->push_back(row);
@@ -193,7 +193,7 @@ void Table::add_row(const Table& table, const Record& rec,
 {
     this->add_row_record_syn_syn_preamble(TS_ADD_ROW_R_IS, table,
             synOne, synTwo);
-    Record row;
+    Record row(rec);
     row.add_synonym(valOne);
     row.add_synonym(valTwo);
     this->auxRecords->push_back(row);
@@ -205,7 +205,7 @@ void Table::add_row(const Table& table, const Record& rec,
 {
     this->add_row_record_syn_syn_preamble(TS_ADD_ROW_R_II, table,
             synOne, synTwo);
-    Record row;
+    Record row(rec);
     row.add_synonym(valOne);
     row.add_synonym(valTwo);
     this->auxRecords->push_back(row);
