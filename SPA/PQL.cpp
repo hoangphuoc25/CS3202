@@ -292,8 +292,6 @@ string AttrRef::toPeriodString() const
     return sb.toString();
 }
 
-void AttrRef::dummy() {}
-
 bool AttrRefCmp::operator()(const AttrRef &a, const AttrRef &b) const
 {
     if (a.syn != b.syn) {

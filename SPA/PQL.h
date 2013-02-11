@@ -284,7 +284,7 @@ public:
     virtual void dummy();
 };
 
-struct AttrRef: public GenericRef {
+struct AttrRef {
 public:
     std::string syn;
     DesignEnt entType;
@@ -297,7 +297,6 @@ public:
     AttrRef(std::string s, DesignEnt et, AttrType a);
     void dump_to_sb(StringBuffer &sb) const;
     std::string toPeriodString() const;
-    void dummy();
 
 private:
     void swap(AttrRef& one, AttrRef& two);
