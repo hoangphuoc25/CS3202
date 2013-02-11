@@ -68,6 +68,14 @@ void Record::add_value(int val)
     this->values.push_back(make_pair("", val));
 }
 
+void Record::add_record(const Record& o)
+{
+    int nrValues = o.values.size();
+    for (int i = 0; i < nrValues; i++) {
+        this->values.push_back(o.values[i]);
+    }
+}
+
 const pair<string, int>& Record::get_synonym(int idx) const
 {
     assert(idx < (int)this->values.size());

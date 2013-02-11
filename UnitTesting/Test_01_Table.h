@@ -17,6 +17,8 @@ CPPUNIT_TEST(test_add_row_r_ss);
 CPPUNIT_TEST(test_add_row_r_si);
 CPPUNIT_TEST(test_add_row_r_is);
 CPPUNIT_TEST(test_add_row_r_ii);
+CPPUNIT_TEST(test_add_row_r_r);
+CPPUNIT_TEST(test_add_row_r_r_reuse_table);
 CPPUNIT_TEST(test_add_row_dead);
 CPPUNIT_TEST(test_mark_row);
 CPPUNIT_TEST(test_mark_row_dead);
@@ -42,6 +44,8 @@ private:
     void test_add_row_r_si();
     void test_add_row_r_is();
     void test_add_row_r_ii();
+    void test_add_row_r_r();
+    void test_add_row_r_r_reuse_table();
     void test_add_row_dead();
     void test_mark_row();
     void test_mark_row_dead();

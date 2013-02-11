@@ -24,6 +24,7 @@ public:
 
     void add_value(const std::string& val);
     void add_value(int val);
+    void add_record(const Record& o);
     const std::pair<std::string, int>& get_synonym(int idx) const;
 private:
     std::vector<std::pair<std::string, int> > values;

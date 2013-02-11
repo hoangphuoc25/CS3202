@@ -13,6 +13,7 @@ enum TableState {
     TS_ADD_ROW_SS, TS_ADD_ROW_SI, TS_ADD_ROW_IS, TS_ADD_ROW_II,
     TS_ADD_ROW_R_S, TS_ADD_ROW_R_I,
     TS_ADD_ROW_R_SS, TS_ADD_ROW_R_SI, TS_ADD_ROW_R_IS, TS_ADD_ROW_R_II,
+    TS_ADD_ROW_R_R,
     TS_MARK_ROW,
     TS_AUGMENT_ROW, TS_AUGMENT_ROW_S, TS_AUGMENT_ROW_I
 };
@@ -55,6 +56,8 @@ public:
     void add_row(const Table& table, const Record& rec,
             const std::string& synOne, int valOne,
             const std::string& synTwo, int valTwo);
+    void add_row(const Table& tableOne, const Record& recOne,
+            const Table& tableTwo, const Record& recTwo);
 
     void mark_rows_transaction_begin();
     void mark_rows_transaction_end();
@@ -67,7 +70,7 @@ public:
     void augment_row(int row, const std::string& syn, int val);
 
 private:
-    static TableState VALID_ADD_ROW_STATES_ARR[13];
+    static TableState VALID_ADD_ROW_STATES_ARR[14];
     static const std::set<TableState> VALID_ADD_ROW_STATES;
     static TableState VALID_AUGMENT_ROW_STATES_ARR[3];
     static const std::set<TableState> VALID_AUGMENT_ROW_STATES;

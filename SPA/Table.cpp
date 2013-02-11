@@ -6,16 +6,17 @@ using std::set;
 using std::string;
 using std::vector;
 
-TableState Table::VALID_ADD_ROW_STATES_ARR[13] = {
+TableState Table::VALID_ADD_ROW_STATES_ARR[14] = {
     TS_ADD_ROW, TS_ADD_ROW_S, TS_ADD_ROW_I,
     TS_ADD_ROW_SS, TS_ADD_ROW_SI, TS_ADD_ROW_IS, TS_ADD_ROW_II,
     TS_ADD_ROW_R_S, TS_ADD_ROW_R_I,
-    TS_ADD_ROW_R_SS, TS_ADD_ROW_R_SI, TS_ADD_ROW_R_IS, TS_ADD_ROW_R_II
+    TS_ADD_ROW_R_SS, TS_ADD_ROW_R_SI, TS_ADD_ROW_R_IS, TS_ADD_ROW_R_II,
+    TS_ADD_ROW_R_R
 };
 
 const set<TableState> Table::VALID_ADD_ROW_STATES(
         Table::VALID_ADD_ROW_STATES_ARR,
-        Table::VALID_ADD_ROW_STATES_ARR+13);
+        Table::VALID_ADD_ROW_STATES_ARR+14);
 
 TableState Table::VALID_AUGMENT_ROW_STATES_ARR[3] = {
     TS_AUGMENT_ROW, TS_AUGMENT_ROW_S, TS_AUGMENT_ROW_I
@@ -217,6 +218,23 @@ void Table::add_row(const Table& table, const Record& rec,
     row.add_value(valOne);
     row.add_value(valTwo);
     this->auxRecords->push_back(row);
+}
+
+void Table::add_row(const Table& tableOne, const Record& recOne,
+        const Table& tableTwo, const Record& recTwo)
+{
+    assert(TS_ADD_ROW == this->tableState ||
+            TS_ADD_ROW_R_R == this->tableState);
+    if (TS_ADD_ROW == this->tableState) {
+        assert(this->auxSynToCol->empty());
+        assert(this->auxColToSyn->empty());
+        this->add_synonyms_in_table(tableOne);
+        this->add_synonyms_in_table(tableTwo);
+        this->tableState = TS_ADD_ROW_R_R;
+    }
+    Record record(recOne);
+    record.add_record(recTwo);
+    this->auxRecords->push_back(record);
 }
 
 void Table::add_row_syn_preamble(const TableState idealState,

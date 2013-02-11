@@ -637,6 +637,132 @@ void Test_01_Table::test_add_row_r_ii()
     CPPUNIT_ASSERT_EQUAL(record, records[2]);
 }
 
+void Test_01_Table::test_add_row_r_r()
+{
+    Table firstTable;
+    firstTable.add_rows_transaction_begin();
+    firstTable.add_row("firstCol", "avalue");
+    firstTable.add_row("firstCol", "256");
+    firstTable.add_row("firstCol", "firstEntry");
+    firstTable.add_rows_transaction_end();
+    CPPUNIT_ASSERT_EQUAL(true, firstTable.is_alive());
+    const vector<Record>& firstRecords = firstTable.get_records();
+
+    Table secTable;
+    secTable.add_rows_transaction_begin();
+    secTable.add_row("secCol", 265, "thirdCol", "fire");
+    secTable.add_row("secCol", 7, "thirdCol", "well");
+    secTable.add_row("secCol", 8468, "thirdCol", "cool");
+    secTable.add_row("secCol", 111811, "thirdCol", "kay");
+    secTable.add_row("secCol", 9932, "thirdCol", "hsx");
+    secTable.add_rows_transaction_end();
+    CPPUNIT_ASSERT_EQUAL(true, secTable.is_alive());
+    const vector<Record>& secRecords = secTable.get_records();
+
+    Table table;
+    table.add_rows_transaction_begin();
+    table.add_row(firstTable, firstRecords[0], secTable, secRecords[1]);
+    table.add_row(firstTable, firstRecords[2], secTable, secRecords[3]);
+    table.add_row(firstTable, firstRecords[1], secTable, secRecords[4]);
+    table.add_row(firstTable, firstRecords[0], secTable, secRecords[2]);
+    table.add_row(firstTable, firstRecords[1], secTable, secRecords[2]);
+    table.add_rows_transaction_end();
+    CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    const vector<Record>& finalRecords = table.get_records();
+    CPPUNIT_ASSERT_EQUAL(5, (int)finalRecords.size());
+    Record record;
+    record.reset();
+    record.add_value("avalue");
+    record.add_value(7);
+    record.add_value("well");
+    CPPUNIT_ASSERT_EQUAL(record, finalRecords[0]);
+    record.reset();
+    record.add_value("firstEntry");
+    record.add_value(111811);
+    record.add_value("kay");
+    CPPUNIT_ASSERT_EQUAL(record, finalRecords[1]);
+    record.reset();
+    record.add_value("256");
+    record.add_value(9932);
+    record.add_value("hsx");
+    CPPUNIT_ASSERT_EQUAL(record, finalRecords[2]);
+    record.reset();
+    record.add_value("avalue");
+    record.add_value(8468);
+    record.add_value("cool");
+    CPPUNIT_ASSERT_EQUAL(record, finalRecords[3]);
+    record.reset();
+    record.add_value("256");
+    record.add_value(8468);
+    record.add_value("cool");
+    CPPUNIT_ASSERT_EQUAL(record, finalRecords[4]);
+}
+
+void Test_01_Table::test_add_row_r_r_reuse_table()
+{
+    Table firstTable;
+    firstTable.add_rows_transaction_begin();
+    firstTable.add_row("firstCol", "avalue");
+    firstTable.add_row("firstCol", "256");
+    firstTable.add_row("firstCol", "firstEntry");
+    firstTable.add_rows_transaction_end();
+    CPPUNIT_ASSERT_EQUAL(true, firstTable.is_alive());
+    const vector<Record>& firstRecords = firstTable.get_records();
+
+    Table secTable;
+    secTable.add_rows_transaction_begin();
+    secTable.add_row("secCol", 265, "thirdCol", "fire");
+    secTable.add_row("secCol", 7, "thirdCol", "well");
+    secTable.add_row("secCol", 8468, "thirdCol", "cool");
+    secTable.add_row("secCol", 111811, "thirdCol", "kay");
+    secTable.add_row("secCol", 9932, "thirdCol", "hsx");
+    secTable.add_rows_transaction_end();
+    CPPUNIT_ASSERT_EQUAL(true, secTable.is_alive());
+    const vector<Record>& secRecords = secTable.get_records();
+
+    firstTable.add_rows_transaction_begin();
+    firstTable.add_row(firstTable, firstRecords[0],
+            secTable, secRecords[1]);
+    firstTable.add_row(firstTable, firstRecords[2],
+            secTable, secRecords[3]);
+    firstTable.add_row(firstTable, firstRecords[1],
+            secTable, secRecords[4]);
+    firstTable.add_row(firstTable, firstRecords[0],
+            secTable, secRecords[2]);
+    firstTable.add_row(firstTable, firstRecords[1],
+            secTable, secRecords[2]);
+    firstTable.add_rows_transaction_end();
+    CPPUNIT_ASSERT_EQUAL(true, firstTable.is_alive());
+    const vector<Record>& finalRecords = firstTable.get_records();
+    CPPUNIT_ASSERT_EQUAL(5, (int)finalRecords.size());
+    Record record;
+    record.reset();
+    record.add_value("avalue");
+    record.add_value(7);
+    record.add_value("well");
+    CPPUNIT_ASSERT_EQUAL(record, finalRecords[0]);
+    record.reset();
+    record.add_value("firstEntry");
+    record.add_value(111811);
+    record.add_value("kay");
+    CPPUNIT_ASSERT_EQUAL(record, finalRecords[1]);
+    record.reset();
+    record.add_value("256");
+    record.add_value(9932);
+    record.add_value("hsx");
+    CPPUNIT_ASSERT_EQUAL(record, finalRecords[2]);
+    record.reset();
+    record.add_value("avalue");
+    record.add_value(8468);
+    record.add_value("cool");
+    CPPUNIT_ASSERT_EQUAL(record, finalRecords[3]);
+    record.reset();
+    record.add_value("256");
+    record.add_value(8468);
+    record.add_value("cool");
+    CPPUNIT_ASSERT_EQUAL(record, finalRecords[4]);
+}
+
 void Test_01_Table::test_add_row_dead()
 {
     Table table;
