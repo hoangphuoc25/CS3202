@@ -227,7 +227,7 @@ void Table::add_row_syn_preamble(const TableState idealState,
     if (TS_ADD_ROW == this->tableState) {
         assert(this->auxSynToCol->empty());
         assert(this->auxColToSyn->empty());
-        this->add_synonym(syn);
+        this->add_synonym_to_aux(syn);
         this->tableState = idealState;
     }
 }
@@ -240,8 +240,8 @@ void Table::add_row_syn_syn_preamble(const TableState idealState,
     if (TS_ADD_ROW == this->tableState) {
         assert(this->auxSynToCol->empty());
         assert(this->auxColToSyn->empty());
-        this->add_synonym(synOne);
-        this->add_synonym(synTwo);
+        this->add_synonym_to_aux(synOne);
+        this->add_synonym_to_aux(synTwo);
         this->tableState = idealState;
     }
 }
@@ -255,7 +255,7 @@ void Table::add_row_record_syn_preamble(const TableState idealState,
         assert(this->auxSynToCol->empty());
         assert(this->auxColToSyn->empty());
         this->add_synonyms_in_table(table);
-        this->add_synonym(syn);
+        this->add_synonym_to_aux(syn);
         this->tableState = idealState;
     }
 }
@@ -269,13 +269,13 @@ void Table::add_row_record_syn_syn_preamble(const TableState idealState,
         assert(this->auxSynToCol->empty());
         assert(this->auxColToSyn->empty());
         this->add_synonyms_in_table(table);
-        this->add_synonym(synOne);
-        this->add_synonym(synTwo);
+        this->add_synonym_to_aux(synOne);
+        this->add_synonym_to_aux(synTwo);
         this->tableState = idealState;
     }
 }
 
-void Table::add_synonym(const string& syn)
+void Table::add_synonym_to_aux(const string& syn)
 {
     assert(this->auxSynToCol->find(syn) == this->auxSynToCol->end());
     int nextCol = (int)this->auxSynToCol->size();

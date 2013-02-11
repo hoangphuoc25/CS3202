@@ -81,7 +81,7 @@ private:
     void add_row_record_syn_syn_preamble(const TableState idealState,
             const Table& table, const std::string& synOne,
             const std::string& synTwo);
-    void add_synonym(const std::string& syn);
+    void add_synonym_to_aux(const std::string& syn);
     void add_synonym_to_cur(const std::string& syn);
     void add_synonyms_in_table(const Table& table);
 
