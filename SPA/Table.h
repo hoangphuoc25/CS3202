@@ -25,6 +25,12 @@ class Table {
 public:
     Table();
     ~Table();
+
+    static Table* create_from_set(const std::string& syn,
+            const std::set<std::string>& stringSet);
+    static Table* create_from_set(const std::string& syn,
+            const std::set<int>& intSet);
+
     bool is_alive() const;
     bool has_synonym(const std::string& syn) const;
     int get_synonym_column(const std::string& syn) const;

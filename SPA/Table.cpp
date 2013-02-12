@@ -2,6 +2,7 @@
 #include "Table.h"
 
 using std::map;
+using std::pair;
 using std::set;
 using std::string;
 using std::vector;
@@ -48,6 +49,32 @@ Table::Table()
 }
 
 Table::~Table() {}
+
+Table* Table::create_from_set(const string& syn,
+        const set<string>& stringSet)
+{
+    Table *table = new Table();
+    table->add_rows_transaction_begin();
+    for (set<string>::const_iterator it = stringSet.begin();
+            it != stringSet.end(); it++) {
+        table->add_row(syn, *it);
+    }
+    table->add_rows_transaction_end();
+    return table;
+}
+
+Table* Table::create_from_set(const string& syn,
+        const set<int>& intSet)
+{
+    Table *table = new Table();
+    table->add_rows_transaction_begin();
+    for (set<int>::const_iterator it = intSet.begin();
+            it != intSet.end(); it++) {
+        table->add_row(syn, *it);
+    }
+    table->add_rows_transaction_end();
+    return table;
+}
 
 bool Table::is_alive() const
 {

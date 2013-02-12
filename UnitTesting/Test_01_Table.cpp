@@ -1,11 +1,18 @@
+#include <set>
 #include <string>
 #include <map>
+#include <memory>
+#include <utility>
 #include <vector>
 
 #include "../SPA/Table.h"
 #include "Test_01_Table.h"
 
+using std::auto_ptr;
+using std::make_pair;
 using std::map;
+using std::pair;
+using std::set;
 using std::string;
 using std::vector;
 
@@ -1088,4 +1095,78 @@ void Test_01_Table::test_augment_new_row_dead()
     table.augment_new_rows_transaction_begin();
     table.augment_new_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(false, table.is_alive());
+}
+
+void Test_01_Table::test_create_from_set_string()
+{
+    Record record;
+    set<string> S;
+    S.insert("Abc");
+    S.insert("many");
+    S.insert("82");
+    S.insert("pairs");
+    S.insert("eyes");
+    S.insert("12678473");
+    auto_ptr<Table> table(Table::create_from_set("acol", S));
+    const map<int, string>& colToSyn = table->get_col_to_synonym();
+    CPPUNIT_ASSERT_EQUAL(1, (int)colToSyn.size());
+    map<int, string>::const_iterator isIt = colToSyn.find(0);
+    CPPUNIT_ASSERT(isIt != colToSyn.end());
+    CPPUNIT_ASSERT_EQUAL(string("acol"), isIt->second);
+    const map<string, int>& synToCol = table->get_synonym_to_col();
+    CPPUNIT_ASSERT_EQUAL(1, (int)synToCol.size());
+    map<string, int>::const_iterator siIt = synToCol.find("acol");
+    CPPUNIT_ASSERT(siIt != synToCol.end());
+    CPPUNIT_ASSERT_EQUAL(0, siIt->second);
+    const vector<Record>& records = table->get_records();
+    CPPUNIT_ASSERT_EQUAL(6, (int)records.size());
+    record.reset();
+    record.add_value("12678473");
+    CPPUNIT_ASSERT_EQUAL(record, records[0]);
+    record.reset();
+    record.add_value("82");
+    CPPUNIT_ASSERT_EQUAL(record, records[1]);
+    record.reset();
+    record.add_value("Abc");
+    CPPUNIT_ASSERT_EQUAL(record, records[2]);
+    record.reset();
+    record.add_value("eyes");
+    CPPUNIT_ASSERT_EQUAL(record, records[3]);
+    record.reset();
+    record.add_value("many");
+    CPPUNIT_ASSERT_EQUAL(record, records[4]);
+    record.reset();
+    record.add_value("pairs");
+    CPPUNIT_ASSERT_EQUAL(record, records[5]);
+}
+
+void Test_01_Table::test_create_from_set_int()
+{
+    Record record;
+    set<int> S;
+    S.insert(57);
+    S.insert(5);
+    S.insert(126126);
+    auto_ptr<Table> table(Table::create_from_set("Money", S));
+    const map<int, string>& colToSyn = table->get_col_to_synonym();
+    CPPUNIT_ASSERT_EQUAL(1, (int)colToSyn.size());
+    map<int, string>::const_iterator isIt = colToSyn.find(0);
+    CPPUNIT_ASSERT(isIt != colToSyn.end());
+    CPPUNIT_ASSERT_EQUAL(string("Money"), isIt->second);
+    const map<string, int>& synToCol = table->get_synonym_to_col();
+    CPPUNIT_ASSERT_EQUAL(1, (int)synToCol.size());
+    map<string, int>::const_iterator siIt = synToCol.find("Money");
+    CPPUNIT_ASSERT(siIt != synToCol.end());
+    CPPUNIT_ASSERT_EQUAL(0, siIt->second);
+    const vector<Record>& records = table->get_records();
+    CPPUNIT_ASSERT_EQUAL(3, (int)records.size());
+    record.reset();
+    record.add_value(5);
+    CPPUNIT_ASSERT_EQUAL(record, records[0]);
+    record.reset();
+    record.add_value(57);
+    CPPUNIT_ASSERT_EQUAL(record, records[1]);
+    record.reset();
+    record.add_value(126126);
+    CPPUNIT_ASSERT_EQUAL(record, records[2]);
 }
