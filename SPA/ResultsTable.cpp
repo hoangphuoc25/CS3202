@@ -72,6 +72,22 @@ bool ResultsTable::is_alive() const
     return this->alive;
 }
 
+void ResultsTable::absorb_table(Table *table)
+{
+    assert(RTS_START == this->state);
+    assert(table->is_alive());
+    int tableLabel = this->nextTable;
+    this->nextTable++;
+    const map<int, string>& colToSyn = table->get_col_to_synonym();
+    for (map<int, string>::const_iterator it = colToSyn.begin();
+            it != colToSyn.end(); it++) {
+        assert(this->synMap.find(it->second) ==
+                this->synMap.end());
+        this->synMap[it->second] = tableLabel;
+    }
+    this->tables[tableLabel] = table;
+}
+
 void ResultsTable::checkout_transaction_begin()
 {
     assert(RTS_START == this->state);

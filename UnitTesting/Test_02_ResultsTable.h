@@ -15,6 +15,7 @@ CPPUNIT_TEST(test_syn_01_transaction_s);
 CPPUNIT_TEST(test_syn_01_transaction_i);
 CPPUNIT_TEST(test_syn_11_transaction);
 CPPUNIT_TEST(test_syn_22_transaction);
+CPPUNIT_TEST(test_absorb_table);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -32,6 +33,7 @@ private:
     void test_syn_01_transaction_i();
     void test_syn_11_transaction();
     void test_syn_22_transaction();
+    void test_absorb_table();
 };
 
 #endif
