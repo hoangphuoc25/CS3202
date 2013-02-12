@@ -67,6 +67,7 @@ public:
             const std::string& synOne,
             const std::string& synTwo);
     void syn_11_transaction_end();
+    void syn_11_mark_row_ok(int row);
     std::pair<const std::vector<Record> *, const std::vector<Record> * >
         syn_22_transaction_begin(
             const std::string& synOne, const std::string& synTwo);

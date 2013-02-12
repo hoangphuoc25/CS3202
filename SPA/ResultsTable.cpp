@@ -361,6 +361,12 @@ void ResultsTable::syn_11_transaction_end()
     this->state = RTS_START;
 }
 
+void ResultsTable::syn_11_mark_row_ok(int row)
+{
+    assert(RTS_11_TRANSACT == this->state);
+    this->tableCheckedOutA->mark_row_ok(row);
+}
+
 pair<const vector<Record> *, const vector<Record> * >
         ResultsTable::syn_22_transaction_begin(
             const string& synOne, const string& synTwo)
