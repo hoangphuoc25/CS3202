@@ -299,5 +299,6 @@ void ResultsTable::syn_22_add_row(const Table& tableOne,
         const Record& recTwo)
 {
     assert(RTS_22_TRANSACT == this->state);
-    this->tableCheckedOutA->add_row(tableOne, recOne, tableTwo, recTwo);
+    this->tableCheckedOutA->add_row(tableOne.get_col_to_synonym(),
+            recOne, tableTwo.get_col_to_synonym(), recTwo);
 }

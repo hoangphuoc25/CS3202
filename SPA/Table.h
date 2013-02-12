@@ -41,24 +41,31 @@ public:
             const std::string& synTwo, const std::string& valTwo);
     void add_row(const std::string& synOne, int valOne,
             const std::string& synTwo, int valTwo);
-    void add_row(const Table& table, const Record& rec,
-            const std::string& syn, const std::string& val);
-    void add_row(const Table& table, const Record& rec,
-            const std::string& syn, int val);
-    void add_row(const Table& table, const Record& rec,
+    void add_row(const std::map<int, std::string>& colToSyn,
+            const Record& rec, const std::string& syn,
+            const std::string& val);
+    void add_row(const std::map<int, std::string>& colToSyn,
+            const Record& rec, const std::string& syn, int val);
+    void add_row(const std::map<int, std::string>& colToSyn,
+            const Record& rec,
             const std::string& synOne, const std::string& valOne,
             const std::string& synTwo, const std::string& valTwo);
-    void add_row(const Table& table, const Record& rec,
+    void add_row(const std::map<int, std::string>& colToSyn,
+            const Record& rec,
             const std::string& synOne, const std::string& valOne,
             const std::string& synTwo, int valTwo);
-    void add_row(const Table& table, const Record& rec,
+    void add_row(const std::map<int, std::string>& colToSyn,
+            const Record& rec,
             const std::string& synOne, int valOne,
             const std::string& synTwo, const std::string& valTwo);
-    void add_row(const Table& table, const Record& rec,
+    void add_row(const std::map<int, std::string>& colToSyn,
+            const Record& rec,
             const std::string& synOne, int valOne,
             const std::string& synTwo, int valTwo);
-    void add_row(const Table& tableOne, const Record& recOne,
-            const Table& tableTwo, const Record& recTwo);
+    void add_row(const std::map<int, std::string>& colToSynOne,
+            const Record& recOne,
+            const std::map<int, std::string>& colToSynTwo,
+            const Record& recTwo);
 
     void mark_rows_transaction_begin();
     void mark_rows_transaction_end();
@@ -84,13 +91,14 @@ private:
     void add_row_syn_syn_preamble(const TableState idealState,
             const std::string& synOne, const std::string& synTwo);
     void add_row_record_syn_preamble(const TableState idealState,
-            const Table& table, const std::string& syn);
+            const std::map<int, std::string>& colToSynM,
+            const std::string& syn);
     void add_row_record_syn_syn_preamble(const TableState idealState,
-            const Table& table, const std::string& synOne,
-            const std::string& synTwo);
+            const std::map<int, std::string>& colToSynM,
+            const std::string& synOne, const std::string& synTwo);
     void add_synonym_to_aux(const std::string& syn);
     void add_synonym_to_cur(const std::string& syn);
-    void add_synonyms_in_table(const Table& table);
+    void add_synonyms_in_map(const std::map<int, std::string>& colToSynM);
 
     enum TableState tableState;
     bool alive;

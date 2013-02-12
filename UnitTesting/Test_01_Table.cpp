@@ -258,10 +258,12 @@ void Test_01_Table::test_add_row_r_s()
 
     Table table;
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    const map<int, string>& firstTableColToSyn =
+            firstTable.get_col_to_synonym();
     table.add_rows_transaction_begin();
-    table.add_row(firstTable, firstRecords[0], "aOne", "a");
-    table.add_row(firstTable, firstRecords[1], "aOne", "bad");
-    table.add_row(firstTable, firstRecords[2], "aOne", "damn");
+    table.add_row(firstTableColToSyn, firstRecords[0], "aOne", "a");
+    table.add_row(firstTableColToSyn, firstRecords[1], "aOne", "bad");
+    table.add_row(firstTableColToSyn, firstRecords[2], "aOne", "damn");
     table.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
     const map<int, string>& colToSyn = table.get_col_to_synonym();
@@ -317,9 +319,11 @@ void Test_01_Table::test_add_row_r_i()
 
     Table table;
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    const map<int, string>& firstTableColToSyn =
+            firstTable.get_col_to_synonym();
     table.add_rows_transaction_begin();
-    table.add_row(firstTable, firstRecords[0], "varXE", 126);
-    table.add_row(firstTable, firstRecords[1], "varXE", 1718);
+    table.add_row(firstTableColToSyn, firstRecords[0], "varXE", 126);
+    table.add_row(firstTableColToSyn, firstRecords[1], "varXE", 1718);
     table.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
     const map<int, string>& colToSyn = table.get_col_to_synonym();
@@ -371,12 +375,14 @@ void Test_01_Table::test_add_row_r_ss()
 
     Table table;
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    const map<int, string>& firstTableColToSyn =
+            firstTable.get_col_to_synonym();
     table.add_rows_transaction_begin();
-    table.add_row(firstTable, firstRecords[0], "yea", "man",
+    table.add_row(firstTableColToSyn, firstRecords[0], "yea", "man",
             "this", "great");
-    table.add_row(firstTable, firstRecords[1], "yea", "hell",
+    table.add_row(firstTableColToSyn, firstRecords[1], "yea", "hell",
             "this", "cell");
-    table.add_row(firstTable, firstRecords[2], "yea", "yui",
+    table.add_row(firstTableColToSyn, firstRecords[2], "yea", "yui",
             "this", "framework");
     table.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
@@ -443,12 +449,14 @@ void Test_01_Table::test_add_row_r_si()
 
     Table table;
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    const map<int, string>& firstTableColToSyn =
+            firstTable.get_col_to_synonym();
     table.add_rows_transaction_begin();
-    table.add_row(firstTable, firstRecords[0], "Hobo", "gee",
+    table.add_row(firstTableColToSyn, firstRecords[0], "Hobo", "gee",
             "ballooo", 9321);
-    table.add_row(firstTable, firstRecords[1], "Hobo", "testMAn",
+    table.add_row(firstTableColToSyn, firstRecords[1], "Hobo", "testMAn",
             "ballooo", 7);
-    table.add_row(firstTable, firstRecords[2], "Hobo", "ide",
+    table.add_row(firstTableColToSyn, firstRecords[2], "Hobo", "ide",
             "ballooo", 33);
     table.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
@@ -514,10 +522,12 @@ void Test_01_Table::test_add_row_r_is()
 
     Table table;
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    const map<int, string>& firstTableColToSyn =
+            firstTable.get_col_to_synonym();
     table.add_rows_transaction_begin();
-    table.add_row(firstTable, firstRecords[0], "Tysav", 89467,
+    table.add_row(firstTableColToSyn, firstRecords[0], "Tysav", 89467,
             "Muba", "aday");
-    table.add_row(firstTable, firstRecords[1], "Tysav", 15,
+    table.add_row(firstTableColToSyn, firstRecords[1], "Tysav", 15,
             "Muba", "Fha1");
     table.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
@@ -578,12 +588,14 @@ void Test_01_Table::test_add_row_r_ii()
 
     Table table;
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    const map<int, string>& firstTableColToSyn =
+            firstTable.get_col_to_synonym();
     table.add_rows_transaction_begin();
-    table.add_row(firstTable, firstRecords[0], "gleha1", 8468,
+    table.add_row(firstTableColToSyn, firstRecords[0], "gleha1", 8468,
             "aAdgr1", 66);
-    table.add_row(firstTable, firstRecords[1], "gleha1", 12465,
+    table.add_row(firstTableColToSyn, firstRecords[1], "gleha1", 12465,
             "aAdgr1", 1);
-    table.add_row(firstTable, firstRecords[2], "gleha1", 342467,
+    table.add_row(firstTableColToSyn, firstRecords[2], "gleha1", 342467,
             "aAdgr1", 8);
     table.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
@@ -660,12 +672,21 @@ void Test_01_Table::test_add_row_r_r()
     const vector<Record>& secRecords = secTable.get_records();
 
     Table table;
+    const map<int, string>& firstTableColToSyn =
+            firstTable.get_col_to_synonym();
+    const map<int, string>& secTableColToSyn =
+            secTable.get_col_to_synonym();
     table.add_rows_transaction_begin();
-    table.add_row(firstTable, firstRecords[0], secTable, secRecords[1]);
-    table.add_row(firstTable, firstRecords[2], secTable, secRecords[3]);
-    table.add_row(firstTable, firstRecords[1], secTable, secRecords[4]);
-    table.add_row(firstTable, firstRecords[0], secTable, secRecords[2]);
-    table.add_row(firstTable, firstRecords[1], secTable, secRecords[2]);
+    table.add_row(firstTableColToSyn, firstRecords[0],
+            secTableColToSyn, secRecords[1]);
+    table.add_row(firstTableColToSyn, firstRecords[2],
+            secTableColToSyn, secRecords[3]);
+    table.add_row(firstTableColToSyn, firstRecords[1],
+            secTableColToSyn, secRecords[4]);
+    table.add_row(firstTableColToSyn, firstRecords[0],
+            secTableColToSyn, secRecords[2]);
+    table.add_row(firstTableColToSyn, firstRecords[1],
+            secTableColToSyn, secRecords[2]);
     table.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
     const vector<Record>& finalRecords = table.get_records();
@@ -720,17 +741,21 @@ void Test_01_Table::test_add_row_r_r_reuse_table()
     CPPUNIT_ASSERT_EQUAL(true, secTable.is_alive());
     const vector<Record>& secRecords = secTable.get_records();
 
+    const map<int, string>& firstTableColToSyn =
+            firstTable.get_col_to_synonym();
+    const map<int, string>& secTableColToSyn =
+            secTable.get_col_to_synonym();
     firstTable.add_rows_transaction_begin();
-    firstTable.add_row(firstTable, firstRecords[0],
-            secTable, secRecords[1]);
-    firstTable.add_row(firstTable, firstRecords[2],
-            secTable, secRecords[3]);
-    firstTable.add_row(firstTable, firstRecords[1],
-            secTable, secRecords[4]);
-    firstTable.add_row(firstTable, firstRecords[0],
-            secTable, secRecords[2]);
-    firstTable.add_row(firstTable, firstRecords[1],
-            secTable, secRecords[2]);
+    firstTable.add_row(firstTableColToSyn, firstRecords[0],
+            secTableColToSyn, secRecords[1]);
+    firstTable.add_row(firstTableColToSyn, firstRecords[2],
+            secTableColToSyn, secRecords[3]);
+    firstTable.add_row(firstTableColToSyn, firstRecords[1],
+            secTableColToSyn, secRecords[4]);
+    firstTable.add_row(firstTableColToSyn, firstRecords[0],
+            secTableColToSyn, secRecords[2]);
+    firstTable.add_row(firstTableColToSyn, firstRecords[1],
+            secTableColToSyn, secRecords[2]);
     firstTable.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, firstTable.is_alive());
     const vector<Record>& finalRecords = firstTable.get_records();

@@ -154,29 +154,31 @@ void Table::add_row(const string& synOne, int valOne,
     this->auxRecords->push_back(row);
 }
 
-void Table::add_row(const Table& table, const Record& rec,
+void Table::add_row(const map<int, string>& colToSyn, const Record& rec,
         const string& syn, const string& val)
 {
-    this->add_row_record_syn_preamble(TS_ADD_ROW_R_S, table, syn);
+    this->add_row_record_syn_preamble(TS_ADD_ROW_R_S, colToSyn, syn);
     Record row(rec);
     row.add_value(val);
     this->auxRecords->push_back(row);
 }
 
-void Table::add_row(const Table& table, const Record& rec,
+void Table::add_row(const map<int, string>& colToSynM,
+        const Record& rec,
         const string& syn, int val)
 {
-    this->add_row_record_syn_preamble(TS_ADD_ROW_R_I, table, syn);
+    this->add_row_record_syn_preamble(TS_ADD_ROW_R_I, colToSynM, syn);
     Record row(rec);
     row.add_value(val);
     this->auxRecords->push_back(row);
 }
 
-void Table::add_row(const Table& table, const Record& rec,
+void Table::add_row(const map<int, string>& colToSynM,
+        const Record& rec,
         const string& synOne, const string& valOne,
         const string& synTwo, const string& valTwo)
 {
-    this->add_row_record_syn_syn_preamble(TS_ADD_ROW_R_SS, table,
+    this->add_row_record_syn_syn_preamble(TS_ADD_ROW_R_SS, colToSynM,
             synOne, synTwo);
     Record row(rec);
     row.add_value(valOne);
@@ -184,11 +186,12 @@ void Table::add_row(const Table& table, const Record& rec,
     this->auxRecords->push_back(row);
 }
 
-void Table::add_row(const Table& table, const Record& rec,
+void Table::add_row(const map<int, string>& colToSynM,
+        const Record& rec,
         const string& synOne, const string& valOne,
         const string& synTwo, int valTwo)
 {
-    this->add_row_record_syn_syn_preamble(TS_ADD_ROW_R_SI, table,
+    this->add_row_record_syn_syn_preamble(TS_ADD_ROW_R_SI, colToSynM,
             synOne, synTwo);
     Record row(rec);
     row.add_value(valOne);
@@ -196,11 +199,12 @@ void Table::add_row(const Table& table, const Record& rec,
     this->auxRecords->push_back(row);
 }
 
-void Table::add_row(const Table& table, const Record& rec,
+void Table::add_row(const map<int, string>& colToSynM,
+        const Record& rec,
         const string& synOne, int valOne,
         const string& synTwo, const string& valTwo)
 {
-    this->add_row_record_syn_syn_preamble(TS_ADD_ROW_R_IS, table,
+    this->add_row_record_syn_syn_preamble(TS_ADD_ROW_R_IS, colToSynM,
             synOne, synTwo);
     Record row(rec);
     row.add_value(valOne);
@@ -208,11 +212,12 @@ void Table::add_row(const Table& table, const Record& rec,
     this->auxRecords->push_back(row);
 }
 
-void Table::add_row(const Table& table, const Record& rec,
+void Table::add_row(const map<int, string>& colToSynM,
+        const Record& rec,
         const string& synOne, int valOne,
         const string& synTwo, int valTwo)
 {
-    this->add_row_record_syn_syn_preamble(TS_ADD_ROW_R_II, table,
+    this->add_row_record_syn_syn_preamble(TS_ADD_ROW_R_II, colToSynM,
             synOne, synTwo);
     Record row(rec);
     row.add_value(valOne);
@@ -220,16 +225,17 @@ void Table::add_row(const Table& table, const Record& rec,
     this->auxRecords->push_back(row);
 }
 
-void Table::add_row(const Table& tableOne, const Record& recOne,
-        const Table& tableTwo, const Record& recTwo)
+void Table::add_row(const map<int, string>& colToSynOne,
+        const Record& recOne,
+        const map<int, string>& colToSynTwo, const Record& recTwo)
 {
     assert(TS_ADD_ROW == this->tableState ||
             TS_ADD_ROW_R_R == this->tableState);
     if (TS_ADD_ROW == this->tableState) {
         assert(this->auxSynToCol->empty());
         assert(this->auxColToSyn->empty());
-        this->add_synonyms_in_table(tableOne);
-        this->add_synonyms_in_table(tableTwo);
+        this->add_synonyms_in_map(colToSynOne);
+        this->add_synonyms_in_map(colToSynTwo);
         this->tableState = TS_ADD_ROW_R_R;
     }
     Record record(recOne);
@@ -265,28 +271,29 @@ void Table::add_row_syn_syn_preamble(const TableState idealState,
 }
 
 void Table::add_row_record_syn_preamble(const TableState idealState,
-        const Table& table, const string& syn)
+        const map<int, string>& colToSynM, const string& syn)
 {
     assert(TS_ADD_ROW == this->tableState ||
             idealState == this->tableState);
     if (TS_ADD_ROW == this->tableState) {
         assert(this->auxSynToCol->empty());
         assert(this->auxColToSyn->empty());
-        this->add_synonyms_in_table(table);
+        this->add_synonyms_in_map(colToSynM);
         this->add_synonym_to_aux(syn);
         this->tableState = idealState;
     }
 }
 
 void Table::add_row_record_syn_syn_preamble(const TableState idealState,
-        const Table& table, const string& synOne, const string& synTwo)
+        const map<int, string>& colToSynM,
+        const string& synOne, const string& synTwo)
 {
     assert(TS_ADD_ROW == this->tableState ||
             idealState == this->tableState);
     if (TS_ADD_ROW == this->tableState) {
         assert(this->auxSynToCol->empty());
         assert(this->auxColToSyn->empty());
-        this->add_synonyms_in_table(table);
+        this->add_synonyms_in_map(colToSynM);
         this->add_synonym_to_aux(synOne);
         this->add_synonym_to_aux(synTwo);
         this->tableState = idealState;
@@ -311,13 +318,11 @@ void Table::add_synonym_to_cur(const string& syn)
     (*(this->curColToSyn))[nextCol] = syn;
 }
 
-void Table::add_synonyms_in_table(const Table& o)
+void Table::add_synonyms_in_map(const map<int, string>& colToSynM)
 {
-    assert(o.curSynToCol != this->auxSynToCol);
-    assert(o.curColToSyn != this->auxColToSyn);
     int nextCol = this->auxSynToCol->size();
-    for (map<int, string>::const_iterator it = o.curColToSyn->begin();
-            it != o.curColToSyn->end(); it++) {
+    for (map<int, string>::const_iterator it = colToSynM.begin();
+            it != colToSynM.end(); it++) {
         assert(this->auxSynToCol->find(it->second) ==
                 this->auxSynToCol->end());
         (*(this->auxSynToCol))[it->second] = nextCol;
