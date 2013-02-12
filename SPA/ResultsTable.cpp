@@ -201,6 +201,78 @@ void ResultsTable::syn_1_mark_row_ok(int row)
     this->tableCheckedOutA->mark_row_ok(row);
 }
 
+void ResultsTable::syn_00_transaction_begin(const string& synA,
+        RecordValType rvAType, const string& synB,
+        RecordValType rvBType)
+{
+    assert(RTS_START == this->state);
+    assert(!this->has_synonym(synA));
+    assert(!this->has_synonym(synB));
+    assert(synA.compare(synB) != 0);
+    assert(RV_INVALID != rvAType);
+    assert(RV_INVALID != rvBType);
+    int tableLabel = this->nextTable;
+    this->nextTable++;
+    this->synMap[synA] = this->synMap[synB] = tableLabel;
+    this->tableCheckedOutA = this->tables[tableLabel] = new Table();
+    this->tableCheckedOutA->add_rows_transaction_begin();
+    this->tableAIdx = tableLabel;
+    this->tableASyn = synA;
+    this->tableBSyn = synB;
+    this->synAType = rvAType;
+    this->synBType = rvBType;
+    this->state = RTS_00_TRANSACT;
+}
+
+void ResultsTable::syn_00_transaction_end()
+{
+    assert(RTS_00_TRANSACT == this->state);
+    this->tableCheckedOutA->add_rows_transaction_end();
+    this->alive = (this->alive && this->tableCheckedOutA->is_alive());
+    this->tableCheckedOutA = NULL;
+    this->tableAIdx = -1;
+    this->tableASyn = string();
+    this->tableBSyn = string();
+    this->synAType = this->synBType = RV_INVALID;
+    this->state = RTS_START;
+}
+
+void ResultsTable::syn_00_add_row(const string& valA, const string& valB)
+{
+    assert(RTS_00_TRANSACT == this->state);
+    assert(RV_STRING == this->synAType);
+    assert(RV_STRING == this->synBType);
+    this->tableCheckedOutA->add_row(this->tableASyn, valA,
+            this->tableBSyn, valB);
+}
+
+void ResultsTable::syn_00_add_row(const string& valA, int valB)
+{
+    assert(RTS_00_TRANSACT == this->state);
+    assert(RV_STRING == this->synAType);
+    assert(RV_INT == this->synBType);
+    this->tableCheckedOutA->add_row(this->tableASyn, valA,
+            this->tableBSyn, valB);
+}
+
+void ResultsTable::syn_00_add_row(int valA, const string& valB)
+{
+    assert(RTS_00_TRANSACT == this->state);
+    assert(RV_INT == this->synAType);
+    assert(RV_STRING == this->synBType);
+    this->tableCheckedOutA->add_row(this->tableASyn, valA,
+            this->tableBSyn, valB);
+}
+
+void ResultsTable::syn_00_add_row(int valA, int valB)
+{
+    assert(RTS_00_TRANSACT == this->state);
+    assert(RV_INT == this->synAType);
+    assert(RV_INT == this->synBType);
+    this->tableCheckedOutA->add_row(this->tableASyn, valA,
+            this->tableBSyn, valB);
+}
+
 const vector<Record>& ResultsTable::syn_11_transaction_begin(
         const string& synOne, const string& synTwo)
 {
