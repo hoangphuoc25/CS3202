@@ -35,6 +35,7 @@ public:
     bool has_synonym(const std::string& syn) const;
     bool is_alive() const;
     void absorb_table(Table *table);
+    void absorb_ResultsTable(ResultsTable& o);
 
     void checkout_transaction_begin();
     void checkout_transaction_end();

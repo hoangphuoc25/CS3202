@@ -88,6 +88,32 @@ void ResultsTable::absorb_table(Table *table)
     this->tables[tableLabel] = table;
 }
 
+void ResultsTable::absorb_ResultsTable(ResultsTable& o)
+{
+    assert(RTS_START == this->state);
+    assert(RTS_START == o.state);
+    assert(o.is_alive());
+    int tableDisp = this->nextTable;
+    const map<int, Table *>& otherTables = o.tables;
+    // transfer tables
+    for (map<int, Table *>::const_iterator it = otherTables.begin();
+            it != otherTables.end(); it++) {
+        this->tables[this->nextTable] = it->second;
+        this->nextTable++;
+    }
+    // map synonym to appropriate table index
+    const map<string, int>& otherSynMap = o.synMap;
+    for (map<string, int>::const_iterator it = otherSynMap.begin();
+            it != otherSynMap.end(); it++) {
+        assert(!this->has_synonym(it->first));
+        this->synMap[it->first] = it->second + tableDisp;
+    }
+    // clear information from input ResultsTable
+    o.synMap.clear();
+    o.tables.clear();
+    o.nextTable = 0;
+}
+
 void ResultsTable::checkout_transaction_begin()
 {
     assert(RTS_START == this->state);
