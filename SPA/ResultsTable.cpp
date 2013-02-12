@@ -72,21 +72,6 @@ bool ResultsTable::is_alive() const
     return this->alive;
 }
 
-void ResultsTable::absorb_resultsTable(const ResultsTable &o)
-{
-    assert(o.alive);
-    for (map<string, int>::const_iterator it = o.synMap.begin();
-            it != o.synMap.end(); it++) {
-        assert(this->synMap.find(it->first) == this->synMap.end());
-        this->synMap[it->first] = this->nextTable;
-        map<int, Table *>::const_iterator tableIt =
-                o.tables.find(it->second);
-        assert(tableIt != o.tables.end());
-        this->tables[this->nextTable] = tableIt->second;
-        this->nextTable++;
-    }
-}
-
 void ResultsTable::checkout_transaction_begin()
 {
     assert(RTS_START == this->state);
