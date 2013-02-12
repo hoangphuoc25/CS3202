@@ -238,7 +238,8 @@ void ResultsTable::syn_11_transaction_end()
     this->state = RTS_START;
 }
 
-pair<Table *, Table *>
+pair<pair<const map<int, string>&, const vector<Record>& >,
+     pair<const map<int, string>&, const vector<Record>& > >
         ResultsTable::syn_22_transaction_begin(
             const string& synOne, const string& synTwo)
 {
@@ -262,11 +263,14 @@ pair<Table *, Table *>
     this->tableASyn = synOne;
     this->tableBSyn = synTwo;
     this->tableCheckedOutA->add_rows_transaction_begin();
-    pair<Table *, Table *>
-            tabPair = make_pair(this->tableCheckedOutA,
-                                this->tableCheckedOutB);
+    pair<const map<int, string>&, const vector<Record>& > pairOne =
+            make_pair(this->tableCheckedOutA->get_col_to_synonym(),
+                      this->tableCheckedOutA->get_records());
+    pair<const map<int, string>&, const vector<Record>& > pairTwo =
+            make_pair(this->tableCheckedOutB->get_col_to_synonym(),
+                      this->tableCheckedOutB->get_records());
     this->state = RTS_22_TRANSACT;
-    return tabPair;
+    return make_pair(pairOne, pairTwo);
 }
 
 void ResultsTable::syn_22_transaction_end()
@@ -294,11 +298,11 @@ void ResultsTable::syn_22_transaction_end()
     this->state = RTS_START;
 }
 
-void ResultsTable::syn_22_add_row(const Table& tableOne,
-        const Record& recOne, const Table& tableTwo,
+void ResultsTable::syn_22_add_row(const map<int, string>& colToSynOne,
+        const Record& recOne, const map<int, string>& colToSynTwo,
         const Record& recTwo)
 {
     assert(RTS_22_TRANSACT == this->state);
-    this->tableCheckedOutA->add_row(tableOne.get_col_to_synonym(),
-            recOne, tableTwo.get_col_to_synonym(), recTwo);
+    this->tableCheckedOutA->add_row(colToSynOne, recOne,
+            colToSynTwo, recTwo);
 }
