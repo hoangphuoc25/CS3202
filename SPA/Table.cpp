@@ -415,3 +415,15 @@ void Table::augment_row(int row, const string& syn, int val)
         this->preserveRow[row] = 1;
     }
 }
+
+void Table::freeze()
+{
+    assert(TS_START == this->tableState);
+    this->tableState = TS_FROZEN;
+}
+
+void Table::unfreeze()
+{
+    assert(TS_FROZEN == this->tableState);
+    this->tableState = TS_START;
+}

@@ -5,18 +5,34 @@
 using std::make_pair;
 using std::map;
 using std::pair;
+using std::set;
 using std::string;
 using std::vector;
 
 ResultsTable::ResultsTable()
-    : state(RTS_START), tableCheckedOutA(-1), tableCheckedOutB(-1),
-      alive(true), synMap(), tables(), nextTable(0) {}
+    : state(RTS_START), tablesCheckedOut(),
+      tableCheckedOutA(NULL), tableCheckedOutB(NULL),
+      tableAIdx(-1), tableBIdx(-1), tableASyn(), tableBSyn(),
+      synAType(RV_INVALID), synBType(RV_INVALID),
+      alive(true), synMap(), tables(),
+      nextTable(0) {}
 
 ResultsTable::ResultsTable(const ResultsTable& o)
-    : state(o.state), tableCheckedOutA(o.tableCheckedOutA),
-      tableCheckedOutB(o.tableCheckedOutB),
-      alive(o.alive), synMap(o.synMap), tables(o.tables),
-      nextTable(o.nextTable) {}
+{
+    assert(o.is_alive());
+    assert(RTS_START == o.state);
+    this->state = RTS_START;
+    this->tablesCheckedOut = set<Table *>();
+    this->tableCheckedOutA = this->tableCheckedOutB = NULL;
+    this->tableAIdx = this->tableBIdx = -1;
+    this->tableASyn = string();
+    this->tableBSyn = string();
+    this->synAType = this->synBType = RV_INVALID;
+    this->alive = true;
+    this->synMap = o.synMap;
+    this->tables = o.tables;
+    this->nextTable = o.nextTable;
+}
 
 ResultsTable& ResultsTable::operator=(const ResultsTable& o)
 {
@@ -27,11 +43,11 @@ ResultsTable& ResultsTable::operator=(const ResultsTable& o)
 
 void swap(ResultsTable& one, ResultsTable& two)
 {
+    assert(one.is_alive());
+    assert(RTS_START == one.state);
+    assert(two.is_alive());
+    assert(RTS_START == two.state);
     using std::swap;
-    swap(one.state, two.state);
-    swap(one.tableCheckedOutA, two.tableCheckedOutA);
-    swap(one.tableCheckedOutB, two.tableCheckedOutB);
-    swap(one.alive, two.alive);
     swap(one.synMap, two.synMap);
     swap(one.tables, two.tables);
     swap(one.nextTable, two.nextTable);
@@ -56,13 +72,6 @@ bool ResultsTable::is_alive() const
     return this->alive;
 }
 
-Table* ResultsTable::retrieve_table_for_synonym(const string& syn)
-{
-    map<string, int>::const_iterator it = this->synMap.find(syn);
-    assert(it != this->synMap.end());
-    return this->tables[it->second];
-}
-
 void ResultsTable::absorb_resultsTable(const ResultsTable &o)
 {
     assert(o.alive);
@@ -78,32 +87,86 @@ void ResultsTable::absorb_resultsTable(const ResultsTable &o)
     }
 }
 
-Table* ResultsTable::syn_0_transaction_begin(const string& syn)
+void ResultsTable::checkout_transaction_begin()
+{
+    assert(RTS_START == this->state);
+    this->state = RTS_CHECKOUT;
+}
+
+void ResultsTable::checkout_transaction_end()
+{
+    assert(RTS_CHECKOUT == this->state);
+    for (set<Table *>::iterator it =
+            this->tablesCheckedOut.begin();
+            it != this->tablesCheckedOut.end(); it++) {
+        (*it)->unfreeze();
+    }
+    this->tablesCheckedOut.clear();
+    this->state = RTS_START;
+}
+
+Table* ResultsTable::checkout_table(const string& syn)
+{
+    assert(RTS_CHECKOUT == this->state);
+    map<string, int>::const_iterator it = this->synMap.find(syn);
+    assert(it != this->synMap.end());
+    Table *tab = this->tables[it->second];
+    if (this->tablesCheckedOut.find(tab) ==
+            this->tablesCheckedOut.end()) {
+        this->tablesCheckedOut.insert(tab);
+        tab->freeze();
+    }
+    return tab;
+}
+
+void ResultsTable::syn_0_transaction_begin(const string& syn,
+        RecordValType rvType)
 {
     assert(RTS_START == this->state);
     assert(!this->has_synonym(syn));
+    assert(rvType != RV_INVALID);
     int tableLabel = this->nextTable;
     this->nextTable++;
     this->synMap[syn] = tableLabel;
-    Table *tab = this->tables[tableLabel] = new Table();
+    this->tableCheckedOutA = this->tables[tableLabel] = new Table();
+    this->tableCheckedOutA->add_rows_transaction_begin();
+    this->tableAIdx = tableLabel;
+    this->tableASyn = syn;
+    this->synAType = rvType;
     this->state = RTS_0_TRANSACT;
-    this->tableCheckedOutA = tableLabel;
-    return tab;
 }
 
 void ResultsTable::syn_0_transaction_end()
 {
     assert(RTS_0_TRANSACT == this->state);
-    assert(this->tableCheckedOutA != -1);
-    map<int, Table *>::const_iterator it =
-            this->tables.find(this->tableCheckedOutA);
-    assert(it != this->tables.end());
-    this->alive = (this->alive && it->second->is_alive());
-    this->tableCheckedOutA = -1;
+    assert(this->tableCheckedOutA != NULL);
+    this->tableCheckedOutA->add_rows_transaction_end();
+    this->alive = (this->alive && this->tableCheckedOutA->is_alive());
+    this->tableCheckedOutA = NULL;
+    this->tableAIdx = -1;
+    this->tableASyn = string();
+    this->synAType = RV_INVALID;
     this->state = RTS_START;
 }
 
-Table* ResultsTable::syn_1_transaction_begin(const string& syn)
+void ResultsTable::syn_0_add_row(const string& val)
+{
+    assert(RTS_0_TRANSACT == this->state);
+    assert(tableCheckedOutA != NULL);
+    assert(RV_STRING == this->synAType);
+    this->tableCheckedOutA->add_row(this->tableASyn, val);
+}
+
+void ResultsTable::syn_0_add_row(int val)
+{
+    assert(RTS_0_TRANSACT == this->state);
+    assert(tableCheckedOutA != NULL);
+    assert(RV_INT == this->synAType);
+    this->tableCheckedOutA->add_row(this->tableASyn, val);
+}
+
+const vector<Record>& ResultsTable::syn_1_transaction_begin(
+        const string& syn)
 {
     assert(RTS_START == this->state);
     assert(this->has_synonym(syn));
@@ -112,25 +175,34 @@ Table* ResultsTable::syn_1_transaction_begin(const string& syn)
     map<int, Table *>::const_iterator tableIt =
             this->tables.find(it->second);
     assert(tableIt != this->tables.end());
-    this->tableCheckedOutA = it->second;
+    this->tableAIdx = tableIt->first;
+    this->tableASyn = syn;
+    this->tableCheckedOutA = tableIt->second;
+    this->tableCheckedOutA->mark_rows_transaction_begin();
     this->state = RTS_1_TRANSACT;
-    return tableIt->second;
+    return this->tableCheckedOutA->get_records();
 }
 
 void ResultsTable::syn_1_transaction_end()
 {
     assert(RTS_1_TRANSACT == this->state);
-    assert(this->tableCheckedOutA != -1);
-    map<int, Table *>::const_iterator it =
-            this->tables.find(this->tableCheckedOutA);
-    assert(it != this->tables.end());
-    this->alive = (this->alive && it->second->is_alive());
-    this->tableCheckedOutA = -1;
+    assert(this->tableCheckedOutA != NULL);
+    this->tableCheckedOutA->mark_rows_transaction_end();
+    this->alive = (this->alive && this->tableCheckedOutA->is_alive());
+    this->tableCheckedOutA = NULL;
+    this->tableAIdx = -1;
+    this->tableASyn = string();
     this->state = RTS_START;
 }
 
-Table* ResultsTable::syn_11_transaction_begin(const string& synOne,
-        const string& synTwo)
+void ResultsTable::syn_1_mark_row_ok(int row)
+{
+    assert(RTS_1_TRANSACT == this->state);
+    this->tableCheckedOutA->mark_row_ok(row);
+}
+
+const vector<Record>& ResultsTable::syn_11_transaction_begin(
+        const string& synOne, const string& synTwo)
 {
     assert(RTS_START == this->state);
     assert(this->has_synonym(synOne));
@@ -144,26 +216,31 @@ Table* ResultsTable::syn_11_transaction_begin(const string& synOne,
     map<int, Table *>::const_iterator tableIt =
             this->tables.find(it->second);
     assert(tableIt != this->tables.end());
-    Table *tab = tableIt->second;
+    this->tableAIdx = this->tableBIdx = tableIt->first;
+    this->tableASyn = synOne;
+    this->tableBSyn = synTwo;
+    this->tableCheckedOutA = tableIt->second;
+    this->tableCheckedOutA->mark_rows_transaction_begin();
     this->state = RTS_11_TRANSACT;
-    this->tableCheckedOutA = tableIt->first;
-    return tab;
+    return this->tableCheckedOutA->get_records();
 }
 
 void ResultsTable::syn_11_transaction_end()
 {
     assert(RTS_11_TRANSACT == this->state);
-    assert(this->tableCheckedOutA != -1);
-    map<int, Table *>::const_iterator it =
-            this->tables.find(this->tableCheckedOutA);
-    Table *tab = it->second;
-    this->alive = (this->alive && tab->is_alive());
-    this->tableCheckedOutA = -1;
+    assert(this->tableCheckedOutA != NULL);
+    this->tableCheckedOutA->mark_rows_transaction_end();
+    this->alive = (this->alive && this->tableCheckedOutA->is_alive());
+    this->tableAIdx = this->tableBIdx = -1;
+    this->tableASyn = string();
+    this->tableBSyn = string();
+    this->tableCheckedOutA = NULL;
     this->state = RTS_START;
 }
 
-pair<Table *, Table *> ResultsTable::syn_22_transaction_begin(
-        const string& synOne, const string& synTwo)
+pair<Table *, Table *>
+        ResultsTable::syn_22_transaction_begin(
+            const string& synOne, const string& synTwo)
 {
     assert(RTS_START == this->state);
     map<string, int>::const_iterator it, kt;
@@ -178,60 +255,49 @@ pair<Table *, Table *> ResultsTable::syn_22_transaction_begin(
     assert(this->tables.end() != tableA);
     assert(this->tables.end() != tableB);
     assert(tableA->second != tableB->second);
-    this->tableCheckedOutA = tableA->first;
-    this->tableCheckedOutB = tableB->first;
-    pair<Table *, Table *> tabPair =
-            make_pair(tableA->second, tableB->second);
+    this->tableCheckedOutA = tableA->second;
+    this->tableCheckedOutB = tableB->second;
+    this->tableAIdx = tableA->first;
+    this->tableBIdx = tableB->first;
+    this->tableASyn = synOne;
+    this->tableBSyn = synTwo;
+    this->tableCheckedOutA->add_rows_transaction_begin();
+    pair<Table *, Table *>
+            tabPair = make_pair(this->tableCheckedOutA,
+                                this->tableCheckedOutB);
     this->state = RTS_22_TRANSACT;
     return tabPair;
 }
 
-void ResultsTable::syn_22_transaction_end(Table *endTable,
-        ResultsTab22Transact which,
-        const string& argOne, const string& argTwo)
+void ResultsTable::syn_22_transaction_end()
 {
     assert(RTS_22_TRANSACT == this->state);
-    assert(-1 != this->tableCheckedOutA);
-    assert(-1 != this->tableCheckedOutB);
-    if (which == USE_TABLE_A) {
-        // endTable == Table A. Direct B's synonyms to A
-        this->syn_22_transaction_end_redirect_synonyms(
-                this->tableCheckedOutA, this->tableCheckedOutB);
-    } else if (which == USE_TABLE_B) {
-        // endTable == Table B. Direct A's synonyms to B
-        this->syn_22_transaction_end_redirect_synonyms(
-                this->tableCheckedOutB, this->tableCheckedOutA);
-    } else {
-        // endTable is a new table. Direct A and B's synonyms to it
-        int newTableLabel = this->nextTable;
-        this->nextTable++;
-        assert(this->tables.find(newTableLabel) == this->tables.end());
-        this->tables[newTableLabel] = endTable;
-        this->syn_22_transaction_end_redirect_synonyms(
-                newTableLabel, this->tableCheckedOutA);
-        this->syn_22_transaction_end_redirect_synonyms(
-                newTableLabel, this->tableCheckedOutB);
+    assert(NULL != this->tableCheckedOutA);
+    assert(NULL != this->tableCheckedOutB);
+    // use table A
+    this->tableCheckedOutA->add_rows_transaction_end();
+    // Redirect synonyms from table B to table A
+    const map<string, int>& synM =
+            this->tableCheckedOutB->get_synonym_to_col();
+    for (map<string, int>::const_iterator it = synM.begin();
+            it != synM.end(); it++) {
+        this->synMap[it->first] = this->tableAIdx;
     }
-    this->tableCheckedOutA = this->tableCheckedOutB = -1;
-    this->alive = (this->alive && endTable->is_alive());
+    // destroy src table
+    this->tables.erase(this->tableBIdx);
+    delete this->tableCheckedOutB;
+    this->alive = (this->alive && this->tableCheckedOutA->is_alive());
+    this->tableCheckedOutA = this->tableCheckedOutB = NULL;
+    this->tableAIdx = this->tableBIdx = -1;
+    this->tableASyn = string();
+    this->tableBSyn = string();
     this->state = RTS_START;
 }
 
-void ResultsTable::syn_22_transaction_end_redirect_synonyms(
-        int dest, int src)
+void ResultsTable::syn_22_add_row(const Table& tableOne,
+        const Record& recOne, const Table& tableTwo,
+        const Record& recTwo)
 {
-    assert(dest != src);
-    // Redirect synonyms from src to dest
-    map<int, Table *>::const_iterator tabIt =
-            this->tables.find(src);
-    assert(this->tables.end() != tabIt);
-    Table *tab = tabIt->second;
-    const map<string, int>& synM = tab->get_synonym_to_col();
-    for (map<string, int>::const_iterator it = synM.begin();
-            it != synM.end(); it++) {
-        this->synMap[it->first] = dest;
-    }
-    // destroy src table
-    this->tables.erase(src);
-    delete tab;
+    assert(RTS_22_TRANSACT == this->state);
+    this->tableCheckedOutA->add_row(tableOne, recOne, tableTwo, recTwo);
 }

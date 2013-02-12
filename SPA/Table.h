@@ -15,7 +15,8 @@ enum TableState {
     TS_ADD_ROW_R_SS, TS_ADD_ROW_R_SI, TS_ADD_ROW_R_IS, TS_ADD_ROW_R_II,
     TS_ADD_ROW_R_R,
     TS_MARK_ROW,
-    TS_AUGMENT_ROW, TS_AUGMENT_ROW_S, TS_AUGMENT_ROW_I
+    TS_AUGMENT_ROW, TS_AUGMENT_ROW_S, TS_AUGMENT_ROW_I,
+    TS_FROZEN
 };
 
 class Table {
@@ -68,6 +69,9 @@ public:
     void augment_row(int row, const std::string& syn,
             const std::string& val);
     void augment_row(int row, const std::string& syn, int val);
+
+    void freeze();
+    void unfreeze();
 
 private:
     static TableState VALID_ADD_ROW_STATES_ARR[14];
