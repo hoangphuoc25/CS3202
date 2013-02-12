@@ -37,7 +37,13 @@ void swap(ResultsTable& one, ResultsTable& two)
     swap(one.nextTable, two.nextTable);
 }
 
-ResultsTable::~ResultsTable() {}
+ResultsTable::~ResultsTable()
+{
+    for (map<int, Table *>::const_iterator it = this->tables.begin();
+            it != this->tables.end(); it++) {
+        delete it->second;
+    }
+}
 
 bool ResultsTable::has_synonym(const string& syn) const
 {
@@ -106,6 +112,7 @@ Table* ResultsTable::syn_1_transaction_begin(const string& syn)
     map<int, Table *>::const_iterator tableIt =
             this->tables.find(it->second);
     assert(tableIt != this->tables.end());
+    this->tableCheckedOutA = it->second;
     this->state = RTS_1_TRANSACT;
     return tableIt->second;
 }

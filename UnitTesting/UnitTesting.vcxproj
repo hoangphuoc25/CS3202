@@ -71,6 +71,7 @@
     <ClCompile Include="Test_00_StringBuffer.cpp" />
     <ClCompile Include="Test_01_SetWrapper.cpp" />
     <ClCompile Include="Test_01_Table.cpp" />
+    <ClCompile Include="Test_02_ResultsTable.cpp" />
     <ClCompile Include="Test_20_PQLParser.cpp" />
     <ClCompile Include="Test_21_ResultsGraph.cpp" />
     <ClCompile Include="TestParser.cpp" />
@@ -80,6 +81,7 @@
     <ClInclude Include="Test_00_StringBuffer.h" />
     <ClInclude Include="Test_01_SetWrapper.h" />
     <ClInclude Include="Test_01_Table.h" />
+    <ClInclude Include="Test_02_ResultsTable.h" />
     <ClInclude Include="Test_20_PQLParser.h" />
     <ClInclude Include="Test_21_ResultsGraph.h" />
     <ClInclude Include="TestParser.h" />
