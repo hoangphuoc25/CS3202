@@ -67,17 +67,12 @@ public:
             const std::string& synOne,
             const std::string& synTwo);
     void syn_11_transaction_end();
-    std::pair<std::pair<const std::map<int, std::string>&,
-                        const std::vector<Record>& >,
-              std::pair<const std::map<int, std::string>&,
-                        const std::vector<Record>& > >
+    std::pair<const std::vector<Record> *, const std::vector<Record> * >
         syn_22_transaction_begin(
             const std::string& synOne, const std::string& synTwo);
     void syn_22_transaction_end();
-    void syn_22_add_row(const std::map<int, std::string>& colToSynOne,
-            const Record& recOne,
-            const std::map<int, std::string>& colToSynTwo,
-            const Record& recTwo);
+    void syn_22_add_row(const Record& recOne, const Record& recTwo);
+    void syn_22_add_row(int rowOne, int rowTwo);
 
 private:
     ResultsTableState state;

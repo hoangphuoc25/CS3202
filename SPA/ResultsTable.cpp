@@ -361,8 +361,7 @@ void ResultsTable::syn_11_transaction_end()
     this->state = RTS_START;
 }
 
-pair<pair<const map<int, string>&, const vector<Record>& >,
-     pair<const map<int, string>&, const vector<Record>& > >
+pair<const vector<Record> *, const vector<Record> * >
         ResultsTable::syn_22_transaction_begin(
             const string& synOne, const string& synTwo)
 {
@@ -386,14 +385,9 @@ pair<pair<const map<int, string>&, const vector<Record>& >,
     this->tableASyn = synOne;
     this->tableBSyn = synTwo;
     this->tableCheckedOutA->add_rows_transaction_begin();
-    pair<const map<int, string>&, const vector<Record>& > pairOne =
-            make_pair(this->tableCheckedOutA->get_col_to_synonym(),
-                      this->tableCheckedOutA->get_records());
-    pair<const map<int, string>&, const vector<Record>& > pairTwo =
-            make_pair(this->tableCheckedOutB->get_col_to_synonym(),
-                      this->tableCheckedOutB->get_records());
     this->state = RTS_22_TRANSACT;
-    return make_pair(pairOne, pairTwo);
+    return make_pair(&(this->tableCheckedOutA->get_records()),
+                     &(this->tableCheckedOutB->get_records()));
 }
 
 void ResultsTable::syn_22_transaction_end()
@@ -421,11 +415,30 @@ void ResultsTable::syn_22_transaction_end()
     this->state = RTS_START;
 }
 
-void ResultsTable::syn_22_add_row(const map<int, string>& colToSynOne,
-        const Record& recOne, const map<int, string>& colToSynTwo,
+void ResultsTable::syn_22_add_row(const Record& recOne,
         const Record& recTwo)
 {
     assert(RTS_22_TRANSACT == this->state);
-    this->tableCheckedOutA->add_row(colToSynOne, recOne,
-            colToSynTwo, recTwo);
+    this->tableCheckedOutA->add_row(
+            this->tableCheckedOutA->get_col_to_synonym(), recOne,
+            this->tableCheckedOutB->get_col_to_synonym(), recTwo);
+}
+
+void ResultsTable::syn_22_add_row(int rowOne, int rowTwo)
+{
+    assert(RTS_22_TRANSACT == this->state);
+    const vector<Record>& tableARows =
+            this->tableCheckedOutA->get_records();
+    const vector<Record>& tableBRows =
+            this->tableCheckedOutB->get_records();
+    int tableAnrRows = tableARows.size();
+    int tableBnrRows = tableBRows.size();
+    if (rowOne >= 0 && rowOne < tableAnrRows && rowTwo >= 0 &&
+            rowTwo < tableBnrRows) {
+        this->tableCheckedOutA->add_row(
+                this->tableCheckedOutA->get_col_to_synonym(),
+                tableARows[rowOne],
+                this->tableCheckedOutB->get_col_to_synonym(),
+                tableBRows[rowTwo]);
+    }
 }
