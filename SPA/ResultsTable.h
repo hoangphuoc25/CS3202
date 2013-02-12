@@ -11,6 +11,7 @@
 enum ResultsTableState {
     RTS_START, RTS_0_TRANSACT, RTS_1_TRANSACT,
     RTS_00_TRANSACT,
+    RTS_01_TRANSACT, RTS_10_TRANSACT,
     RTS_11_TRANSACT, RTS_22_TRANSACT,
     RTS_CHECKOUT
 };
@@ -56,6 +57,12 @@ public:
     void syn_00_add_row(const std::string& valA, int valB);
     void syn_00_add_row(int valA, const std::string& valB);
     void syn_00_add_row(int valA, int valB);
+    const std::vector<Record>& syn_01_transaction_begin(
+            const std::string& synNew, const std::string& synOld,
+            RecordValType rvType);
+    void syn_01_transaction_end();
+    void syn_01_augment_new_row(int row, const std::string& val);
+    void syn_01_augment_new_row(int row, int val);
     const std::vector<Record>& syn_11_transaction_begin(
             const std::string& synOne,
             const std::string& synTwo);

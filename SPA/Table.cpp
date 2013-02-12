@@ -27,6 +27,14 @@ const set<TableState> Table::VALID_AUGMENT_EXISTING_ROW_STATES(
         Table::VALID_AUGMENT_EXISTING_ROW_STATES_ARR,
         Table::VALID_AUGMENT_EXISTING_ROW_STATES_ARR+3);
 
+TableState Table::VALID_AUGMENT_NEW_ROW_STATES_ARR[3] = {
+    TS_AUGMENT_NEW_ROW, TS_AUGMENT_NEW_ROW_S, TS_AUGMENT_NEW_ROW_I
+};
+
+const set<TableState> Table::VALID_AUGMENT_NEW_ROW_STATES(
+        Table::VALID_AUGMENT_NEW_ROW_STATES_ARR,
+        Table::VALID_AUGMENT_NEW_ROW_STATES_ARR+3);
+
 Table::Table()
     : tableState(TS_START), alive(true), RECORDS(), SYNTOCOLS(),
       COLTOSYN()
@@ -420,6 +428,58 @@ void Table::augment_existing_row(int row, const string& syn, int val)
     if (row >= 0 && row < nrRecords) {
         (*(this->curRecords))[row].add_value(val);
         this->preserveRow[row] = 1;
+    }
+}
+
+void Table::augment_new_rows_transaction_begin()
+{
+    assert(TS_START == this->tableState);
+    this->auxRecords->clear();
+    this->tableState = TS_AUGMENT_NEW_ROW;
+}
+
+void Table::augment_new_rows_transaction_end()
+{
+    assert(Table::VALID_AUGMENT_NEW_ROW_STATES.find(this->tableState) !=
+            Table::VALID_AUGMENT_NEW_ROW_STATES.end());
+    using std::swap;
+    swap(this->curRecords, this->auxRecords);
+    this->alive = (this->alive && this->curRecords->size() > 0);
+    this->tableState = TS_START;
+}
+
+void Table::augment_new_row(int row, const string& syn,
+        const string& val)
+{
+    assert(TS_AUGMENT_NEW_ROW == this->tableState ||
+            TS_AUGMENT_NEW_ROW_S == this->tableState);
+    if (TS_AUGMENT_NEW_ROW == this->tableState) {
+        assert(!this->has_synonym(syn));
+        this->add_synonym_to_cur(syn);
+        this->tableState = TS_AUGMENT_NEW_ROW_S;
+    }
+    int nrRecords = this->curRecords->size();
+    if (row >= 0 && row < nrRecords) {
+        Record record((*(this->curRecords))[row]);
+        record.add_value(val);
+        this->auxRecords->push_back(record);
+    }
+}
+
+void Table::augment_new_row(int row, const string& syn, int val)
+{
+    assert(TS_AUGMENT_NEW_ROW == this->tableState ||
+            TS_AUGMENT_NEW_ROW_I == this->tableState);
+    if (TS_AUGMENT_NEW_ROW == this->tableState) {
+        assert(!this->has_synonym(syn));
+        this->add_synonym_to_cur(syn);
+        this->tableState = TS_AUGMENT_NEW_ROW_I;
+    }
+    int nrRecords = this->curRecords->size();
+    if (row >= 0 && row < nrRecords) {
+        Record record((*(this->curRecords))[row]);
+        record.add_value(val);
+        this->auxRecords->push_back(record);
     }
 }
 

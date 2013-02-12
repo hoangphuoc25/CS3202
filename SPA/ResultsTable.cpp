@@ -273,6 +273,57 @@ void ResultsTable::syn_00_add_row(int valA, int valB)
             this->tableBSyn, valB);
 }
 
+const vector<Record>& ResultsTable::syn_01_transaction_begin(
+        const string& synNew, const string& synOld, RecordValType rvType)
+{
+    assert(RTS_START == this->state);
+    assert(!this->has_synonym(synNew));
+    assert(this->has_synonym(synOld));
+    assert(rvType != RV_INVALID);
+    map<string, int>::const_iterator synIt =
+            this->synMap.find(synOld);
+    assert(synIt != this->synMap.end());
+    int tableIdx = synIt->second;
+    synMap[synNew] = tableIdx;
+    map<int, Table *>::const_iterator tableIt =
+            this->tables.find(tableIdx);
+    assert(tableIt != this->tables.end());
+    Table *table = tableIt->second;
+    this->tableCheckedOutA = table;
+    this->tableCheckedOutA->augment_new_rows_transaction_begin();
+    this->tableAIdx = tableIdx;
+    this->tableASyn = synNew;
+    this->synAType = rvType;
+    this->state = RTS_01_TRANSACT;
+    return this->tableCheckedOutA->get_records();
+}
+
+void ResultsTable::syn_01_transaction_end()
+{
+    assert(RTS_01_TRANSACT == this->state);
+    this->tableCheckedOutA->augment_new_rows_transaction_end();
+    this->alive = (this->alive && this->tableCheckedOutA->is_alive());
+    this->tableCheckedOutA = NULL;
+    this->tableAIdx = -1;
+    this->tableASyn = string();
+    this->synAType = RV_INVALID;
+    this->state = RTS_START;
+}
+
+void ResultsTable::syn_01_augment_new_row(int row, const string& val)
+{
+    assert(RTS_01_TRANSACT == this->state);
+    assert(RV_STRING == this->synAType);
+    this->tableCheckedOutA->augment_new_row(row, this->tableASyn, val);
+}
+
+void ResultsTable::syn_01_augment_new_row(int row, int val)
+{
+    assert(RTS_01_TRANSACT == this->state);
+    assert(RV_INT == this->synAType);
+    this->tableCheckedOutA->augment_new_row(row, this->tableASyn, val);
+}
+
 const vector<Record>& ResultsTable::syn_11_transaction_begin(
         const string& synOne, const string& synTwo)
 {

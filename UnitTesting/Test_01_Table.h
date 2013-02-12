@@ -25,6 +25,9 @@ CPPUNIT_TEST(test_mark_row_dead);
 CPPUNIT_TEST(test_augment_existing_row_s);
 CPPUNIT_TEST(test_augment_existing_row_i);
 CPPUNIT_TEST(test_augment_existing_row_dead);
+CPPUNIT_TEST(test_augment_new_row_s);
+CPPUNIT_TEST(test_augment_new_row_i);
+CPPUNIT_TEST(test_augment_new_row_dead);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -52,6 +55,9 @@ private:
     void test_augment_existing_row_s();
     void test_augment_existing_row_i();
     void test_augment_existing_row_dead();
+    void test_augment_new_row_s();
+    void test_augment_new_row_i();
+    void test_augment_new_row_dead();
 };
 
 #endif

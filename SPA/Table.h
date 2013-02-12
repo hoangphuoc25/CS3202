@@ -17,6 +17,7 @@ enum TableState {
     TS_MARK_ROW,
     TS_AUGMENT_EXISTING_ROW, TS_AUGMENT_EXISTING_ROW_S,
     TS_AUGMENT_EXISTING_ROW_I,
+    TS_AUGMENT_NEW_ROW, TS_AUGMENT_NEW_ROW_S, TS_AUGMENT_NEW_ROW_I,
     TS_FROZEN
 };
 
@@ -78,6 +79,12 @@ public:
             const std::string& val);
     void augment_existing_row(int row, const std::string& syn, int val);
 
+    void augment_new_rows_transaction_begin();
+    void augment_new_row(int row, const std::string& syn,
+            const std::string& val);
+    void augment_new_row(int row, const std::string& syn, int val);
+    void augment_new_rows_transaction_end();
+
     void freeze();
     void unfreeze();
 
@@ -86,6 +93,8 @@ private:
     static const std::set<TableState> VALID_ADD_ROW_STATES;
     static TableState VALID_AUGMENT_EXISTING_ROW_STATES_ARR[3];
     static const std::set<TableState> VALID_AUGMENT_EXISTING_ROW_STATES;
+    static TableState VALID_AUGMENT_NEW_ROW_STATES_ARR[3];
+    static const std::set<TableState> VALID_AUGMENT_NEW_ROW_STATES;
 
     void add_row_syn_preamble(const TableState idealState,
             const std::string& syn);
