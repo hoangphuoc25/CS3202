@@ -809,8 +809,13 @@ void Test_01_Table::test_mark_row()
     table.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
     table.mark_rows_transaction_begin();
+    // Mark rows out of order, multiple times, out of range
+    table.mark_row_ok(3);
     table.mark_row_ok(0);
     table.mark_row_ok(3);
+    table.mark_row_ok(-1);
+    table.mark_row_ok(5141);
+    table.mark_row_ok(0);
     table.mark_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
     const vector<Record>& records = table.get_records();

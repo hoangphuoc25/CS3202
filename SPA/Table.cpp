@@ -369,7 +369,9 @@ void Table::mark_rows_transaction_end()
 void Table::mark_row_ok(int row)
 {
     assert(TS_MARK_ROW == this->tableState);
-    this->preserveRow[row] = 1;
+    if (row >= 0 && row < this->curRecords->size()) {
+        this->preserveRow[row] = 1;
+    }
 }
 
 void Table::augment_existing_rows_transaction_begin()

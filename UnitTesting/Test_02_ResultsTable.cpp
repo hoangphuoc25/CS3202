@@ -78,7 +78,13 @@ void Test_02_ResultsTable::test_syn_1_transaction()
     record.reset();
     record.add_value(351);
     CPPUNIT_ASSERT_EQUAL(record, recordsOne[2]);
+    // mark row out of order, multiple times, out of range
     rTable.syn_1_mark_row_ok(1);
+    rTable.syn_1_mark_row_ok(1);
+    rTable.syn_1_mark_row_ok(515);
+    rTable.syn_1_mark_row_ok(0);
+    rTable.syn_1_mark_row_ok(3);
+    rTable.syn_1_mark_row_ok(-141);
     rTable.syn_1_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, rTable.is_alive());
 
@@ -95,10 +101,13 @@ void Test_02_ResultsTable::test_syn_1_transaction()
     CPPUNIT_ASSERT(siIt != synToCol.end());
     CPPUNIT_ASSERT_EQUAL(0, siIt->second);
     const vector<Record>& records = table->get_records();
-    CPPUNIT_ASSERT_EQUAL(1, (int)records.size());
+    CPPUNIT_ASSERT_EQUAL(2, (int)records.size());
+    record.reset();
+    record.add_value(1);
+    CPPUNIT_ASSERT_EQUAL(record, records[0]);
     record.reset();
     record.add_value(26156);
-    CPPUNIT_ASSERT_EQUAL(record, records[0]);
+    CPPUNIT_ASSERT_EQUAL(record, records[1]);
     rTable.checkout_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, rTable.is_alive());
 }
@@ -569,9 +578,13 @@ void Test_02_ResultsTable::test_syn_11_transaction()
     const vector<Record>& tmpRecords =
             rTable.syn_11_transaction_begin("Club", "Player");
     CPPUNIT_ASSERT_EQUAL(19, (int)tmpRecords.size());
+    // mark rows multiple times, out of order, out of range
     rTable.syn_11_mark_row_ok(1);
     rTable.syn_11_mark_row_ok(5);
+    rTable.syn_11_mark_row_ok(-656);
     rTable.syn_11_mark_row_ok(4);
+    rTable.syn_11_mark_row_ok(1);
+    rTable.syn_11_mark_row_ok(62687);
     rTable.syn_11_mark_row_ok(16);
     rTable.syn_11_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, rTable.is_alive());
