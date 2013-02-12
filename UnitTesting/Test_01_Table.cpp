@@ -838,7 +838,7 @@ void Test_01_Table::test_mark_row_dead()
     CPPUNIT_ASSERT_EQUAL(false, table.is_alive());
 }
 
-void Test_01_Table::test_augment_row_s()
+void Test_01_Table::test_augment_existing_row_s()
 {
     Table table;
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
@@ -850,12 +850,12 @@ void Test_01_Table::test_augment_row_s()
     table.add_row("c130", "blasphemy", "f16", "nope");
     table.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
-    table.augment_rows_transaction_begin();
-    table.augment_row(0, "third", "X");
-    table.augment_row(4, "third", "up");
+    table.augment_existing_rows_transaction_begin();
+    table.augment_existing_row(0, "third", "X");
+    table.augment_existing_row(4, "third", "up");
     // augment non-existent row
-    table.augment_row(141, "third", "blah");
-    table.augment_rows_transaction_end();
+    table.augment_existing_row(141, "third", "blah");
+    table.augment_existing_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
     const vector<Record>& records = table.get_records();
     CPPUNIT_ASSERT_EQUAL(2, (int)records.size());
@@ -872,7 +872,7 @@ void Test_01_Table::test_augment_row_s()
     CPPUNIT_ASSERT_EQUAL(record, records[1]);
 }
 
-void Test_01_Table::test_augment_row_i()
+void Test_01_Table::test_augment_existing_row_i()
 {
     Table table;
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
@@ -884,11 +884,11 @@ void Test_01_Table::test_augment_row_i()
     table.add_row("c130", "blasphemy", "f16", "nope");
     table.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
-    table.augment_rows_transaction_begin();
-    table.augment_row(0, "third", 61);
-    table.augment_row(3, "third", 71882);
-    table.augment_row(2, "third", 1567);
-    table.augment_rows_transaction_end();
+    table.augment_existing_rows_transaction_begin();
+    table.augment_existing_row(0, "third", 61);
+    table.augment_existing_row(3, "third", 71882);
+    table.augment_existing_row(2, "third", 1567);
+    table.augment_existing_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
     const vector<Record>& records = table.get_records();
     CPPUNIT_ASSERT_EQUAL(3, (int)records.size());
@@ -910,7 +910,7 @@ void Test_01_Table::test_augment_row_i()
     CPPUNIT_ASSERT_EQUAL(record, records[2]);
 }
 
-void Test_01_Table::test_augment_row_dead()
+void Test_01_Table::test_augment_existing_row_dead()
 {
     Table table;
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
@@ -919,7 +919,7 @@ void Test_01_Table::test_augment_row_dead()
     table.add_row("colOne", "valTwo", "colTwo", 141);
     table.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
-    table.augment_rows_transaction_begin();
-    table.augment_rows_transaction_end();
+    table.augment_existing_rows_transaction_begin();
+    table.augment_existing_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(false, table.is_alive());
 }
