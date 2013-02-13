@@ -47,8 +47,8 @@ public:
     void syn_0_transaction_end();
     void syn_0_add_row(const std::string& val);
     void syn_0_add_row(int val);
-    const std::vector<Record>& syn_1_transaction_begin
-            (const std::string& syn);
+    std::pair<const std::vector<Record> *, int>
+    syn_1_transaction_begin(const std::string& syn);
     void syn_1_transaction_end();
     void syn_1_mark_row_ok(int row);
     void syn_00_transaction_begin(const std::string& synA,
@@ -59,20 +59,21 @@ public:
     void syn_00_add_row(const std::string& valA, int valB);
     void syn_00_add_row(int valA, const std::string& valB);
     void syn_00_add_row(int valA, int valB);
-    const std::vector<Record>& syn_01_transaction_begin(
-            const std::string& synNew, const std::string& synOld,
-            RecordValType rvType);
+    std::pair<const std::vector<Record> *, int>
+    syn_01_transaction_begin(const std::string& synNew,
+            const std::string& synOld, RecordValType rvType);
     void syn_01_transaction_end();
     void syn_01_augment_new_row(int row, const std::string& val);
     void syn_01_augment_new_row(int row, int val);
-    const std::vector<Record>& syn_11_transaction_begin(
-            const std::string& synOne,
+    std::pair<const std::vector<Record> *, std::pair<int, int> >
+    syn_11_transaction_begin(const std::string& synOne,
             const std::string& synTwo);
     void syn_11_transaction_end();
     void syn_11_mark_row_ok(int row);
-    std::pair<const std::vector<Record> *, const std::vector<Record> * >
-        syn_22_transaction_begin(
-            const std::string& synOne, const std::string& synTwo);
+    std::pair<std::pair<const std::vector<Record> *, int>,
+              std::pair<const std::vector<Record> *, int> >
+    syn_22_transaction_begin(const std::string& synOne,
+            const std::string& synTwo);
     void syn_22_transaction_end();
     void syn_22_add_row(const Record& recOne, const Record& recTwo);
     void syn_22_add_row(int rowOne, int rowTwo);

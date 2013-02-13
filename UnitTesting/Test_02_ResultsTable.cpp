@@ -67,8 +67,10 @@ void Test_02_ResultsTable::test_syn_1_transaction()
     rTable.syn_0_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, rTable.is_alive());
 
-    const vector<Record>& recordsOne =
+    pair<const vector<Record> *, int> viPair =
             rTable.syn_1_transaction_begin("firstCol");
+    CPPUNIT_ASSERT_EQUAL(0, viPair.second);
+    const vector<Record>& recordsOne = *(viPair.first);
     CPPUNIT_ASSERT_EQUAL(3, (int)recordsOne.size());
     Record record;
     record.reset();
@@ -359,9 +361,11 @@ void Test_02_ResultsTable::test_syn_01_transaction_s()
     rTable.syn_00_add_row("Juventus", "Italy");
     rTable.syn_00_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, rTable.is_alive());
-    const vector<Record>& orgRecords =
+    pair<const vector<Record> *, int> viPair =
             rTable.syn_01_transaction_begin("Player", "Club",
-            RV_STRING);
+                    RV_STRING);
+    CPPUNIT_ASSERT_EQUAL(0, viPair.second);
+    const vector<Record>& orgRecords = *(viPair.first);
     CPPUNIT_ASSERT_EQUAL(6, (int)orgRecords.size());
     record.reset();
     record.add_value("Manchester United");
@@ -492,7 +496,10 @@ void Test_02_ResultsTable::test_syn_01_transaction_i()
     rTable.syn_00_add_row("USA", "Summer");
     rTable.syn_00_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, rTable.is_alive());
-    rTable.syn_01_transaction_begin("Temperature", "Season", RV_INT);
+    pair<const vector<Record> *, int> viPair =
+            rTable.syn_01_transaction_begin("Temperature", "Season",
+                    RV_INT);
+    CPPUNIT_ASSERT_EQUAL(1, viPair.second);
     rTable.syn_01_augment_new_row(4, 34);
     rTable.syn_01_augment_new_row(3, 0);
     rTable.syn_01_augment_new_row(1, -10);
@@ -599,8 +606,11 @@ void Test_02_ResultsTable::test_syn_11_transaction()
     rTable.syn_01_augment_new_row(6, "Gianfranco Zola");
     rTable.syn_01_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, rTable.is_alive());
-    const vector<Record>& tmpRecords =
+    pair<const vector<Record> *, pair<int, int> > vIIpair =
             rTable.syn_11_transaction_begin("Club", "Player");
+    CPPUNIT_ASSERT_EQUAL(0, vIIpair.second.first);
+    CPPUNIT_ASSERT_EQUAL(2, vIIpair.second.second);
+    const vector<Record>& tmpRecords = *(vIIpair.first);
     CPPUNIT_ASSERT_EQUAL(19, (int)tmpRecords.size());
     // mark rows multiple times, out of order, out of range
     rTable.syn_11_mark_row_ok(1);
@@ -693,10 +703,13 @@ void Test_02_ResultsTable::test_syn_22_transaction()
     rTable.syn_00_add_row("Lady Gaga", 34);
     rTable.syn_00_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, rTable.is_alive());
-    pair<const vector<Record> *, const vector<Record> *> ip =
+    pair<pair<const vector<Record> *, int>,
+         pair<const vector<Record> *, int> > vipPair =
             rTable.syn_22_transaction_begin("Club", "Singer");
-    const vector<Record> *aRecords = ip.first;
-    const vector<Record> *bRecords = ip.second;
+    CPPUNIT_ASSERT_EQUAL(0, vipPair.first.second);
+    CPPUNIT_ASSERT_EQUAL(0, vipPair.second.second);
+    const vector<Record> *aRecords = vipPair.first.first;
+    const vector<Record> *bRecords = vipPair.second.first;
     CPPUNIT_ASSERT_EQUAL(6, (int)aRecords->size());
     record.reset();
     record.add_value("Manchester United");

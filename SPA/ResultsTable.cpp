@@ -201,8 +201,8 @@ void ResultsTable::syn_0_add_row(int val)
     this->tableCheckedOutA->add_row(this->tableASyn, val);
 }
 
-const vector<Record>& ResultsTable::syn_1_transaction_begin(
-        const string& syn)
+pair<const vector<Record> *, int>
+ResultsTable::syn_1_transaction_begin(const string& syn)
 {
     assert(RTS_START == this->state);
     assert(this->has_synonym(syn));
@@ -216,7 +216,8 @@ const vector<Record>& ResultsTable::syn_1_transaction_begin(
     this->tableCheckedOutA = tableIt->second;
     this->tableCheckedOutA->mark_rows_transaction_begin();
     this->state = RTS_1_TRANSACT;
-    return this->tableCheckedOutA->get_records();
+    return make_pair(&(this->tableCheckedOutA->get_records()),
+                     this->tableCheckedOutA->get_synonym_column(syn));
 }
 
 void ResultsTable::syn_1_transaction_end()
@@ -309,8 +310,9 @@ void ResultsTable::syn_00_add_row(int valA, int valB)
             this->tableBSyn, valB);
 }
 
-const vector<Record>& ResultsTable::syn_01_transaction_begin(
-        const string& synNew, const string& synOld, RecordValType rvType)
+pair<const vector<Record> *, int>
+ResultsTable::syn_01_transaction_begin(const string& synNew,
+        const string& synOld, RecordValType rvType)
 {
     assert(RTS_START == this->state);
     assert(!this->has_synonym(synNew));
@@ -331,7 +333,9 @@ const vector<Record>& ResultsTable::syn_01_transaction_begin(
     this->tableASyn = synNew;
     this->synAType = rvType;
     this->state = RTS_01_TRANSACT;
-    return this->tableCheckedOutA->get_records();
+    int colIdx = this->tableCheckedOutA->get_synonym_column(synOld);
+    assert(colIdx != -1);
+    return make_pair(&(this->tableCheckedOutA->get_records()), colIdx);
 }
 
 void ResultsTable::syn_01_transaction_end()
@@ -360,8 +364,9 @@ void ResultsTable::syn_01_augment_new_row(int row, int val)
     this->tableCheckedOutA->augment_new_row(row, this->tableASyn, val);
 }
 
-const vector<Record>& ResultsTable::syn_11_transaction_begin(
-        const string& synOne, const string& synTwo)
+pair<const vector<Record> *, pair<int, int> >
+ResultsTable::syn_11_transaction_begin(const string& synOne,
+        const string& synTwo)
 {
     assert(RTS_START == this->state);
     assert(this->has_synonym(synOne));
@@ -381,7 +386,12 @@ const vector<Record>& ResultsTable::syn_11_transaction_begin(
     this->tableCheckedOutA = tableIt->second;
     this->tableCheckedOutA->mark_rows_transaction_begin();
     this->state = RTS_11_TRANSACT;
-    return this->tableCheckedOutA->get_records();
+    int colOne = this->tableCheckedOutA->get_synonym_column(synOne);
+    int colTwo = this->tableCheckedOutA->get_synonym_column(synTwo);
+    assert(colOne != -1);
+    assert(colTwo != -1);
+    return make_pair(&(this->tableCheckedOutA->get_records()),
+                     make_pair(colOne, colTwo));
 }
 
 void ResultsTable::syn_11_transaction_end()
@@ -403,9 +413,10 @@ void ResultsTable::syn_11_mark_row_ok(int row)
     this->tableCheckedOutA->mark_row_ok(row);
 }
 
-pair<const vector<Record> *, const vector<Record> * >
-        ResultsTable::syn_22_transaction_begin(
-            const string& synOne, const string& synTwo)
+pair<pair<const vector<Record> *, int>,
+     pair<const vector<Record> *, int> >
+ResultsTable::syn_22_transaction_begin(const string& synOne,
+        const string& synTwo)
 {
     assert(RTS_START == this->state);
     map<string, int>::const_iterator it, kt;
@@ -428,8 +439,17 @@ pair<const vector<Record> *, const vector<Record> * >
     this->tableBSyn = synTwo;
     this->tableCheckedOutA->add_rows_transaction_begin();
     this->state = RTS_22_TRANSACT;
-    return make_pair(&(this->tableCheckedOutA->get_records()),
-                     &(this->tableCheckedOutB->get_records()));
+    int aColumn = this->tableCheckedOutA->get_synonym_column(synOne);
+    assert(aColumn != -1);
+    int bColumn = this->tableCheckedOutB->get_synonym_column(synTwo);
+    assert(bColumn != -1);
+    pair<const vector<Record> *, int> pairOne =
+            make_pair(&(this->tableCheckedOutA->get_records()),
+                      aColumn);
+    pair<const vector<Record> *, int> pairTwo =
+            make_pair(&(this->tableCheckedOutB->get_records()),
+                      bColumn);
+    return make_pair(pairOne, pairTwo);
 }
 
 void ResultsTable::syn_22_transaction_end()
