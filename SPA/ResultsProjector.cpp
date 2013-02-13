@@ -1,6 +1,6 @@
 #include <cassert>
+#include <algorithm>
 #include <vector>
-#include <cstdlib>
 #include "ResultsProjector.h"
 #include "StringBuffer.h"
 
@@ -8,8 +8,10 @@ using std::list;
 using std::string;
 using std::vector;
 using std::set;
+using std::make_pair;
 using std::map;
 using std::pair;
+using std::sort;
 
 // internal method
 string int_to_string(int x)
@@ -32,11 +34,21 @@ string int_to_string(int x)
 }
 
 ResultsProjector::ResultsProjector()
-    : nrSelect(0), sb() {}
+    : nrSelect(0), sb(), tablesUsed(), tablesUsedMap(), columnToSyn(),
+      synToColumn(), columnCount(0), tableColToChoose(),
+      recGenRowChosen(), sortedResults()
+      {}
 
 void ResultsProjector::reset()
 {
     this->nrSelect = 0;
+    this->tablesUsed.clear();
+    this->tablesUsedMap.clear();
+    this->columnToSyn.clear();
+    this->synToColumn.clear();
+    this->columnCount = 0;
+    this->tableColToChoose.clear();
+    this->sortedResults.clear();
     this->synValues.clear();
     this->synToSetIndex.clear();
     this->synValuesSet.clear();
@@ -44,178 +56,192 @@ void ResultsProjector::reset()
     this->synRepeated.clear();
 }
 
-void ResultsProjector::add_syn_to_graph(ResultsGraph &resultsGraph,
-        const AttrRef &attrRef, PKB *pkb)
+void ResultsProjector::create_table_from_syn_set(
+        ResultsTable& resultsTable, const AttrRef& attrRef, PKB *pkb)
 {
     // TODO: Implement PKB methods for those left empty
     assert(attrRef.entType != ENT_INVALID);
     switch (attrRef.entType) {
     case ENT_PROC:
-        this->add_string_syn_to_graph(resultsGraph, attrRef, pkb,
-                &PKB::get_all_procs);
+        this->create_table_from_string_syn_set(resultsTable, attrRef,
+                pkb, &PKB::get_all_procs);
         break;
     case ENT_STMTLST:
-        this->add_int_syn_to_graph(resultsGraph, attrRef, pkb,
+        this->create_table_from_int_syn_set(resultsTable, attrRef, pkb,
                 &PKB::get_all_stmtLst);
         break;
     case ENT_STMT:
-        this->add_int_syn_to_graph(resultsGraph, attrRef, pkb,
+        this->create_table_from_int_syn_set(resultsTable, attrRef, pkb,
                 &PKB::get_all_stmt);
         break;
     case ENT_ASSIGN:
-        this->add_int_syn_to_graph(resultsGraph, attrRef, pkb,
+        this->create_table_from_int_syn_set(resultsTable, attrRef, pkb,
                 &PKB::get_all_assign);
         break;
     case ENT_CALL:
-        this->add_int_syn_to_graph(resultsGraph, attrRef, pkb,
+        this->create_table_from_int_syn_set(resultsTable, attrRef, pkb,
                 &PKB::get_all_call);
         break;
     case ENT_WHILE:
-        this->add_int_syn_to_graph(resultsGraph, attrRef, pkb,
+        this->create_table_from_int_syn_set(resultsTable, attrRef, pkb,
                     &PKB::get_all_while);
         break;
     case ENT_IF:
-        this->add_int_syn_to_graph(resultsGraph, attrRef, pkb,
+        this->create_table_from_int_syn_set(resultsTable, attrRef, pkb,
                 &PKB::get_all_if);
         break;
     case ENT_VAR:
-        this->add_string_syn_to_graph(resultsGraph, attrRef, pkb,
-                &PKB::get_all_vars);
+        this->create_table_from_string_syn_set(resultsTable, attrRef,
+                pkb, &PKB::get_all_vars);
         break;
     case ENT_CONST:
-        this->add_int_syn_to_graph(resultsGraph, attrRef, pkb,
+        this->create_table_from_int_syn_set(resultsTable, attrRef, pkb,
                 &PKB::get_all_const);
         break;
     case ENT_PROGLINE:
-        this->add_int_syn_to_graph(resultsGraph, attrRef, pkb,
+        this->create_table_from_int_syn_set(resultsTable, attrRef, pkb,
                 &PKB::get_all_progline);
         break;
     }
 }
 
-void ResultsProjector::add_int_syn_to_graph(ResultsGraph &resultsGraph,
-        const AttrRef &attrRef, PKB *pkb,
+void ResultsProjector::create_table_from_int_syn_set(
+        ResultsTable& resultsTable, const AttrRef &attrRef, PKB *pkb,
         set<int> (PKB::*retrieve_int_set)() const)
 {
     DesignEnt entType = attrRef.entType;
     const string& synName = attrRef.syn;
-    set<int> synSet = (pkb->*retrieve_int_set)();
-    for (set<int>::const_iterator it = synSet.begin(); it != synSet.end();
-            it++) {
-        resultsGraph.add_vertex(entType, synName, *it);
-    }
+    Table *table = Table::create_from_set(synName,
+            (pkb->*retrieve_int_set)());
+    resultsTable.absorb_table(table);
 }
 
-void ResultsProjector::add_string_syn_to_graph(ResultsGraph &resultsGraph,
-        const AttrRef &attrRef, PKB *pkb,
+void ResultsProjector::create_table_from_string_syn_set(
+        ResultsTable& resultsTable, const AttrRef &attrRef, PKB *pkb,
         set<string> (PKB::*retrieve_string_set)() const)
 {
     DesignEnt entType = attrRef.entType;
     const string& synName = attrRef.syn;
-    set<string> synSet = (pkb->*retrieve_string_set)();
-    for (set<string>::const_iterator it = synSet.begin();
-            it != synSet.end(); it++) {
-        resultsGraph.add_vertex(entType, synName, *it);
-    }
+    Table *table = Table::create_from_set(synName,
+            (pkb->*retrieve_string_set)());
+    resultsTable.absorb_table(table);
 }
 
-void ResultsProjector::get_results(
-        ResultsGraph& resultsGraph,
+void ResultsProjector::get_results(ResultsTable& resultsTable,
         QueryInfo *qinfo, PKB *pkb, list<string>& results)
 {
     this->reset();
     results.clear();
     SelectType selectType = qinfo->get_selectType();
     if (selectType == SEL_BOOLEAN) {
-        if (resultsGraph.is_alive()) {
+        if (resultsTable.is_alive()) {
             results.push_back("True");
         } else {
             results.push_back("False");
         }
     }
-    if (!resultsGraph.is_alive()) {
+    if (!resultsTable.is_alive()) {
         return;
     }
     const vector<AttrRef>& selectTuple = qinfo->get_selectTuple();
     this->nrSelect = selectTuple.size();
+    // create new tables for synonyms not in any clauses
     for (int i = 0; i < this->nrSelect; i++) {
         const AttrRef& attrRef = selectTuple[i];
-        // synonym is new, add everything into graph
-        if (!resultsGraph.has_syn(attrRef.syn)) {
-            this->add_syn_to_graph(resultsGraph, attrRef, pkb);
+        if (!resultsTable.has_synonym(attrRef.syn)) {
+            this->create_table_from_syn_set(resultsTable, attrRef, pkb);
         }
-        if (this->synToSetIndex.find(attrRef.syn) ==
-                this->synToSetIndex.end()) {
-            set<pair<int, string> > synValuesSet =
-                resultsGraph.get_synonym(attrRef.syn);
-            if (synValuesSet.size() <= 0) {
-                return;
-            }
-            int synId = (int)this->synToSetIndex.size();
-            this->synToSetIndex[attrRef.syn] = synId;
-            this->synValuesSet.push_back(synValuesSet);
-            this->synRepeated.push_back(false);
-        } else {
-            this->synRepeated.push_back(true);
-        }
-        int synId = this->synToSetIndex[attrRef.syn];
-        this->synIndices.push_back(synId);
     }
-    this->recursive_generate(0, selectTuple, qinfo, pkb, results);
+    resultsTable.checkout_transaction_begin();
+    // get the set of tables required and construct table,column info
+    for (int i = 0; i < this->nrSelect; i++) {
+        const AttrRef& attrRef = selectTuple[i];
+        Table *table = resultsTable.checkout_table(attrRef.syn);
+        const map<string, int>& synToCol = table->get_synonym_to_col();
+        int tableLabel = -1;
+        int tableCol = -1;
+        map<Table *, int>::const_iterator tableIdxIt =
+                this->tablesUsedMap.find(table);
+        if (tableIdxIt == this->tablesUsedMap.end()) {
+            tableLabel = (int)this->tablesUsed.size();
+            this->tablesUsedMap[table] = tableLabel;
+            this->tablesUsed.push_back(table);
+        } else {
+            tableLabel = tableIdxIt->second;
+        }
+        map<string, int>::const_iterator siIt =
+                synToCol.find(attrRef.syn);
+        assert(siIt != synToCol.end());
+        tableCol = siIt->second;
+        assert(tableLabel != -1 && tableCol != -1);
+        this->tableColToChoose.push_back(
+                    make_pair(tableLabel, tableCol));
+    }
+    this->recGenRowChosen =
+            vector<int>((int)this->tablesUsed.size() + 5, -1);
+    this->recursive_generate(0, qinfo, pkb);
+    resultsTable.checkout_transaction_end();
+    results = list<string>(this->sortedResults.begin(),
+            this->sortedResults.end());
 }
 
 void ResultsProjector::recursive_generate(int n,
-        const vector<AttrRef>& selectTuple,
-        QueryInfo *qinfo, PKB *pkb, list<string>& results)
+        QueryInfo *qinfo, PKB *pkb)
 {
-    if (n >= this->nrSelect) {
+    if (n >= this->tablesUsed.size()) {
         // generate results
+        const vector<AttrRef>& selectTuple = qinfo->get_selectTuple();
         this->sb.clear();
         for (int i = 0; i < this->nrSelect; i++) {
             if (i > 0) {
                 this->sb.append(',');
             }
             const AttrRef& attrRef = selectTuple[i];
-            map<string, string>::const_iterator
-                it = this->synValues.find(attrRef.syn);
-            assert(it != this->synValues.end());
+            const pair<int, int>& tableColPair =
+                    this->tableColToChoose[i];
+            int tableIdx = tableColPair.first;
+            int colIdx = tableColPair.second;
+            Table *table = this->tablesUsed[tableIdx];
+            const vector<Record>& records = table->get_records();
+            int rowChosen = this->recGenRowChosen[tableIdx];
+            const Record& record = records[rowChosen];
+            const pair<string, int>& recordField =
+                    record.get_column(colIdx);
             // handle call.procName
             if (attrRef.entType == ENT_CALL &&
                     attrRef.attr == ATTR_PROCNAME) {
                 string callProcName =
-                        pkb->get_call_procName(atoi(it->second.c_str()));
+                        pkb->get_call_procName(recordField.second);
                 assert(callProcName != StmtBank::EMPTY_NAME);
                 this->sb.append(callProcName);
             } else {
-                this->sb.append(it->second);
+                switch (attrRef.entType) {
+                case ENT_ASSIGN:
+                case ENT_CALL:
+                case ENT_IF:
+                case ENT_WHILE:
+                case ENT_STMTLST:
+                case ENT_STMT:
+                case ENT_PROGLINE:
+                case ENT_CONST:
+                    this->sb.append(int_to_string(recordField.second));
+                    break;
+                case ENT_PROC:
+                case ENT_VAR:
+                    this->sb.append(recordField.first);
+                    break;
+                }
             }
         }
-        results.push_back(this->sb.toString());
+        this->sortedResults.insert(this->sb.toString());
         return;
-    }
-    const AttrRef& attrRef = selectTuple[n];
-    if (this->synRepeated[n]) {
-        this->recursive_generate(n+1, selectTuple, qinfo, pkb, results);
     } else {
-        bool useInt;
-        switch (attrRef.entType) {
-        case ENT_PROC:
-        case ENT_VAR:
-            useInt = false;
-            break;
-        default:
-            useInt = true;
-        }
-        for (set<pair<int, string> >::const_iterator
-                it = this->synValuesSet[n].begin();
-                it != this->synValuesSet[n].end(); it++) {
-            if (useInt) {
-                this->synValues[attrRef.syn] =
-                        int_to_string(it->first);
-            } else {
-                this->synValues[attrRef.syn] = it->second;
-            }
-            this->recursive_generate(n+1, selectTuple, qinfo, pkb, results);
+        const vector<Record>& records =
+                this->tablesUsed[n]->get_records();
+        int nrRecords = records.size();
+        for (int i = 0; i < nrRecords; i++) {
+            this->recGenRowChosen[n] = i;
+            this->recursive_generate(n+1, qinfo, pkb);
         }
     }
 }

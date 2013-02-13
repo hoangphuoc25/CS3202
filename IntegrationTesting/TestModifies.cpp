@@ -153,9 +153,10 @@ void TestModifies::test_modifies_single()
     queryStr = "assign a; variable v; Select v such that Modifies(a,v)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(19, "x", "a", "b",
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(19, "x", "a", "b",
             "y", "kerb", "big", "g2", "xcz", "well", "vv", "noway",
-            "hi", "thank", "xyz", "aa", "yes", "im", "dont", "xc"));
+            "hi", "thank", "xyz", "aa", "yes", "im", "dont", "xc"),
+            stringSet);
     queryStr = "assign abb; variable jnah#; Select abb such that ";
     queryStr += " Modifies(abb, jnah#   \n)";
     evaluator.evaluate(queryStr, resultList);

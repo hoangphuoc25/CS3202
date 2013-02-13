@@ -6,7 +6,6 @@
 #include <string>
 #include "PKB.h"
 #include "PQLParser.h"
-#include "ResultsGraph.h"
 #include "ResultsTable.h"
 #include "ResultsProjector.h"
 
@@ -86,7 +85,7 @@ struct EvalPKBDispatch {
 
     // Generic QueryEvaluator evaluation function
     void (QueryEvaluator::*relRef_eval)
-             (RelRef *relRef, const EvalPKBDispatch&);
+             (int rTableIdx, RelRef *relRef, const EvalPKBDispatch&);
 
     EvalPKBDispatch();
     void reset();
@@ -102,6 +101,7 @@ public:
     void evaluate(const std::string& queryStr,
             std::list<std::string>& resultSet);
 private:
+    void reset();
     // Setup dispatch table for Modifies, Uses, etc
     void setup_modifies();
     void setup_uses();
@@ -127,8 +127,8 @@ private:
     void partition_evaluation_partition(int nrClauses);
 
     bool relRef_arg_use_string(DesignEnt entType) const;
-    void evaluate_relRef(RelRef *relRef);
-    void ev_relRef_syn_syn(RelRef *relRef);
+    void evaluate_relRef(int rTableIdx, RelRef *relRef);
+    void ev_relRef_syn_syn(int rTableIdx, RelRef *relRef);
     // How to read these functions
     // eg. ev_rr_ss_string_string_00_from_argOne
     //     ev = evaluate, rr = relRef, ss = syn syn (both args are syn)
@@ -138,37 +138,37 @@ private:
     //                   we can choose to get either all arg 1 or all arg 2
     //                   from the PKB. In this case, we choose to get all
     //                   all arg 1. Hence from_argOne
-    void ev_rr_ss_string_string_00_from_argOne(RelRef *relRef,
+    void ev_rr_ss_string_string_00_from_argOne(int rTableIdx,
+            RelRef *relRef, const EvalPKBDispatch& disp);
+    // Currently, nothing uses this and it does not seem it will be used
+    void ev_rr_ss_string_string_00_from_argTwo(int rTableIdx,
+            RelRef *relRef, const EvalPKBDispatch& disp);
+    void ev_rr_ss_string_string_01(int rTableIdx, RelRef *relRef,
+            const EvalPKBDispatch& disp);
+    void ev_rr_ss_string_string_10(int rTableIdx, RelRef *relRef,
+            const EvalPKBDispatch& disp);
+    void ev_rr_ss_string_string_11(int rTableIdx, RelRef *relRef,
             const EvalPKBDispatch& disp);
     // Currently, nothing uses this and it does not seem it will be used
-    void ev_rr_ss_string_string_00_from_argTwo(RelRef *relRef,
-            const EvalPKBDispatch& disp);
-    void ev_rr_ss_string_string_01(RelRef *relRef,
-            const EvalPKBDispatch& disp);
-    void ev_rr_ss_string_string_10(RelRef *relRef,
-            const EvalPKBDispatch& disp);
-    void ev_rr_ss_string_string_11(RelRef *relRef,
+    void ev_rr_ss_string_int_00_from_argOne(int rTableIdx,
+            RelRef *relRef, const EvalPKBDispatch& disp);
+    // Currently, nothing uses this and it does not seem it will be used
+    void ev_rr_ss_string_int_00_from_argTwo(int rTableIdx,
+            RelRef *relRef, const EvalPKBDispatch& disp);
+    // Currently, nothing uses this and it does not seem it will be used
+    void ev_rr_ss_string_int_01(int rTableIdx, RelRef *relRef,
             const EvalPKBDispatch& disp);
     // Currently, nothing uses this and it does not seem it will be used
-    void ev_rr_ss_string_int_00_from_argOne(RelRef *relRef,
+    void ev_rr_ss_string_int_10(int rTableIdx, RelRef *relRef,
             const EvalPKBDispatch& disp);
     // Currently, nothing uses this and it does not seem it will be used
-    void ev_rr_ss_string_int_00_from_argTwo(RelRef *relRef,
+    void ev_rr_ss_string_int_11(int rTableIdx, RelRef *relRef,
             const EvalPKBDispatch& disp);
-    // Currently, nothing uses this and it does not seem it will be used
-    void ev_rr_ss_string_int_01(RelRef *relRef,
-            const EvalPKBDispatch& disp);
-    // Currently, nothing uses this and it does not seem it will be used
-    void ev_rr_ss_string_int_10(RelRef *relRef,
-            const EvalPKBDispatch& disp);
-    // Currently, nothing uses this and it does not seem it will be used
-    void ev_rr_ss_string_int_11(RelRef *relRef,
-            const EvalPKBDispatch& disp);
-    void ev_rr_ss_int_string_00_from_argOne(RelRef *relRef,
-            const EvalPKBDispatch& disp);
+    void ev_rr_ss_int_string_00_from_argOne(int rTableIdx,
+            RelRef *relRef, const EvalPKBDispatch& disp);
     // not used for now
-    void ev_rr_ss_int_string_00_from_argTwo(RelRef *relRef,
-            const EvalPKBDispatch& disp);
+    void ev_rr_ss_int_string_00_from_argTwo(int rTableIdx,
+            RelRef *relRef, const EvalPKBDispatch& disp);
     /*
      * Evaluates RelRef where both arguments are synonyms; the
      * first synonym has values of type integer and was not previously
@@ -182,34 +182,33 @@ private:
      *    RelRef(X,Y).
      * 3. Add edge(X,Y) to the graph.
      */
-    void ev_rr_ss_int_string_01(RelRef *relRef,
+    void ev_rr_ss_int_string_01(int rTableIdx, RelRef *relRef,
             const EvalPKBDispatch& disp);
-    void ev_rr_ss_int_string_10(RelRef *relRef,
+    void ev_rr_ss_int_string_10(int rTableIdx, RelRef *relRef,
             const EvalPKBDispatch& disp);
-    void ev_rr_ss_int_string_11(RelRef *relRef,
+    void ev_rr_ss_int_string_11(int rTableIdx, RelRef *relRef,
             const EvalPKBDispatch& disp);
-    void ev_rr_ss_int_int_00_from_argOne(RelRef *relRef,
+    void ev_rr_ss_int_int_00_from_argOne(int rTableIdx, RelRef *relRef,
             const EvalPKBDispatch& disp);
-    void ev_rr_ss_int_int_00_from_argTwo(RelRef *relRef,
+    void ev_rr_ss_int_int_00_from_argTwo(int rTableIdx, RelRef *relRef,
             const EvalPKBDispatch& disp);
-    void ev_rr_ss_int_int_01(RelRef *relRef,
+    void ev_rr_ss_int_int_01(int rTableIdx, RelRef *relRef,
             const EvalPKBDispatch& disp);
-    void ev_rr_ss_int_int_10(RelRef *relRef,
+    void ev_rr_ss_int_int_10(int rTableIdx, RelRef *relRef,
             const EvalPKBDispatch& disp);
-    void ev_rr_ss_int_int_11(RelRef *relRef,
+    void ev_rr_ss_int_int_11(int rTableIdx, RelRef *relRef,
             const EvalPKBDispatch& disp);
 
     // evaluate relRef, one of the arguments is a synonym
-    void ev_relRef_syn_X(RelRef *relRef);
-    void ev_relRef_X_syn(RelRef *relRef);
+    void ev_relRef_syn_X(int rTableIdx, RelRef *relRef);
+    void ev_relRef_X_syn(int rTableIdx, RelRef *relRef);
     // evaluate relRef, none of the arguments is a synonym
-    void ev_relRef_X_X(RelRef *relRef);
+    void ev_relRef_X_X(int rTableIdx, RelRef *relRef);
 
-    void evaluate_patCl(PatCl *patCl);
+    void evaluate_patCl(int rTableIdx, PatCl *patCl);
 
     PQLParser pqlParser;
     PKB *pkb;
-    ResultsGraph results;
     ResultsProjector resultsProjector;
     std::map<EvalSynArgDesc, EvalPKBDispatch,
              EvalSynArgDescCmp> dispatchTable;

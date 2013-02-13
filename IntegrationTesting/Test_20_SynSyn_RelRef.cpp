@@ -15,7 +15,7 @@ void Test_20_SynSyn_RelRef::tearDown() {}
 
 CPPUNIT_TEST_SUITE_REGISTRATION(Test_20_SynSyn_RelRef);
 
-void Test_20_SynSyn_RelRef::test_uses_modifies_same_variable()
+void Test_20_SynSyn_RelRef::test_variables_both_modified_and_used()
 {
     string simpleProg, queryStr;
     list<string> resultList;
@@ -57,10 +57,8 @@ void Test_20_SynSyn_RelRef::test_uses_modifies_same_variable()
     // assignment that uses them:
     //   apple [12], x5 [6, 9], ab [2, 12], this [15]
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(20, "2,apple", "2,x5",
-            "2,ab", "2,this", "6,apple", "6,x5", "6,ab", "6,this",
-            "9,apple", "9,x5", "9,ab", "9,this", "12,apple", "12,x5",
-            "12,ab", "12,this", "15,apple", "15,x5", "15,ab", "15,this"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "12,apple", "6,x5",
+            "9,x5", "2,ab", "12,ab", "15,this"),
             stringSet);
 }
 
@@ -95,11 +93,9 @@ void Test_20_SynSyn_RelRef::test_ev_rr_ss_string_string_00_from_argOne()
     queryStr += " Modifies(psa,jsa)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(18, "evRRss,a", "evRRss,iOne",
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(9, "evRRss,a", "evRRss,iOne",
             "evRRss,mm", "evRRss,no", "evRRss,thats", "evRRss,be",
-            "evRRss,my", "evRRss,yes", "evRRss,obey", "twoProc,a",
-            "twoProc,iOne", "twoProc,mm", "twoProc,no", "twoProc,thats",
-            "twoProc,be", "twoProc,my", "twoProc,yes", "twoProc,obey"),
+            "evRRss,my", "twoProc,yes", "twoProc,obey"),
             stringSet);
 }
 
@@ -129,7 +125,7 @@ void Test_20_SynSyn_RelRef::test_ev_rr_ss_string_string_01()
                can = see; \
                thenIs = good; \
              } else { \
-               otherwise = good + luck + to - me; \
+               otherwise = good + luck + to - me + static; \
              } \
            } \
          } ";
@@ -140,13 +136,13 @@ void Test_20_SynSyn_RelRef::test_ev_rr_ss_string_string_01()
     //   a1, assign, can, hello, me, nobody, otherwise, static,
     //   thenIs, what
     // Variables above that are used by some procedure:
-    //   me [secProc], static [firstProc]
+    //   me [secProc], static [firstProc, secProc]
     // Procedures: firstProc, secProc
     evaluator.parseSimple(simpleProg);
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "me,firstProc",
-            "static,firstProc", "me,secProc", "static,secProc"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "me,secProc",
+            "static,firstProc", "static,secProc"),
             stringSet);
 }
 
@@ -191,6 +187,17 @@ void Test_20_SynSyn_RelRef::test_ev_rr_ss_string_string_10()
            from = 1246; \
            call GDay; \
          }";
+    // Procedures and variables they modify:
+    // Aleph: song, clap, aa, melody, alittle
+    // GDay: good, my, bb, noise
+    // UsesNothing: this, proc, uses, nothing
+    // UseFromCall: use, from, good, my, bb, noise
+    //
+    // Variables used by the procedures:
+    // Aleph: of, burchess, nice, your, hands, xt, bb, noise, tired
+    // GDay: morning, friends, cool, alittle, met
+    // UsesNothing:
+    // UseFromCall: morning, friends, alittle, met
     queryStr = "procedure asdf1; variable V1gds, Vjju; ";
     queryStr += " Select asdf1 such that Modifies(asdf1,V1gds) and ";
     queryStr += " Uses(asdf1, Vjju)";
@@ -238,15 +245,18 @@ void Test_20_SynSyn_RelRef::test_ev_rr_ss_string_string_11()
            my = 1; \
            a = 2; \
          }";
+    // Select <procedure,var> such that procedure both uses and
+    // modifies var
+    // Aone: today, i, help
+    // storyCont: you
+    // noCount:
     evaluator.parseSimple(simpleProg);
     queryStr = "procedure pavaA1; variable GJA; Select <pavaA1, GJA> ";
     queryStr += " such that Modifies(pavaA1, GJA) and Uses(pavaA1, GJA)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(12, "Aone,help", "Aone,i",
-            "Aone,my", "Aone,this", "Aone,today", "Aone,you",
-            "storyCont,help", "storyCont,i", "storyCont,my",
-            "storyCont,this", "storyCont,today", "storyCont,you"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "Aone,today", "Aone,i",
+            "Aone,help", "storyCont,you"),
             stringSet);
 }
 
@@ -276,13 +286,8 @@ void Test_20_SynSyn_RelRef::test_ev_rr_ss_int_string_00_from_argOne()
     queryStr += " such that Modifies(a12, Tgs)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(30, "1,term", "1,version",
-            "1,numb", "1,monotonic", "1,complete", "3,term", "3,version",
-            "3,numb", "3,monotonic", "3,complete", "4,term", "4,version",
-            "4,numb", "4,monotonic", "4,complete", "5,term", "5,version",
-            "5,numb", "5,monotonic", "5,complete", "6,term", "6,version",
-            "6,numb", "6,monotonic", "6,complete", "7,term", "7,version",
-            "7,numb", "7,monotonic", "7,complete"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "1,term", "3,version",
+            "4,numb", "5,numb", "6,monotonic", "7,complete"),
             stringSet);
 }
 
@@ -317,8 +322,24 @@ void Test_20_SynSyn_RelRef::test_ev_rr_ss_int_string_01()
     queryStr += " and Uses(axc, pib#1)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "1,test", "1,white",
-            "2,test", "2,white"),
+    // aeEx [assign] | pib#1 [var]
+    // (1,test), (2,white), (3,unit), (5,unit), (6,interactions),
+    // (7,less), (8,blackbox), (9,never), (10,dont), (11,at),
+    // (12,select)
+    // ---
+    // aeEx [assign] | pib#1 [var] | axc [assign]
+    // (1,test,3), (1,test,5), (1,test,10), (2,white,12)
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "1,test", "2,white"),
+            stringSet);
+    // select all the tuples
+    evaluator.parseSimple(simpleProg);
+    queryStr = " assign axc, aeEx; variable pib#1; ";
+    queryStr += " Select <aeEx, pib#1, axc> such that ";
+    queryStr += " Modifies(aeEx,pib#1) and Uses(axc, pib#1)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "1,test,3", "1,test,5",
+            "1,test,10", "2,white,12"),
             stringSet);
 }
 
@@ -332,7 +353,7 @@ void Test_20_SynSyn_RelRef::test_ev_rr_ss_int_string_10()
     simpleProg =
         "procedure Xone { \
            well = this + is; \
-           just = a + test; \
+           just = test * a + test; \
            while true { \
              prioritize = stuff; \
            } \
@@ -354,22 +375,32 @@ void Test_20_SynSyn_RelRef::test_ev_rr_ss_int_string_10()
     queryStr += " such that Modifies(gga, vy) and Uses(gga,v443)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(81, "a,1", "is,1",
-            "stuff,1", "techniques,1", "test,1", "testing,1", "this,1",
-            "time,1", "way,1", "a,2", "is,2", "stuff,2", "techniques,2",
-            "test,2", "testing,2", "this,2", "time,2", "way,2", "a,4",
-            "is,4", "stuff,4", "techniques,4", "test,4", "testing,4",
-            "this,4", "time,4", "way,4", "a,5", "is,5", "stuff,5",
-            "techniques,5", "test,5", "testing,5", "this,5", "time,5",
-            "way,5", "a,7", "is,7", "stuff,7", "techniques,7", "test,7",
-            "testing,7", "this,7", "time,7", "way,7", "a,8", "is,8",
-            "stuff,8", "techniques,8", "test,8", "testing,8", "this,8",
-            "time,8", "way,8", "a,9", "is,9", "stuff,9", "techniques,9",
-            "test,9", "testing,9", "this,9", "time,9", "way,9", "a,10",
-            "is,10", "stuff,10", "techniques,10", "test,10",
-            "testing,10", "this,10", "time,10", "way,10", "a,11",
-            "is,11", "stuff,11", "techniques,11", "test,11",
-            "testing,11", "this,11", "time,11", "way,11"),
+    // gga [assign] | vy [var]
+    // (1,well), (2,just), (4,prioritize), (5,easy), (7,efficient),
+    // (8,limited), (9,different), (10,exhaustive), (11,combination),
+    // (12,ncr)
+    // ---
+    // gga [assign] | vy [var] | v443 [var]
+    // (1,well,this), (1,well,is), (2,just,a), (2,just,test),
+    // (2,just,test), (4,prioritize,stuff), (5,easy,test),
+    // (7,efficient,way), (8,limited,time), (9,different,techniques),
+    // (10,exhaustive,testing), (11,combination,test)
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(11,
+            "this,1", "is,1", "a,2", "test,2", "stuff,4",
+            "test,5", "way,7", "time,8", "techniques,9", "testing,10",
+            "test,11"),
+            stringSet);
+    // Select all the tuples, duplicated "2,just,test" is eliminated
+    queryStr = " assign gga; variable vy, v443; ";
+    queryStr += " Select <gga, vy, v443> ";
+    queryStr += " such that Modifies(gga, vy) and Uses(gga,v443)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(11, "1,well,this",
+            "1,well,is", "2,just,a", "2,just,test", "4,prioritize,stuff",
+            "5,easy,test", "7,efficient,way", "8,limited,time",
+            "9,different,techniques", "10,exhaustive,testing",
+            "11,combination,test"),
             stringSet);
 }
 
@@ -416,20 +447,13 @@ void Test_20_SynSyn_RelRef::test_ev_rr_ss_int_string_11()
            date = date - now; \
            true = words; \
          }";
-    // 3, 5, 6, 14, 18, 19, 22
-    // date, point, ter, too, well
+    // (3,well), (5,point), (14,too), (18,too), (19,ter), (22,date)
     evaluator.parseSimple(simpleProg);
     queryStr = "assign abc; variable vtya; Select <abc,vtya> such that ";
     queryStr += " Modifies(abc,vtya) and Uses(abc,vtya)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(35, "3,date", "3,point",
-            "3,ter", "3,too", "3,well", "5,date", "5,point",
-            "5,ter", "5,too", "5,well", "6,date", "6,point",
-            "6,ter", "6,too", "6,well", "14,date", "14,point",
-            "14,ter", "14,too", "14,well", "18,date", "18,point",
-            "18,ter", "18,too", "18,well", "19,date", "19,point",
-            "19,ter", "19,too", "19,well", "22,date", "22,point",
-            "22,ter", "22,too", "22,well"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "3,well", "5,point",
+            "14,too", "18,too", "19,ter", "22,date"),
             stringSet);
 }

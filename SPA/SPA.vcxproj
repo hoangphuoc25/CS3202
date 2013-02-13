@@ -20,7 +20,6 @@
     <ClCompile Include="QueryEvaluator.cpp" />
     <ClCompile Include="ProcTable.cpp" />
     <ClCompile Include="Record.cpp" />
-    <ClCompile Include="ResultsGraph.cpp" />
     <ClCompile Include="ResultsProjector.cpp" />
     <ClCompile Include="ResultsTable.cpp" />
     <ClCompile Include="SetWrapper.cpp" />
@@ -42,7 +41,6 @@
     <ClInclude Include="QueryEvaluator.h" />
     <ClInclude Include="ProcTable.h" />
     <ClInclude Include="Record.h" />
-    <ClInclude Include="ResultsGraph.h" />
     <ClInclude Include="ResultsProjector.h" />
     <ClInclude Include="ResultsTable.h" />
     <ClInclude Include="SetWrapper.h" />

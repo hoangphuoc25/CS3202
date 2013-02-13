@@ -95,8 +95,12 @@ void EvalPKBDispatch::reset()
 //////////////////////////////////////////////////////////////////////
 
 QueryEvaluator::QueryEvaluator():
-        pqlParser(), pkb(NULL), results(), resultsProjector(),
-        isAlive(true)
+        pqlParser(), pkb(NULL), resultsProjector(),
+        isAlive(true),
+        graph_synMap(), graph_adjList(), graph_refToVertex(),
+        graph_vertexCC(), graph_nrVertexCC(0), graph_isolatedRef(),
+        partitionedClauses(),
+        resultsTable()
 {
     this->setup_modifies();
     this->setup_uses();
@@ -110,6 +114,13 @@ QueryEvaluator::QueryEvaluator():
     this->setup_nextStar();
     this->setup_affects();
     this->setup_affectsStar();
+}
+
+void QueryEvaluator::reset()
+{
+    this->isAlive = true;
+    this->partitionedClauses.clear();
+    this->resultsTable.clear();
 }
 
 void QueryEvaluator::setup_modifies()
@@ -383,7 +394,7 @@ void QueryEvaluator::evaluate(const string& queryStr,
         list<string>& resultSet)
 {
     QueryInfo *qinfo;
-    results.reset();
+    this->reset();
     this->pqlParser.parse(queryStr, true, true);
     qinfo = this->pqlParser.get_queryinfo();
     this->partition_evaluation(qinfo);
@@ -391,10 +402,55 @@ void QueryEvaluator::evaluate(const string& queryStr,
     // Evaluate isolated refs
     for (set<int>::const_iterator it = this->graph_isolatedRef.begin();
             this->isAlive && it != this->graph_isolatedRef.end(); it++) {
-        // TODO: Implement
+        // TODO: Implement!!!
     }
     if (this->isAlive) {
+        // Evaluate everything (sequentially for now)
+        // NOTE: Take care when we parallelize this
+        int nrPartitions = this->partitionedClauses.size();
+        for (int rTableIdx = 0; rTableIdx < nrPartitions; rTableIdx++) {
+            const vector<int>& vec = this->partitionedClauses[rTableIdx];
+            int nrClauses = vec.size();
+            const ResultsTable& rTable = this->resultsTable[rTableIdx];
+            for (int k = 0; k < nrClauses && rTable.is_alive(); k++) {
+                int clauseIdx = vec[k];
+                ClauseType clauseType =
+                        qinfo->get_nth_clause_type(clauseIdx);
+                assert(clauseType != INVALID_CLAUSE);
+                GenericRef *genericRef =
+                        qinfo->get_nth_clause(clauseIdx);
+                assert(genericRef != NULL);
+                if (clauseType == SUCHTHAT_CLAUSE) {
+                    RelRef *relRef = dynamic_cast<RelRef *>(genericRef);
+                    assert(relRef != NULL);
+                    this->evaluate_relRef(rTableIdx, relRef);
+                } else if (clauseType == WITH_CLAUSE) {
+                    // TODO: Implement when pql parser is done
+                } else if (clauseType == PATTERN_CLAUSE) {
+                    PatCl *patCl = dynamic_cast<PatCl *>(genericRef);
+                    assert(patCl != NULL);
+                    this->evaluate_patCl(rTableIdx, patCl);
+                }
+            }
+            if (!rTable.is_alive()) {
+                this->isAlive = false;
+                break;
+            }
+        }
     }
+    ResultsTable rTable;
+    if (this->isAlive) {
+        int len = this->resultsTable.size();
+        for (int i = 0; i < len; i++) {
+            if (this->resultsTable[i].is_alive()) {
+                rTable.absorb_ResultsTable(this->resultsTable[i]);
+            } else {
+                rTable.kill();
+                break;
+            }
+        }
+    }
+    this->resultsProjector.get_results(rTable, qinfo, pkb, resultSet);
 
     /*
     int nrClauses = qinfo->get_nr_clauses();
@@ -440,6 +496,7 @@ void QueryEvaluator::partition_evaluation(QueryInfo *qinfo)
     this->graph_refToVertex = vector<int>(nrClauses+5, -1);
     this->graph_vertexCC.clear();
     this->graph_isolatedRef.clear();
+    this->partitionedClauses.clear();
 
     // Build graph based on clauses
     for (int i = 0; i < nrClauses; i++) {
@@ -582,30 +639,31 @@ void QueryEvaluator::partition_evaluation_partition(int nrClauses)
     }
 }
 
-void QueryEvaluator::evaluate_relRef(RelRef *relRef)
+void QueryEvaluator::evaluate_relRef(int rTableIdx, RelRef *relRef)
 {
     if (relRef->argOneType == RELARG_SYN &&
             relRef->argTwoType == RELARG_SYN) {
-        this->ev_relRef_syn_syn(relRef);
+        this->ev_relRef_syn_syn(rTableIdx, relRef);
     } else if (relRef->argOneType == RELARG_SYN) {
-        this->ev_relRef_syn_X(relRef);
+        this->ev_relRef_syn_X(rTableIdx, relRef);
     } else if (relRef->argTwoType == RELARG_SYN) {
-        this->ev_relRef_X_syn(relRef);
+        this->ev_relRef_X_syn(rTableIdx, relRef);
     } else {
-        this->ev_relRef_X_X(relRef);
+        this->ev_relRef_X_X(rTableIdx, relRef);
     }
 }
 
-void QueryEvaluator::ev_relRef_syn_syn(RelRef *relRef)
+void QueryEvaluator::ev_relRef_syn_syn(int rTableIdx, RelRef *relRef)
 {
     enum SynInGraph synInGraph = SYN_ARGS_INVALID;
     EvalSynArgDesc evalSynArgDesc;
-    if (this->results.has_syn(relRef->argOneString) &&
-            this->results.has_syn(relRef->argTwoString)) {
+    const ResultsTable& rTable = this->resultsTable[rTableIdx];
+    if (rTable.has_synonym(relRef->argOneString) &&
+            rTable.has_synonym(relRef->argTwoString)) {
         synInGraph = SYN_SYN_11;
-    } else if (this->results.has_syn(relRef->argOneString)) {
+    } else if (rTable.has_synonym(relRef->argOneString)) {
         synInGraph = SYN_SYN_10;
-    } else if (this->results.has_syn(relRef->argTwoString)) {
+    } else if (rTable.has_synonym(relRef->argTwoString)) {
         synInGraph = SYN_SYN_01;
     } else {
         synInGraph = SYN_SYN_00;
@@ -619,17 +677,18 @@ void QueryEvaluator::ev_relRef_syn_syn(RelRef *relRef)
     assert(it != this->dispatchTable.end());
     assert(it->second.relRef_eval != NULL);
     // evaluate relRef
-    (this->*(it->second.relRef_eval)) (relRef, it->second);
-    // prune
-    this->results.prune(relRef->argOneString, relRef->argTwoString);
+    (this->*(it->second.relRef_eval)) (rTableIdx, relRef, it->second);
 }
 
-void QueryEvaluator::ev_rr_ss_string_string_00_from_argOne(RelRef *relRef,
-            const EvalPKBDispatch& disp)
+void QueryEvaluator::ev_rr_ss_string_string_00_from_argOne(
+        int rTableIdx, RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.get_all_string_argOne != NULL);
     assert(disp.get_string_set_argTwo_from_string_argOne != NULL);
     set<string> argOneSet = (this->pkb->*(disp.get_all_string_argOne))();
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    rTable.syn_00_transaction_begin(relRef->argOneString, RV_STRING,
+            relRef->argTwoString, RV_STRING);
     for (set<string>::const_iterator it = argOneSet.begin();
             it != argOneSet.end(); it++) {
         set<string> argTwoSet =
@@ -637,19 +696,22 @@ void QueryEvaluator::ev_rr_ss_string_string_00_from_argOne(RelRef *relRef,
                     (relRef->argOneSyn, relRef->argTwoSyn, *it);
         for (set<string>::const_iterator kt = argTwoSet.begin();
                 kt != argTwoSet.end(); kt++) {
-            this->results.add_edge(relRef->argOneSyn, relRef->argOneString,
-                    *it, relRef->argTwoSyn, relRef->argTwoString, *kt);
+            rTable.syn_00_add_row(*it, *kt);
         }
     }
+    rTable.syn_00_transaction_end();
 }
 
 // Currently, nothing uses this and it does not seem it will be used
-void QueryEvaluator::ev_rr_ss_string_string_00_from_argTwo(RelRef *relRef,
-        const EvalPKBDispatch& disp)
+void QueryEvaluator::ev_rr_ss_string_string_00_from_argTwo(
+        int rTableIdx, RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.get_all_string_argTwo != NULL);
     assert(disp.get_string_set_argOne_from_string_argTwo != NULL);
     set<string> argTwoSet = (this->pkb->*(disp.get_all_string_argTwo))();
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    rTable.syn_00_transaction_begin(relRef->argOneString, RV_STRING,
+            relRef->argTwoString, RV_STRING);
     for (set<string>::const_iterator it = argTwoSet.begin();
             it != argTwoSet.end(); it++) {
         set<string> argOneSet =
@@ -658,91 +720,102 @@ void QueryEvaluator::ev_rr_ss_string_string_00_from_argTwo(RelRef *relRef,
                         (relRef->argOneSyn, relRef->argTwoSyn, *it);
         for (set<string>::const_iterator kt = argOneSet.begin();
                 kt != argOneSet.end(); kt++) {
-            this->results.add_edge(relRef->argOneSyn,
-                    relRef->argOneString, *kt, relRef->argTwoSyn,
-                    relRef->argTwoString, *it);
+            rTable.syn_00_add_row(*kt, *it);
         }
     }
+    rTable.syn_00_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_string_string_01(RelRef *relRef,
-        const EvalPKBDispatch& disp)
+void QueryEvaluator::ev_rr_ss_string_string_01(int rTableIdx,
+        RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.get_all_string_argOne != NULL);
     assert(disp.get_string_set_argOne_from_string_argTwo != NULL);
-    set<pair<int, string> > argTwoSet =
-            this->results.get_synonym(relRef->argTwoString);
-    for (set<pair<int, string> >::const_iterator argTwoIt = argTwoSet.begin();
-            argTwoIt != argTwoSet.end(); argTwoIt++) {
-        const string& argTwoVal = argTwoIt->second;
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    pair<const vector<Record> *, int> viPair =
+            rTable.syn_01_transaction_begin(relRef->argOneString,
+                    relRef->argTwoString, RV_STRING);
+    const vector<Record>& argTwoVec = *(viPair.first);
+    int colIdx = viPair.second;
+    int nrRecords = argTwoVec.size();
+    for (int i = 0; i < nrRecords; i++) {
+        const Record& record = argTwoVec[i];
+        const pair<string, int> recPair = record.get_column(colIdx);
+        const string& argTwoVal = recPair.first;
         set<string> argOneSet =
             (this->pkb->*(disp.get_string_set_argOne_from_string_argTwo))
                     (relRef->argOneSyn, relRef->argTwoSyn, argTwoVal);
         for (set<string>::const_iterator argOneIt = argOneSet.begin();
                 argOneIt != argOneSet.end(); argOneIt++) {
-            this->results.add_edge(relRef->argOneSyn, relRef->argOneString,
-                    *argOneIt, relRef->argTwoSyn, relRef->argTwoString,
-                    argTwoVal);
+            rTable.syn_01_augment_new_row(i, *argOneIt);
         }
     }
+    rTable.syn_01_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_string_string_10(RelRef *relRef,
-        const EvalPKBDispatch& disp)
+void QueryEvaluator::ev_rr_ss_string_string_10(int rTableIdx,
+        RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.get_all_string_argTwo != NULL);
     assert(disp.get_string_set_argTwo_from_string_argOne != NULL);
-    set<pair<int, string> > argOneSet =
-            this->results.get_synonym(relRef->argOneString);
-    for (set<pair<int, string> >::const_iterator argOneIt = argOneSet.begin();
-            argOneIt != argOneSet.end(); argOneIt++) {
-        const string& argOneVal = argOneIt->second;
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    pair<const vector<Record> *, int> viPair =
+            rTable.syn_10_transaction_begin(relRef->argOneString,
+                    relRef->argTwoString, RV_STRING);
+    const vector<Record>& argOneVec = *(viPair.first);
+    int nrRecords = argOneVec.size();
+    int colIdx = viPair.second;
+    for (int i = 0; i < nrRecords; i++) {
+        const Record& record = argOneVec[i];
+        const pair<string, int>& recPair = record.get_column(colIdx);
+        const string& argOneVal = recPair.first;
         set<string> argTwoSet =
                 (this->pkb->*(disp.get_string_set_argTwo_from_string_argOne))
                         (relRef->argOneSyn, relRef->argTwoSyn, argOneVal);
         for (set<string>::const_iterator argTwoIt = argTwoSet.begin();
                 argTwoIt != argTwoSet.end(); argTwoIt++) {
-            this->results.add_edge(relRef->argOneSyn, relRef->argOneString,
-                    argOneVal, relRef->argTwoSyn, relRef->argTwoString,
-                    *argTwoIt);
+            rTable.syn_10_augment_new_row(i, *argTwoIt);
         }
     }
+    rTable.syn_10_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_string_string_11(RelRef *relRef,
-        const EvalPKBDispatch& disp)
+void QueryEvaluator::ev_rr_ss_string_string_11(int rTableIdx,
+        RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.f_string_argOne_string_argTwo != NULL);
-    set<pair<int, string> > argOneSet =
-            this->results.get_synonym(relRef->argOneString);
-    set<pair<int, string> > argTwoSet =
-            this->results.get_synonym(relRef->argTwoString);
-    for (set<pair<int, string> >::const_iterator
-            argOneIt = argOneSet.begin(); argOneIt != argOneSet.end();
-            argOneIt++) {
-        const string& argOneVal = argOneIt->second;
-        for (set<pair<int, string> >::const_iterator
-                argTwoIt = argTwoSet.begin();
-                argTwoIt != argTwoSet.end(); argTwoIt++) {
-            const string& argTwoVal = argTwoIt->second;
-            if ((this->pkb->*(disp.f_string_argOne_string_argTwo))
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    pair<const vector<Record> *, pair<int, int> > viiPair =
+            rTable.syn_11_transaction_begin(relRef->argOneString,
+                    relRef->argTwoString);
+    const vector<Record>& records = *(viiPair.first);
+    int nrRecords = records.size();
+    int colOne = viiPair.second.first;
+    int colTwo = viiPair.second.second;
+    for (int i = 0; i < nrRecords; i++) {
+        const Record& record = records[i];
+        const pair<string, int>& pairOne = record.get_column(colOne);
+        const pair<string, int>& pairTwo = record.get_column(colTwo);
+        const string& argOneVal = pairOne.first;
+        const string& argTwoVal = pairTwo.first;
+        if ((this->pkb->*(disp.f_string_argOne_string_argTwo))
                         (relRef->argOneSyn, argOneVal,
                          relRef->argTwoSyn, argTwoVal)) {
-                this->results.add_edge(relRef->argOneSyn,
-                        relRef->argOneString, argOneVal,
-                        relRef->argTwoSyn, relRef->argTwoString,
-                        argTwoVal);
-            }
+            rTable.syn_11_mark_row_ok(i);
         }
     }
+    rTable.syn_11_transaction_end();
 }
 
 // Currently, nothing uses this and it does not seem it will be used
-void QueryEvaluator::ev_rr_ss_string_int_00_from_argOne(RelRef *relRef,
-        const EvalPKBDispatch& disp)
+void QueryEvaluator::ev_rr_ss_string_int_00_from_argOne(int rTableIdx,
+        RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.get_all_string_argOne != NULL);
     assert(disp.get_int_set_argTwo_from_string_argOne != NULL);
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    rTable.syn_00_transaction_begin(relRef->argOneString, RV_STRING,
+            relRef->argOneString, RV_INT);
     set<string> argOneSet = (this->pkb->*(disp.get_all_string_argOne))();
     for (set<string>::const_iterator it = argOneSet.begin();
             it != argOneSet.end(); it++) {
@@ -751,19 +824,21 @@ void QueryEvaluator::ev_rr_ss_string_int_00_from_argOne(RelRef *relRef,
                     (relRef->argOneSyn, relRef->argTwoSyn, *it);
         for (set<int>::const_iterator kt = argTwoSet.begin();
                 kt != argTwoSet.end(); kt++) {
-            this->results.add_edge(relRef->argOneSyn,
-                    relRef->argOneString, *it, relRef->argTwoSyn,
-                    relRef->argTwoString, *kt);
+            rTable.syn_00_add_row(*it, *kt);
         }
     }
+    rTable.syn_00_transaction_end();
 }
 
 // Currently, nothing uses this and it does not seem it will be used
-void QueryEvaluator::ev_rr_ss_string_int_00_from_argTwo(RelRef *relRef,
-        const EvalPKBDispatch& disp)
+void QueryEvaluator::ev_rr_ss_string_int_00_from_argTwo(int rTableIdx,
+        RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.get_all_int_argTwo != NULL);
     assert(disp.get_string_set_argOne_from_int_argTwo != NULL);
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    rTable.syn_00_transaction_begin(relRef->argOneString, RV_STRING,
+            relRef->argOneString, RV_INT);
     set<int> argTwoSet = (this->pkb->*(disp.get_all_int_argTwo))();
     for (set<int>::const_iterator it = argTwoSet.begin();
             it != argTwoSet.end(); it++) {
@@ -772,36 +847,38 @@ void QueryEvaluator::ev_rr_ss_string_int_00_from_argTwo(RelRef *relRef,
                     (relRef->argOneSyn, relRef->argTwoSyn, *it);
         for (set<string>::const_iterator kt = argOneSet.begin();
                 kt != argOneSet.end(); kt++) {
-                    this->results.add_edge(relRef->argOneSyn,
-                            relRef->argOneString, *kt,
-                            relRef->argTwoSyn, relRef->argTwoString, *it);
+            rTable.syn_00_add_row(*kt, *it);
         }
     }
+    rTable.syn_00_transaction_end();
 }
 
 // Currently, nothing uses this and it does not seem it will be used
-void QueryEvaluator::ev_rr_ss_string_int_01(RelRef *relRef,
-        const EvalPKBDispatch& disp)
+void QueryEvaluator::ev_rr_ss_string_int_01(int rTableIdx,
+        RelRef *relRef, const EvalPKBDispatch& disp)
 {
 }
 
 // Currently, nothing uses this and it does not seem it will be used
-void QueryEvaluator::ev_rr_ss_string_int_10(RelRef *relRef,
-        const EvalPKBDispatch& disp)
+void QueryEvaluator::ev_rr_ss_string_int_10(int rTableIdx,
+        RelRef *relRef, const EvalPKBDispatch& disp)
 {
 }
 
 // Currently, nothing uses this and it does not seem it will be used
-void QueryEvaluator::ev_rr_ss_string_int_11(RelRef *relRef,
-        const EvalPKBDispatch& disp)
+void QueryEvaluator::ev_rr_ss_string_int_11(int rTableIdx,
+        RelRef *relRef, const EvalPKBDispatch& disp)
 {
 }
 
-void QueryEvaluator::ev_rr_ss_int_string_00_from_argOne(RelRef *relRef,
-        const EvalPKBDispatch& disp)
+void QueryEvaluator::ev_rr_ss_int_string_00_from_argOne(int rTableIdx,
+        RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.get_all_int_argOne != NULL);
     assert(disp.get_string_set_argTwo_from_int_argOne != NULL);
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    rTable.syn_00_transaction_begin(relRef->argOneString, RV_INT,
+            relRef->argTwoString, RV_STRING);
     set<int> argOneSet = (this->pkb->*(disp.get_all_int_argOne))();
     for (set<int>::const_iterator it = argOneSet.begin();
             it != argOneSet.end(); it++) {
@@ -810,18 +887,21 @@ void QueryEvaluator::ev_rr_ss_int_string_00_from_argOne(RelRef *relRef,
                         (relRef->argOneSyn, relRef->argTwoSyn, *it);
         for (set<string>::const_iterator kt = argTwoSet.begin();
                 kt != argTwoSet.end(); kt++) {
-            this->results.add_edge(relRef->argOneSyn, relRef->argOneString,
-                    *it, relRef->argTwoSyn, relRef->argTwoString, *kt);
+            rTable.syn_00_add_row(*it, *kt);
         }
     }
+    rTable.syn_00_transaction_end();
 }
 
 // not used for now
-void QueryEvaluator::ev_rr_ss_int_string_00_from_argTwo(RelRef *relRef,
-        const EvalPKBDispatch& disp)
+void QueryEvaluator::ev_rr_ss_int_string_00_from_argTwo(int rTableIdx,
+        RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.get_all_string_argTwo != NULL);
     assert(disp.get_int_set_argOne_from_string_argTwo != NULL);
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    rTable.syn_00_transaction_begin(relRef->argOneString, RV_INT,
+            relRef->argTwoString, RV_STRING);
     set<string> argTwoSet = (this->pkb->*(disp.get_all_string_argTwo))();
     for (set<string>::const_iterator it = argTwoSet.begin();
             it != argTwoSet.end(); it++) {
@@ -830,22 +910,27 @@ void QueryEvaluator::ev_rr_ss_int_string_00_from_argTwo(RelRef *relRef,
                         (relRef->argOneSyn, relRef->argTwoSyn, *it);
         for (set<int>::const_iterator kt = argOneSet.begin();
                 kt != argOneSet.end(); kt++) {
-            this->results.add_edge(relRef->argOneSyn,
-                    relRef->argOneString, *kt, relRef->argTwoSyn,
-                    relRef->argTwoString, *it);
+            rTable.syn_00_add_row(*kt, *it);
         }
     }
+    rTable.syn_00_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_int_string_01(RelRef *relRef,
-        const EvalPKBDispatch& disp)
+void QueryEvaluator::ev_rr_ss_int_string_01(int rTableIdx,
+        RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.get_int_set_argOne_from_string_argTwo != NULL);
-    set<pair<int, string> > argTwoSet =
-            this->results.get_synonym(relRef->argTwoString);
-    for (set<pair<int, string> >::const_iterator argTwoIt =
-            argTwoSet.begin(); argTwoIt != argTwoSet.end(); argTwoIt++) {
-        const string& argTwoVal = argTwoIt->second;
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    pair<const vector<Record> *, int> viPair =
+            rTable.syn_01_transaction_begin(relRef->argOneString,
+                    relRef->argTwoString, RV_INT);
+    const vector<Record>& argTwoVec = *(viPair.first);
+    int nrRecords = argTwoVec.size();
+    int colIdx = viPair.second;
+    for (int i = 0; i < nrRecords; i++) {
+        const Record& record = argTwoVec[i];
+        const pair<string, int>& siPair = record.get_column(colIdx);
+        const string& argTwoVal = siPair.first;
         set<int> argOneSet =
                 (this->pkb->*
                         (disp.get_int_set_argOne_from_string_argTwo))
@@ -853,70 +938,74 @@ void QueryEvaluator::ev_rr_ss_int_string_01(RelRef *relRef,
                                  argTwoVal);
         for (set<int>::const_iterator argOneIt = argOneSet.begin();
                 argOneIt != argOneSet.end(); argOneIt++){
-            this->results.add_edge(relRef->argOneSyn,
-                    relRef->argOneString, *argOneIt, relRef->argTwoSyn,
-                    relRef->argTwoString, argTwoVal);
+            rTable.syn_01_augment_new_row(i, *argOneIt);
         }
     }
+    rTable.syn_01_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_int_string_10(RelRef *relRef,
-        const EvalPKBDispatch& disp)
+void QueryEvaluator::ev_rr_ss_int_string_10(int rTableIdx,
+        RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.get_string_set_argTwo_from_int_argOne != NULL);
-    set<pair<int, string> > argOneSet =
-            this->results.get_synonym(relRef->argOneString);
-    for (set<pair<int, string> >::const_iterator argOneIt =
-            argOneSet.begin(); argOneIt != argOneSet.end();
-            argOneIt++) {
-        int argOneVal = argOneIt->first;
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    pair<const vector<Record> *, int> viPair =
+            rTable.syn_10_transaction_begin(relRef->argOneString,
+                    relRef->argTwoString, RV_STRING);
+    const vector<Record>& argOneVec = *(viPair.first);
+    int nrRecords = argOneVec.size();
+    int colIdx = viPair.second;
+    for (int i = 0; i < nrRecords; i++) {
+        const Record& record = argOneVec[i];
+        const pair<string, int>& siPair = record.get_column(colIdx);
+        int argOneVal = siPair.second;
         set<string> argTwoSet =
                 (this->pkb->*(disp.get_string_set_argTwo_from_int_argOne))
                         (relRef->argOneSyn, relRef->argTwoSyn,
                          argOneVal);
         for (set<string>::const_iterator argTwoIt = argTwoSet.begin();
                 argTwoIt != argTwoSet.end(); argTwoIt++) {
-            const string& argTwoVal = *argTwoIt;
-            this->results.add_edge(relRef->argOneSyn, relRef->argOneString,
-                    argOneVal, relRef->argTwoSyn, relRef->argTwoString,
-                    argTwoVal);
+            rTable.syn_10_augment_new_row(i, *argTwoIt);
         }
     }
+    rTable.syn_10_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_int_string_11(RelRef *relRef,
-        const EvalPKBDispatch& disp)
+void QueryEvaluator::ev_rr_ss_int_string_11(int rTableIdx,
+        RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.f_int_argOne_string_argTwo != NULL);
-    set<pair<int, string> > argOneSet =
-            this->results.get_synonym(relRef->argOneString);
-    set<pair<int, string> > argTwoSet =
-            this->results.get_synonym(relRef->argTwoString);
-    for (set<pair<int, string> >::const_iterator
-            argOneIt = argOneSet.begin(); argOneIt != argOneSet.end();
-            argOneIt++) {
-        int argOneVal = argOneIt->first;
-        for (set<pair<int, string> >::const_iterator
-                argTwoIt = argTwoSet.begin();
-                argTwoIt != argTwoSet.end(); argTwoIt++) {
-            const string& argTwoVal = argTwoIt->second;
-            if ((this->pkb->*(disp.f_int_argOne_string_argTwo))
-                        (relRef->argOneSyn, argOneVal,
-                         relRef->argTwoSyn, argTwoVal)) {
-                this->results.add_edge(relRef->argOneSyn,
-                        relRef->argOneString, argOneVal,
-                        relRef->argTwoSyn, relRef->argTwoString,
-                        argTwoVal);
-            }
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    pair<const vector<Record> *, pair<int, int> > viiPair =
+            rTable.syn_11_transaction_begin(relRef->argOneString,
+                    relRef->argTwoString);
+    const vector<Record>& records = *(viiPair.first);
+    int nrRecords = records.size();
+    int colOne = viiPair.second.first;
+    int colTwo = viiPair.second.second;
+    for (int i = 0; i < nrRecords; i++) {
+        const Record& record = records[i];
+        const pair<string, int>& pairOne = record.get_column(colOne);
+        const pair<string, int>& pairTwo = record.get_column(colTwo);
+        int argOneVal = pairOne.second;
+        const string& argTwoVal = pairTwo.first;
+        if ((this->pkb->*(disp.f_int_argOne_string_argTwo))
+                    (relRef->argOneSyn, argOneVal,
+                        relRef->argTwoSyn, argTwoVal)) {
+            rTable.syn_11_mark_row_ok(i);
         }
     }
+    rTable.syn_11_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_int_int_00_from_argOne(RelRef *relRef,
-        const EvalPKBDispatch& disp)
+void QueryEvaluator::ev_rr_ss_int_int_00_from_argOne(int rTableIdx,
+        RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.get_all_int_argOne != NULL);
     assert(disp.get_int_set_argTwo_from_int_argOne != NULL);
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    rTable.syn_00_transaction_begin(relRef->argOneString, RV_INT,
+            relRef->argTwoString, RV_INT);
     set<int> argOneSet = (this->pkb->*(disp.get_all_int_argOne))();
     for (set<int>::const_iterator it = argOneSet.begin();
             it != argOneSet.end(); it++) {
@@ -925,18 +1014,20 @@ void QueryEvaluator::ev_rr_ss_int_int_00_from_argOne(RelRef *relRef,
                         (relRef->argOneSyn, relRef->argTwoSyn, *it);
         for (set<int>::const_iterator kt = argTwoSet.begin();
                 kt != argTwoSet.end(); kt++) {
-            this->results.add_edge(relRef->argOneSyn,
-                    relRef->argOneString, *it, relRef->argTwoSyn,
-                    relRef->argTwoString, *kt);
+            rTable.syn_00_add_row(*it, *kt);
         }
     }
+    rTable.syn_00_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_int_int_00_from_argTwo(RelRef *relRef,
-        const EvalPKBDispatch& disp)
+void QueryEvaluator::ev_rr_ss_int_int_00_from_argTwo(int rTableIdx,
+        RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.get_all_int_argTwo != NULL);
     assert(disp.get_int_set_argOne_from_int_argTwo != NULL);
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    rTable.syn_00_transaction_begin(relRef->argOneString, RV_INT,
+            relRef->argTwoString, RV_INT);
     set<int> argTwoSet = (this->pkb->*(disp.get_all_int_argTwo))();
     for (set<int>::const_iterator it = argTwoSet.begin();
             it != argTwoSet.end(); it++) {
@@ -945,40 +1036,39 @@ void QueryEvaluator::ev_rr_ss_int_int_00_from_argTwo(RelRef *relRef,
                         (relRef->argOneSyn, relRef->argTwoSyn, *it);
         for (set<int>::const_iterator kt = argOneSet.begin();
                 kt != argOneSet.end(); kt++) {
-            this->results.add_edge(relRef->argOneSyn,
-                    relRef->argOneString, *kt, relRef->argTwoSyn,
-                    relRef->argTwoString, *it);
+            rTable.syn_00_add_row(*kt, *it);
         }
     }
+    rTable.syn_00_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_int_int_01(RelRef *relRef,
+void QueryEvaluator::ev_rr_ss_int_int_01(int rTableIdx, RelRef *relRef,
         const EvalPKBDispatch& disp)
 {
 }
 
-void QueryEvaluator::ev_rr_ss_int_int_10(RelRef *relRef,
+void QueryEvaluator::ev_rr_ss_int_int_10(int rTableIdx, RelRef *relRef,
         const EvalPKBDispatch& disp)
 {
 }
 
-void QueryEvaluator::ev_rr_ss_int_int_11(RelRef *relRef,
+void QueryEvaluator::ev_rr_ss_int_int_11(int rTableIdx, RelRef *relRef,
         const EvalPKBDispatch& disp)
 {
 }
 
-void QueryEvaluator::ev_relRef_syn_X(RelRef *relRef)
+void QueryEvaluator::ev_relRef_syn_X(int rTableIdx, RelRef *relRef)
 {
 }
 
-void QueryEvaluator::ev_relRef_X_syn(RelRef *relRef)
+void QueryEvaluator::ev_relRef_X_syn(int rTableIdx, RelRef *relRef)
 {
 }
 
-void QueryEvaluator::ev_relRef_X_X(RelRef *relRef)
+void QueryEvaluator::ev_relRef_X_X(int rTableIdx, RelRef *relRef)
 {
 }
 
-void QueryEvaluator::evaluate_patCl(PatCl *patCl)
+void QueryEvaluator::evaluate_patCl(int rTableIdx, PatCl *patCl)
 {
 }
