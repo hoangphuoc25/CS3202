@@ -604,7 +604,7 @@ void QueryEvaluator::partition_evaluation_cc_bfs(int syn)
         q.pop();
         if (this->graph_vertexCC[v] == -1) {
             this->graph_vertexCC[v] = this->graph_nrVertexCC;
-            const set<int>& adjList = this->graph_adjList[syn];
+            const set<int>& adjList = this->graph_adjList[v];
             for (set<int>::const_iterator it = adjList.begin();
                     it != adjList.end(); it++) {
                 if (this->graph_vertexCC[*it] == -1) {
