@@ -14,7 +14,8 @@ enum SynInGraph {
     SYN_SYN_00, // both args syn, both not in graph
     SYN_SYN_01, // both args syn, 1st arg not in graph, 2nd arg in graph
     SYN_SYN_10, // both args syn, 1st arg in graph, 2nd arg not in graph
-    SYN_SYN_11, // both args syn, both args in graph
+    SYN_SYN_11, // both args syn, both in graph and in same table
+    SYN_SYN_22, // both args syn, both in graph but in diff tables
     SYN_X_0,    // 1st arg = syn, 2nd arg = not syn, syn not in graph
     SYN_X_1,    // 1st arg = syn, 2nd arg = not syn, syn in graph
     X_SYN_0,    // 1st arg = not syn, 2nd arg = syn, syn not in graph
@@ -149,6 +150,8 @@ private:
             const EvalPKBDispatch& disp);
     void ev_rr_ss_string_string_11(int rTableIdx, RelRef *relRef,
             const EvalPKBDispatch& disp);
+    void ev_rr_ss_string_string_22(int rTableIdx, RelRef *relRef,
+            const EvalPKBDispatch& disp);
     // Currently, nothing uses this and it does not seem it will be used
     void ev_rr_ss_string_int_00_from_argOne(int rTableIdx,
             RelRef *relRef, const EvalPKBDispatch& disp);
@@ -163,6 +166,9 @@ private:
             const EvalPKBDispatch& disp);
     // Currently, nothing uses this and it does not seem it will be used
     void ev_rr_ss_string_int_11(int rTableIdx, RelRef *relRef,
+            const EvalPKBDispatch& disp);
+    // Currently, nothing uses this and it does not seem it will be used
+    void ev_rr_ss_string_int_22(int rTableIdx, RelRef *relRef,
             const EvalPKBDispatch& disp);
     void ev_rr_ss_int_string_00_from_argOne(int rTableIdx,
             RelRef *relRef, const EvalPKBDispatch& disp);
@@ -188,6 +194,8 @@ private:
             const EvalPKBDispatch& disp);
     void ev_rr_ss_int_string_11(int rTableIdx, RelRef *relRef,
             const EvalPKBDispatch& disp);
+    void ev_rr_ss_int_string_22(int rTableIdx, RelRef *relRef,
+            const EvalPKBDispatch& disp);
     void ev_rr_ss_int_int_00_from_argOne(int rTableIdx, RelRef *relRef,
             const EvalPKBDispatch& disp);
     void ev_rr_ss_int_int_00_from_argTwo(int rTableIdx, RelRef *relRef,
@@ -197,6 +205,8 @@ private:
     void ev_rr_ss_int_int_10(int rTableIdx, RelRef *relRef,
             const EvalPKBDispatch& disp);
     void ev_rr_ss_int_int_11(int rTableIdx, RelRef *relRef,
+            const EvalPKBDispatch& disp);
+    void ev_rr_ss_int_int_22(int rTableIdx, RelRef *relRef,
             const EvalPKBDispatch& disp);
 
     // evaluate relRef, one of the arguments is a synonym
