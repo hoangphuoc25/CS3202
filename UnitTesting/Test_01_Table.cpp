@@ -31,6 +31,7 @@ void Test_01_Table::test_add_row_s()
     table.add_row("aOne", "damn");
     table.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table.get_synonym_column("aOne"));
     const map<int, string>& colToSyn = table.get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(1, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);
@@ -63,6 +64,7 @@ void Test_01_Table::test_add_row_i()
     table.add_row("varXE", 1718);
     table.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table.get_synonym_column("varXE"));
     const map<int, string>& colToSyn = table.get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(1, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);
@@ -95,6 +97,8 @@ void Test_01_Table::test_add_row_ss()
     table.add_row("yea", "ummmmS", "this", "amIright");
     table.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table.get_synonym_column("yea"));
+    CPPUNIT_ASSERT_EQUAL(1, table.get_synonym_column("this"));
     const map<int, string>& colToSyn = table.get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(2, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);
@@ -141,6 +145,8 @@ void Test_01_Table::test_add_row_si()
     table.add_row("Hobo", "ide", "ballooo", 33);
     table.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table.get_synonym_column("Hobo"));
+    CPPUNIT_ASSERT_EQUAL(1, table.get_synonym_column("ballooo"));
     const map<int, string>& colToSyn = table.get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(2, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);
@@ -182,6 +188,8 @@ void Test_01_Table::test_add_row_is()
     table.add_row("Tysav", 15, "Muba", "Fha1");
     table.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table.get_synonym_column("Tysav"));
+    CPPUNIT_ASSERT_EQUAL(1, table.get_synonym_column("Muba"));
     const map<int, string>& colToSyn = table.get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(2, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);
@@ -220,6 +228,8 @@ void Test_01_Table::test_add_row_ii()
     table.add_row("gleha1", 342467, "aAdgr1", 8);
     table.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table.get_synonym_column("gleha1"));
+    CPPUNIT_ASSERT_EQUAL(1, table.get_synonym_column("aAdgr1"));
     const map<int, string>& colToSyn = table.get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(2, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);
@@ -273,6 +283,9 @@ void Test_01_Table::test_add_row_r_s()
     table.add_row(firstTableColToSyn, firstRecords[2], "aOne", "damn");
     table.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table.get_synonym_column("first"));
+    CPPUNIT_ASSERT_EQUAL(1, table.get_synonym_column("secondCol"));
+    CPPUNIT_ASSERT_EQUAL(2, table.get_synonym_column("aOne"));
     const map<int, string>& colToSyn = table.get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(3, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);
@@ -333,6 +346,9 @@ void Test_01_Table::test_add_row_r_i()
     table.add_row(firstTableColToSyn, firstRecords[1], "varXE", 1718);
     table.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table.get_synonym_column("first"));
+    CPPUNIT_ASSERT_EQUAL(1, table.get_synonym_column("secondCol"));
+    CPPUNIT_ASSERT_EQUAL(2, table.get_synonym_column("varXE"));
     const map<int, string>& colToSyn = table.get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(3, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);
@@ -393,6 +409,10 @@ void Test_01_Table::test_add_row_r_ss()
             "this", "framework");
     table.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table.get_synonym_column("first"));
+    CPPUNIT_ASSERT_EQUAL(1, table.get_synonym_column("secondCol"));
+    CPPUNIT_ASSERT_EQUAL(2, table.get_synonym_column("yea"));
+    CPPUNIT_ASSERT_EQUAL(3, table.get_synonym_column("this"));
     const map<int, string>& colToSyn = table.get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(4, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);
@@ -467,6 +487,10 @@ void Test_01_Table::test_add_row_r_si()
             "ballooo", 33);
     table.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table.get_synonym_column("first"));
+    CPPUNIT_ASSERT_EQUAL(1, table.get_synonym_column("secondCol"));
+    CPPUNIT_ASSERT_EQUAL(2, table.get_synonym_column("Hobo"));
+    CPPUNIT_ASSERT_EQUAL(3, table.get_synonym_column("ballooo"));
     const map<int, string>& colToSyn = table.get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(4, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);
@@ -538,6 +562,10 @@ void Test_01_Table::test_add_row_r_is()
             "Muba", "Fha1");
     table.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table.get_synonym_column("first"));
+    CPPUNIT_ASSERT_EQUAL(1, table.get_synonym_column("secondCol"));
+    CPPUNIT_ASSERT_EQUAL(2, table.get_synonym_column("Tysav"));
+    CPPUNIT_ASSERT_EQUAL(3, table.get_synonym_column("Muba"));
     const map<int, string>& colToSyn = table.get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(4, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);
@@ -606,6 +634,10 @@ void Test_01_Table::test_add_row_r_ii()
             "aAdgr1", 8);
     table.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table.get_synonym_column("first"));
+    CPPUNIT_ASSERT_EQUAL(1, table.get_synonym_column("secondCol"));
+    CPPUNIT_ASSERT_EQUAL(2, table.get_synonym_column("gleha1"));
+    CPPUNIT_ASSERT_EQUAL(3, table.get_synonym_column("aAdgr1"));
     const map<int, string>& colToSyn = table.get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(4, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);
@@ -696,6 +728,9 @@ void Test_01_Table::test_add_row_r_r()
             secTableColToSyn, secRecords[2]);
     table.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table.get_synonym_column("firstCol"));
+    CPPUNIT_ASSERT_EQUAL(1, table.get_synonym_column("secCol"));
+    CPPUNIT_ASSERT_EQUAL(2, table.get_synonym_column("thirdCol"));
     const vector<Record>& finalRecords = table.get_records();
     CPPUNIT_ASSERT_EQUAL(5, (int)finalRecords.size());
     Record record;
@@ -765,6 +800,9 @@ void Test_01_Table::test_add_row_r_r_reuse_table()
             secTableColToSyn, secRecords[2]);
     firstTable.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, firstTable.is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, firstTable.get_synonym_column("firstCol"));
+    CPPUNIT_ASSERT_EQUAL(1, firstTable.get_synonym_column("secCol"));
+    CPPUNIT_ASSERT_EQUAL(2, firstTable.get_synonym_column("thirdCol"));
     const vector<Record>& finalRecords = firstTable.get_records();
     CPPUNIT_ASSERT_EQUAL(5, (int)finalRecords.size());
     Record record;
@@ -825,6 +863,7 @@ void Test_01_Table::test_mark_row()
     table.mark_row_ok(0);
     table.mark_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table.get_synonym_column("aOne"));
     const vector<Record>& records = table.get_records();
     Record record;
     record.reset();
@@ -845,6 +884,7 @@ void Test_01_Table::test_mark_row_dead()
     table.add_row("aOne", "damn");
     table.add_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table.get_synonym_column("aOne"));
     table.mark_rows_transaction_begin();
     table.mark_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(false, table.is_alive());
@@ -869,6 +909,9 @@ void Test_01_Table::test_augment_existing_row_s()
     table.augment_existing_row(141, "third", "blah");
     table.augment_existing_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table.get_synonym_column("c130"));
+    CPPUNIT_ASSERT_EQUAL(1, table.get_synonym_column("f16"));
+    CPPUNIT_ASSERT_EQUAL(2, table.get_synonym_column("third"));
     const vector<Record>& records = table.get_records();
     CPPUNIT_ASSERT_EQUAL(2, (int)records.size());
     Record record;
@@ -902,6 +945,9 @@ void Test_01_Table::test_augment_existing_row_i()
     table.augment_existing_row(2, "third", 1567);
     table.augment_existing_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table.get_synonym_column("c130"));
+    CPPUNIT_ASSERT_EQUAL(1, table.get_synonym_column("f16"));
+    CPPUNIT_ASSERT_EQUAL(2, table.get_synonym_column("third"));
     const vector<Record>& records = table.get_records();
     CPPUNIT_ASSERT_EQUAL(3, (int)records.size());
     Record record;
@@ -957,6 +1003,9 @@ void Test_01_Table::test_augment_new_row_s()
     table.augment_new_row(2, "Health", "damned good");
     table.augment_new_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table.get_synonym_column("name"));
+    CPPUNIT_ASSERT_EQUAL(1, table.get_synonym_column("age"));
+    CPPUNIT_ASSERT_EQUAL(2, table.get_synonym_column("Health"));
     const map<int, string>& colToSyn = table.get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(3, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);
@@ -1031,6 +1080,9 @@ void Test_01_Table::test_augment_new_row_i()
     table.augment_new_row(3, "Fame", 1000);
     table.augment_new_rows_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, table.is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table.get_synonym_column("name"));
+    CPPUNIT_ASSERT_EQUAL(1, table.get_synonym_column("age"));
+    CPPUNIT_ASSERT_EQUAL(2, table.get_synonym_column("Fame"));
     const map<int, string>& colToSyn = table.get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(3, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);
@@ -1108,6 +1160,8 @@ void Test_01_Table::test_create_from_set_string()
     S.insert("eyes");
     S.insert("12678473");
     auto_ptr<Table> table(Table::create_from_set("acol", S));
+    CPPUNIT_ASSERT_EQUAL(true, table->is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table->get_synonym_column("acol"));
     const map<int, string>& colToSyn = table->get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(1, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);
@@ -1148,6 +1202,8 @@ void Test_01_Table::test_create_from_set_int()
     S.insert(5);
     S.insert(126126);
     auto_ptr<Table> table(Table::create_from_set("Money", S));
+    CPPUNIT_ASSERT_EQUAL(true, table->is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table->get_synonym_column("Money"));
     const map<int, string>& colToSyn = table->get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(1, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);

@@ -28,6 +28,8 @@ void Test_02_ResultsTable::test_syn_0_transaction()
     CPPUNIT_ASSERT_EQUAL(true, rTable.has_synonym("firstCol"));
     rTable.checkout_transaction_begin();
     Table *table = rTable.checkout_table("firstCol");
+    CPPUNIT_ASSERT_EQUAL(true, table->is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table->get_synonym_column("firstCol"));
     const map<int, string>& colToSyn = table->get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(1, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);
@@ -90,6 +92,8 @@ void Test_02_ResultsTable::test_syn_1_transaction()
 
     rTable.checkout_transaction_begin();
     Table *table = rTable.checkout_table("firstCol");
+    CPPUNIT_ASSERT_EQUAL(true, table->is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table->get_synonym_column("firstCol"));
     const map<int, string>& colToSyn = table->get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(1, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);
@@ -128,6 +132,9 @@ void Test_02_ResultsTable::test_syn_00_transaction_ss()
     Table *table = rTable.checkout_table("Course");
     Table *tabTwo = rTable.checkout_table("Difficulty");
     CPPUNIT_ASSERT_EQUAL(table, tabTwo);
+    CPPUNIT_ASSERT_EQUAL(true, table->is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table->get_synonym_column("Course"));
+    CPPUNIT_ASSERT_EQUAL(1, table->get_synonym_column("Difficulty"));
     const map<int, string>& colToSyn = table->get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(2, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);
@@ -182,6 +189,9 @@ void Test_02_ResultsTable::test_syn_00_transaction_si()
     Table *table = rTable.checkout_table("Course");
     Table *tabTwo = rTable.checkout_table("Score");
     CPPUNIT_ASSERT_EQUAL(table, tabTwo);
+    CPPUNIT_ASSERT_EQUAL(true, table->is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table->get_synonym_column("Course"));
+    CPPUNIT_ASSERT_EQUAL(1, table->get_synonym_column("Score"));
     const map<int, string>& colToSyn = table->get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(2, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);
@@ -237,6 +247,9 @@ void Test_02_ResultsTable::test_syn_00_transaction_is()
     Table *table = rTable.checkout_table("Day");
     Table *tabTwo = rTable.checkout_table("Country");
     CPPUNIT_ASSERT_EQUAL(table, tabTwo);
+    CPPUNIT_ASSERT_EQUAL(true, table->is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table->get_synonym_column("Day"));
+    CPPUNIT_ASSERT_EQUAL(1, table->get_synonym_column("Country"));
     const map<int, string>& colToSyn = table->get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(2, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);
@@ -294,6 +307,9 @@ void Test_02_ResultsTable::test_syn_00_transaction_ii()
     Table *table = rTable.checkout_table("Day");
     Table *tabTwo = rTable.checkout_table("Time");
     CPPUNIT_ASSERT_EQUAL(table, tabTwo);
+    CPPUNIT_ASSERT_EQUAL(true, table->is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table->get_synonym_column("Day"));
+    CPPUNIT_ASSERT_EQUAL(1, table->get_synonym_column("Time"));
     const map<int, string>& colToSyn = table->get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(2, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);
@@ -388,6 +404,10 @@ void Test_02_ResultsTable::test_syn_01_transaction_s()
     CPPUNIT_ASSERT_EQUAL(table, tabTwo);
     tabTwo = rTable.checkout_table("Player");
     CPPUNIT_ASSERT_EQUAL(table, tabTwo);
+    CPPUNIT_ASSERT_EQUAL(true, table->is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table->get_synonym_column("Club"));
+    CPPUNIT_ASSERT_EQUAL(1, table->get_synonym_column("Country"));
+    CPPUNIT_ASSERT_EQUAL(2, table->get_synonym_column("Player"));
     const map<int, string>& colToSyn = table->get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(3, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);
@@ -485,6 +505,10 @@ void Test_02_ResultsTable::test_syn_01_transaction_i()
     CPPUNIT_ASSERT_EQUAL(table, tableTwo);
     tableTwo = rTable.checkout_table("Temperature");
     CPPUNIT_ASSERT_EQUAL(table, tableTwo);
+    CPPUNIT_ASSERT_EQUAL(true, table->is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table->get_synonym_column("Country"));
+    CPPUNIT_ASSERT_EQUAL(1, table->get_synonym_column("Season"));
+    CPPUNIT_ASSERT_EQUAL(2, table->get_synonym_column("Temperature"));
     const map<int, string>& colToSyn = table->get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(3, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);
@@ -594,6 +618,10 @@ void Test_02_ResultsTable::test_syn_11_transaction()
     CPPUNIT_ASSERT_EQUAL(table, tableTwo);
     tableTwo = rTable.checkout_table("Player");
     CPPUNIT_ASSERT_EQUAL(table, tableTwo);
+    CPPUNIT_ASSERT_EQUAL(true, table->is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table->get_synonym_column("Club"));
+    CPPUNIT_ASSERT_EQUAL(1, table->get_synonym_column("Country"));
+    CPPUNIT_ASSERT_EQUAL(2, table->get_synonym_column("Player"));
     const map<int, string>& colToSyn = table->get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(3, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);
@@ -729,6 +757,11 @@ void Test_02_ResultsTable::test_syn_22_transaction()
     CPPUNIT_ASSERT_EQUAL(table, tableTwo);
     tableTwo = rTable.checkout_table("Age");
     CPPUNIT_ASSERT_EQUAL(table, tableTwo);
+    CPPUNIT_ASSERT_EQUAL(true, table->is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table->get_synonym_column("Club"));
+    CPPUNIT_ASSERT_EQUAL(1, table->get_synonym_column("Country"));
+    CPPUNIT_ASSERT_EQUAL(2, table->get_synonym_column("Singer"));
+    CPPUNIT_ASSERT_EQUAL(3, table->get_synonym_column("Age"));
     const map<int, string>& colToSyn = table->get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(4, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);
@@ -809,6 +842,9 @@ void Test_02_ResultsTable::test_absorb_table()
     table = rTable.checkout_table("Company");
     Table *tableTwo = rTable.checkout_table("Country");
     CPPUNIT_ASSERT_EQUAL(table, tableTwo);
+    CPPUNIT_ASSERT_EQUAL(true, table->is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table->get_synonym_column("Company"));
+    CPPUNIT_ASSERT_EQUAL(1, table->get_synonym_column("Country"));
     const map<int, string>& colToSyn = table->get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(2, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);
@@ -847,6 +883,9 @@ void Test_02_ResultsTable::test_absorb_table()
     CPPUNIT_ASSERT(table != tableTwo);
     table = rTable.checkout_table("Name");
     CPPUNIT_ASSERT_EQUAL(table, tableTwo);
+    CPPUNIT_ASSERT_EQUAL(true, table->is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table->get_synonym_column("Name"));
+    CPPUNIT_ASSERT_EQUAL(1, table->get_synonym_column("Age"));
     const map<int, string>& colToSynTwo = table->get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(2, (int)colToSynTwo.size());
     isIt = colToSynTwo.find(0);
@@ -921,6 +960,9 @@ void Test_02_ResultsTable::test_absorb_ResultsTable()
     Table *table = rTableOne.checkout_table("Company");
     Table *tableTwo = rTableOne.checkout_table("Country");
     CPPUNIT_ASSERT_EQUAL(table, tableTwo);
+    CPPUNIT_ASSERT_EQUAL(true, table->is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table->get_synonym_column("Company"));
+    CPPUNIT_ASSERT_EQUAL(1, table->get_synonym_column("Country"));
     const map<int, string>& colToSyn = table->get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(2, (int)colToSyn.size());
     map<int, string>::const_iterator isIt = colToSyn.find(0);
@@ -959,6 +1001,9 @@ void Test_02_ResultsTable::test_absorb_ResultsTable()
     CPPUNIT_ASSERT(table != tableTwo);
     table = rTableOne.checkout_table("Name");
     CPPUNIT_ASSERT_EQUAL(table, tableTwo);
+    CPPUNIT_ASSERT_EQUAL(true, table->is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table->get_synonym_column("Name"));
+    CPPUNIT_ASSERT_EQUAL(1, table->get_synonym_column("Age"));
     const map<int, string>& colToSynTwo = table->get_col_to_synonym();
     CPPUNIT_ASSERT_EQUAL(2, (int)colToSynTwo.size());
     isIt = colToSynTwo.find(0);
