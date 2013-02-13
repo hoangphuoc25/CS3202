@@ -9,7 +9,7 @@
 #include "Table.h"
 
 enum ResultsTableState {
-    RTS_START, RTS_0_TRANSACT, RTS_1_TRANSACT,
+    RTS_START, RTS_DEAD, RTS_0_TRANSACT, RTS_1_TRANSACT,
     RTS_00_TRANSACT,
     RTS_01_TRANSACT, RTS_10_TRANSACT,
     RTS_11_TRANSACT, RTS_22_TRANSACT,
@@ -36,6 +36,7 @@ public:
     bool is_alive() const;
     void absorb_table(Table *table);
     void absorb_ResultsTable(ResultsTable& o);
+    void kill();
 
     void checkout_transaction_begin();
     void checkout_transaction_end();

@@ -63,6 +63,9 @@ ResultsTable::~ResultsTable()
 
 bool ResultsTable::has_synonym(const string& syn) const
 {
+    if (!this->alive) {
+        return false;
+    }
     map<string, int>::const_iterator it = this->synMap.find(syn);
     return (it != this->synMap.end());
 }
@@ -112,6 +115,12 @@ void ResultsTable::absorb_ResultsTable(ResultsTable& o)
     o.synMap.clear();
     o.tables.clear();
     o.nextTable = 0;
+}
+
+void ResultsTable::kill()
+{
+    this->alive = false;
+    this->state = RTS_DEAD;
 }
 
 void ResultsTable::checkout_transaction_begin()
