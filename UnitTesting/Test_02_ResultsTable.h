@@ -13,6 +13,8 @@ CPPUNIT_TEST(test_syn_00_transaction_is);
 CPPUNIT_TEST(test_syn_00_transaction_ii);
 CPPUNIT_TEST(test_syn_01_transaction_s);
 CPPUNIT_TEST(test_syn_01_transaction_i);
+CPPUNIT_TEST(test_syn_10_transaction_s);
+CPPUNIT_TEST(test_syn_10_transaction_i);
 CPPUNIT_TEST(test_syn_11_transaction);
 CPPUNIT_TEST(test_syn_22_transaction);
 CPPUNIT_TEST(test_absorb_table);
@@ -32,6 +34,8 @@ private:
     void test_syn_00_transaction_ii();
     void test_syn_01_transaction_s();
     void test_syn_01_transaction_i();
+    void test_syn_10_transaction_s();
+    void test_syn_10_transaction_i();
     void test_syn_11_transaction();
     void test_syn_22_transaction();
     void test_absorb_table();

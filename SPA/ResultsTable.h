@@ -65,6 +65,12 @@ public:
     void syn_01_transaction_end();
     void syn_01_augment_new_row(int row, const std::string& val);
     void syn_01_augment_new_row(int row, int val);
+    std::pair<const std::vector<Record> *, int>
+    syn_10_transaction_begin(const std::string& synNew,
+            const std::string& synOld, RecordValType rvType);
+    void syn_10_transaction_end();
+    void syn_10_augment_new_row(int row, const std::string& val);
+    void syn_10_augment_new_row(int row, int val);
     std::pair<const std::vector<Record> *, std::pair<int, int> >
     syn_11_transaction_begin(const std::string& synOne,
             const std::string& synTwo);

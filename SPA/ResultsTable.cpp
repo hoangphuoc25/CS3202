@@ -364,6 +364,39 @@ void ResultsTable::syn_01_augment_new_row(int row, int val)
     this->tableCheckedOutA->augment_new_row(row, this->tableASyn, val);
 }
 
+pair<const vector<Record> *, int>
+ResultsTable::syn_10_transaction_begin(const string& synOld,
+        const string& synNew, RecordValType rvType)
+{
+    pair<const vector<Record> *, int > viPair =
+            this->syn_01_transaction_begin(synNew, synOld, rvType);
+    this->state = RTS_10_TRANSACT;
+    return viPair;
+}
+
+void ResultsTable::syn_10_transaction_end()
+{
+    assert(RTS_10_TRANSACT == this->state);
+    this->state = RTS_01_TRANSACT;
+    this->syn_01_transaction_end();
+}
+
+void ResultsTable::syn_10_augment_new_row(int row, const string& val)
+{
+    assert(RTS_10_TRANSACT == this->state);
+    this->state = RTS_01_TRANSACT;
+    this->syn_01_augment_new_row(row, val);
+    this->state = RTS_10_TRANSACT;
+}
+
+void ResultsTable::syn_10_augment_new_row(int row, int val)
+{
+    assert(RTS_10_TRANSACT == this->state);
+    this->state = RTS_01_TRANSACT;
+    this->syn_01_augment_new_row(row, val);
+    this->state = RTS_10_TRANSACT;
+}
+
 pair<const vector<Record> *, pair<int, int> >
 ResultsTable::syn_11_transaction_begin(const string& synOne,
         const string& synTwo)
