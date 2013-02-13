@@ -269,10 +269,6 @@ enum ParseError {
     PARSE_UNKNOWN
 };
 
-enum PQLOptimization {
-    PQL_OPTIMIZE_NONE
-};
-
 // Helper functions
 const char *relRefType_to_string(RelRefType relType);
 const char *entity_type_to_string(DesignEnt entType);
@@ -384,7 +380,6 @@ public:
     QueryInfo(const std::map<std::string, DesignEnt>& etab,
         const std::vector<std::pair<DesignEnt, std::string> >& eVec);
     ~QueryInfo();
-    void optimize(enum PQLOptimization method=PQL_OPTIMIZE_NONE);
     void reset(const std::map<std::string, DesignEnt> &etab,
         const std::vector<std::pair<DesignEnt, std::string> >& eVec);
     void set_select_boolean();
@@ -395,7 +390,6 @@ public:
     void dump(void) const;
     void dump(FILE *f) const;
     std::string dump_to_string() const;
-    std::string dump_optimized_to_string() const;
     ClauseType get_nth_clause_type(int n) const;
     GenericRef *get_nth_clause(int n);
     int get_nr_clauses() const;
@@ -423,7 +417,6 @@ private:
     std::vector<AttrRef> selectTuple;
     std::set<AttrRef, AttrRefCmp> selectTable;
     std::vector<std::pair<ClauseType, int> > insertOrder;
-    std::vector<std::pair<ClauseType, int> > evalOrder;
     std::vector<RelRef> relRefs;
     std::set<RelRef, RelRefCmp> relRefsSet;
     std::vector<PatCl> patCls;
@@ -445,7 +438,7 @@ private:
     ParseError add_next_relRef(RelRef &relRef, char **errorMsg);
     ParseError add_affects_relRef(RelRef &relRef, char **errorMsg);
     void dump_decl_select(StringBuffer &sb) const;
-    void dump_clauses(StringBuffer &sb, bool dumpOptimized=false) const;
+    void dump_clauses(StringBuffer &sb) const;
 
     #define MODIFIES_ARGONE_TYPES_ARR_SZ 7
     #define MODIFIES_ARGTWO_TYPES_ARR_SZ 1

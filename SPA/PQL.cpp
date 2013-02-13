@@ -912,7 +912,6 @@ void QueryInfo::reset(const map<string, DesignEnt>& etab,
         this->entVec.push_back(*it);
     }
     this->insertOrder.clear();
-    this->evalOrder.clear();
     this->relRefs.clear();
     this->relRefsSet.clear();
     this->patCls.clear();
@@ -1109,15 +1108,7 @@ std::string QueryInfo::dump_to_string() const
 {
     StringBuffer sb;
     this->dump_decl_select(sb);
-    this->dump_clauses(sb, false);
-    return sb.toString();
-}
-
-string QueryInfo::dump_optimized_to_string() const
-{
-    StringBuffer sb;
-    this->dump_decl_select(sb);
-    this->dump_clauses(sb, true);
+    this->dump_clauses(sb);
     return sb.toString();
 }
 
@@ -1148,17 +1139,11 @@ void QueryInfo::dump_decl_select(StringBuffer &sb) const
     }
 }
 
-void QueryInfo::dump_clauses(StringBuffer &sb, bool dumpOptimized) const
+void QueryInfo::dump_clauses(StringBuffer &sb) const
 {
-    vector<pair<ClauseType, int> >::const_iterator it, endIt;
-    if (dumpOptimized) {
-        it = this->evalOrder.begin();
-        endIt = this->evalOrder.end();
-    } else {
-        it = this->insertOrder.begin();
-        endIt = this->insertOrder.end();
-    }
-    for (; it != endIt; it++) {
+    for (vector<pair<ClauseType, int> >::const_iterator it =
+            this->insertOrder.begin(); it != this->insertOrder.end();
+            it++) {
         switch (it->first) {
         case SUCHTHAT_CLAUSE:
             sb.append(this->relRefs[it->second].dump());
@@ -1172,37 +1157,25 @@ void QueryInfo::dump_clauses(StringBuffer &sb, bool dumpOptimized) const
     }
 }
 
-void QueryInfo::optimize(enum PQLOptimization method)
-{
-    this->evalOrder.clear();
-    switch (method) {
-    case PQL_OPTIMIZE_NONE:
-        for (int i = 0; i < (int)this->insertOrder.size(); i++) {
-            this->evalOrder.push_back(this->insertOrder[i]);
-        }
-        break;
-    }
-}
-
 int QueryInfo::get_nr_clauses() const
 {
-    return (int)this->evalOrder.size();
+    return (int)this->insertOrder.size();
 }
 
 ClauseType QueryInfo::get_nth_clause_type(int n) const
 {
-    int len = this->evalOrder.size();
+    int len = this->insertOrder.size();
     ClauseType ret = INVALID_CLAUSE;
     if (n >= len) {
         return INVALID_CLAUSE;
     } else {
-        return this->evalOrder[n].first;
+        return this->insertOrder[n].first;
     }
 }
 
 GenericRef *QueryInfo::get_nth_clause(int n)
 {
-    int len = this->evalOrder.size();
+    int len = this->insertOrder.size();
     if (n >= len) {
         return NULL;
     } else {
