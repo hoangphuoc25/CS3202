@@ -31,6 +31,7 @@ CPPUNIT_TEST(test_has_assign);
 CPPUNIT_TEST(test_has_call);
 CPPUNIT_TEST(test_has_if);
 CPPUNIT_TEST(test_has_while);
+CPPUNIT_TEST(test_has_stmt);
 //CPPUNIT_TEST(test_two);
 //CPPUNIT_TEST(test_three);
 CPPUNIT_TEST_SUITE_END();
@@ -305,6 +306,7 @@ private:
     void test_has_call();
     void test_has_if();
     void test_has_while();
+    void test_has_stmt();
     void test_two();
     void test_three();
 };
