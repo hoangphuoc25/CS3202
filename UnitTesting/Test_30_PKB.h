@@ -28,6 +28,7 @@ CPPUNIT_TEST(test_uses_while_var);
 CPPUNIT_TEST(test_uses_stmt_var);
 CPPUNIT_TEST(test_uses_progline_var);
 CPPUNIT_TEST(test_has_assign);
+CPPUNIT_TEST(test_has_call);
 //CPPUNIT_TEST(test_two);
 //CPPUNIT_TEST(test_three);
 CPPUNIT_TEST_SUITE_END();
@@ -299,6 +300,7 @@ private:
     // Test has_X methods
     // We use the TEST_MODIFIES_SIMPLE_PROG
     void test_has_assign();
+    void test_has_call();
     void test_two();
     void test_three();
 };
