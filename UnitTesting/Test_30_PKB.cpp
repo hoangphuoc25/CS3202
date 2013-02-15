@@ -4754,6 +4754,10 @@ void Test_30_PKB::test_has_const()
     CPPUNIT_ASSERT_EQUAL(true, pkb->has_const(41));
     CPPUNIT_ASSERT_EQUAL(true, pkb->has_const(73));
     CPPUNIT_ASSERT_EQUAL(true, pkb->has_const(512));
+    // negative tests
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_const(0));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_const(1000000));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_const(-15216));
 }
 
 void Test_30_PKB::test_has_variable()
