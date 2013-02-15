@@ -4832,3 +4832,25 @@ void Test_30_PKB::test_has_variable()
     CPPUNIT_ASSERT_EQUAL(false, pkb->has_variable("NOSUCHVAR"));
     CPPUNIT_ASSERT_EQUAL(false, pkb->has_variable("Phoenix"));
 }
+
+void Test_30_PKB::test_has_procedure()
+{
+    const string& simpleProg = this->TEST_MODIFIES_SIMPLE_PROG;
+    string queryStr;
+    set<int> intSet;
+    SetWrapper<string> stringSet;
+
+    Parser parser(simpleProg, FROMSTRING);
+    parser.init();
+    auto_ptr<PKB> pkb(parser.get_pkb());
+
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_procedure("pOne"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_procedure("secProc"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_procedure("thirdProc"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_procedure("procFOUR"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_procedure("cleanUP"));
+    // negative tests
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_procedure("missingProc"));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_procedure("Pone"));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_procedure("main"));
+}
