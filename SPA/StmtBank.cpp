@@ -250,6 +250,9 @@ map<int, Node*> StmtBank::get_ifBank()
 
 bool StmtBank::is_stmtType(int stmtNo, DesignEnt type)
 {
+    if (type == ENT_STMT || type == ENT_PROGLINE) {
+        return true;
+    }
     if (directory.find(stmtNo) != directory.end()) {
         return (directory[stmtNo] == type);
     } else {

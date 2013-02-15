@@ -337,22 +337,63 @@ bool PKB::parentStar_query_int_X_int_Y(DesignEnt xType, int x,
 set<int> PKB::follows_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
-    // TODO: Please implement
-    return EMPTY_INTSET;
+    // TODO: Testing
+    Node *yNode = stmtBank->get_stmtNode(y);
+    if (yNode == NULL) {
+        return EMPTY_INTSET;
+    } else {
+        Node *xNode = yNode->get_predecessor();
+        if (xNode == NULL) {
+            return EMPTY_INTSET;
+        } else {
+            int x = xNode->get_stmtNo();
+            if(stmtBank->is_stmtType(x,xType)) {
+                set<int> s;
+                s.insert(x);
+                return s;
+            } else {
+                return EMPTY_INTSET;
+            }
+        }
+    }
 }
 
 set<int> PKB::follows_X_Y_get_int_Y_from_int_X(DesignEnt xType,
         DesignEnt yType, int x) const
 {
-    // TODO: Please implement
-    return EMPTY_INTSET;
+    // TODO: Testing
+    Node *xNode = stmtBank->get_stmtNode(x);
+    if (xNode == NULL) {
+        return EMPTY_INTSET;
+    } else {
+        Node *yNode = xNode->get_successor();
+        if (yNode == NULL) {
+            return EMPTY_INTSET;
+        } else {
+            int y = yNode->get_stmtNo();
+            if(stmtBank->is_stmtType(y,yType)) {
+                set<int> s;
+                s.insert(y);
+                return s;
+            } else {
+                return EMPTY_INTSET;
+            }
+        }
+    }
 }
+
 
 bool PKB::follows_query_int_X_int_Y(DesignEnt xType, int x,
         DesignEnt yType, int y) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Testing
+    Node *xNode = stmtBank->get_stmtNode(x);
+    Node *yNode = stmtBank->get_stmtNode(y);
+    if (xNode == NULL || yNode == NULL){
+        return false;
+    } else {
+        return (xNode->get_successor() == yNode);
+    }
 }
 
 set<int> PKB::followsStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
@@ -512,50 +553,50 @@ set<int> PKB::get_all_const() const
 
 bool PKB::has_assign(int assign) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Testing
+    return stmtBank->is_valid_stmtNo(assign);
 }
 
 bool PKB::has_call(int callStmt) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Testing
+    return stmtBank->is_valid_stmtNo(callStmt);
 }
 
 bool PKB::has_if (int ifStmt) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Testing
+    return stmtBank->is_valid_stmtNo(ifStmt);
 }
 
 bool PKB::has_while(int whileStmt) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Testing
+    return stmtBank->is_valid_stmtNo(whileStmt);
 }
 
 bool PKB::has_stmt(int stmtNo) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Testing
+    return stmtBank->is_valid_stmtNo(stmtNo);
 }
 
 bool PKB::has_progline(int progLine) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Testing
+    return stmtBank->is_valid_stmtNo(progLine);
 }
 
 bool PKB::has_variable(const std::string& varName) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Testing
+    return (varTable->get_index(varName) != -1);
 }
 
 bool PKB::has_procedure(const std::string& procName) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Testing
+    return (procTable->get_index(procName) != -1);
 }
 
 bool PKB::has_const(int n) const
@@ -565,8 +606,18 @@ bool PKB::has_const(int n) const
 
 bool PKB::has_stmtLst(int stmtNo) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Testing
+    Node *n = stmtBank->get_stmtNode(stmtNo);
+    if (n == NULL) {
+        return false;
+    } else {
+        Node *child = n->get_children()[0];
+        if (child != NULL){
+            return (child->get_type() == STMTLST);
+        } else {
+            return false;
+        }
+    }
 }
 
 string PKB::get_call_procName(int callStmt) const
@@ -577,6 +628,7 @@ string PKB::get_call_procName(int callStmt) const
 set<int> PKB::get_call_stmt_calling(const string& proc) const
 {
     // TODO Please implement
+
     return set<int>();
 }
 
