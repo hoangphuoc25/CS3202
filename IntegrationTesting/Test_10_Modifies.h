@@ -6,8 +6,8 @@
 #include <string>
 #include <cppunit/extensions/HelperMacros.h>
 
-class TestModifies: public CPPUNIT_NS::TestFixture {
-CPPUNIT_TEST_SUITE(TestModifies);
+class Test_10_Modifies: public CPPUNIT_NS::TestFixture {
+CPPUNIT_TEST_SUITE(Test_10_Modifies);
 CPPUNIT_TEST(test_modifies_single);
 CPPUNIT_TEST_SUITE_END();
 

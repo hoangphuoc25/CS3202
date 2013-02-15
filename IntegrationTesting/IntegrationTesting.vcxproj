@@ -68,17 +68,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="source\IntegrationTest.cpp" />
-    <ClCompile Include="TestModifies.cpp" />
     <ClCompile Include="Test_01_SelectNoClause.cpp" />
     <ClCompile Include="Test_10_Calls.cpp" />
+    <ClCompile Include="Test_10_Modifies.cpp" />
     <ClCompile Include="Test_10_Parent.cpp" />
     <ClCompile Include="Test_11_SelectDisjointTables.cpp" />
     <ClCompile Include="Test_20_SynSyn_RelRef.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="TestModifies.h" />
     <ClInclude Include="Test_01_SelectNoClause.h" />
     <ClInclude Include="Test_10_Calls.h" />
+    <ClInclude Include="Test_10_Modifies.h" />
     <ClInclude Include="Test_10_Parent.h" />
     <ClInclude Include="Test_11_SelectDisjointTables.h" />
     <ClInclude Include="Test_20_SynSyn_RelRef.h" />

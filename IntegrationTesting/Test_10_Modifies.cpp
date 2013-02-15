@@ -5,7 +5,7 @@
 #include <set>
 #include <list>
 #include <utility>
-#include "TestModifies.h"
+#include "Test_10_Modifies.h"
 #include "../SPA/SetWrapper.h"
 #include "../SPA/QueryEvaluator.h"
 
@@ -16,13 +16,13 @@ using std::set;
 using std::pair;
 using std::make_pair;
 
-void TestModifies::setUp() {}
+void Test_10_Modifies::setUp() {}
 
-void TestModifies::tearDown() {}
+void Test_10_Modifies::tearDown() {}
 
-CPPUNIT_TEST_SUITE_REGISTRATION(TestModifies);
+CPPUNIT_TEST_SUITE_REGISTRATION(Test_10_Modifies);
 
-void TestModifies::test_modifies_single()
+void Test_10_Modifies::test_modifies_single()
 {
     string simpleProg, queryStr;
     QueryEvaluator evaluator;
