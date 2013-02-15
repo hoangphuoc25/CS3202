@@ -4736,3 +4736,22 @@ void Test_30_PKB::test_has_stmtLst()
     CPPUNIT_ASSERT_EQUAL(false, pkb->has_stmtLst(41));
     CPPUNIT_ASSERT_EQUAL(false, pkb->has_stmtLst(50));
 }
+
+void Test_30_PKB::test_has_const()
+{
+    const string& simpleProg = this->TEST_MODIFIES_SIMPLE_PROG;
+    string queryStr;
+    set<int> intSet;
+    SetWrapper<string> stringSet;
+
+    Parser parser(simpleProg, FROMSTRING);
+    parser.init();
+    auto_ptr<PKB> pkb(parser.get_pkb());
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_const(2));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_const(3));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_const(5));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_const(7));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_const(41));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_const(73));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_const(512));
+}
