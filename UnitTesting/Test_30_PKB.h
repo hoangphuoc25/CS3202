@@ -35,6 +35,7 @@ CPPUNIT_TEST(test_has_stmt);
 CPPUNIT_TEST(test_has_progline);
 CPPUNIT_TEST(test_has_stmtLst);
 CPPUNIT_TEST(test_has_const);
+CPPUNIT_TEST(test_has_variable);
 //CPPUNIT_TEST(test_two);
 //CPPUNIT_TEST(test_three);
 CPPUNIT_TEST_SUITE_END();
@@ -313,6 +314,7 @@ private:
     void test_has_progline();
     void test_has_stmtLst();
     void test_has_const();
+    void test_has_variable();
     void test_two();
     void test_three();
 };

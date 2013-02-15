@@ -4755,3 +4755,76 @@ void Test_30_PKB::test_has_const()
     CPPUNIT_ASSERT_EQUAL(true, pkb->has_const(73));
     CPPUNIT_ASSERT_EQUAL(true, pkb->has_const(512));
 }
+
+void Test_30_PKB::test_has_variable()
+{
+    const string& simpleProg = this->TEST_MODIFIES_SIMPLE_PROG;
+    string queryStr;
+    set<int> intSet;
+    SetWrapper<string> stringSet;
+
+    Parser parser(simpleProg, FROMSTRING);
+    parser.init();
+    auto_ptr<PKB> pkb(parser.get_pkb());
+    // variables: a, aone, all, b, ba1, bab, bba, brave, bx, c
+    // cab, christmas, d3, evil, fire, fol, g, g2,
+    // ga, gg, good, ha, haa, haas, harp, h2, hoho, merry
+    // nn, no, none, onceOnly, one, p, pe, pf, pfg, t, t1, ten
+    // this, tp, true, twice, ue, x, x1, xe, xz, y, z, zt1, zzz
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("a"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("aone"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("all"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("b"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("ba1"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("bab"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("bba"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("brave"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("bx"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("c"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("cab"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("christmas"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("d3"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("evil"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("fire"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("fol"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("g"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("g2"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("ga"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("gg"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("good"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("ha"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("haa"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("haas"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("harp"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("h2"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("hoho"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("merry"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("nn"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("no"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("none"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("onceOnly"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("one"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("p"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("pe"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("pf"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("pfg"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("t"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("t1"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("ten"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("this"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("tp"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("true"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("twice"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("ue"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("x"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("x1"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("xe"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("xz"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("y"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("z"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("zt1"));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_variable("zzz"));
+    // negative cases
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_variable("NOSUCHVAR"));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_variable("Phoenix"));
+}
