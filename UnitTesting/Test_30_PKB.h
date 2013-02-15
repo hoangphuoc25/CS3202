@@ -8,9 +8,9 @@
 using std::set;
 
 
-class TestPKB: public CPPUNIT_NS::TestFixture {
+class Test_30_PKB: public CPPUNIT_NS::TestFixture {
 
-CPPUNIT_TEST_SUITE(TestPKB);
+CPPUNIT_TEST_SUITE(Test_30_PKB);
 CPPUNIT_TEST(test_one);
 CPPUNIT_TEST(test_retrieve_all_X);
 CPPUNIT_TEST(test_modifies_procedure_var);

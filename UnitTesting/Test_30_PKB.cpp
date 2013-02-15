@@ -2,7 +2,7 @@
 #include <string>
 #include <map>
 #include <memory>
-#include "TestPKB.h"
+#include "Test_30_PKB.h"
 #include "../SPA/Parser.h"
 #include "../SPA/PKB.h"
 #include "../SPA/SetWrapper.h"
@@ -12,7 +12,7 @@ using std::string;
 using std::map;
 
 
-void TestPKB::setUp()
+void Test_30_PKB::setUp()
 {
     this->TEST_MODIFIES_SIMPLE_PROG =
         "procedure pOne { \
@@ -162,15 +162,15 @@ void TestPKB::setUp()
          }";
 }
 
-void TestPKB::tearDown() {}
+void Test_30_PKB::tearDown() {}
 
-CPPUNIT_TEST_SUITE_REGISTRATION(TestPKB);
+CPPUNIT_TEST_SUITE_REGISTRATION(Test_30_PKB);
 
 // Test banks
-void TestPKB::test_one(){
+void Test_30_PKB::test_one(){
     
     Parser p;
-    p = Parser("TestPKB\\assign1.txt",FROMFILE);
+    p = Parser("Test_30_PKB\\assign1.txt",FROMFILE);
     p.init();
     PKB pkb = *p.get_pkb();
 
@@ -662,16 +662,16 @@ void TestPKB::test_one(){
 }
 
 // Test procTable
-void TestPKB::test_two(){
+void Test_30_PKB::test_two(){
 
 
 }
 
-void TestPKB::test_three(){
+void Test_30_PKB::test_three(){
 
 }
 
-void TestPKB::test_retrieve_all_X()
+void Test_30_PKB::test_retrieve_all_X()
 {
     string simpleProg, queryStr;
     set<string> S;
@@ -803,7 +803,7 @@ void TestPKB::test_retrieve_all_X()
             stringSet);
 }
 
-void TestPKB::test_modifies_procedure_var()
+void Test_30_PKB::test_modifies_procedure_var()
 {
     const string& simpleProg = this->TEST_MODIFIES_SIMPLE_PROG;
     Parser parser(simpleProg, FROMSTRING);
@@ -927,7 +927,7 @@ void TestPKB::test_modifies_procedure_var()
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "cleanUP"), stringSet);
 }
 
-void TestPKB::test_modifies_assign_var()
+void Test_30_PKB::test_modifies_assign_var()
 {
     const string& simpleProg = this->TEST_MODIFIES_SIMPLE_PROG;
     Parser parser(simpleProg, FROMSTRING);
@@ -1135,7 +1135,7 @@ void TestPKB::test_modifies_assign_var()
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "40"), stringSet);
 }
 
-void TestPKB::test_modifies_call_var()
+void Test_30_PKB::test_modifies_call_var()
 {
     const string& simpleProg = this->TEST_MODIFIES_SIMPLE_PROG;
     Parser parser(simpleProg, FROMSTRING);
@@ -1342,7 +1342,7 @@ void TestPKB::test_modifies_call_var()
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
 }
 
-void TestPKB::test_modifies_if_var()
+void Test_30_PKB::test_modifies_if_var()
 {
     const string& simpleProg = this->TEST_MODIFIES_SIMPLE_PROG;
     Parser parser(simpleProg, FROMSTRING);
@@ -1557,7 +1557,7 @@ void TestPKB::test_modifies_if_var()
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
 }
 
-void TestPKB::test_modifies_while_var()
+void Test_30_PKB::test_modifies_while_var()
 {
     const string& simpleProg = this->TEST_MODIFIES_SIMPLE_PROG;
     Parser parser(simpleProg, FROMSTRING);
@@ -1784,7 +1784,7 @@ void TestPKB::test_modifies_while_var()
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
 }
 
-void TestPKB::test_modifies_stmt_var()
+void Test_30_PKB::test_modifies_stmt_var()
 {
     const string& simpleProg = this->TEST_MODIFIES_SIMPLE_PROG;
     Parser parser(simpleProg, FROMSTRING);
@@ -2041,7 +2041,7 @@ void TestPKB::test_modifies_stmt_var()
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "40"), stringSet);
 }
 
-void TestPKB::test_modifies_progline_var()
+void Test_30_PKB::test_modifies_progline_var()
 {
     const string& simpleProg = this->TEST_MODIFIES_SIMPLE_PROG;
     Parser parser(simpleProg, FROMSTRING);
@@ -2298,7 +2298,7 @@ void TestPKB::test_modifies_progline_var()
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "40"), stringSet);
 }
 
-void TestPKB::test_uses_procedure_var()
+void Test_30_PKB::test_uses_procedure_var()
 {
     const string& simpleProg = this->TEST_USES_SIMPLE_PROG;
     string queryStr;
@@ -2474,7 +2474,7 @@ void TestPKB::test_uses_procedure_var()
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "useOne"), stringSet);
 }
 
-void TestPKB::test_uses_assign_var()
+void Test_30_PKB::test_uses_assign_var()
 {
     const string& simpleProg = this->TEST_USES_SIMPLE_PROG;
     string queryStr;
@@ -2752,7 +2752,7 @@ void TestPKB::test_uses_assign_var()
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "49"), stringSet);
 }
 
-void TestPKB::test_uses_call_var()
+void Test_30_PKB::test_uses_call_var()
 {
     const string& simpleProg = this->TEST_USES_SIMPLE_PROG;
     string queryStr;
@@ -3035,7 +3035,7 @@ void TestPKB::test_uses_call_var()
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
 }
 
-void TestPKB::test_uses_if_var()
+void Test_30_PKB::test_uses_if_var()
 {
     const string& simpleProg = this->TEST_USES_SIMPLE_PROG;
     string queryStr;
@@ -3316,7 +3316,7 @@ void TestPKB::test_uses_if_var()
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
 }
 
-void TestPKB::test_uses_while_var()
+void Test_30_PKB::test_uses_while_var()
 {
     const string& simpleProg = this->TEST_USES_SIMPLE_PROG;
     string queryStr;
@@ -3622,7 +3622,7 @@ void TestPKB::test_uses_while_var()
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
 }
 
-void TestPKB::test_uses_stmt_var()
+void Test_30_PKB::test_uses_stmt_var()
 {
     const string& simpleProg = this->TEST_USES_SIMPLE_PROG;
     string queryStr;
@@ -3980,7 +3980,7 @@ void TestPKB::test_uses_stmt_var()
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "49"), stringSet);
 }
 
-void TestPKB::test_uses_progline_var()
+void Test_30_PKB::test_uses_progline_var()
 {
     const string& simpleProg = this->TEST_USES_SIMPLE_PROG;
     string queryStr;

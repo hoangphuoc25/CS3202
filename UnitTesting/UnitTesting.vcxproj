@@ -72,18 +72,18 @@
     <ClCompile Include="Test_01_SetWrapper.cpp" />
     <ClCompile Include="Test_01_Table.cpp" />
     <ClCompile Include="Test_02_ResultsTable.cpp" />
+    <ClCompile Include="Test_20_Parser.cpp" />
     <ClCompile Include="Test_20_PQLParser.cpp" />
-    <ClCompile Include="TestParser.cpp" />
-    <ClCompile Include="TestPKB.cpp" />
+    <ClCompile Include="Test_30_PKB.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Test_00_StringBuffer.h" />
     <ClInclude Include="Test_01_SetWrapper.h" />
     <ClInclude Include="Test_01_Table.h" />
     <ClInclude Include="Test_02_ResultsTable.h" />
+    <ClInclude Include="Test_20_Parser.h" />
     <ClInclude Include="Test_20_PQLParser.h" />
-    <ClInclude Include="TestParser.h" />
-    <ClInclude Include="TestPKB.h" />
+    <ClInclude Include="Test_30_PKB.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
