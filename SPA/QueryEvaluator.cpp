@@ -39,7 +39,7 @@ bool EvalSynArgDescCmp::operator()(const EvalSynArgDesc &a,
     } else if (a.argOneSynType != b.argOneSynType) {
         return a.argOneSynType < b.argOneSynType;
     } else if (a.argTwoSynType != b.argTwoSynType) {
-        return a.argOneSynType < b.argOneSynType;
+        return a.argTwoSynType < b.argTwoSynType;
     } else if (a.argOneOtherType != b.argOneOtherType) {
         return a.argOneOtherType < b.argOneOtherType;
     } else {
@@ -147,6 +147,8 @@ void QueryEvaluator::setup_modifies()
     // Modifies(procedure,var), 00
     evalSynArgDesc = EvalSynArgDesc(REL_MODIFIES, SYN_SYN_00, ENT_PROC,
             ENT_VAR, RELARG_INVALID, RELARG_INVALID);
+    assert(this->dispatchTable.find(evalSynArgDesc) ==
+        this->dispatchTable.end());
     tmpDispatch.reset();
     tmpDispatch.get_all_string_argOne = &PKB::get_all_procs;
     tmpDispatch.get_all_string_argTwo = &PKB::get_all_vars;
