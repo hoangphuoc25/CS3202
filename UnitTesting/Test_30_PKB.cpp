@@ -4679,3 +4679,60 @@ void Test_30_PKB::test_has_progline()
     CPPUNIT_ASSERT_EQUAL(false, pkb->has_progline(41));
     CPPUNIT_ASSERT_EQUAL(false, pkb->has_progline(50));
 }
+
+void Test_30_PKB::test_has_stmtLst()
+{
+    const string& simpleProg = this->TEST_MODIFIES_SIMPLE_PROG;
+    string queryStr;
+    set<int> intSet;
+    SetWrapper<string> stringSet;
+
+    Parser parser(simpleProg, FROMSTRING);
+    parser.init();
+    auto_ptr<PKB> pkb(parser.get_pkb());
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_stmtLst(1));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_stmtLst(2));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_stmtLst(3));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_stmtLst(4));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_stmtLst(5));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_stmtLst(6));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_stmtLst(7));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_stmtLst(8));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_stmtLst(9));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_stmtLst(10));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_stmtLst(11));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_stmtLst(12));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_stmtLst(13));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_stmtLst(14));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_stmtLst(15));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_stmtLst(16));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_stmtLst(17));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_stmtLst(18));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_stmtLst(19));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_stmtLst(20));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_stmtLst(21));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_stmtLst(22));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_stmtLst(23));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_stmtLst(24));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_stmtLst(25));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_stmtLst(26));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_stmtLst(27));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_stmtLst(28));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_stmtLst(29));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_stmtLst(30));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_stmtLst(31));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_stmtLst(32));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_stmtLst(33));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_stmtLst(34));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_stmtLst(35));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_stmtLst(36));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_stmtLst(37));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_stmtLst(38));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_stmtLst(39));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_stmtLst(40));
+    // Out of range cases
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_stmtLst(0));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_stmtLst(-61));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_stmtLst(41));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_stmtLst(50));
+}

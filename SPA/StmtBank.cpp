@@ -207,6 +207,12 @@ const set<int>& StmtBank::get_all_stmtLst() const
     return EMPTY_STRINGSET;
  }
 
+bool StmtBank::has_stmtLst(int stmt) const
+{
+    return this->stmtLstSet.find(stmt) !=
+            this->stmtLstSet.end();
+}
+
 bool StmtBank::has_const(int n) const
 {
     return this->constBank.find(n) != this->constBank.end();

@@ -606,18 +606,7 @@ bool PKB::has_const(int n) const
 
 bool PKB::has_stmtLst(int stmtNo) const
 {
-    // TODO: Testing
-    Node *n = stmtBank->get_stmtNode(stmtNo);
-    if (n == NULL) {
-        return false;
-    } else {
-        Node *child = n->get_children()[0];
-        if (child != NULL){
-            return (child->get_type() == STMTLST);
-        } else {
-            return false;
-        }
-    }
+    return this->stmtBank->has_stmtLst(stmtNo);
 }
 
 string PKB::get_call_procName(int callStmt) const

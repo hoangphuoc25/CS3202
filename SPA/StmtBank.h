@@ -42,6 +42,7 @@ public:
             int stmtNo) const;
 
     // query methods
+    bool has_stmtLst(int stmt) const;
     bool has_const(int n) const;
 
     /*
