@@ -4451,3 +4451,60 @@ void Test_30_PKB::test_has_call()
     CPPUNIT_ASSERT_EQUAL(false, pkb->has_call(41));
     CPPUNIT_ASSERT_EQUAL(false, pkb->has_call(50));
 }
+
+void Test_30_PKB::test_has_if()
+{
+    const string& simpleProg = this->TEST_MODIFIES_SIMPLE_PROG;
+    string queryStr;
+    set<int> intSet;
+    SetWrapper<string> stringSet;
+
+    Parser parser(simpleProg, FROMSTRING);
+    parser.init();
+    auto_ptr<PKB> pkb(parser.get_pkb());
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(1));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(2));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(3));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(4));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(5));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(6));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_if(7));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(8));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(9));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(10));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(11));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(12));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_if(13));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(14));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(15));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(16));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(17));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(18));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(19));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(20));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(21));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(22));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(23));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(24));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(25));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(26));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_if(27));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(28));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(29));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(30));
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_if(31));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(32));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(33));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(34));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(35));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(36));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(37));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(38));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(39));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(40));
+    // Out of range cases
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(0));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(-61));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(41));
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_if(50));
+}
