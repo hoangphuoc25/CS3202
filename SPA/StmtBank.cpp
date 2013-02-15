@@ -248,13 +248,14 @@ map<int, Node*> StmtBank::get_ifBank()
     return ifBank;
 }
 
-bool StmtBank::is_stmtType(int stmtNo, DesignEnt type)
+bool StmtBank::is_stmtType(int stmtNo, DesignEnt type) const
 {
-    if (type == ENT_STMT || type == ENT_PROGLINE) {
-        return true;
-    }
-    if (directory.find(stmtNo) != directory.end()) {
-        return (directory[stmtNo] == type);
+    map<int, DesignEnt>::const_iterator it =
+            this->directory.find(stmtNo);
+    if (it != directory.end()) {
+        DesignEnt stmtType = it->second;
+        return (stmtType == type || type == ENT_STMT ||
+                    type == ENT_PROGLINE);
     } else {
         return false;
     }

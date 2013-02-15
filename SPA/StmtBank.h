@@ -58,7 +58,7 @@ public:
     map<int, Node*> get_whileBank();
     map<int, Node*> get_assignBank();
 
-    bool is_stmtType(int stmtNo, DesignEnt type);
+    bool is_stmtType(int stmtNo, DesignEnt type) const;
     bool is_valid_stmtNo(int stmtNo);
 
     /*

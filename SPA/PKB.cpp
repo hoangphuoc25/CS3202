@@ -554,37 +554,37 @@ set<int> PKB::get_all_const() const
 bool PKB::has_assign(int assign) const
 {
     // TODO: Testing
-    return stmtBank->is_valid_stmtNo(assign);
+    return stmtBank->is_stmtType(assign, ENT_ASSIGN);
 }
 
 bool PKB::has_call(int callStmt) const
 {
     // TODO: Testing
-    return stmtBank->is_valid_stmtNo(callStmt);
+    return stmtBank->is_stmtType(callStmt, ENT_CALL);
 }
 
 bool PKB::has_if (int ifStmt) const
 {
     // TODO: Testing
-    return stmtBank->is_valid_stmtNo(ifStmt);
+    return stmtBank->is_stmtType(ifStmt, ENT_IF);
 }
 
 bool PKB::has_while(int whileStmt) const
 {
     // TODO: Testing
-    return stmtBank->is_valid_stmtNo(whileStmt);
+    return stmtBank->is_stmtType(whileStmt, ENT_WHILE);
 }
 
 bool PKB::has_stmt(int stmtNo) const
 {
     // TODO: Testing
-    return stmtBank->is_valid_stmtNo(stmtNo);
+    return stmtBank->is_stmtType(stmtNo, ENT_STMT);
 }
 
 bool PKB::has_progline(int progLine) const
 {
     // TODO: Testing
-    return stmtBank->is_valid_stmtNo(progLine);
+    return stmtBank->is_stmtType(progLine, ENT_PROGLINE);
 }
 
 bool PKB::has_variable(const std::string& varName) const
