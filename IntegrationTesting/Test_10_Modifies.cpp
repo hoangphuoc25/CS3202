@@ -55,6 +55,7 @@ void Test_10_Modifies::setUp()
          procedure procThree { \
            man = human; \
            whos = here; \
+           hell = yes; \
          }";
 }
 
@@ -400,10 +401,10 @@ void Test_10_Modifies::test_modifies_assign_var_01()
     // (1,px), (2,abc), (4,sun), (6,heck), (7,pipe), (8,dawn),
     // (10,nobodyUses), (11,nobodyUses), (12,my), (14,sun),
     // (15,great), (16,come), (18,hell), (20,dont), (21,no),
-    // (23,man), (24,whos)
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(17, "1", "2", "4", "6",
+    // (23,man), (24,whos), (25, hell)
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(18, "1", "2", "4", "6",
             "7", "8", "10", "11", "12", "14", "15", "16", "18", "20",
-            "21", "23", "24"),
+            "21", "23", "24", "25"),
             stringSet);
 }
 
@@ -426,7 +427,7 @@ void Test_10_Modifies::test_modifies_proc_var_01()
     // (1,px), (2,abc), (4,sun), (6,heck), (7,pipe), (8,dawn),
     // (10,nobodyUses), (11,nobodyUses), (12,my), (14,sun),
     // (15,great), (16,come), (18,hell), (20,dont), (21,no),
-    // (23,man), (24,whos)
+    // (23,man), (24,whos), (25,yes)
     //
     // Modifies(p,v1)
     // a | v1 | p
@@ -434,10 +435,12 @@ void Test_10_Modifies::test_modifies_proc_var_01()
     // (7,pipe,pOne), (8,dawn,pOne), (10,nobodyUses,pOne),
     // (11,nobodyUses,pOne), (12,my,pOne), (14,sun,pOne),
     // (15,great,pOne), (16,come,pOne), (18,hell,pOne),
-    // (18,hell,procTwo), (20,dont,pOne), (20,dont,procTwo),
+    // (18,hell,procTwo), (18,hell,procThree), (20,dont,pOne),
+    // (20,dont,procTwo),
     // (21,no,pOne), (21,no,procTwo), (23,man,pOne), (23,man,procTwo),
     // (23,man,procThree), (24,whos,pOne), (24,whos,procTwo),
-    // (24,whos,procThree)
+    // (24,whos,procThree), (25,hell,pOne), (25,hell,procTwo),
+    // (25,hell,procThree)
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "pOne", "procTwo",
             "procThree"),
             stringSet);
@@ -447,13 +450,47 @@ void Test_10_Modifies::test_modifies_proc_var_01()
     queryStr += " Modifies(p,v1)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(24, "1,px,pOne", "2,abc,pOne",
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(28, "1,px,pOne", "2,abc,pOne",
             "4,sun,pOne", "6,heck,pOne", "7,pipe,pOne", "8,dawn,pOne",
             "10,nobodyUses,pOne", "11,nobodyUses,pOne", "12,my,pOne",
             "14,sun,pOne", "15,great,pOne", "16,come,pOne",
-            "18,hell,pOne", "18,hell,procTwo", "20,dont,pOne",
+            "18,hell,pOne", "18,hell,procTwo", "18,hell,procThree",
+            "20,dont,pOne",
             "20,dont,procTwo", "21,no,pOne", "21,no,procTwo",
             "23,man,pOne", "23,man,procTwo", "23,man,procThree",
-            "24,whos,pOne", "24,whos,procTwo", "24,whos,procThree"),
+            "24,whos,pOne", "24,whos,procTwo", "24,whos,procThree",
+            "25,hell,pOne", "25,hell,procTwo", "25,hell,procThree"),
+            stringSet);
+}
+
+void Test_10_Modifies::test_modifies_call_var_01()
+{
+    string queryStr;
+    QueryEvaluator evaluator;
+    list<string> resultList;
+    SetWrapper<string> stringSet;
+
+    const string& simpleProg = this->MODIFIES_01_PROG;
+    evaluator.parseSimple(simpleProg);
+    queryStr = "assign a; variable v1, v2; call c; ";
+    queryStr += " Select <a,v1,c> such that Modifies(a,v1) ";
+    queryStr += " and Modifies(c,v1)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    // Modifies(a,v1)
+    // a | v1
+    // (1,px), (2,abc), (4,sun), (6,heck), (7,pipe), (8,dawn),
+    // (10,nobodyUses), (11,nobodyUses), (12,my), (14,sun),
+    // (15,great), (16,come), (18,hell), (20,dont), (21,no),
+    // (23,man), (24,whos), (25,hell)
+    // ---
+    // Modifies(c,v1)
+    // a | v1 | c
+    // (18,hell,17), (18,hell,22), (20,dont,17), (21,no,17), (23,man,17),
+    // (23,man,22), (24,whos,17), (24,whos,22), (25,hell,17),
+    // (25,hell,22)
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(10, "18,hell,17", "18,hell,22",
+            "20,dont,17", "21,no,17", "23,man,17", "23,man,22",
+            "24,whos,17", "24,whos,22", "25,hell,17", "25,hell,22"),
             stringSet);
 }
