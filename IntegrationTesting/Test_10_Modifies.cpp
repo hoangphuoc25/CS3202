@@ -16,7 +16,47 @@ using std::set;
 using std::pair;
 using std::make_pair;
 
-void Test_10_Modifies::setUp() {}
+void Test_10_Modifies::setUp()
+{
+    this->MODIFIES_01_PROG =
+        "procedure pOne { \
+           px = ty; \
+           abc = sun; \
+           if t then { \
+             sun = rise; \
+             while true { \
+               heck = it + la; \
+             } \
+             pipe = dream; \
+           } else { \
+             dawn = now; \
+             if notTrue then { \
+               nobodyUses = 23; \
+             } else { \
+               nobodyUses = abcd; \
+             } \
+           } \
+           my = friend; \
+           while germ { \
+             sun = no + sun; \
+           } \
+           great = things; \
+           come = hard; \
+           call procTwo; \
+         } \
+         procedure procTwo { \
+           hell = no; \
+           while fine { \
+             dont = heck; \
+           } \
+           no = go; \
+           call procThree; \
+         } \
+         procedure procThree { \
+           man = human; \
+           whos = here; \
+         }";
+}
 
 void Test_10_Modifies::tearDown() {}
 
@@ -339,4 +379,30 @@ void Test_10_Modifies::test_modifies_single()
     CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(19, "a", "aa", "b",
             "big", "dont", "g2", "hi", "im", "kerb", "noway", "thank",
             "vv", "well", "x", "xc", "xcz", "xyz", "y", "yes"));
+}
+
+void Test_10_Modifies::test_modifies_assign_var_01()
+{
+    string queryStr;
+    QueryEvaluator evaluator;
+    list<string> resultList;
+    SetWrapper<string> stringSet;
+
+    // Uses(procedure,var)
+    const string& simpleProg = this->MODIFIES_01_PROG;
+    // vacuously correct but no choice for now
+    evaluator.parseSimple(simpleProg);
+    queryStr = "assign a, a2; variable v1, v2; procedure p; ";
+    queryStr += " Select a2 such that Modifies(a,v1) and Modifies(a2,v1)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    // Modifies(a,v1)
+    // (1,px), (2,abc), (4,sun), (6,heck), (7,pipe), (8,dawn),
+    // (10,nobodyUses), (11,nobodyUses), (12,my), (14,sun),
+    // (15,great), (16,come), (18,hell), (20,dont), (21,no),
+    // (23,man), (24,whos)
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(17, "1", "2", "4", "6",
+            "7", "8", "10", "11", "12", "14", "15", "16", "18", "20",
+            "21", "23", "24"),
+            stringSet);
 }
