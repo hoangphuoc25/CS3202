@@ -30,10 +30,13 @@ void Test_10_Modifies::setUp()
              pipe = dream; \
            } else { \
              dawn = now; \
-             if notTrue then { \
-               nobodyUses = 23; \
-             } else { \
-               nobodyUses = abcd; \
+             while smth { \
+               snake = here; \
+               if notTrue then { \
+                 nobodyUses = 23; \
+               } else { \
+                 nobodyUses = abcd; \
+               } \
              } \
            } \
            my = friend; \
@@ -398,13 +401,13 @@ void Test_10_Modifies::test_modifies_assign_var_01()
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     // Modifies(a,v1)
-    // (1,px), (2,abc), (4,sun), (6,heck), (7,pipe), (8,dawn),
-    // (10,nobodyUses), (11,nobodyUses), (12,my), (14,sun),
-    // (15,great), (16,come), (18,hell), (20,dont), (21,no),
-    // (23,man), (24,whos), (25, hell)
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(18, "1", "2", "4", "6",
-            "7", "8", "10", "11", "12", "14", "15", "16", "18", "20",
-            "21", "23", "24", "25"),
+    // (1,px), (2,abc), (4,sun), (6,heck), (7,pipe), (8,dawn), (10,snake)
+    // (12,nobodyUses), (13,nobodyUses), (14,my), (16,sun),
+    // (17,great), (18,come), (20,hell), (22,dont), (23,no),
+    // (25,man), (26,whos), (27, hell)
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(19, "1", "2", "4", "6",
+            "7", "8", "10", "12", "13", "14", "16", "17", "18",
+            "20", "22", "23", "25", "26", "27"),
             stringSet);
 }
 
@@ -424,23 +427,23 @@ void Test_10_Modifies::test_modifies_proc_var_01()
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     // Modifies(a,v1)
-    // (1,px), (2,abc), (4,sun), (6,heck), (7,pipe), (8,dawn),
-    // (10,nobodyUses), (11,nobodyUses), (12,my), (14,sun),
-    // (15,great), (16,come), (18,hell), (20,dont), (21,no),
-    // (23,man), (24,whos), (25,yes)
+    // (1,px), (2,abc), (4,sun), (6,heck), (7,pipe), (8,dawn), (10,snake)
+    // (12,nobodyUses), (13,nobodyUses), (14,my), (16,sun),
+    // (17,great), (18,come), (20,hell), (22,dont), (23,no),
+    // (25,man), (26,whos), (27, hell)
     //
     // Modifies(p,v1)
     // a | v1 | p
     // (1,px,pOne), (2,abc,pOne), (4,sun,pOne), (6,heck,pOne),
-    // (7,pipe,pOne), (8,dawn,pOne), (10,nobodyUses,pOne),
-    // (11,nobodyUses,pOne), (12,my,pOne), (14,sun,pOne),
-    // (15,great,pOne), (16,come,pOne), (18,hell,pOne),
-    // (18,hell,procTwo), (18,hell,procThree), (20,dont,pOne),
-    // (20,dont,procTwo),
-    // (21,no,pOne), (21,no,procTwo), (23,man,pOne), (23,man,procTwo),
-    // (23,man,procThree), (24,whos,pOne), (24,whos,procTwo),
-    // (24,whos,procThree), (25,hell,pOne), (25,hell,procTwo),
-    // (25,hell,procThree)
+    // (7,pipe,pOne), (8,dawn,pOne), (10,snake,pOne), (12,nobodyUses,pOne),
+    // (13,nobodyUses,pOne), (14,my,pOne), (16,sun,pOne),
+    // (17,great,pOne), (18,come,pOne), (20,hell,pOne),
+    // (20,hell,procTwo), (20,hell,procThree), (22,dont,pOne),
+    // (22,dont,procTwo),
+    // (23,no,pOne), (23,no,procTwo), (25,man,pOne), (25,man,procTwo),
+    // (25,man,procThree), (26,whos,pOne), (26,whos,procTwo),
+    // (26,whos,procThree), (27,hell,pOne), (27,hell,procTwo),
+    // (27,hell,procThree)
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "pOne", "procTwo",
             "procThree"),
             stringSet);
@@ -450,16 +453,17 @@ void Test_10_Modifies::test_modifies_proc_var_01()
     queryStr += " Modifies(p,v1)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(28, "1,px,pOne", "2,abc,pOne",
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(29, "1,px,pOne", "2,abc,pOne",
             "4,sun,pOne", "6,heck,pOne", "7,pipe,pOne", "8,dawn,pOne",
-            "10,nobodyUses,pOne", "11,nobodyUses,pOne", "12,my,pOne",
-            "14,sun,pOne", "15,great,pOne", "16,come,pOne",
-            "18,hell,pOne", "18,hell,procTwo", "18,hell,procThree",
-            "20,dont,pOne",
-            "20,dont,procTwo", "21,no,pOne", "21,no,procTwo",
-            "23,man,pOne", "23,man,procTwo", "23,man,procThree",
-            "24,whos,pOne", "24,whos,procTwo", "24,whos,procThree",
-            "25,hell,pOne", "25,hell,procTwo", "25,hell,procThree"),
+            "10,snake,pOne",
+            "12,nobodyUses,pOne", "13,nobodyUses,pOne", "14,my,pOne",
+            "16,sun,pOne", "17,great,pOne", "18,come,pOne",
+            "20,hell,pOne", "20,hell,procTwo", "20,hell,procThree",
+            "22,dont,pOne",
+            "22,dont,procTwo", "23,no,pOne", "23,no,procTwo",
+            "25,man,pOne", "25,man,procTwo", "25,man,procThree",
+            "26,whos,pOne", "26,whos,procTwo", "26,whos,procThree",
+            "27,hell,pOne", "27,hell,procTwo", "27,hell,procThree"),
             stringSet);
 }
 
@@ -479,18 +483,49 @@ void Test_10_Modifies::test_modifies_call_var_01()
     stringSet = SetWrapper<string>(resultList);
     // Modifies(a,v1)
     // a | v1
-    // (1,px), (2,abc), (4,sun), (6,heck), (7,pipe), (8,dawn),
-    // (10,nobodyUses), (11,nobodyUses), (12,my), (14,sun),
-    // (15,great), (16,come), (18,hell), (20,dont), (21,no),
-    // (23,man), (24,whos), (25,hell)
+    // (1,px), (2,abc), (4,sun), (6,heck), (7,pipe), (8,dawn), (10,snake)
+    // (12,nobodyUses), (13,nobodyUses), (14,my), (16,sun),
+    // (17,great), (18,come), (20,hell), (22,dont), (23,no),
+    // (25,man), (26,whos), (27, hell)
     // ---
     // Modifies(c,v1)
     // a | v1 | c
-    // (18,hell,17), (18,hell,22), (20,dont,17), (21,no,17), (23,man,17),
-    // (23,man,22), (24,whos,17), (24,whos,22), (25,hell,17),
-    // (25,hell,22)
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(10, "18,hell,17", "18,hell,22",
-            "20,dont,17", "21,no,17", "23,man,17", "23,man,22",
-            "24,whos,17", "24,whos,22", "25,hell,17", "25,hell,22"),
+    // (20,hell,19), (20,hell,24), (22,dont,19), (23,no,19), (25,man,19),
+    // (25,man,24), (26,whos,19), (26,whos,24), (27,hell,19),
+    // (27,hell,24)
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(10, "20,hell,19", "20,hell,24",
+            "22,dont,19", "23,no,19", "25,man,19", "25,man,24",
+            "26,whos,19", "26,whos,24", "27,hell,19", "27,hell,24"),
+            stringSet);
+}
+
+void Test_10_Modifies::test_modifies_while_var_01()
+{
+    string queryStr;
+    QueryEvaluator evaluator;
+    list<string> resultList;
+    SetWrapper<string> stringSet;
+
+    const string& simpleProg = this->MODIFIES_01_PROG;
+    evaluator.parseSimple(simpleProg);
+    queryStr = "assign a; variable v1, v2; while w; ";
+    queryStr += " Select <a,v1,w> such that Modifies(a,v1) ";
+    queryStr += " and Modifies(w,v1)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    // Modifies(a,v1)
+    // a | v1
+    // (1,px), (2,abc), (4,sun), (6,heck), (7,pipe), (8,dawn), (10,snake)
+    // (12,nobodyUses), (13,nobodyUses), (14,my), (16,sun),
+    // (17,great), (18,come), (20,hell), (22,dont), (23,no),
+    // (25,man), (26,whos), (27, hell)
+    // ---
+    // Modifies(w,v1)
+    // a | v1 | w
+    // (4,sun,13), (6,heck,5), (10,snake,9), (12,nobodyUses,9)
+    // (13,nobodyuses,9), (16,sun,15), (22,dont,21)
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(7, "4,sun,15", "6,heck,5",
+            "10,snake,9", "12,nobodyUses,9", "13,nobodyUses,9",
+            "16,sun,15", "22,dont,21"),
             stringSet);
 }
