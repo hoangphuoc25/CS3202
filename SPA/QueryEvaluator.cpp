@@ -241,6 +241,18 @@ void QueryEvaluator::setup_modifies()
     assert(this->dispatchTable.find(evalSynArgDesc) ==
                 this->dispatchTable.end());
     this->dispatchTable[evalSynArgDesc] = tmpDispatch;
+
+    // Modifies(procedure,var), 01
+    evalSynArgDesc = EvalSynArgDesc(REL_MODIFIES, SYN_SYN_01, ENT_PROC,
+            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
+    tmpDispatch.reset();
+    tmpDispatch.get_string_set_argOne_from_string_argTwo =
+            &PKB::modifies_X_Y_get_string_X_from_string_Y;
+    tmpDispatch.relRef_eval =
+            &QueryEvaluator::ev_rr_ss_string_string_01;
+    assert(this->dispatchTable.find(evalSynArgDesc) ==
+            this->dispatchTable.end());
+    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
 }
 
 void QueryEvaluator::setup_uses()
