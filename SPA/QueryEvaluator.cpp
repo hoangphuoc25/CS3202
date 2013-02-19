@@ -731,7 +731,6 @@ void QueryEvaluator::ev_rr_ss_string_string_00_from_argTwo(
 void QueryEvaluator::ev_rr_ss_string_string_01(int rTableIdx,
         RelRef *relRef, const EvalPKBDispatch& disp)
 {
-    assert(disp.get_all_string_argOne != NULL);
     assert(disp.get_string_set_argOne_from_string_argTwo != NULL);
     ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair =
@@ -758,7 +757,6 @@ void QueryEvaluator::ev_rr_ss_string_string_01(int rTableIdx,
 void QueryEvaluator::ev_rr_ss_string_string_10(int rTableIdx,
         RelRef *relRef, const EvalPKBDispatch& disp)
 {
-    assert(disp.get_all_string_argTwo != NULL);
     assert(disp.get_string_set_argTwo_from_string_argOne != NULL);
     ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair =
