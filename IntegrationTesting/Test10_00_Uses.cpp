@@ -26,6 +26,7 @@ void Test10_00_Uses::setUp()
                  x = y; \
                } else { \
                  shoulders = up; \
+                 call recProc; \
                } \
                seven = up; \
              } else { \
@@ -66,6 +67,10 @@ void Test10_00_Uses::setUp()
                   what = is - this; \
                   no = way; \
                   ss = 77; \
+                  call recProc; \
+                } \
+                while nope { \
+                  what = isThis; \
                 } \
                 journey = long; \
               } \
@@ -84,6 +89,7 @@ void Test10_00_Uses::setUp()
                   } else { \
                     you = are; \
                     at = some - other * place - 14; \
+                    call recProc; \
                   } \
                   done = deal; \
                 } \
@@ -91,8 +97,14 @@ void Test10_00_Uses::setUp()
               } \
             } \
             follow = star; \
-          }";
+          } \
+          procedure recProc { \
+            min = max; \
+            high = five; \
+          } ";
 }
+
+// >= 41 + 2
 
 void Test10_00_Uses::tearDown() {}
 
@@ -111,15 +123,15 @@ void Test10_00_Uses::test_uses_assign_var()
     queryStr += " such that Uses(aggh, gdfg1)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(40, "1,two", "1,three",
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(43, "1,two", "1,three",
             "3,two", "5,delta", "8,quarters", "10,small", "11,y",
-            "12,up", "13,up", "14,much", "15,eol", "17,haha", "19,this",
-            "20,sky", "21,xe5", "22,wall", "25,yes", "26,up", "27,this",
-            "29,destruct", "31,power", "32,will", "36,is", "36,this",
-            "37,way", "39,long", "40,away", "41,extinct", "43,know",
-            "45,this", "46,cares", "48,are", "49,google", "50,are",
-            "51,some", "51,other", "51,place", "52,deal", "53,slate",
-            "54,star"),
+            "12,up", "14,up", "15,much", "16,eol", "18,haha", "20,this",
+            "21,sky", "22,xe5", "23,wall", "26,yes", "27,up", "28,this",
+            "30,destruct", "32,power", "33,will", "37,is", "37,this",
+            "38,way", "42,isThis", "43,long", "44,away", "45,extinct",
+            "47,know", "49,this", "50,cares", "52,are", "53,google",
+            "54,are", "55,some", "55,other", "55,place", "57,deal",
+            "58,slate", "59,star", "60,max", "61,five"),
             stringSet);
 }
 
@@ -136,35 +148,39 @@ void Test10_00_Uses::test_uses_procedure_var()
     queryStr += " Select <jpha#s,hdh> such that Uses(jpha#s,hdh)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(95,
-            // 43
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(106,
+            // 46
             "Abcd,TT", "Abcd,aaa", "Abcd,are", "Abcd,away",
             "Abcd,cares", "Abcd,deal", "Abcd,delta", "Abcd,destruct",
-            "Abcd,eol", "Abcd,extinct", "Abcd,google",
-            "Abcd,haha", "Abcd,ifVar", "Abcd,is", "Abcd,know",
-            "Abcd,long", "Abcd,much", "Abcd,nope", "Abcd,other",
-            "Abcd,pForce", "Abcd,place", "Abcd,power", "Abcd,qed",
-            "Abcd,quarters", "Abcd,sky", "Abcd,slate",
-            "Abcd,small", "Abcd,star", "Abcd,some", "Abcd,there",
-            "Abcd,this", "Abcd,thisNot", "Abcd,three", "Abcd,two",
-            "Abcd,up", "Abcd,wall", "Abcd,way", "Abcd,whileVar",
-            "Abcd,will", "Abcd,xe5", "Abcd,y", "Abcd,yes",
-            "Abcd,youThere",
+            "Abcd,eol", "Abcd,extinct", "Abcd,five", "Abcd,google",
+            "Abcd,haha", "Abcd,ifVar", "Abcd,is", "Abcd,isThis",
+            "Abcd,know", "Abcd,long", "Abcd,max", "Abcd,much",
+            "Abcd,nope", "Abcd,other", "Abcd,pForce", "Abcd,place",
+            "Abcd,power", "Abcd,qed", "Abcd,quarters", "Abcd,sky",
+            "Abcd,slate", "Abcd,small", "Abcd,star", "Abcd,some",
+            "Abcd,there", "Abcd,this", "Abcd,thisNot", "Abcd,three",
+            "Abcd,two", "Abcd,up", "Abcd,wall", "Abcd,way",
+            "Abcd,whileVar", "Abcd,will", "Abcd,xe5", "Abcd,y",
+            "Abcd,yes", "Abcd,youThere",
             // 1
             "TwoProng,yes",
-            // 24
-            "pForce,TT", "pForce,are", "pForce,away", "pForce,cares",
-            "pForce,deal", "pForce,extinct", "pForce,google",
-            "pForce,is", "pForce,know", "pForce,long",
-            "pForce,nope", "pForce,other", "pForce,pForce",
-            "pForce,place", "pForce,power", "pForce,qed", "pForce,slate",
-            "pForce,some", "pForce,star", "pForce,there", "pForce,this",
-            "pForce,way", "pForce,will", "pForce,yes",
             // 27
+            "pForce,TT", "pForce,are", "pForce,away", "pForce,cares",
+            "pForce,deal", "pForce,extinct", "pForce,five",
+            "pForce,google", "pForce,is", "pForce,isThis", "pForce,know",
+            "pForce,long", "pForce,max", "pForce,nope", "pForce,other",
+            "pForce,pForce", "pForce,place", "pForce,power",
+            "pForce,qed", "pForce,slate", "pForce,some", "pForce,star",
+            "pForce,there", "pForce,this", "pForce,way", "pForce,will",
+            "pForce,yes",
+            // 2
+            "recProc,five", "recProc,max",
+            // 30
             "thirdProc,TT", "thirdProc,are", "thirdProc,away",
             "thirdProc,cares", "thirdProc,deal", "thirdProc,destruct",
-            "thirdProc,extinct", "thirdProc,google", "thirdProc,is",
-            "thirdProc,know", "thirdProc,long", "thirdProc,nope",
+            "thirdProc,extinct", "thirdProc,five", "thirdProc,google",
+            "thirdProc,is", "thirdProc,isThis", "thirdProc,know",
+            "thirdProc,long", "thirdProc,max", "thirdProc,nope",
             "thirdProc,other", "thirdProc,pForce", "thirdProc,place",
             "thirdProc,power", "thirdProc,qed", "thirdProc,slate",
             "thirdProc,some", "thirdProc,star", "thirdProc,there",
@@ -186,19 +202,64 @@ void Test10_00_Uses::test_uses_call_var()
     queryStr += " Uses(mmbb,vv1)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(51,
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(63,
+            // 2
+            "13,five", "13,max",
+            // 30
+            "24,TT", "24,away", "24,are", "24,cares", "24,deal",
+            "24,destruct", "24,extinct", "24,five", "24,google",
+            "24,is", "24,isThis", "24,know", "24,long", "24,max",
+            "24,nope", "24,other", "24,pForce", "24,place", "24,power",
+            "24,qed", "24,slate", "24,some", "24,star", "24,there",
+            "24,this", "24,up", "24,wall", "24,way", "24,will", "24,yes",
             // 27
-            "23,TT", "23,away", "23,are", "23,cares", "23,deal",
-            "23,destruct", "23,extinct", "23,google",
-            "23,is", "23,know", "23,long", "23,nope", "23,other",
-            "23,pForce", "23,place", "23,power", "23,qed", "23,slate",
-            "23,some", "23,star", "23,there", "23,this", "23,up",
-            "23,wall", "23,way", "23,will", "23,yes",
+            "31,TT", "31,away", "31,are", "31,cares", "31,deal",
+            "31,extinct", "31,five", "31,google", "31,is", "31,isThis",
+            "31,know", "31,long", "31,max", "31,nope", "31,other",
+            "31,pForce", "31,place", "31,power", "31,qed", "31,slate",
+            "31,some", "31,star", "31,there", "31,this", "31,way",
+            "31,will", "31,yes",
+            // 2
+            "40,five", "40,max",
+            // 2
+            "56,five", "56,max"),
+            stringSet);
+}
+
+void Test10_00_Uses::test_uses_if_var()
+{
+    string queryStr;
+    QueryEvaluator evaluator;
+    list<string> resultList;
+    SetWrapper<string> stringSet;
+    const string& simpleProg = this->SIMPLE_PROG;
+    evaluator.parseSimple(simpleProg);
+
+    queryStr = " if i1; variable v1; Select <i1,v1> such that ";
+    queryStr += " Uses(i1, v1)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(65,
+            // 9
+            "6,aaa", "6,five", "6,ifVar", "6,max", "6,much",
+            "6,quarters", "6,small", "6,up", "6,y",
+            // 6
+            "9,aaa", "9,five", "9,max", "9,small", "9,up", "9,y",
+            // 6
+            "17,haha", "17,sky", "17,this", "17,thisNot",
+            "17,xe5", "17,youThere",
             // 24
-            "30,TT", "30,away", "30,are", "30,cares", "30,deal",
-            "30,extinct", "30,google", "30,is", "30,know",
-            "30,long", "30,nope", "30,other", "30,pForce", "30,place",
-            "30,power", "30,qed", "30,slate", "30,some", "30,star",
-            "30,there", "30,this", "30,way", "30,will", "30,yes"),
+            "34,TT", "34,away", "34,are", "34,cares", "34,deal",
+            "34,extinct", "34,five", "34,google", "34,is", "34,isThis",
+            "34,know", "34,long", "34,max", "34,nope", "34,other",
+            "34,pForce", "34,place", "34,qed", "34,slate", "34,some",
+            "34,there", "34,this", "34,way", "34,yes",
+            // 12
+            "48,are", "48,cares", "48,deal", "48,five", "48,google",
+            "48,max", "48,other", "48,pForce", "48,place", "48,qed",
+            "48,some", "48,this",
+            // 8
+            "51,are", "51,five", "51,google", "51,max", "51,other",
+            "51,pForce", "51,place", "51,some"),
             stringSet);
 }

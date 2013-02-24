@@ -9,6 +9,7 @@ CPPUNIT_TEST_SUITE(Test10_00_Uses);
 CPPUNIT_TEST(test_uses_assign_var);
 CPPUNIT_TEST(test_uses_procedure_var);
 CPPUNIT_TEST(test_uses_call_var);
+CPPUNIT_TEST(test_uses_if_var);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -18,6 +19,7 @@ private:
     void test_uses_assign_var();
     void test_uses_procedure_var();
     void test_uses_call_var();
+    void test_uses_if_var();
     std::string SIMPLE_PROG;
 };
 
