@@ -263,3 +263,39 @@ void Test10_00_Uses::test_uses_if_var()
             "51,pForce", "51,place", "51,some"),
             stringSet);
 }
+
+void Test10_00_Uses::test_uses_while_var()
+{
+    string queryStr;
+    QueryEvaluator evaluator;
+    list<string> resultList;
+    SetWrapper<string> stringSet;
+    const string& simpleProg = this->SIMPLE_PROG;
+    evaluator.parseSimple(simpleProg);
+
+    queryStr = "while w412; variable Vgw1; Select <w412, Vgw1> ";
+    queryStr += " such that Uses(w412, Vgw1)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(48,
+            // 11
+            "4,aaa", "4,delta", "4,five", "4,ifVar", "4,max", "4,much",
+            "4,quarters", "4,small", "4,up", "4,whileVar", "4,y",
+            // 3
+            "19,sky", "19,this", "19,youThere",
+            // 2
+            "29,destruct", "29,wall",
+            // 9
+            "35,five", "35,is", "35,isThis", "35,long", "35,max",
+            "35,nope", "35,this", "35,way", "35,yes",
+            // 6
+            "36,five", "36,is", "36,max", "36,nope", "36,this",
+            "36,way",
+            // 2
+            "41,nope", "41,isThis",
+            // 15
+            "46,TT", "46,are", "46,cares", "46,deal", "46,five",
+            "46,google", "46,know", "46,max", "46,other", "46,pForce",
+            "46,place", "46,qed", "46,slate", "46,some", "46,this"),
+            stringSet);
+}
