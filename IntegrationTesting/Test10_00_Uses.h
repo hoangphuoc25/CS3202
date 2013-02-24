@@ -12,6 +12,7 @@ CPPUNIT_TEST(test_uses_call_var);
 CPPUNIT_TEST(test_uses_if_var);
 CPPUNIT_TEST(test_uses_while_var);
 CPPUNIT_TEST(test_uses_stmt_var);
+CPPUNIT_TEST(test_uses_progline_var);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -24,6 +25,7 @@ private:
     void test_uses_if_var();
     void test_uses_while_var();
     void test_uses_stmt_var();
+    void test_uses_progline_var();
     std::string SIMPLE_PROG;
 };
 
