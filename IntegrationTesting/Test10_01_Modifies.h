@@ -14,6 +14,7 @@ CPPUNIT_TEST(test_modifies_call_var_01);
 CPPUNIT_TEST(test_modifies_while_var_01);
 CPPUNIT_TEST(test_modifies_if_var_01);
 CPPUNIT_TEST(test_modifies_stmt_var_01);
+CPPUNIT_TEST(test_modifies_progline_var);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -27,6 +28,7 @@ private:
     void test_modifies_while_var_01();
     void test_modifies_if_var_01();
     void test_modifies_stmt_var_01();
+    void test_modifies_progline_var();
     std::string MODIFIES_01_PROG;
 };
 
