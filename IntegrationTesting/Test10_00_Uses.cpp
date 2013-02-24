@@ -172,3 +172,33 @@ void Test10_00_Uses::test_uses_procedure_var()
             "thirdProc,way", "thirdProc,will", "thirdProc,yes"),
             stringSet);
 }
+
+void Test10_00_Uses::test_uses_call_var()
+{
+    string queryStr;
+    QueryEvaluator evaluator;
+    list<string> resultList;
+    SetWrapper<string> stringSet;
+    const string& simpleProg = this->SIMPLE_PROG;
+    evaluator.parseSimple(simpleProg);
+
+    queryStr = "call mmbb; variable vv1; Select <mmbb,vv1> such that ";
+    queryStr += " Uses(mmbb,vv1)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(51,
+            // 27
+            "23,TT", "23,away", "23,are", "23,cares", "23,deal",
+            "23,destruct", "23,extinct", "23,google",
+            "23,is", "23,know", "23,long", "23,nope", "23,other",
+            "23,pForce", "23,place", "23,power", "23,qed", "23,slate",
+            "23,some", "23,star", "23,there", "23,this", "23,up",
+            "23,wall", "23,way", "23,will", "23,yes",
+            // 24
+            "30,TT", "30,away", "30,are", "30,cares", "30,deal",
+            "30,extinct", "30,google", "30,is", "30,know",
+            "30,long", "30,nope", "30,other", "30,pForce", "30,place",
+            "30,power", "30,qed", "30,slate", "30,some", "30,star",
+            "30,there", "30,this", "30,way", "30,will", "30,yes"),
+            stringSet);
+}
