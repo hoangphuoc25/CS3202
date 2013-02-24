@@ -1,7 +1,7 @@
 #include <list>
 #include <set>
 #include <string>
-#include "Test_10_Calls.h"
+#include "Test10_00_Calls.h"
 #include "../SPA/SetWrapper.h"
 #include "../SPA/QueryEvaluator.h"
 
@@ -9,7 +9,7 @@ using std::list;
 using std::set;
 using std::string;
 
-void Test_10_Calls::setUp()
+void Test10_00_Calls::setUp()
 {
     // call stmt
     // Procedure xProc
@@ -72,11 +72,11 @@ void Test_10_Calls::setUp()
     // 18 [cleanUp]
 }
 
-void Test_10_Calls::tearDown() {}
+void Test10_00_Calls::tearDown() {}
 
-CPPUNIT_TEST_SUITE_REGISTRATION(Test_10_Calls);
+CPPUNIT_TEST_SUITE_REGISTRATION(Test10_00_Calls);
 
-void Test_10_Calls::test_select_one_syn()
+void Test10_00_Calls::test_select_one_syn()
 {
     const string simpleProg = this->SELECT_ONE_SIMPLEPROG;
     string queryStr;

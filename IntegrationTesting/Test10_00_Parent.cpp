@@ -2,7 +2,7 @@
 #include <set>
 #include <string>
 
-#include "Test_10_Parent.h"
+#include "Test10_00_Parent.h"
 #include "../SPA/QueryEvaluator.h"
 #include "../SPA/SetWrapper.h"
 
@@ -10,7 +10,7 @@ using std::list;
 using std::set;
 using std::string;
 
-void Test_10_Parent::setUp()
+void Test10_00_Parent::setUp()
 {
     // stmt 2 [while]
     //   assign: 3, 22
@@ -122,11 +122,11 @@ void Test_10_Parent::setUp()
          ";
 }
 
-void Test_10_Parent::tearDown() {}
+void Test10_00_Parent::tearDown() {}
 
-CPPUNIT_TEST_SUITE_REGISTRATION(Test_10_Parent);
+CPPUNIT_TEST_SUITE_REGISTRATION(Test10_00_Parent);
 
-void Test_10_Parent::test_select_one_syn()
+void Test10_00_Parent::test_parent_while_assign()
 {
     const string& simpleProg = this->SELECT_ONE_SIMPLEPROG;
     string queryStr;

@@ -1,11 +1,11 @@
-#ifndef T11_TEST_10_PARENT_H
-#define T11_TEST_10_PARENT_H
+#ifndef T11_TEST10_00_SELECT_CALLS_H
+#define T11_TEST10_00_SELECT_CALLS_H
 
 #include <string>
 #include <cppunit/extensions/HelperMacros.h>
 
-class Test_10_Parent: public CPPUNIT_NS::TestFixture {
-CPPUNIT_TEST_SUITE(Test_10_Parent);
+class Test10_00_Calls: public CPPUNIT_NS::TestFixture {
+CPPUNIT_TEST_SUITE(Test10_00_Calls);
 CPPUNIT_TEST(test_select_one_syn);
 CPPUNIT_TEST_SUITE_END();
 

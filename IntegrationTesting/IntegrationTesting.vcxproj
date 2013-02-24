@@ -68,18 +68,42 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="source\IntegrationTest.cpp" />
+    <ClCompile Include="Test10_00_Calls.cpp" />
+    <ClCompile Include="Test10_00_Modifies.cpp" />
+    <ClCompile Include="Test10_00_Parent.cpp" />
+    <ClCompile Include="Test10_01_Calls.cpp" />
+    <ClCompile Include="Test10_01_Modifies.cpp" />
+    <ClCompile Include="Test10_01_Parent.cpp" />
+    <ClCompile Include="Test10_10_Calls.cpp" />
+    <ClCompile Include="Test10_10_Modifies.cpp" />
+    <ClCompile Include="Test10_10_Parent.cpp" />
+    <ClCompile Include="Test10_11_Calls.cpp" />
+    <ClCompile Include="Test10_11_Modifies.cpp" />
+    <ClCompile Include="Test10_11_Parent.cpp" />
+    <ClCompile Include="Test10_22_Calls.cpp" />
+    <ClCompile Include="Test10_22_Modifies.cpp" />
+    <ClCompile Include="Test10_22_Parent.cpp" />
     <ClCompile Include="Test_01_SelectNoClause.cpp" />
-    <ClCompile Include="Test_10_Calls.cpp" />
-    <ClCompile Include="Test_10_Modifies.cpp" />
-    <ClCompile Include="Test_10_Parent.cpp" />
     <ClCompile Include="Test_11_SelectDisjointTables.cpp" />
     <ClCompile Include="Test_20_SynSyn_RelRef.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Test10_00_Calls.h" />
+    <ClInclude Include="Test10_00_Modifies.h" />
+    <ClInclude Include="Test10_00_Parent.h" />
+    <ClInclude Include="Test10_01_Calls.h" />
+    <ClInclude Include="Test10_01_Modifies.h" />
+    <ClInclude Include="Test10_01_Parent.h" />
+    <ClInclude Include="Test10_10_Calls.h" />
+    <ClInclude Include="Test10_10_Modifies.h" />
+    <ClInclude Include="Test10_10_Parent.h" />
+    <ClInclude Include="Test10_11_Calls.h" />
+    <ClInclude Include="Test10_11_Modifies.h" />
+    <ClInclude Include="Test10_11_Parent.h" />
+    <ClInclude Include="Test10_22_Calls.h" />
+    <ClInclude Include="Test10_22_Modifies.h" />
+    <ClInclude Include="Test10_22_Parent.h" />
     <ClInclude Include="Test_01_SelectNoClause.h" />
-    <ClInclude Include="Test_10_Calls.h" />
-    <ClInclude Include="Test_10_Modifies.h" />
-    <ClInclude Include="Test_10_Parent.h" />
     <ClInclude Include="Test_11_SelectDisjointTables.h" />
     <ClInclude Include="Test_20_SynSyn_RelRef.h" />
   </ItemGroup>
