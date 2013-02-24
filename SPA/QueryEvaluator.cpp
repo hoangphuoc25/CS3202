@@ -487,6 +487,45 @@ void QueryEvaluator::setup_uses()
             &QueryEvaluator::ev_rr_ss_int_string_01;
     this->dispatchTable[evalSynArgDesc] = tmpDispatch;
 
+    // Uses(stmt,var), 01
+    evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_01, ENT_STMT,
+            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
+    tmpDispatch.reset();
+    tmpDispatch.get_all_int_argOne = &PKB::get_all_stmt;
+    tmpDispatch.get_int_set_argOne_from_string_argTwo =
+            &PKB::uses_X_Y_get_int_X_from_string_Y;
+    tmpDispatch.get_string_set_argTwo_from_int_argOne =
+            &PKB::uses_X_Y_get_string_Y_from_int_X;
+    tmpDispatch.relRef_eval =
+            &QueryEvaluator::ev_rr_ss_int_string_01;
+    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
+
+    // Uses(prog_line,var), 01
+    evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_01, ENT_PROGLINE,
+            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
+    tmpDispatch.reset();
+    tmpDispatch.get_all_int_argOne = &PKB::get_all_progline;
+    tmpDispatch.get_int_set_argOne_from_string_argTwo =
+            &PKB::uses_X_Y_get_int_X_from_string_Y;
+    tmpDispatch.get_string_set_argTwo_from_int_argOne =
+            &PKB::uses_X_Y_get_string_Y_from_int_X;
+    tmpDispatch.relRef_eval =
+            &QueryEvaluator::ev_rr_ss_int_string_01;
+    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
+
+    // Uses(prog_line,var), 01
+    evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_01, ENT_PROGLINE,
+            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
+    tmpDispatch.reset();
+    tmpDispatch.get_all_int_argOne = &PKB::get_all_progline;
+    tmpDispatch.get_int_set_argOne_from_string_argTwo =
+            &PKB::uses_X_Y_get_int_X_from_string_Y;
+    tmpDispatch.get_string_set_argTwo_from_int_argOne =
+            &PKB::uses_X_Y_get_string_Y_from_int_X;
+    tmpDispatch.relRef_eval =
+            &QueryEvaluator::ev_rr_ss_int_string_01;
+    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
+
     // Uses(procedure,var), 10
     evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_10, ENT_PROC,
             ENT_VAR, RELARG_INVALID, RELARG_INVALID);

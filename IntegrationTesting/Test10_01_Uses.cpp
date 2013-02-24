@@ -329,3 +329,113 @@ void Test10_01_Uses::test_uses_while_var()
             "25,this,36", "25,this,46"),
             stringSet);
 }
+
+void Test10_01_Uses::test_uses_stmt_var()
+{
+    string queryStr;
+    QueryEvaluator evaluator;
+    list<string> resultList;
+    SetWrapper<string> stringSet;
+    const string& simpleProg = this->USES_00_SIMPLE_PROG;
+    evaluator.parseSimple(simpleProg);
+    queryStr = "assign a1; variable v1; stmt sgb1; ";
+    queryStr += " Select <a1,v1,sgb1> such that ";
+    queryStr += " Modifies(a1,v1) and Uses(sgb1, v1)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    // Modifies(a1,v1)
+    // a1 | v1
+    // (1,one), (2,cee), (3,f), (5,eps), (7,destruct), (8,head)
+    // (10,big), (11,x), (12,shoulders), (14,seven), (15,nothing)
+    // (16,fol), (18,hoho), (20,google), (21,red), (22,aaa)
+    // (23,fire), (25,this), (26,erm), (27,bottles), (28,beat)
+    // (30,building), (32,force), (33,strength), (37,what)
+    // (38,no), (39,ss), (42,what), (43,journey), (44,far)
+    // (45,die), (47,dont), (49,heck), (50,who), (52,you)
+    // (53,at), (54,you), (55,at), (57,done), (58,clean), (60,min)
+    // (61,high)
+    // ---
+    // Uses(sgb1,v1)
+    // a1 | v1 | sgb1
+    // sgb1 = assign
+    // (7,destruct,30), (20,google,53), (25,this,20), (25,this,28)
+    // (25,this,37), (25,this,49)
+    // sgb1 = call
+    // (7,destruct,24), (20,google,24), (20,google,31), (25,this,24)
+    // (25,this,31)
+    // sgb1 = if
+    // (20,google,34), (20,google,48), (20,google,51), (22,aaa,6)
+    // (22,aaa,9),  (25,this,17), (25,this,34), (25,this,48)
+    // sgb1 = while
+    // (7,destruct,29), (20,google,46), (22,aaa,4), (25,this,19)
+    // (25,this,35), (25,this,36), (25,this,46)
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(26,
+            // assign
+            "7,destruct,30", "20,google,53", "25,this,20",
+            "25,this,28", "25,this,37", "25,this,49",
+            // call
+            "7,destruct,24", "20,google,24", "20,google,31",
+            "25,this,24", "25,this,31",
+            // if
+            "20,google,34", "20,google,48", "20,google,51", "22,aaa,6",
+            "22,aaa,9", "25,this,17", "25,this,34", "25,this,48",
+            // while
+            "7,destruct,29", "20,google,46", "22,aaa,4", "25,this,19",
+            "25,this,35", "25,this,36", "25,this,46"),
+            stringSet);
+}
+
+void Test10_01_Uses::test_uses_progline_var()
+{
+    string queryStr;
+    QueryEvaluator evaluator;
+    list<string> resultList;
+    SetWrapper<string> stringSet;
+    const string& simpleProg = this->USES_00_SIMPLE_PROG;
+    evaluator.parseSimple(simpleProg);
+    queryStr = "assign a1; variable v1; prog_line Q561d; ";
+    queryStr += " Select <a1,v1,Q561d> such that ";
+    queryStr += " Modifies(a1,v1) and Uses(Q561d, v1)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    // Modifies(a1,v1)
+    // a1 | v1
+    // (1,one), (2,cee), (3,f), (5,eps), (7,destruct), (8,head)
+    // (10,big), (11,x), (12,shoulders), (14,seven), (15,nothing)
+    // (16,fol), (18,hoho), (20,google), (21,red), (22,aaa)
+    // (23,fire), (25,this), (26,erm), (27,bottles), (28,beat)
+    // (30,building), (32,force), (33,strength), (37,what)
+    // (38,no), (39,ss), (42,what), (43,journey), (44,far)
+    // (45,die), (47,dont), (49,heck), (50,who), (52,you)
+    // (53,at), (54,you), (55,at), (57,done), (58,clean), (60,min)
+    // (61,high)
+    // ---
+    // Uses(Q561d,v1)
+    // a1 | v1 | sgb1
+    // sgb1 = assign
+    // (7,destruct,30), (20,google,53), (25,this,20), (25,this,28)
+    // (25,this,37), (25,this,49)
+    // sgb1 = call
+    // (7,destruct,24), (20,google,24), (20,google,31), (25,this,24)
+    // (25,this,31)
+    // sgb1 = if
+    // (20,google,34), (20,google,48), (20,google,51), (22,aaa,6)
+    // (22,aaa,9),  (25,this,17), (25,this,34), (25,this,48)
+    // sgb1 = while
+    // (7,destruct,29), (20,google,46), (22,aaa,4), (25,this,19)
+    // (25,this,35), (25,this,36), (25,this,46)
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(26,
+            // assign
+            "7,destruct,30", "20,google,53", "25,this,20",
+            "25,this,28", "25,this,37", "25,this,49",
+            // call
+            "7,destruct,24", "20,google,24", "20,google,31",
+            "25,this,24", "25,this,31",
+            // if
+            "20,google,34", "20,google,48", "20,google,51", "22,aaa,6",
+            "22,aaa,9", "25,this,17", "25,this,34", "25,this,48",
+            // while
+            "7,destruct,29", "20,google,46", "22,aaa,4", "25,this,19",
+            "25,this,35", "25,this,36", "25,this,46"),
+            stringSet);
+}
