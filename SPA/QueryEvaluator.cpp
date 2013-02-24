@@ -332,6 +332,19 @@ void QueryEvaluator::setup_uses()
             this->dispatchTable.end());
     this->dispatchTable[evalSynArgDesc] = tmpDispatch;
 
+    // Uses(procedure,var), 00
+    evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_00, ENT_PROC,
+            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
+    tmpDispatch.reset();
+    tmpDispatch.get_all_string_argOne = &PKB::get_all_procs;
+    tmpDispatch.get_string_set_argTwo_from_string_argOne =
+            &PKB::uses_X_Y_get_string_Y_from_string_X;
+    tmpDispatch.relRef_eval =
+            &QueryEvaluator::ev_rr_ss_string_string_00_from_argOne;
+    assert(this->dispatchTable.find(evalSynArgDesc) ==
+            this->dispatchTable.end());
+    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
+
     // Uses(assign,var), 01
     evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_01, ENT_ASSIGN,
             ENT_VAR, RELARG_INVALID, RELARG_INVALID);

@@ -122,3 +122,53 @@ void Test10_00_Uses::test_uses_assign_var()
             "54,star"),
             stringSet);
 }
+
+void Test10_00_Uses::test_uses_procedure_var()
+{
+    string queryStr;
+    QueryEvaluator evaluator;
+    list<string> resultList;
+    SetWrapper<string> stringSet;
+    const string& simpleProg = this->SIMPLE_PROG;
+    evaluator.parseSimple(simpleProg);
+
+    queryStr = " variable hdh; procedure jpha#s; ";
+    queryStr += " Select <jpha#s,hdh> such that Uses(jpha#s,hdh)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(95,
+            // 43
+            "Abcd,TT", "Abcd,aaa", "Abcd,are", "Abcd,away",
+            "Abcd,cares", "Abcd,deal", "Abcd,delta", "Abcd,destruct",
+            "Abcd,eol", "Abcd,extinct", "Abcd,google",
+            "Abcd,haha", "Abcd,ifVar", "Abcd,is", "Abcd,know",
+            "Abcd,long", "Abcd,much", "Abcd,nope", "Abcd,other",
+            "Abcd,pForce", "Abcd,place", "Abcd,power", "Abcd,qed",
+            "Abcd,quarters", "Abcd,sky", "Abcd,slate",
+            "Abcd,small", "Abcd,star", "Abcd,some", "Abcd,there",
+            "Abcd,this", "Abcd,thisNot", "Abcd,three", "Abcd,two",
+            "Abcd,up", "Abcd,wall", "Abcd,way", "Abcd,whileVar",
+            "Abcd,will", "Abcd,xe5", "Abcd,y", "Abcd,yes",
+            "Abcd,youThere",
+            // 1
+            "TwoProng,yes",
+            // 24
+            "pForce,TT", "pForce,are", "pForce,away", "pForce,cares",
+            "pForce,deal", "pForce,extinct", "pForce,google",
+            "pForce,is", "pForce,know", "pForce,long",
+            "pForce,nope", "pForce,other", "pForce,pForce",
+            "pForce,place", "pForce,power", "pForce,qed", "pForce,slate",
+            "pForce,some", "pForce,star", "pForce,there", "pForce,this",
+            "pForce,way", "pForce,will", "pForce,yes",
+            // 27
+            "thirdProc,TT", "thirdProc,are", "thirdProc,away",
+            "thirdProc,cares", "thirdProc,deal", "thirdProc,destruct",
+            "thirdProc,extinct", "thirdProc,google", "thirdProc,is",
+            "thirdProc,know", "thirdProc,long", "thirdProc,nope",
+            "thirdProc,other", "thirdProc,pForce", "thirdProc,place",
+            "thirdProc,power", "thirdProc,qed", "thirdProc,slate",
+            "thirdProc,some", "thirdProc,star", "thirdProc,there",
+            "thirdProc,this", "thirdProc,up", "thirdProc,wall",
+            "thirdProc,way", "thirdProc,will", "thirdProc,yes"),
+            stringSet);
+}
