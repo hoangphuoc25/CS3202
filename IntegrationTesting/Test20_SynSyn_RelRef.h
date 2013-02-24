@@ -1,11 +1,11 @@
-#ifndef TEST_20_SELECT_SYN_SYN_RELREF_H
-#define TEST_20_SELECT_SYN_SYN_RELREF_H
+#ifndef TEST20_SELECT_SYN_SYN_RELREF_H
+#define TEST20_SELECT_SYN_SYN_RELREF_H
 
 #include <string>
 #include <cppunit/extensions/HelperMacros.h>
 
-class Test_20_SynSyn_RelRef: public CPPUNIT_NS::TestFixture {
-CPPUNIT_TEST_SUITE(Test_20_SynSyn_RelRef);
+class Test20_SynSyn_RelRef: public CPPUNIT_NS::TestFixture {
+CPPUNIT_TEST_SUITE(Test20_SynSyn_RelRef);
 CPPUNIT_TEST(test_variables_both_modified_and_used);
 CPPUNIT_TEST(test_ev_rr_ss_string_string_00_from_argOne);
 CPPUNIT_TEST(test_ev_rr_ss_string_string_01);

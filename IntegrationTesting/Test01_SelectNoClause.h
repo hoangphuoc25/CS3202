@@ -1,11 +1,11 @@
-#ifndef TEST_00_SELECT_NO_CLAUSE_H
-#define TEST_00_SELECT_NO_CLAUSE_H
+#ifndef T11_TEST01_SELECT_NO_CLAUSE_H
+#define T11_TEST01_SELECT_NO_CLAUSE_H
 
 #include <string>
 #include <cppunit/extensions/HelperMacros.h>
 
-class Test_01_SelectNoClause: public CPPUNIT_NS::TestFixture {
-CPPUNIT_TEST_SUITE(Test_01_SelectNoClause);
+class Test01_SelectNoClause: public CPPUNIT_NS::TestFixture {
+CPPUNIT_TEST_SUITE(Test01_SelectNoClause);
 CPPUNIT_TEST(test_select_one_syn);
 CPPUNIT_TEST(test_select_one_syn_attr);
 CPPUNIT_TEST(test_select_two_same_syn);

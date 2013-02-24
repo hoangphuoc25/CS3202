@@ -1,7 +1,7 @@
 #include <string>
 #include <set>
 #include <list>
-#include "Test_20_SynSyn_RelRef.h"
+#include "Test20_SynSyn_RelRef.h"
 #include "../SPA/SetWrapper.h"
 #include "../SPA/QueryEvaluator.h"
 
@@ -9,13 +9,13 @@ using std::string;
 using std::set;
 using std::list;
 
-void Test_20_SynSyn_RelRef::setUp() {}
+void Test20_SynSyn_RelRef::setUp() {}
 
-void Test_20_SynSyn_RelRef::tearDown() {}
+void Test20_SynSyn_RelRef::tearDown() {}
 
-CPPUNIT_TEST_SUITE_REGISTRATION(Test_20_SynSyn_RelRef);
+CPPUNIT_TEST_SUITE_REGISTRATION(Test20_SynSyn_RelRef);
 
-void Test_20_SynSyn_RelRef::test_variables_both_modified_and_used()
+void Test20_SynSyn_RelRef::test_variables_both_modified_and_used()
 {
     string simpleProg, queryStr;
     list<string> resultList;
@@ -62,7 +62,7 @@ void Test_20_SynSyn_RelRef::test_variables_both_modified_and_used()
             stringSet);
 }
 
-void Test_20_SynSyn_RelRef::test_ev_rr_ss_string_string_00_from_argOne()
+void Test20_SynSyn_RelRef::test_ev_rr_ss_string_string_00_from_argOne()
 {
     string simpleProg, queryStr;
     list<string> resultList;
@@ -99,7 +99,7 @@ void Test_20_SynSyn_RelRef::test_ev_rr_ss_string_string_00_from_argOne()
             stringSet);
 }
 
-void Test_20_SynSyn_RelRef::test_ev_rr_ss_string_string_01()
+void Test20_SynSyn_RelRef::test_ev_rr_ss_string_string_01()
 {
     string simpleProg, queryStr;
     list<string> resultList;
@@ -146,7 +146,7 @@ void Test_20_SynSyn_RelRef::test_ev_rr_ss_string_string_01()
             stringSet);
 }
 
-void Test_20_SynSyn_RelRef::test_ev_rr_ss_string_string_10()
+void Test20_SynSyn_RelRef::test_ev_rr_ss_string_string_10()
 {
     string simpleProg, queryStr;
     list<string> resultList;
@@ -209,7 +209,7 @@ void Test_20_SynSyn_RelRef::test_ev_rr_ss_string_string_10()
             stringSet);
 }
 
-void Test_20_SynSyn_RelRef::test_ev_rr_ss_string_string_11()
+void Test20_SynSyn_RelRef::test_ev_rr_ss_string_string_11()
 {
     string simpleProg, queryStr;
     QueryEvaluator evaluator;
@@ -260,7 +260,7 @@ void Test_20_SynSyn_RelRef::test_ev_rr_ss_string_string_11()
             stringSet);
 }
 
-void Test_20_SynSyn_RelRef::test_ev_rr_ss_int_string_00_from_argOne()
+void Test20_SynSyn_RelRef::test_ev_rr_ss_int_string_00_from_argOne()
 {
     string simpleProg, queryStr;
     QueryEvaluator evaluator;
@@ -291,7 +291,7 @@ void Test_20_SynSyn_RelRef::test_ev_rr_ss_int_string_00_from_argOne()
             stringSet);
 }
 
-void Test_20_SynSyn_RelRef::test_ev_rr_ss_int_string_01()
+void Test20_SynSyn_RelRef::test_ev_rr_ss_int_string_01()
 {
     string simpleProg, queryStr;
     QueryEvaluator evaluator;
@@ -343,7 +343,7 @@ void Test_20_SynSyn_RelRef::test_ev_rr_ss_int_string_01()
             stringSet);
 }
 
-void Test_20_SynSyn_RelRef::test_ev_rr_ss_int_string_10()
+void Test20_SynSyn_RelRef::test_ev_rr_ss_int_string_10()
 {
     string simpleProg, queryStr;
     QueryEvaluator evaluator;
@@ -404,7 +404,7 @@ void Test_20_SynSyn_RelRef::test_ev_rr_ss_int_string_10()
             stringSet);
 }
 
-void Test_20_SynSyn_RelRef::test_ev_rr_ss_int_string_11()
+void Test20_SynSyn_RelRef::test_ev_rr_ss_int_string_11()
 {
     string simpleProg, queryStr;
     QueryEvaluator evaluator;

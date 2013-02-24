@@ -2,7 +2,7 @@
 #include <set>
 #include <string>
 
-#include "Test_11_SelectDisjointTables.h"
+#include "Test11_SelectDisjointTables.h"
 #include "../SPA/QueryEvaluator.h"
 #include "../SPA/SetWrapper.h"
 
@@ -10,12 +10,12 @@ using std::list;
 using std::set;
 using std::string;
 
-void Test_11_SelectDisjointTables::setUp() {}
-void Test_11_SelectDisjointTables::tearDown() {}
+void Test11_SelectDisjointTables::setUp() {}
+void Test11_SelectDisjointTables::tearDown() {}
 
-CPPUNIT_TEST_SUITE_REGISTRATION(Test_11_SelectDisjointTables);
+CPPUNIT_TEST_SUITE_REGISTRATION(Test11_SelectDisjointTables);
 
-void Test_11_SelectDisjointTables::test_select_disjoint_tables()
+void Test11_SelectDisjointTables::test_select_disjoint_tables()
 {
     string simpleProg, queryStr;
     QueryEvaluator evaluator;

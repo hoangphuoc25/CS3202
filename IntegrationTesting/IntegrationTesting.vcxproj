@@ -68,6 +68,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="source\IntegrationTest.cpp" />
+    <ClCompile Include="Test01_SelectNoClause.cpp" />
     <ClCompile Include="Test10_00_Calls.cpp" />
     <ClCompile Include="Test10_00_Modifies.cpp" />
     <ClCompile Include="Test10_00_Parent.cpp" />
@@ -83,11 +84,11 @@
     <ClCompile Include="Test10_22_Calls.cpp" />
     <ClCompile Include="Test10_22_Modifies.cpp" />
     <ClCompile Include="Test10_22_Parent.cpp" />
-    <ClCompile Include="Test_01_SelectNoClause.cpp" />
-    <ClCompile Include="Test_11_SelectDisjointTables.cpp" />
-    <ClCompile Include="Test_20_SynSyn_RelRef.cpp" />
+    <ClCompile Include="Test11_SelectDisjointTables.cpp" />
+    <ClCompile Include="Test20_SynSyn_RelRef.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Test01_SelectNoClause.h" />
     <ClInclude Include="Test10_00_Calls.h" />
     <ClInclude Include="Test10_00_Modifies.h" />
     <ClInclude Include="Test10_00_Parent.h" />
@@ -103,9 +104,8 @@
     <ClInclude Include="Test10_22_Calls.h" />
     <ClInclude Include="Test10_22_Modifies.h" />
     <ClInclude Include="Test10_22_Parent.h" />
-    <ClInclude Include="Test_01_SelectNoClause.h" />
-    <ClInclude Include="Test_11_SelectDisjointTables.h" />
-    <ClInclude Include="Test_20_SynSyn_RelRef.h" />
+    <ClInclude Include="Test11_SelectDisjointTables.h" />
+    <ClInclude Include="Test20_SynSyn_RelRef.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
