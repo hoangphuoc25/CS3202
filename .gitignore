@@ -1,4 +1,5 @@
 *~
+*.bundle
 *.opensdf
 *.sdf
 *.suo
