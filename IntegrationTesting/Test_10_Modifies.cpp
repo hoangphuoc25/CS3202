@@ -562,3 +562,56 @@ void Test_10_Modifies::test_modifies_if_var_01()
             "16,sun,3"),
             stringSet);
 }
+
+void Test_10_Modifies::test_modifies_stmt_var_01()
+{
+    string queryStr;
+    QueryEvaluator evaluator;
+    list<string> resultList;
+    SetWrapper<string> stringSet;
+
+    const string& simpleProg = this->MODIFIES_01_PROG;
+    evaluator.parseSimple(simpleProg);
+    queryStr = "assign a; variable v1, v2; stmt s1; ";
+    queryStr += " Select <a,v1,s1> such that Modifies(a,v1) and ";
+    queryStr += " Modifies(s1,v1)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    // Modifies(a,v1)
+    // a | v1
+    // (1,px), (2,abc), (4,sun), (6,heck), (7,pipe), (8,dawn), (10,snake)
+    // (12,nobodyUses), (13,nobodyUses), (14,my), (16,sun),
+    // (17,great), (18,come), (20,hell), (22,dont), (23,no),
+    // (25,man), (26,whos), (27, hell)
+    // ---
+    // Modifies(s1,v1)
+    // a | v1 | s1
+    // (1,px,1), (2,abc,2), (4,sun,3), (4,sun,4), (4,sun,15)
+    // (4,sun,16), (6,heck,3), (6,heck,5), (6,heck,6), (7,pipe,3)
+    // (7,pipe,7), (8,dawn,3), (8,dawn,8), (10,snake,3), (10,snake,9)
+    // (10,snake,10), (12,nobodyUses,3),  (12,nobodyUses,9),
+    // (12,nobodyUses,11), (12,nobodyUses,12), (12,nobodyUses,13),
+    // (13,nobodyUses,3), (13,nobodyUses,9), (13,nobodyUses,11)
+    // (13,nobodyUses,12), (13,nobodyUses,13), (14,my,14), (16,sun,3)
+    // (16,sun,4), (16,sun,15), (16,sun,16), (17,great,17), (18,come,18)
+    // (20,hell,19), (20,hell,20), (20,hell,24), (20,hell,27)
+    // (22,dont,19), (22,dont,21), (22,dont,22), (23,no,19)
+    // (23,no,23), (25,man,19), (25,man,24), (25,man,25), (26,whos,19)
+    // (26,whos,24), (26,whos,26), (27,hell,19), (27,hell,20)
+    // (27,hell,24), (27,hell,27)
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(52, "1,px,1", "2,abc,2",
+            "4,sun,3", "4,sun,4", "4,sun,15", "4,sun,16", "6,heck,3",
+            "6,heck,5", "6,heck,6", "7,pipe,3", "7,pipe,7", "8,dawn,3",
+            "8,dawn,8", "10,snake,3", "10,snake,9", "10,snake,10",
+            "12,nobodyUses,3", "12,nobodyUses,9", "12,nobodyUses,11",
+            "12,nobodyUses,12", "12,nobodyUses,13", "13,nobodyUses,3",
+            "13,nobodyUses,9", "13,nobodyUses,11", "13,nobodyUses,12",
+            "13,nobodyUses,13", "14,my,14", "16,sun,3", "16,sun,4",
+            "16,sun,15", "16,sun,16", "17,great,17", "18,come,18",
+            "20,hell,19", "20,hell,20", "20,hell,24", "20,hell,27",
+            "22,dont,19", "22,dont,21", "22,dont,22", "23,no,19",
+            "23,no,23", "25,man,19", "25,man,24", "25,man,25",
+            "26,whos,19", "26,whos,24", "26,whos,26", "27,hell,19",
+            "27,hell,20", "27,hell,24", "27,hell,27"),
+            stringSet);
+}
