@@ -13,6 +13,7 @@ CPPUNIT_TEST(test_modifies_assign_var_01);
 CPPUNIT_TEST(test_modifies_proc_var_01);
 CPPUNIT_TEST(test_modifies_call_var_01);
 CPPUNIT_TEST(test_modifies_while_var_01);
+CPPUNIT_TEST(test_modifies_if_var_01);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -25,6 +26,7 @@ private:
     void test_modifies_proc_var_01();
     void test_modifies_call_var_01();
     void test_modifies_while_var_01();
+    void test_modifies_if_var_01();
     std::string MODIFIES_01_PROG;
 };
 

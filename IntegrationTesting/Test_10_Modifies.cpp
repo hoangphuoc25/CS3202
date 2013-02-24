@@ -529,3 +529,36 @@ void Test_10_Modifies::test_modifies_while_var_01()
             "16,sun,15", "22,dont,21"),
             stringSet);
 }
+
+void Test_10_Modifies::test_modifies_if_var_01()
+{
+    string queryStr;
+    QueryEvaluator evaluator;
+    list<string> resultList;
+    SetWrapper<string> stringSet;
+
+    const string& simpleProg = this->MODIFIES_01_PROG;
+    evaluator.parseSimple(simpleProg);
+    queryStr = "assign a; variable v1, v2; if if1; ";
+    queryStr += " Select <a,v1,if1> such that Modifies(a,v1) and ";
+    queryStr += " Modifies(if1,v1)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    // Modifies(a,v1)
+    // a | v1
+    // (1,px), (2,abc), (4,sun), (6,heck), (7,pipe), (8,dawn), (10,snake)
+    // (12,nobodyUses), (13,nobodyUses), (14,my), (16,sun),
+    // (17,great), (18,come), (20,hell), (22,dont), (23,no),
+    // (25,man), (26,whos), (27, hell)
+    // ---
+    // Modifies(if1,v1)
+    // a | v1 | if1
+    // (4,sun,3), (6,heck,3), (7,pipe,3), (8,dawn,3), (10,snake,3)
+    // (12,nobodyUses,3), (12,nobodyUses,11), (13,nobodyUses,3),
+    // (13,nobodyUses,11), (16,sun,3)
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(10, "4,sun,3", "6,heck,3",
+            "7,pipe,3", "8,dawn,3", "10,snake,3", "12,nobodyUses,3",
+            "12,nobodyUses,11", "13,nobodyUses,3", "13,nobodyUses,11",
+            "16,sun,3"),
+            stringSet);
+}
