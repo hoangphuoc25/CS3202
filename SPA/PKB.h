@@ -26,7 +26,7 @@ public:
     PKB();
     PKB(Node *root, ProcTable *pt, VarTable *vt, StmtBank *sb, vector<CFGNode*> *cfg);
 
-    /*
+    /**
      * Modifies(X,var); Retrieves all var modified by X, where X is
      * a synonym represented by integers.
      * @param xType type of X
@@ -35,7 +35,7 @@ public:
      */
     std::set<std::string> modifies_X_Y_get_string_Y_from_int_X
         (DesignEnt xType, DesignEnt yType, int stmt) const;
-    /*
+    /**
      * Modifies(X,var); Retrieves all var modified by X, where X is
      * a synonym represented by strings.
      * @param yType type of Y. This can only be ENT_VAR
@@ -43,26 +43,28 @@ public:
      */
     std::set<std::string> modifies_X_Y_get_string_Y_from_string_X
         (DesignEnt xType, DesignEnt yType, const std::string& x) const;
-    /*
+    /**
      * Modifies(X,var); Given a varname, retrieves all X modifying it,
      * where X is a synonym with integer values.
      * @param xType type of X
      * @param yType type of Y. This can only be ENT_VAR
      * @param varName variable name
+     * @return a set of integers representing synonym X modifying the var
      */
     std::set<int> modifies_X_Y_get_int_X_from_string_Y(DesignEnt xType,
             DesignEnt yType, const std::string& varName) const;
-    /*
+    /**
      * Modifies(X,var); Given a varname, retrieves all X modifying it,
      * where X is a synonym with string values.
      * @param xType type of X
      * @param yType type of Y. This can only be ENT_VAR
      * @param varName variable name
+     * @return a set of strings representing synonym X modifying the var
      */
     std::set<std::string> modifies_X_Y_get_string_X_from_string_Y
             (DesignEnt xType, DesignEnt yType,
                 const std::string& varName) const;
-    /*
+    /**
      * Given X (string) and Y (string), checks if Modifies(X,Y) is true.
      * @param xType type of X
      * @param x value of X
@@ -74,7 +76,7 @@ public:
             const std::string& x, DesignEnt yType, const std::string& y)
                 const;
 
-    /*
+    /**
      * Given X (int) and Y (string), checks if Modifies(X,Y) is true.
      * @param xType type of X
      * @param x value of X
@@ -86,7 +88,7 @@ public:
             int x, DesignEnt yType, const std::string& y)
                 const;
 
-    /*
+    /**
      * Uses(X,Y); given synonym Y (string), retrieve all X (int)
      * such that Uses(X,Y) holds.
      * @param xType type of X
@@ -96,7 +98,7 @@ public:
      */
     std::set<int> uses_X_Y_get_int_X_from_string_Y(DesignEnt xType,
             DesignEnt yType, const std::string& varName) const;
-    /*
+    /**
      * Uses(X,Y); given synonym Y (string), retrieve all X (string)
      * such that Uses(X,Y) holds.
      * @param xType type of X
@@ -107,7 +109,7 @@ public:
     std::set<std::string> uses_X_Y_get_string_X_from_string_Y
             (DesignEnt xType, DesignEnt yType,
                 const std::string& varName) const;
-    /*
+    /**
      * Uses(X,Y); given synonym X (int), retrieve all Y (string)
      * such that Uses(X,Y) holds.
      * @param xType type of X
@@ -117,7 +119,7 @@ public:
      */
     std::set<std::string> uses_X_Y_get_string_Y_from_int_X
             (DesignEnt xType, DesignEnt yType, int stmtNo) const;
-    /*
+    /**
      * Uses(X,Y); given synonym X (string), retrieve all Y (string)
      * such that Uses(X,Y) holds.
      * @param xType type of X
@@ -128,7 +130,7 @@ public:
     std::set<std::string> uses_X_Y_get_string_Y_from_string_X
             (DesignEnt xType, DesignEnt yType,
                 const std::string& x) const;
-    /*
+    /**
      * Given X (string) and Y (string), checks if Uses(X,Y) is true.
      * @param xType type of X
      * @param x value of X
@@ -140,7 +142,7 @@ public:
             const std::string& x, DesignEnt yType, const std::string& y)
                 const;
 
-    /*
+    /**
      * Given X (int) and Y (string), checks if Uses(X,Y) is true.
      * @param xType type of X
      * @param x value of X
@@ -151,7 +153,7 @@ public:
     bool uses_query_int_X_string_Y(DesignEnt xType, int x,
             DesignEnt yType, const std::string& y) const;
 
-    /*
+    /**
      * Calls(X,Y); given Y (string), get all X (string) such that
      * Calls(X,Y)
      * @param xType type of X
@@ -163,7 +165,7 @@ public:
             (DesignEnt xType, DesignEnt yType,
                 const std::string& y) const;
 
-    /*
+    /**
      * Calls(X,Y); given X (string), get all Y (string) such that
      * Calls(X,Y)
      * @param xType type of X
@@ -175,7 +177,7 @@ public:
             (DesignEnt xType, DesignEnt yType,
                 const std::string& x) const;
 
-    /*
+    /**
      * Given X (string) and Y (string), checks if Calls(X,Y) is true.
      * @param xType type of X
      * @param x value of X
@@ -187,7 +189,7 @@ public:
             const std::string& x, DesignEnt yType, const std::string& y)
                 const;
 
-    /*
+    /**
      * Calls*(X,Y); given Y (string), get all X (string) such that
      * Calls*(X,Y)
      * @param xType type of X
@@ -198,7 +200,7 @@ public:
     std::set<std::string> callsStar_X_Y_get_string_X_from_string_Y
             (DesignEnt xType, DesignEnt yType,
                 const std::string& y) const;
-    /*
+    /**
      * Calls*(X,Y); given X (string), get all Y (string) such that
      * Calls*(X,Y)
      * @param xType type of X
@@ -210,7 +212,7 @@ public:
             (DesignEnt xType, DesignEnt yType,
                 const std::string& x) const;
 
-    /*
+    /**
      * Given X (string) and Y (string), checks if Calls*(X,Y) is true.
      * @param xType type of X
      * @param x value of X
@@ -222,7 +224,7 @@ public:
             const std::string& x, DesignEnt yType, const std::string& y)
                 const;
 
-    /*
+    /**
      * Parent(X,Y); given Y (int), retrieve all X (int) such that
      * Parent(X,Y).
      * @param xType type of X
@@ -232,7 +234,7 @@ public:
      */
     std::set<int> parent_X_Y_get_int_X_from_int_Y(DesignEnt xType,
             DesignEnt yType, int y) const;
-    /*
+    /**
      * Parent(X,Y); given X (int), retrieve all Y (int) such that
      * Parent(X,Y).
      * @param xType type of X
@@ -243,7 +245,7 @@ public:
     std::set<int> parent_X_Y_get_int_Y_from_int_X(DesignEnt xType,
             DesignEnt yType, int x) const;
 
-    /*
+    /**
      * Given X (int) and Y (int), checks if Parent(X,Y) is true.
      * @param xType type of X
      * @param x value of X
@@ -254,7 +256,7 @@ public:
     bool parent_query_int_X_int_Y(DesignEnt xType,
             int x, DesignEnt yType, int y) const;
 
-    /*
+    /**
      * Parent*(X,Y); given Y (int), retrieve all X (int) such that
      * Parent*(X,Y).
      * @param xType type of X
@@ -264,7 +266,7 @@ public:
      */
     std::set<int> parentStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
             DesignEnt yType, int y) const;
-    /*
+    /**
      * Parent*(X,Y); given X (int), retrieve all Y (int) such that
      * Parent*(X,Y).
      * @param xType type of X
@@ -275,7 +277,7 @@ public:
     std::set<int> parentStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
             DesignEnt yType, int x) const;
 
-    /*
+    /**
      * Given X (int) and Y (int), checks if Parent*(X,Y) is true.
      * @param xType type of X
      * @param x value of X
@@ -286,7 +288,7 @@ public:
     bool parentStar_query_int_X_int_Y(DesignEnt xType,
             int x, DesignEnt yType, int y) const;
 
-    /*
+    /**
      * Follows(X,Y); given Y (int), retrieve all X (int) such that
      * Follows(X,Y).
      * @param xType type of X
@@ -296,7 +298,7 @@ public:
      */
     std::set<int> follows_X_Y_get_int_X_from_int_Y(DesignEnt xType,
             DesignEnt yType, int y) const;
-    /*
+    /**
      * Follows(X,Y); given X (int), retrieve all Y (int) such that
      * Follows(X,Y).
      * @param xType type of X
@@ -307,7 +309,7 @@ public:
     std::set<int> follows_X_Y_get_int_Y_from_int_X(DesignEnt xType,
             DesignEnt yType, int x) const;
 
-    /*
+    /**
      * Given X (int) and Y (int), checks if Follows(X,Y) is true.
      * @param xType type of X
      * @param x value of X
@@ -318,7 +320,7 @@ public:
     bool follows_query_int_X_int_Y(DesignEnt xType,
             int x, DesignEnt yType, int y) const;
 
-    /*
+    /**
      * Follows*(X,Y); given Y (int), retrieve all X (int) such that
      * Follows*(X,Y).
      * @param xType type of X
@@ -328,7 +330,7 @@ public:
      */
     std::set<int> followsStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
             DesignEnt yType, int y) const;
-    /*
+    /**
      * Follows*(X,Y); given X (int), retrieve all Y (int) such that
      * Follows*(X,Y).
      * @param xType type of X
@@ -339,7 +341,7 @@ public:
     std::set<int> followsStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
             DesignEnt yType, int x) const;
 
-    /*
+    /**
      * Given X (int) and Y (int), checks if Follows*(X,Y) is true.
      * @param xType type of X
      * @param x value of X
@@ -350,7 +352,7 @@ public:
     bool followsStar_query_int_X_int_Y(DesignEnt xType,
             int x, DesignEnt yType, int y) const;
 
-    /*
+    /**
      * Next(X,Y); given Y (int), retrieve all X (int) such that
      * Next(X,Y).
      * @param xType type of X
@@ -360,7 +362,7 @@ public:
      */
     std::set<int> next_X_Y_get_int_X_from_int_Y(DesignEnt xType,
             DesignEnt yType, int y) const;
-    /*
+    /**
      * Next(X,Y); given X (int), retrieve all Y (int) such that
      * Next(X,Y).
      * @param xType type of X
@@ -371,7 +373,7 @@ public:
     std::set<int> next_X_Y_get_int_Y_from_int_X(DesignEnt xType,
             DesignEnt yType, int x) const;
 
-    /*
+    /**
      * Given X (int) and Y (int), checks if Next(X,Y) is true.
      * @param xType type of X
      * @param x value of X
@@ -382,7 +384,7 @@ public:
     bool next_query_int_X_int_Y(DesignEnt xType,
             int x, DesignEnt yType, int y) const;
 
-    /*
+    /**
      * Next*(X,Y); given Y (int), retrieve all X (int) such that
      * Next*(X,Y).
      * @param xType type of X
@@ -392,7 +394,7 @@ public:
      */
     std::set<int> nextStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
             DesignEnt yType, int y) const;
-    /*
+    /**
      * Next*(X,Y); given X (int), retrieve all Y (int) such that
      * Next*(X,Y).
      * @param xType type of X
@@ -403,7 +405,7 @@ public:
     std::set<int> nextStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
             DesignEnt yType, int x) const;
 
-    /*
+    /**
      * Given X (int) and Y (int), checks if Next*(X,Y) is true.
      * @param xType type of X
      * @param x value of X
@@ -414,7 +416,7 @@ public:
     bool nextStar_query_int_X_int_Y(DesignEnt xType,
             int x, DesignEnt yType, int y) const;
 
-    /*
+    /**
      * Affects(X,Y); given Y (int), retrieve all X (int) such that
      * Affects(X,Y).
      * @param xType type of X
@@ -424,7 +426,7 @@ public:
      */
     std::set<int> affects_X_Y_get_int_X_from_int_Y(DesignEnt xType,
             DesignEnt yType, int y) const;
-    /*
+    /**
      * Affects(X,Y); given X (int), retrieve all Y (int) such that
      * Affects(X,Y).
      * @param xType type of X
@@ -435,7 +437,7 @@ public:
     std::set<int> affects_X_Y_get_int_Y_from_int_X(DesignEnt xType,
             DesignEnt yType, int x) const;
 
-    /*
+    /**
      * Given X (int) and Y (int), checks if Affects(X,Y) is true.
      * @param xType type of X
      * @param x value of X
@@ -446,7 +448,7 @@ public:
     bool affects_query_int_X_int_Y(DesignEnt xType,
             int x, DesignEnt yType, int y) const;
 
-    /*
+    /**
      * Affects*(X,Y); given Y (int), retrieve all X (int) such that
      * Affects*(X,Y).
      * @param xType type of X
@@ -456,7 +458,7 @@ public:
      */
     std::set<int> affectsStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
             DesignEnt yType, int y) const;
-    /*
+    /**
      * Affects*(X,Y); given X (int), retrieve all Y (int) such that
      * Affects*(X,Y).
      * @param xType type of X
@@ -466,7 +468,7 @@ public:
      */
     std::set<int> affectsStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
             DesignEnt yType, int x) const;
-    /*
+    /**
      * Given X (int) and Y (int), checks if Affects*(X,Y) is true.
      * @param xType type of X
      * @param x value of X
@@ -503,31 +505,42 @@ public:
     //////////////////////////////////////////////////////////////////
     // For pattern clause
     //////////////////////////////////////////////////////////////////
-    /*
+    /**
      * Returns the control variable of a given statement.
      * @param entType type of the statement
      * @param stmtNo statement number
+     * @return control variable of the statement if appropriate,
+     *         otherwise the empty string
      */
     const std::string& get_control_variable(DesignEnt entType,
             int stmtNo) const;
-    /*
+
+    /**
      * Checks if a given variable is the control variable of a stmt
      * @param entType type of the statement
      * @param stmtNo statement number
      * @param varName name of variable
+     * @return true if the statement has a control variable named
+     *         varName, false otherwise
      */
     bool has_control_variable(DesignEnt entType,
             int stmtNo, const std::string& varName) const;
 
-    /*
+    /**
      * Returns the procedure called by the call stmt, or an
      * empty string if the statement does not exist or is not
      * a call statement.
+     * @param callStmt statement number of the call stmt
+     * @return procedure called by callStmt if it is a proper
+     *         call statement, the empty string otherwise
      */
     std::string get_call_procName(int callStmt) const;
-    /*
+
+    /**
      * Returns all call stmts that call a certain procedure.
-     * @proc name of procedure being called
+     * @param proc name of procedure being called
+     * @return set of integers of all the call statements calling
+     *         procedure proc
      */
     std::set<int> get_call_stmt_calling(const std::string& proc) const;
     
