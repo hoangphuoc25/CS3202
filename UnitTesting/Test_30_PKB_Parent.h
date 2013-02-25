@@ -17,6 +17,10 @@ CPPUNIT_TEST(test_parent_X_if);
 CPPUNIT_TEST(test_parent_X_while);
 CPPUNIT_TEST(test_parent_X_stmt);
 CPPUNIT_TEST(test_parent_X_progline);
+CPPUNIT_TEST(test_parent_while_Y);
+CPPUNIT_TEST(test_parent_if_Y);
+CPPUNIT_TEST(test_parent_stmt_Y);
+CPPUNIT_TEST(test_parent_progline_Y);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -32,6 +36,10 @@ private:
     void test_parent_X_while();
     void test_parent_X_stmt();
     void test_parent_X_progline();
+    void test_parent_while_Y();
+    void test_parent_if_Y();
+    void test_parent_stmt_Y();
+    void test_parent_progline_Y();
 };
 
 #endif
