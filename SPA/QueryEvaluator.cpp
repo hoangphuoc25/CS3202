@@ -1324,10 +1324,31 @@ void QueryEvaluator::ev_rr_ss_int_int_01(int rTableIdx, RelRef *relRef,
     rTable.syn_01_transaction_end();
 }
 
-// TODO: Implement
 void QueryEvaluator::ev_rr_ss_int_int_10(int rTableIdx, RelRef *relRef,
         const EvalPKBDispatch& disp)
 {
+    assert(disp.get_int_set_argTwo_from_int_argOne != NULL);
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    pair<const vector<Record> *, int> viPair =
+            rTable.syn_10_transaction_begin(relRef->argOneString,
+                    relRef->argTwoString, RV_INT);
+    const vector<Record>& argOneVec = *(viPair.first);
+    int nrRecords = argOneVec.size();
+    int colIdx = viPair.second;
+    for (int i = 0; i < nrRecords; i++) {
+        const Record& record = argOneVec[i];
+        const pair<string, int>& siPair = record.get_column(colIdx);
+        int argOneVal = siPair.second;
+        set<int> argTwoSet =
+                (this->pkb->*(disp.get_int_set_argTwo_from_int_argOne))
+                        (relRef->argOneSyn, relRef->argTwoSyn,
+                         argOneVal);
+        for (set<int>::const_iterator argTwoIt = argTwoSet.begin();
+                argTwoIt != argTwoSet.end(); argTwoIt++) {
+            rTable.syn_10_augment_new_row(i, *argTwoIt);
+        }
+    }
+    rTable.syn_10_transaction_end();
 }
 
 // TODO: Implement
