@@ -97,8 +97,8 @@ set<string> PKB::modifies_X_Y_get_string_X_from_string_Y(DesignEnt xType,
 bool PKB::modifies_query_string_X_string_Y(DesignEnt xType,
         const string& x, DesignEnt yType, const string& y) const
 {
-    // TODO: Please implement
-    return false;
+    assert(ENT_PROC == xType && ENT_VAR == yType);
+    return this->procTable->does_procedure_modify_var(x, y);
 }
 
 bool PKB::modifies_query_int_X_string_Y(DesignEnt xType,

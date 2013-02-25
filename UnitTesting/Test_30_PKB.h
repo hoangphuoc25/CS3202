@@ -38,6 +38,7 @@ CPPUNIT_TEST(test_has_stmtLst);
 CPPUNIT_TEST(test_has_const);
 CPPUNIT_TEST(test_has_variable);
 CPPUNIT_TEST(test_has_procedure);
+CPPUNIT_TEST(test_modifies_query_string_X_string_Y);
 //CPPUNIT_TEST(test_two);
 //CPPUNIT_TEST(test_three);
 CPPUNIT_TEST_SUITE_END();
@@ -321,6 +322,9 @@ private:
     void test_has_procedure();
     void test_two();
     void test_three();
+
+    // Test query methods
+    void test_modifies_query_string_X_string_Y();
 };
 
 #endif

@@ -5070,3 +5070,131 @@ void Test_30_PKB::test_has_procedure()
     CPPUNIT_ASSERT_EQUAL(false, pkb->has_procedure("Pone"));
     CPPUNIT_ASSERT_EQUAL(false, pkb->has_procedure("main"));
 }
+
+void Test_30_PKB::test_modifies_query_string_X_string_Y()
+{
+    const string& simpleProg = this->TEST_MODIFIES_SIMPLE_PROG;
+    string queryStr;
+    set<int> intSet;
+    SetWrapper<string> stringSet;
+
+    Parser parser(simpleProg, FROMSTRING);
+    parser.init();
+    auto_ptr<PKB> pkb(parser.get_pkb());
+
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "pOne",
+                    ENT_VAR, "a"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "pOne",
+                    ENT_VAR, "all"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "pOne",
+                    ENT_VAR, "aone"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "pOne",
+                    ENT_VAR, "d3"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "pOne",
+                    ENT_VAR, "fire"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "pOne",
+                    ENT_VAR, "fol"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "pOne",
+                    ENT_VAR, "g2"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "pOne",
+                    ENT_VAR, "good"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "pOne",
+                    ENT_VAR, "h2"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "pOne",
+                    ENT_VAR, "haa"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "pOne",
+                    ENT_VAR, "harp"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "pOne",
+                    ENT_VAR, "hoho"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "pOne",
+                    ENT_VAR, "nn"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "pOne",
+                    ENT_VAR, "onceOnly"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "pOne",
+                    ENT_VAR, "pe"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "pOne",
+                    ENT_VAR, "pfg"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "pOne",
+                    ENT_VAR, "t1"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "pOne",
+                    ENT_VAR, "this"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "pOne",
+                    ENT_VAR, "ue"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "pOne",
+                    ENT_VAR, "x"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "pOne",
+                    ENT_VAR, "x1"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "pOne",
+                    ENT_VAR, "xe"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "pOne",
+                    ENT_VAR, "y"));
+
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "secProc",
+                    ENT_VAR, "a"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "secProc",
+                    ENT_VAR, "all"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "secProc",
+                    ENT_VAR, "harp"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "secProc",
+                    ENT_VAR, "nn"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "secProc",
+                    ENT_VAR, "none"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "secProc",
+                    ENT_VAR, "onceOnly"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "secProc",
+                    ENT_VAR, "pfg"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "secProc",
+                    ENT_VAR, "ue"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "secProc",
+                    ENT_VAR, "xe"));
+
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "thirdProc",
+                    ENT_VAR, "haa"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "thirdProc",
+                    ENT_VAR, "hoho"));
+
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "procFOUR",
+                    ENT_VAR, "pfg"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "secProc",
+                    ENT_VAR, "ue"));
+
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->modifies_query_string_X_string_Y(ENT_PROC, "cleanUP",
+                    ENT_VAR, "zzz"));
+}

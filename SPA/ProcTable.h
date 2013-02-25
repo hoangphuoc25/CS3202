@@ -58,6 +58,8 @@ public:
             (const std::string& procName) const;
     const std::set<std::string>& get_called_by(int index) const;
 
+    bool does_procedure_modify_var(const std::string& procName,
+            const std::string& varName) const;
     const std::set<std::string>&
         get_modifies(const std::string& procName) const;
     const std::set<std::string>& get_vars_used_by_proc(

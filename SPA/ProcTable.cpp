@@ -196,6 +196,18 @@ const set<string>& ProcTable::get_called_by(const string& procName) const
     }
 }
 
+bool ProcTable::does_procedure_modify_var(const string& procName,
+        const string& varName) const
+{
+    int idx = this->get_index(procName);
+    if (idx != -1) {
+        const ProcElements& procElem = this->procTable[idx];
+        return procElem.modifies.find(varName) !=
+                procElem.modifies.end();
+    }
+    return false;
+}
+
 const set<string>& ProcTable::get_called_by(int index) const
 {
     int sz = procTable.size();
