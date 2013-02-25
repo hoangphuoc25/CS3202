@@ -309,8 +309,9 @@ set<int> PKB::parent_X_Y_get_int_Y_from_int_X(DesignEnt xType,
 bool PKB::parent_query_int_X_int_Y(DesignEnt xType, int x,
         DesignEnt yType, int y) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Improve efficiency + test?
+    set<int> S = this->parent_X_Y_get_int_Y_from_int_X(xType, yType, x);
+    return S.find(y) != S.end();
 }
 
 set<int> PKB::parentStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,

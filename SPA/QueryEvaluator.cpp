@@ -1351,10 +1351,31 @@ void QueryEvaluator::ev_rr_ss_int_int_10(int rTableIdx, RelRef *relRef,
     rTable.syn_10_transaction_end();
 }
 
-// TODO: Implement
 void QueryEvaluator::ev_rr_ss_int_int_11(int rTableIdx, RelRef *relRef,
         const EvalPKBDispatch& disp)
 {
+    assert(disp.f_int_argOne_int_argTwo != NULL);
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    pair<const vector<Record> *, pair<int, int> > viiPair =
+            rTable.syn_11_transaction_begin(relRef->argOneString,
+                    relRef->argTwoString);
+    const vector<Record>& records = *(viiPair.first);
+    int nrRecords = records.size();
+    int colOne = viiPair.second.first;
+    int colTwo = viiPair.second.second;
+    for (int i = 0; i < nrRecords; i++) {
+        const Record& record = records[i];
+        const pair<string, int>& pairOne = record.get_column(colOne);
+        const pair<string, int>& pairTwo = record.get_column(colTwo);
+        int argOneVal = pairOne.second;
+        int argTwoVal = pairTwo.second;
+        if ((this->pkb->*(disp.f_int_argOne_int_argTwo))
+                    (relRef->argOneSyn, argOneVal,
+                        relRef->argTwoSyn, argTwoVal)) {
+            rTable.syn_11_mark_row_ok(i);
+        }
+    }
+    rTable.syn_11_transaction_end();
 }
 
 // TODO: Implement
