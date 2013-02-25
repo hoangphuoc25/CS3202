@@ -103,20 +103,6 @@ public:
             std::list<std::string>& resultSet);
 private:
     void reset();
-    // Setup dispatch table for Modifies, Uses, etc
-    void setup_modifies();
-    void setup_uses();
-    void setup_calls();
-    void setup_callsStar();
-    void setup_parent();
-    void setup_parentStar();
-    void setup_follows();
-    void setup_followsStar();
-    void setup_next();
-    void setup_nextStar();
-    void setup_affects();
-    void setup_affectsStar();
-
     void partition_evaluation(QueryInfo *qinfo);
     void partition_process_relRef(int idx, RelRef *relRef);
     void partition_process_patCl(int idx, PatCl *patCl);
@@ -130,6 +116,44 @@ private:
     bool relRef_arg_use_string(DesignEnt entType) const;
     void evaluate_relRef(int rTableIdx, RelRef *relRef);
     void ev_relRef_syn_syn(int rTableIdx, RelRef *relRef);
+    void ev_relRef_syn_syn_00_setup(EvalPKBDispatch& pkbDispatch,
+            RelRef *relRef) const;
+    void ev_relRef_syn_syn_01_setup(EvalPKBDispatch& pkbDispatch,
+            RelRef *relRef) const;
+    void ev_relRef_syn_syn_10_setup(EvalPKBDispatch& pkbDispatch,
+            RelRef *relRef) const;
+    void ev_relRef_syn_syn_11_22_setup(SynInGraph sig,
+            EvalPKBDispatch& pkbDispatch, RelRef *relRef) const;
+    typedef std::set<std::string> (PKB::*pkbGetAllStringFn) () const;
+    typedef std::set<int> (PKB::*pkbGetAllIntFn) () const;
+    typedef std::set<std::string> (PKB::*pkbGet_1SS_From_2SS)
+                    (DesignEnt, DesignEnt, const std::string&) const;
+    typedef std::set<std::string> (PKB::*pkbGet_1SS_From_2IS)
+                    (DesignEnt, DesignEnt, int) const;
+    typedef std::set<int> (PKB::*pkbGet_1IS_From_2SS)
+                    (DesignEnt, DesignEnt, const std::string&) const;
+    typedef std::set<int> (PKB::*pkbGet_1IS_From_2IS)
+                    (DesignEnt, DesignEnt, int) const;
+    typedef std::set<std::string> (PKB::*pkbGet_2SS_From_1SS)
+                    (DesignEnt, DesignEnt, const std::string&) const;
+    typedef std::set<std::string> (PKB::*pkbGet_2SS_From_1IS)
+                    (DesignEnt, DesignEnt, int) const;
+    typedef std::set<int> (PKB::*pkbGet_2IS_From_1SS)
+                    (DesignEnt, DesignEnt, const std::string&) const;
+    typedef std::set<int> (PKB::*pkbGet_2IS_From_1IS)
+                    (DesignEnt, DesignEnt, int) const;
+    pkbGetAllStringFn pkbd_setup_get_all_string_method(
+            DesignEnt ent) const;
+    pkbGetAllIntFn pkbd_setup_get_all_int_method(DesignEnt ent) const;
+    pkbGet_1SS_From_2SS pkbd_setup_get_1SS_From_2SS(RelRefType r) const;
+    pkbGet_1SS_From_2IS pkbd_setup_get_1SS_From_2IS(RelRefType r) const;
+    pkbGet_1IS_From_2SS pkbd_setup_get_1IS_From_2SS(RelRefType r) const;
+    pkbGet_1IS_From_2IS pkbd_setup_get_1IS_From_2IS(RelRefType r) const;
+    pkbGet_2SS_From_1SS pkbd_setup_get_2SS_From_1SS(RelRefType r) const;
+    pkbGet_2SS_From_1IS pkbd_setup_get_2SS_From_1IS(RelRefType r) const;
+    pkbGet_2IS_From_1SS pkbd_setup_get_2IS_From_1SS(RelRefType r) const;
+    pkbGet_2IS_From_1IS pkbd_setup_get_2IS_From_1IS(RelRefType r) const;
+
     // How to read these functions
     // eg. ev_rr_ss_string_string_00_from_argOne
     //     ev = evaluate, rr = relRef, ss = syn syn (both args are syn)
@@ -223,6 +247,8 @@ private:
     std::map<EvalSynArgDesc, EvalPKBDispatch,
              EvalSynArgDescCmp> dispatchTable;
     bool isAlive;
+
+    // evaluating Rel(syn,syn)
 
     // graph construction purposes
     std::map<std::string, int> graph_synMap;

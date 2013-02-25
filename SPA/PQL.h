@@ -273,6 +273,7 @@ enum ParseError {
 const char *relRefType_to_string(RelRefType relType);
 const char *entity_type_to_string(DesignEnt entType);
 const char *attrType_to_string(AttrType attrType);
+RelRefArgType designEnt_to_relRefArgType(DesignEnt ent);
 
 // Interface inherited by AttrRef, RelRef, PatCl
 struct GenericRef {

@@ -33,6 +33,8 @@ public:
     ~ResultsTable();
 
     bool has_synonym(const std::string& syn) const;
+    bool syn_in_same_table(const std::string& synOne,
+            const std::string& synTwo) const;
     bool is_alive() const;
     void absorb_table(Table *table);
     void absorb_ResultsTable(ResultsTable& o);

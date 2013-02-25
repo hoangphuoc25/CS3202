@@ -238,6 +238,29 @@ const char *attrType_to_string(AttrType attrType)
     }
 }
 
+RelRefArgType designEnt_to_relRefArgType(DesignEnt ent)
+{
+    switch (ent) {
+    case ENT_PROC:
+    case ENT_VAR:
+        return RELARG_STRING;
+        break;
+    case ENT_STMTLST:
+    case ENT_STMT:
+    case ENT_ASSIGN:
+    case ENT_CALL:
+    case ENT_WHILE:
+    case ENT_IF:
+    case ENT_CONST:
+    case ENT_PROGLINE:
+        return RELARG_INT;
+        break;
+    default:
+        return RELARG_INVALID;
+        break;
+    }
+}
+
 //////////////////////////////////////////////////////////////////////
 // GenericRef
 //////////////////////////////////////////////////////////////////////

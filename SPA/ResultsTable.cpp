@@ -70,6 +70,19 @@ bool ResultsTable::has_synonym(const string& syn) const
     return (it != this->synMap.end());
 }
 
+bool ResultsTable::syn_in_same_table(const string& synOne,
+        const string& synTwo) const
+{
+    map<string, int>::const_iterator it, kt;
+    it = this->synMap.find(synOne);
+    kt = this->synMap.find(synTwo);
+    if (it != this->synMap.end() && kt != this->synMap.end()) {
+        return (it->second == kt->second);
+    } else {
+        return false;
+    }
+}
+
 bool ResultsTable::is_alive() const
 {
     return this->alive;

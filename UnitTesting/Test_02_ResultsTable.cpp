@@ -1268,3 +1268,180 @@ void Test_02_ResultsTable::test_absorb_ResultsTable()
     rTableOne.checkout_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, rTableOne.is_alive());
 }
+
+void Test_02_ResultsTable::test_in_same_table()
+{
+    Record record;
+    ResultsTable rTable;
+    CPPUNIT_ASSERT_EQUAL(true, rTable.is_alive());
+    rTable.syn_00_transaction_begin("Club", RV_STRING, "Country",
+            RV_STRING);
+    rTable.syn_00_add_row("Manchester United", "UK");
+    rTable.syn_00_add_row("Arsenal", "UK");
+    rTable.syn_00_add_row("Real Madrid", "Spain");
+    rTable.syn_00_add_row("AC Milan", "Italy");
+    rTable.syn_00_add_row("Inter Milan", "Italy");
+    rTable.syn_00_add_row("Manchester City", "UK");
+    rTable.syn_00_transaction_end();
+    CPPUNIT_ASSERT_EQUAL(true, rTable.is_alive());
+    CPPUNIT_ASSERT_EQUAL(true,
+            rTable.syn_in_same_table("Club", "Country"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            rTable.syn_in_same_table("Country", "Club"));
+    CPPUNIT_ASSERT_EQUAL(false,
+            rTable.syn_in_same_table("Club", "nonexistent"));
+    CPPUNIT_ASSERT_EQUAL(false,
+            rTable.syn_in_same_table("nonexistent", "Country"));
+    rTable.syn_00_transaction_begin("Singer", RV_STRING, "Age",
+            RV_INT);
+    rTable.syn_00_add_row("Celine Dion", 50);
+    rTable.syn_00_add_row("Katy Perry", 35);
+    rTable.syn_00_add_row("Psy", 40);
+    rTable.syn_00_add_row("Bruno Mars", 30);
+    rTable.syn_00_add_row("Lady Gaga", 34);
+    rTable.syn_00_transaction_end();
+    CPPUNIT_ASSERT_EQUAL(true, rTable.is_alive());
+    CPPUNIT_ASSERT_EQUAL(true,
+            rTable.syn_in_same_table("Club", "Country"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            rTable.syn_in_same_table("Country", "Club"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            rTable.syn_in_same_table("Singer", "Age"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            rTable.syn_in_same_table("Age", "Singer"));
+    CPPUNIT_ASSERT_EQUAL(false,
+            rTable.syn_in_same_table("Club", "Age"));
+    CPPUNIT_ASSERT_EQUAL(false,
+            rTable.syn_in_same_table("Singer", "Country"));
+    pair<pair<const vector<Record> *, int>,
+         pair<const vector<Record> *, int> > vipPair =
+            rTable.syn_22_transaction_begin("Club", "Singer");
+    CPPUNIT_ASSERT_EQUAL(0, vipPair.first.second);
+    CPPUNIT_ASSERT_EQUAL(0, vipPair.second.second);
+    const vector<Record> *aRecords = vipPair.first.first;
+    const vector<Record> *bRecords = vipPair.second.first;
+    CPPUNIT_ASSERT_EQUAL(6, (int)aRecords->size());
+    record.reset();
+    record.add_value("Manchester United");
+    record.add_value("UK");
+    CPPUNIT_ASSERT_EQUAL(record, (*aRecords)[0]);
+    record.reset();
+    record.add_value("Arsenal");
+    record.add_value("UK");
+    CPPUNIT_ASSERT_EQUAL(record, (*aRecords)[1]);
+    record.reset();
+    record.add_value("Real Madrid");
+    record.add_value("Spain");
+    CPPUNIT_ASSERT_EQUAL(record, (*aRecords)[2]);
+    record.reset();
+    record.add_value("AC Milan");
+    record.add_value("Italy");
+    CPPUNIT_ASSERT_EQUAL(record, (*aRecords)[3]);
+    record.reset();
+    record.add_value("Inter Milan");
+    record.add_value("Italy");
+    CPPUNIT_ASSERT_EQUAL(record, (*aRecords)[4]);
+    record.reset();
+    record.add_value("Manchester City");
+    record.add_value("UK");
+    CPPUNIT_ASSERT_EQUAL(record, (*aRecords)[5]);
+    CPPUNIT_ASSERT_EQUAL(5, (int)bRecords->size());
+    record.reset();
+    record.add_value("Celine Dion");
+    record.add_value(50);
+    CPPUNIT_ASSERT_EQUAL(record, (*bRecords)[0]);
+    record.reset();
+    record.add_value("Katy Perry");
+    record.add_value(35);
+    CPPUNIT_ASSERT_EQUAL(record, (*bRecords)[1]);
+    record.reset();
+    record.add_value("Psy");
+    record.add_value(40);
+    CPPUNIT_ASSERT_EQUAL(record, (*bRecords)[2]);
+    record.reset();
+    record.add_value("Bruno Mars");
+    record.add_value(30);
+    CPPUNIT_ASSERT_EQUAL(record, (*bRecords)[3]);
+    record.reset();
+    record.add_value("Lady Gaga");
+    record.add_value(34);
+    CPPUNIT_ASSERT_EQUAL(record, (*bRecords)[4]);
+    rTable.syn_22_add_row((*aRecords)[0], (*bRecords)[2]);
+    rTable.syn_22_add_row((*aRecords)[3], (*bRecords)[0]);
+    rTable.syn_22_add_row(4, 3);
+    rTable.syn_22_add_row(5, 0);
+    rTable.syn_22_transaction_end();
+    CPPUNIT_ASSERT_EQUAL(true, rTable.is_alive());
+    CPPUNIT_ASSERT_EQUAL(true,
+            rTable.syn_in_same_table("Club", "Singer"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            rTable.syn_in_same_table("Age", "Country"));
+    rTable.checkout_transaction_begin();
+    Table *table = rTable.checkout_table("Club");
+    Table *tableTwo = rTable.checkout_table("Country");
+    CPPUNIT_ASSERT_EQUAL(table, tableTwo);
+    tableTwo = rTable.checkout_table("Singer");
+    CPPUNIT_ASSERT_EQUAL(table, tableTwo);
+    tableTwo = rTable.checkout_table("Age");
+    CPPUNIT_ASSERT_EQUAL(table, tableTwo);
+    CPPUNIT_ASSERT_EQUAL(true, table->is_alive());
+    CPPUNIT_ASSERT_EQUAL(0, table->get_synonym_column("Club"));
+    CPPUNIT_ASSERT_EQUAL(1, table->get_synonym_column("Country"));
+    CPPUNIT_ASSERT_EQUAL(2, table->get_synonym_column("Singer"));
+    CPPUNIT_ASSERT_EQUAL(3, table->get_synonym_column("Age"));
+    const map<int, string>& colToSyn = table->get_col_to_synonym();
+    CPPUNIT_ASSERT_EQUAL(4, (int)colToSyn.size());
+    map<int, string>::const_iterator isIt = colToSyn.find(0);
+    CPPUNIT_ASSERT(isIt != colToSyn.end());
+    CPPUNIT_ASSERT_EQUAL(string("Club"), isIt->second);
+    isIt = colToSyn.find(1);
+    CPPUNIT_ASSERT(isIt != colToSyn.end());
+    CPPUNIT_ASSERT_EQUAL(string("Country"), isIt->second);
+    isIt = colToSyn.find(2);
+    CPPUNIT_ASSERT(isIt != colToSyn.end());
+    CPPUNIT_ASSERT_EQUAL(string("Singer"), isIt->second);
+    isIt = colToSyn.find(3);
+    CPPUNIT_ASSERT(isIt != colToSyn.end());
+    CPPUNIT_ASSERT_EQUAL(string("Age"), isIt->second);
+    const map<string, int>& synToCol = table->get_synonym_to_col();
+    CPPUNIT_ASSERT_EQUAL(4, (int)synToCol.size());
+    map<string, int>::const_iterator siIt = synToCol.find("Club");
+    CPPUNIT_ASSERT(siIt != synToCol.end());
+    CPPUNIT_ASSERT_EQUAL(0, siIt->second);
+    siIt = synToCol.find("Country");
+    CPPUNIT_ASSERT(siIt != synToCol.end());
+    CPPUNIT_ASSERT_EQUAL(1, siIt->second);
+    siIt = synToCol.find("Singer");
+    CPPUNIT_ASSERT(siIt != synToCol.end());
+    CPPUNIT_ASSERT_EQUAL(2, siIt->second);
+    siIt = synToCol.find("Age");
+    CPPUNIT_ASSERT(siIt != synToCol.end());
+    CPPUNIT_ASSERT_EQUAL(3, siIt->second);
+    const vector<Record>& records = table->get_records();
+    CPPUNIT_ASSERT_EQUAL(4, (int)records.size());
+    record.reset();
+    record.add_value("Manchester United");
+    record.add_value("UK");
+    record.add_value("Psy");
+    record.add_value(40);
+    CPPUNIT_ASSERT_EQUAL(record, records[0]);
+    record.reset();
+    record.add_value("AC Milan");
+    record.add_value("Italy");
+    record.add_value("Celine Dion");
+    record.add_value(50);
+    CPPUNIT_ASSERT_EQUAL(record, records[1]);
+    record.reset();
+    record.add_value("Inter Milan");
+    record.add_value("Italy");
+    record.add_value("Bruno Mars");
+    record.add_value(30);
+    CPPUNIT_ASSERT_EQUAL(record, records[2]);
+    record.reset();
+    record.add_value("Manchester City");
+    record.add_value("UK");
+    record.add_value("Celine Dion");
+    record.add_value(50);
+    CPPUNIT_ASSERT_EQUAL(record, records[3]);
+    rTable.checkout_transaction_end();
+}

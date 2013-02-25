@@ -101,549 +101,13 @@ QueryEvaluator::QueryEvaluator():
         graph_vertexCC(), graph_nrVertexCC(0), graph_isolatedRef(),
         partitionedClauses(),
         resultsTable()
-{
-    this->setup_modifies();
-    this->setup_uses();
-    this->setup_calls();
-    this->setup_callsStar();
-    this->setup_parent();
-    this->setup_parentStar();
-    this->setup_follows();
-    this->setup_followsStar();
-    this->setup_next();
-    this->setup_nextStar();
-    this->setup_affects();
-    this->setup_affectsStar();
-}
+{}
 
 void QueryEvaluator::reset()
 {
     this->isAlive = true;
     this->partitionedClauses.clear();
     this->resultsTable.clear();
-}
-
-void QueryEvaluator::setup_modifies()
-{
-    struct EvalPKBDispatch tmpDispatch;
-    struct EvalSynArgDesc evalSynArgDesc;
-
-    // Modifies(assign,var), 00
-    evalSynArgDesc = EvalSynArgDesc(REL_MODIFIES, SYN_SYN_00, ENT_ASSIGN,
-        ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_all_int_argOne =
-        &PKB::get_all_assign;
-    tmpDispatch.get_all_string_argTwo =
-        &PKB::get_all_vars;
-    tmpDispatch.get_string_set_argTwo_from_int_argOne =
-        &PKB::modifies_X_Y_get_string_Y_from_int_X;
-    tmpDispatch.get_int_set_argOne_from_string_argTwo =
-        &PKB::modifies_X_Y_get_int_X_from_string_Y;
-    tmpDispatch.relRef_eval =
-        &QueryEvaluator::ev_rr_ss_int_string_00_from_argOne;
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Modifies(procedure,var), 00
-    evalSynArgDesc = EvalSynArgDesc(REL_MODIFIES, SYN_SYN_00, ENT_PROC,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    assert(this->dispatchTable.find(evalSynArgDesc) ==
-        this->dispatchTable.end());
-    tmpDispatch.reset();
-    tmpDispatch.get_all_string_argOne = &PKB::get_all_procs;
-    tmpDispatch.get_all_string_argTwo = &PKB::get_all_vars;
-    tmpDispatch.get_string_set_argOne_from_string_argTwo =
-            &PKB::modifies_X_Y_get_string_X_from_string_Y;
-    tmpDispatch.get_string_set_argTwo_from_string_argOne =
-            &PKB::modifies_X_Y_get_string_Y_from_string_X;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_string_string_00_from_argOne;
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Modifies(call,var), 00
-    evalSynArgDesc = EvalSynArgDesc(REL_MODIFIES, SYN_SYN_00, ENT_CALL,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_all_int_argOne = &PKB::get_all_call;
-    tmpDispatch.get_all_string_argTwo = &PKB::get_all_vars;
-    tmpDispatch.get_int_set_argOne_from_string_argTwo =
-            &PKB::modifies_X_Y_get_int_X_from_string_Y;
-    tmpDispatch.get_string_set_argTwo_from_int_argOne =
-            &PKB::modifies_X_Y_get_string_Y_from_int_X;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_string_00_from_argOne;
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Modifies(while,var), 00
-    evalSynArgDesc = EvalSynArgDesc(REL_MODIFIES, SYN_SYN_00, ENT_WHILE,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_all_int_argOne = &PKB::get_all_while;
-    tmpDispatch.get_all_string_argTwo = &PKB::get_all_vars;
-    tmpDispatch.get_int_set_argOne_from_string_argTwo =
-            &PKB::modifies_X_Y_get_int_X_from_string_Y;
-    tmpDispatch.get_string_set_argTwo_from_int_argOne =
-            &PKB::modifies_X_Y_get_string_Y_from_int_X;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_string_00_from_argOne;
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Modifies(if,var), 00
-    evalSynArgDesc = EvalSynArgDesc(REL_MODIFIES, SYN_SYN_00, ENT_IF,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_all_int_argOne = &PKB::get_all_if;
-    tmpDispatch.get_all_string_argTwo = &PKB::get_all_vars;
-    tmpDispatch.get_int_set_argOne_from_string_argTwo =
-            &PKB::modifies_X_Y_get_int_X_from_string_Y;
-    tmpDispatch.get_string_set_argTwo_from_int_argOne =
-            &PKB::modifies_X_Y_get_string_Y_from_int_X;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_string_00_from_argOne;
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Modifies(stmt,var), 00
-    evalSynArgDesc = EvalSynArgDesc(REL_MODIFIES, SYN_SYN_00, ENT_STMT,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_all_int_argOne = &PKB::get_all_stmt;
-    tmpDispatch.get_all_string_argTwo = &PKB::get_all_vars;
-    tmpDispatch.get_int_set_argOne_from_string_argTwo =
-            &PKB::modifies_X_Y_get_int_X_from_string_Y;
-    tmpDispatch.get_string_set_argTwo_from_int_argOne =
-            &PKB::modifies_X_Y_get_string_Y_from_int_X;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_string_00_from_argOne;
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Modifies(prog_line,var), 00
-    evalSynArgDesc = EvalSynArgDesc(REL_MODIFIES, SYN_SYN_00, ENT_PROGLINE,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_all_int_argOne = &PKB::get_all_progline;
-    tmpDispatch.get_all_string_argTwo = &PKB::get_all_vars;
-    tmpDispatch.get_int_set_argOne_from_string_argTwo =
-            &PKB::modifies_X_Y_get_int_X_from_string_Y;
-    tmpDispatch.get_string_set_argTwo_from_int_argOne =
-            &PKB::modifies_X_Y_get_string_Y_from_int_X;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_string_00_from_argOne;
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Modifies(assign,var), 01
-    evalSynArgDesc = EvalSynArgDesc(REL_MODIFIES, SYN_SYN_01, ENT_ASSIGN,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_int_set_argOne_from_string_argTwo =
-            &PKB::modifies_X_Y_get_int_X_from_string_Y;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_string_01;
-    assert(this->dispatchTable.find(evalSynArgDesc) ==
-                this->dispatchTable.end());
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Modifies(procedure,var), 01
-    evalSynArgDesc = EvalSynArgDesc(REL_MODIFIES, SYN_SYN_01, ENT_PROC,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_string_set_argOne_from_string_argTwo =
-            &PKB::modifies_X_Y_get_string_X_from_string_Y;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_string_string_01;
-    assert(this->dispatchTable.find(evalSynArgDesc) ==
-            this->dispatchTable.end());
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Modifies(call,var), 01
-    evalSynArgDesc = EvalSynArgDesc(REL_MODIFIES, SYN_SYN_01, ENT_CALL,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_int_set_argOne_from_string_argTwo =
-            &PKB::modifies_X_Y_get_int_X_from_string_Y;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_string_01;
-    assert(this->dispatchTable.find(evalSynArgDesc) ==
-            this->dispatchTable.end());
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Modifies(while,var), 01
-    evalSynArgDesc = EvalSynArgDesc(REL_MODIFIES, SYN_SYN_01, ENT_WHILE,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_int_set_argOne_from_string_argTwo =
-            &PKB::modifies_X_Y_get_int_X_from_string_Y;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_string_01;
-    assert(this->dispatchTable.find(evalSynArgDesc) ==
-            this->dispatchTable.end());
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Modifies(if,var), 01
-    evalSynArgDesc = EvalSynArgDesc(REL_MODIFIES, SYN_SYN_01, ENT_IF,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_int_set_argOne_from_string_argTwo =
-            &PKB::modifies_X_Y_get_int_X_from_string_Y;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_string_01;
-    assert(this->dispatchTable.find(evalSynArgDesc) ==
-            this->dispatchTable.end());
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Modifies(stmt,var), 01
-    evalSynArgDesc = EvalSynArgDesc(REL_MODIFIES, SYN_SYN_01, ENT_STMT,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_int_set_argOne_from_string_argTwo =
-            &PKB::modifies_X_Y_get_int_X_from_string_Y;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_string_01;
-    assert(this->dispatchTable.find(evalSynArgDesc) ==
-            this->dispatchTable.end());
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Modifies(prog_line,var), 01
-    evalSynArgDesc = EvalSynArgDesc(REL_MODIFIES, SYN_SYN_01, ENT_PROGLINE,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_int_set_argOne_from_string_argTwo =
-            &PKB::modifies_X_Y_get_int_X_from_string_Y;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_string_01;
-    assert(this->dispatchTable.find(evalSynArgDesc) ==
-            this->dispatchTable.end());
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Modifies(assign,var), 10
-    evalSynArgDesc = EvalSynArgDesc(REL_MODIFIES, SYN_SYN_10, ENT_ASSIGN,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_string_set_argTwo_from_int_argOne =
-            &PKB::modifies_X_Y_get_string_Y_from_int_X;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_string_10;
-    assert(this->dispatchTable.find(evalSynArgDesc) ==
-            this->dispatchTable.end());
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-}
-
-void QueryEvaluator::setup_uses()
-{
-    EvalSynArgDesc evalSynArgDesc;
-    EvalPKBDispatch tmpDispatch;
-    // Uses(assign,var), 00
-    evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_00, ENT_ASSIGN,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_all_int_argOne = &PKB::get_all_assign;
-    tmpDispatch.get_string_set_argTwo_from_int_argOne =
-            &PKB::uses_X_Y_get_string_Y_from_int_X;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_string_00_from_argOne;
-    assert(this->dispatchTable.find(evalSynArgDesc) ==
-            this->dispatchTable.end());
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Uses(procedure,var), 00
-    evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_00, ENT_PROC,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_all_string_argOne = &PKB::get_all_procs;
-    tmpDispatch.get_string_set_argTwo_from_string_argOne =
-            &PKB::uses_X_Y_get_string_Y_from_string_X;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_string_string_00_from_argOne;
-    assert(this->dispatchTable.find(evalSynArgDesc) ==
-            this->dispatchTable.end());
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Uses(call,var), 00
-    evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_00, ENT_CALL,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_all_int_argOne = &PKB::get_all_call;
-    tmpDispatch.get_string_set_argTwo_from_int_argOne =
-            &PKB::uses_X_Y_get_string_Y_from_int_X;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_string_00_from_argOne;
-    assert(this->dispatchTable.find(evalSynArgDesc) ==
-            this->dispatchTable.end());
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Uses(if,var), 00
-    evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_00, ENT_IF,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_all_int_argOne = &PKB::get_all_if;
-    tmpDispatch.get_string_set_argTwo_from_int_argOne =
-            &PKB::uses_X_Y_get_string_Y_from_int_X;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_string_00_from_argOne;
-    assert(this->dispatchTable.find(evalSynArgDesc) ==
-            this->dispatchTable.end());
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Uses(stmt,var), 00
-    evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_00, ENT_STMT,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_all_int_argOne = &PKB::get_all_stmt;
-    tmpDispatch.get_string_set_argTwo_from_int_argOne =
-            &PKB::uses_X_Y_get_string_Y_from_int_X;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_string_00_from_argOne;
-    assert(this->dispatchTable.find(evalSynArgDesc) ==
-            this->dispatchTable.end());
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Uses(prog_line,var), 00
-    evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_00, ENT_PROGLINE,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_all_int_argOne = &PKB::get_all_progline;
-    tmpDispatch.get_string_set_argTwo_from_int_argOne =
-            &PKB::uses_X_Y_get_string_Y_from_int_X;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_string_00_from_argOne;
-    assert(this->dispatchTable.find(evalSynArgDesc) ==
-            this->dispatchTable.end());
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Uses(while,var), 00
-    evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_00, ENT_WHILE,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_all_int_argOne = &PKB::get_all_while;
-    tmpDispatch.get_string_set_argTwo_from_int_argOne =
-            &PKB::uses_X_Y_get_string_Y_from_int_X;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_string_00_from_argOne;
-    assert(this->dispatchTable.find(evalSynArgDesc) ==
-            this->dispatchTable.end());
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Uses(assign,var), 01
-    evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_01, ENT_ASSIGN,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_all_int_argOne = &PKB::get_all_assign;
-    tmpDispatch.get_int_set_argOne_from_string_argTwo =
-            &PKB::uses_X_Y_get_int_X_from_string_Y;
-    tmpDispatch.get_string_set_argTwo_from_int_argOne =
-            &PKB::uses_X_Y_get_string_Y_from_int_X;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_string_01;
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Uses(procedure,var), 01
-    evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_01, ENT_PROC,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_all_string_argOne = &PKB::get_all_procs;
-    tmpDispatch.get_string_set_argOne_from_string_argTwo =
-            &PKB::uses_X_Y_get_string_X_from_string_Y;
-    tmpDispatch.get_string_set_argTwo_from_string_argOne =
-            &PKB::uses_X_Y_get_string_Y_from_string_X;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_string_string_01;
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Uses(call,var), 01
-    evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_01, ENT_CALL,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_all_int_argOne = &PKB::get_all_call;
-    tmpDispatch.get_int_set_argOne_from_string_argTwo =
-            &PKB::uses_X_Y_get_int_X_from_string_Y;
-    tmpDispatch.get_string_set_argTwo_from_int_argOne =
-            &PKB::uses_X_Y_get_string_Y_from_int_X;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_string_01;
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Uses(if,var), 01
-    evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_01, ENT_IF,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_all_int_argOne = &PKB::get_all_if;
-    tmpDispatch.get_int_set_argOne_from_string_argTwo =
-            &PKB::uses_X_Y_get_int_X_from_string_Y;
-    tmpDispatch.get_string_set_argTwo_from_int_argOne =
-            &PKB::uses_X_Y_get_string_Y_from_int_X;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_string_01;
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Uses(while,var), 01
-    evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_01, ENT_WHILE,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_all_int_argOne = &PKB::get_all_while;
-    tmpDispatch.get_int_set_argOne_from_string_argTwo =
-            &PKB::uses_X_Y_get_int_X_from_string_Y;
-    tmpDispatch.get_string_set_argTwo_from_int_argOne =
-            &PKB::uses_X_Y_get_string_Y_from_int_X;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_string_01;
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Uses(stmt,var), 01
-    evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_01, ENT_STMT,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_all_int_argOne = &PKB::get_all_stmt;
-    tmpDispatch.get_int_set_argOne_from_string_argTwo =
-            &PKB::uses_X_Y_get_int_X_from_string_Y;
-    tmpDispatch.get_string_set_argTwo_from_int_argOne =
-            &PKB::uses_X_Y_get_string_Y_from_int_X;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_string_01;
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Uses(prog_line,var), 01
-    evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_01, ENT_PROGLINE,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_all_int_argOne = &PKB::get_all_progline;
-    tmpDispatch.get_int_set_argOne_from_string_argTwo =
-            &PKB::uses_X_Y_get_int_X_from_string_Y;
-    tmpDispatch.get_string_set_argTwo_from_int_argOne =
-            &PKB::uses_X_Y_get_string_Y_from_int_X;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_string_01;
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Uses(prog_line,var), 01
-    evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_01, ENT_PROGLINE,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_all_int_argOne = &PKB::get_all_progline;
-    tmpDispatch.get_int_set_argOne_from_string_argTwo =
-            &PKB::uses_X_Y_get_int_X_from_string_Y;
-    tmpDispatch.get_string_set_argTwo_from_int_argOne =
-            &PKB::uses_X_Y_get_string_Y_from_int_X;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_string_01;
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Uses(procedure,var), 10
-    evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_10, ENT_PROC,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_all_string_argTwo = &PKB::get_all_vars;
-    tmpDispatch.get_string_set_argOne_from_string_argTwo =
-            &PKB::uses_X_Y_get_string_X_from_string_Y;
-    tmpDispatch.get_string_set_argTwo_from_string_argOne =
-            &PKB::uses_X_Y_get_string_Y_from_string_X;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_string_string_10;
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Uses(assign,var), 10
-    evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_10, ENT_ASSIGN,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_all_string_argTwo = &PKB::get_all_vars;
-    tmpDispatch.get_int_set_argOne_from_string_argTwo =
-            &PKB::uses_X_Y_get_int_X_from_string_Y;
-    tmpDispatch.get_string_set_argTwo_from_int_argOne =
-            &PKB::uses_X_Y_get_string_Y_from_int_X;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_string_10;
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Uses(procedure,var), 11
-    evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_11, ENT_PROC,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.f_string_argOne_string_argTwo =
-            &PKB::uses_query_string_X_string_Y;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_string_string_11;
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-
-    // Uses(assign,var), 11
-    evalSynArgDesc = EvalSynArgDesc(REL_USES, SYN_SYN_11, ENT_ASSIGN,
-            ENT_VAR, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.f_int_argOne_string_argTwo =
-            &PKB::uses_query_int_X_string_Y;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_string_11;
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-}
-
-// TODO: Fix cyclic call chain issue with regards to updating
-//       modifies and uses, ie. A->B->C->A type of call chain
-void QueryEvaluator::setup_calls()
-{
-    EvalSynArgDesc evalSynArgDesc;
-    EvalPKBDispatch tmpDispatch;
-
-    // Calls(procedure,procedure), 00
-    evalSynArgDesc = EvalSynArgDesc(REL_CALLS, SYN_SYN_00, ENT_PROC,
-            ENT_PROC, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_all_string_argOne = &PKB::get_all_procs;
-    tmpDispatch.get_all_string_argTwo = &PKB::get_all_procs;
-    tmpDispatch.get_string_set_argOne_from_string_argTwo =
-            &PKB::calls_X_Y_get_string_X_from_string_Y;
-    tmpDispatch.get_string_set_argTwo_from_string_argOne =
-            &PKB::calls_X_Y_get_string_Y_from_string_X;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_string_string_00_from_argOne;
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-}
-
-void QueryEvaluator::setup_callsStar()
-{
-}
-
-void QueryEvaluator::setup_parent()
-{
-    EvalSynArgDesc evalSynArgDesc;
-    EvalPKBDispatch tmpDispatch;
-    // Parent(while,assign), 00
-    evalSynArgDesc = EvalSynArgDesc(REL_PARENT, SYN_SYN_00, ENT_WHILE,
-            ENT_ASSIGN, RELARG_INVALID, RELARG_INVALID);
-    tmpDispatch.reset();
-    tmpDispatch.get_all_int_argOne = &PKB::get_all_while;
-    tmpDispatch.get_all_int_argTwo = &PKB::get_all_assign;
-    tmpDispatch.get_int_set_argOne_from_int_argTwo =
-            &PKB::parent_X_Y_get_int_X_from_int_Y;
-    tmpDispatch.get_int_set_argTwo_from_int_argOne =
-            &PKB::parent_X_Y_get_int_Y_from_int_X;
-    tmpDispatch.relRef_eval =
-            &QueryEvaluator::ev_rr_ss_int_int_00_from_argOne;
-    this->dispatchTable[evalSynArgDesc] = tmpDispatch;
-}
-
-void QueryEvaluator::setup_parentStar()
-{
-}
-
-void QueryEvaluator::setup_follows()
-{
-}
-
-void QueryEvaluator::setup_followsStar()
-{
-}
-
-void QueryEvaluator::setup_next()
-{
-}
-
-void QueryEvaluator::setup_nextStar()
-{
-}
-
-void QueryEvaluator::setup_affects()
-{
-}
-
-void QueryEvaluator::setup_affectsStar()
-{
 }
 
 void QueryEvaluator::parseSimple(const string& simple)
@@ -925,27 +389,473 @@ void QueryEvaluator::ev_relRef_syn_syn(int rTableIdx, RelRef *relRef)
 {
     enum SynInGraph synInGraph = SYN_ARGS_INVALID;
     EvalSynArgDesc evalSynArgDesc;
+    EvalPKBDispatch pkbDispatch;
     const ResultsTable& rTable = this->resultsTable[rTableIdx];
     if (rTable.has_synonym(relRef->argOneString) &&
             rTable.has_synonym(relRef->argTwoString)) {
-        synInGraph = SYN_SYN_11;
+        if (rTable.syn_in_same_table(relRef->argOneString,
+                relRef->argTwoString)) {
+            synInGraph = SYN_SYN_11;
+        } else {
+            synInGraph = SYN_SYN_22;
+        }
+        this->ev_relRef_syn_syn_11_22_setup(synInGraph, pkbDispatch,
+                relRef);
     } else if (rTable.has_synonym(relRef->argOneString)) {
         synInGraph = SYN_SYN_10;
+        this->ev_relRef_syn_syn_10_setup(pkbDispatch, relRef);
     } else if (rTable.has_synonym(relRef->argTwoString)) {
         synInGraph = SYN_SYN_01;
+        this->ev_relRef_syn_syn_01_setup(pkbDispatch, relRef);
     } else {
         synInGraph = SYN_SYN_00;
+        this->ev_relRef_syn_syn_00_setup(pkbDispatch, relRef);
     }
     evalSynArgDesc.synInGraph = synInGraph;
     evalSynArgDesc.relRefType = relRef->relType;
     evalSynArgDesc.argOneSynType = relRef->argOneSyn;
     evalSynArgDesc.argTwoSynType = relRef->argTwoSyn;
-    map<EvalSynArgDesc, EvalPKBDispatch, EvalSynArgDescCmp>::const_iterator
-        it = this->dispatchTable.find(evalSynArgDesc);
-    assert(it != this->dispatchTable.end());
-    assert(it->second.relRef_eval != NULL);
+
+    assert(pkbDispatch.relRef_eval != NULL);
     // evaluate relRef
-    (this->*(it->second.relRef_eval)) (rTableIdx, relRef, it->second);
+    (this->*(pkbDispatch.relRef_eval)) (rTableIdx, relRef, pkbDispatch);
+}
+
+void QueryEvaluator::ev_relRef_syn_syn_00_setup(
+        EvalPKBDispatch& pkbDispatch, RelRef *relRef) const
+{
+    RelRefArgType argOneType =
+            designEnt_to_relRefArgType(relRef->argOneSyn);
+    RelRefArgType argTwoType =
+            designEnt_to_relRefArgType(relRef->argTwoSyn);
+    assert(argOneType == RELARG_STRING || argOneType == RELARG_INT);
+    assert(argTwoType == RELARG_STRING || argTwoType == RELARG_INT);
+    if (argOneType == RELARG_STRING && argTwoType == RELARG_STRING) {
+        pkbDispatch.get_all_string_argOne =
+                this->pkbd_setup_get_all_string_method(
+                        relRef->argOneSyn);
+        pkbDispatch.get_all_string_argTwo =
+                this->pkbd_setup_get_all_string_method(
+                        relRef->argTwoSyn);
+        pkbDispatch.get_string_set_argOne_from_string_argTwo =
+                this->pkbd_setup_get_1SS_From_2SS(relRef->relType);
+        pkbDispatch.get_string_set_argTwo_from_string_argOne =
+                this->pkbd_setup_get_2SS_From_1SS(relRef->relType);
+        pkbDispatch.relRef_eval =
+                &QueryEvaluator::ev_rr_ss_string_string_00_from_argOne;
+    } else if (argOneType == RELARG_STRING && argTwoType == RELARG_INT) {
+        pkbDispatch.get_all_string_argOne =
+                this->pkbd_setup_get_all_string_method(
+                        relRef->argOneSyn);
+        pkbDispatch.get_all_int_argTwo =
+                this->pkbd_setup_get_all_int_method(relRef->argTwoSyn);
+        pkbDispatch.get_string_set_argOne_from_int_argTwo =
+                this->pkbd_setup_get_1SS_From_2IS(relRef->relType);
+        pkbDispatch.get_int_set_argTwo_from_string_argOne =
+                this->pkbd_setup_get_2IS_From_1SS(relRef->relType);
+        pkbDispatch.relRef_eval =
+                &QueryEvaluator::ev_rr_ss_string_int_00_from_argOne;
+    } else if (argOneType == RELARG_INT && argTwoType == RELARG_STRING) {
+        pkbDispatch.get_all_int_argOne =
+                this->pkbd_setup_get_all_int_method(relRef->argOneSyn);
+        pkbDispatch.get_all_string_argTwo =
+                this->pkbd_setup_get_all_string_method(
+                        relRef->argTwoSyn);
+        pkbDispatch.get_int_set_argOne_from_string_argTwo =
+                this->pkbd_setup_get_1IS_From_2SS(relRef->relType);
+        pkbDispatch.get_string_set_argTwo_from_int_argOne =
+                this->pkbd_setup_get_2SS_From_1IS(relRef->relType);
+        pkbDispatch.relRef_eval =
+                &QueryEvaluator::ev_rr_ss_int_string_00_from_argOne;
+    } else if (argOneType == RELARG_INT && argTwoType == RELARG_INT) {
+        pkbDispatch.get_all_int_argOne =
+                this->pkbd_setup_get_all_int_method(relRef->argOneSyn);
+        pkbDispatch.get_all_int_argTwo =
+                this->pkbd_setup_get_all_int_method(relRef->argTwoSyn);
+        pkbDispatch.get_int_set_argOne_from_int_argTwo =
+                this->pkbd_setup_get_1IS_From_2IS(relRef->relType);
+        pkbDispatch.get_int_set_argTwo_from_int_argOne =
+                this->pkbd_setup_get_2IS_From_1IS(relRef->relType);
+        pkbDispatch.relRef_eval =
+                &QueryEvaluator::ev_rr_ss_int_int_00_from_argOne;
+    }
+}
+
+void QueryEvaluator::ev_relRef_syn_syn_01_setup(
+        EvalPKBDispatch& pkbDispatch, RelRef *relRef) const
+{
+    RelRefArgType argOneType =
+            designEnt_to_relRefArgType(relRef->argOneSyn);
+    RelRefArgType argTwoType =
+            designEnt_to_relRefArgType(relRef->argTwoSyn);
+    assert(RELARG_INT == argOneType || RELARG_STRING == argOneType);
+    assert(RELARG_INT == argTwoType || RELARG_STRING == argTwoType);
+    if (RELARG_STRING == argOneType && RELARG_STRING == argTwoType) {
+        pkbDispatch.get_string_set_argOne_from_string_argTwo =
+                this->pkbd_setup_get_1SS_From_2SS(relRef->relType);
+        pkbDispatch.relRef_eval =
+                &QueryEvaluator::ev_rr_ss_string_string_01;
+    } else if (RELARG_STRING == argOneType && RELARG_INT == argTwoType) {
+        pkbDispatch.get_string_set_argOne_from_int_argTwo =
+                this->pkbd_setup_get_1SS_From_2IS(relRef->relType);
+        pkbDispatch.relRef_eval =
+                &QueryEvaluator::ev_rr_ss_string_int_01;
+    } else if (RELARG_INT == argOneType && RELARG_STRING == argTwoType) {
+        pkbDispatch.get_int_set_argOne_from_string_argTwo =
+                this->pkbd_setup_get_1IS_From_2SS(relRef->relType);
+        pkbDispatch.relRef_eval =
+                &QueryEvaluator::ev_rr_ss_int_string_01;
+    } else if (RELARG_INT == argOneType && RELARG_INT == argTwoType) {
+        pkbDispatch.get_int_set_argOne_from_int_argTwo =
+                this->pkbd_setup_get_1IS_From_2IS(relRef->relType);
+        pkbDispatch.relRef_eval =
+                &QueryEvaluator::ev_rr_ss_int_int_01;
+    }
+}
+
+void QueryEvaluator::ev_relRef_syn_syn_10_setup(
+        EvalPKBDispatch& pkbDispatch, RelRef *relRef) const
+{
+        RelRefArgType argOneType =
+            designEnt_to_relRefArgType(relRef->argOneSyn);
+    RelRefArgType argTwoType =
+            designEnt_to_relRefArgType(relRef->argTwoSyn);
+    assert(RELARG_INT == argOneType || RELARG_STRING == argOneType);
+    assert(RELARG_INT == argTwoType || RELARG_STRING == argTwoType);
+    if (RELARG_STRING == argOneType && RELARG_STRING == argTwoType) {
+        pkbDispatch.get_string_set_argTwo_from_string_argOne =
+                this->pkbd_setup_get_2SS_From_1SS(relRef->relType);
+        pkbDispatch.relRef_eval =
+                &QueryEvaluator::ev_rr_ss_string_string_10;
+    } else if (RELARG_STRING == argOneType && RELARG_INT == argTwoType) {
+        pkbDispatch.get_int_set_argTwo_from_string_argOne =
+                this->pkbd_setup_get_2IS_From_1SS(relRef->relType);
+        pkbDispatch.relRef_eval =
+                &QueryEvaluator::ev_rr_ss_string_int_10;
+    } else if (RELARG_INT == argOneType && RELARG_STRING == argTwoType) {
+        pkbDispatch.get_string_set_argTwo_from_int_argOne =
+                this->pkbd_setup_get_2SS_From_1IS(relRef->relType);
+        pkbDispatch.relRef_eval =
+                &QueryEvaluator::ev_rr_ss_int_string_10;
+    } else if (RELARG_INT == argOneType && RELARG_INT == argTwoType) {
+        pkbDispatch.get_int_set_argTwo_from_int_argOne =
+                this->pkbd_setup_get_2IS_From_1IS(relRef->relType);
+        pkbDispatch.relRef_eval =
+                &QueryEvaluator::ev_rr_ss_int_int_10;
+    }
+}
+
+void QueryEvaluator::ev_relRef_syn_syn_11_22_setup(
+        SynInGraph synInGraph, EvalPKBDispatch& pkbDispatch,
+        RelRef *relRef) const
+{
+    assert(SYN_SYN_11 == synInGraph || SYN_SYN_22 == synInGraph);
+    RelRefArgType argOneType =
+            designEnt_to_relRefArgType(relRef->argOneSyn);
+    RelRefArgType argTwoType =
+            designEnt_to_relRefArgType(relRef->argTwoSyn);
+    assert(RELARG_INT == argOneType || RELARG_STRING == argOneType);
+    assert(RELARG_INT == argTwoType || RELARG_STRING == argTwoType);
+    if (RELARG_STRING == argOneType && RELARG_STRING == argTwoType) {
+        switch (relRef->relType) {
+        case REL_MODIFIES:
+            pkbDispatch.f_string_argOne_string_argTwo =
+                    &PKB::modifies_query_string_X_string_Y;
+            break;
+        case REL_USES:
+            pkbDispatch.f_string_argOne_string_argTwo =
+                    &PKB::uses_query_string_X_string_Y;
+            break;
+        case REL_CALLS:
+            pkbDispatch.f_string_argOne_string_argTwo =
+                    &PKB::calls_query_string_X_string_Y;
+            break;
+        case REL_CALLS_STAR:
+            pkbDispatch.f_string_argOne_string_argTwo =
+                    &PKB::callsStar_query_string_X_string_Y;
+            break;
+        default:
+            assert(false);
+        }
+        if (SYN_SYN_11 == synInGraph) {
+            pkbDispatch.relRef_eval =
+                    &QueryEvaluator::ev_rr_ss_string_string_11;
+        } else {
+            pkbDispatch.relRef_eval =
+                    &QueryEvaluator::ev_rr_ss_string_string_22;
+        }
+    } else if (RELARG_STRING == argOneType && RELARG_INT == argTwoType) {
+        // no Rel has (string,int) arguments
+        assert(false);
+    } else if (RELARG_INT == argOneType && RELARG_STRING == argTwoType) {
+        switch (relRef->relType) {
+        case REL_MODIFIES:
+            pkbDispatch.f_int_argOne_string_argTwo =
+                    &PKB::modifies_query_int_X_string_Y;
+            break;
+        case REL_USES:
+            pkbDispatch.f_int_argOne_string_argTwo =
+                    &PKB::uses_query_int_X_string_Y;
+            break;
+        default:
+            assert(false);
+        }
+        if (SYN_SYN_11 == synInGraph) {
+            pkbDispatch.relRef_eval =
+                    &QueryEvaluator::ev_rr_ss_int_string_11;
+        } else {
+            pkbDispatch.relRef_eval =
+                    &QueryEvaluator::ev_rr_ss_int_string_22;
+        }
+    } else if (RELARG_INT == argOneType && RELARG_INT == argTwoType) {
+        switch (relRef->relType) {
+        case REL_PARENT:
+            pkbDispatch.f_int_argOne_int_argTwo =
+                    &PKB::parent_query_int_X_int_Y;
+            break;
+        case REL_PARENT_STAR:
+            pkbDispatch.f_int_argOne_int_argTwo =
+                    &PKB::parentStar_query_int_X_int_Y;
+            break;
+        case REL_FOLLOWS:
+            pkbDispatch.f_int_argOne_int_argTwo =
+                    &PKB::follows_query_int_X_int_Y;
+            break;
+        case REL_FOLLOWS_STAR:
+            pkbDispatch.f_int_argOne_int_argTwo =
+                    &PKB::followsStar_query_int_X_int_Y;
+            break;
+        case REL_NEXT:
+            pkbDispatch.f_int_argOne_int_argTwo =
+                    &PKB::next_query_int_X_int_Y;
+            break;
+        case REL_NEXT_STAR:
+            pkbDispatch.f_int_argOne_int_argTwo =
+                    &PKB::nextStar_query_int_X_int_Y;
+            break;
+        case REL_AFFECTS:
+            pkbDispatch.f_int_argOne_int_argTwo =
+                    &PKB::affects_query_int_X_int_Y;
+            break;
+        case REL_AFFECTS_STAR:
+            pkbDispatch.f_int_argOne_int_argTwo =
+                    &PKB::affectsStar_query_int_X_int_Y;
+            break;
+        default:
+            assert(false);
+        }
+        if (SYN_SYN_11 == synInGraph) {
+            pkbDispatch.relRef_eval =
+                    &QueryEvaluator::ev_rr_ss_int_int_11;
+        } else {
+            pkbDispatch.relRef_eval =
+                    &QueryEvaluator::ev_rr_ss_int_int_22;
+        }
+    }
+}
+
+QueryEvaluator::pkbGetAllStringFn
+QueryEvaluator::pkbd_setup_get_all_string_method(DesignEnt ent) const
+{
+    assert (ent == ENT_PROC || ent == ENT_VAR);
+    if (ent == ENT_PROC) {
+        return &PKB::get_all_procs;
+    } else if (ent == ENT_VAR) {
+        return &PKB::get_all_vars;
+    }
+    return NULL;
+}
+
+QueryEvaluator::pkbGetAllIntFn
+QueryEvaluator::pkbd_setup_get_all_int_method(DesignEnt ent) const
+{
+    assert(RELARG_INT == designEnt_to_relRefArgType(ent));
+    switch (ent) {
+    case ENT_STMTLST:
+        return &PKB::get_all_stmtLst;
+        break;
+    case ENT_STMT:
+        return &PKB::get_all_stmt;
+        break;
+    case ENT_PROGLINE:
+        return &PKB::get_all_progline;
+        break;
+    case ENT_ASSIGN:
+        return &PKB::get_all_assign;
+        break;
+    case ENT_CALL:
+        return &PKB::get_all_call;
+        break;
+    case ENT_IF:
+        return &PKB::get_all_if;
+        break;
+    case ENT_WHILE:
+        return &PKB::get_all_while;
+        break;
+    case ENT_CONST:
+        return &PKB::get_all_const;
+        break;
+    }
+}
+
+QueryEvaluator::pkbGet_1SS_From_2SS
+QueryEvaluator::pkbd_setup_get_1SS_From_2SS(RelRefType relType) const
+{
+    switch (relType) {
+    case REL_MODIFIES:
+        return &PKB::modifies_X_Y_get_string_X_from_string_Y;
+        break;
+    case REL_USES:
+        return &PKB::uses_X_Y_get_string_X_from_string_Y;
+        break;
+    case REL_CALLS:
+        return &PKB::calls_X_Y_get_string_X_from_string_Y;
+        break;
+    case REL_CALLS_STAR:
+        return &PKB::callsStar_X_Y_get_string_X_from_string_Y;
+        break;
+    default:
+        assert(false);
+    }
+    return NULL;
+}
+
+QueryEvaluator::pkbGet_1SS_From_2IS
+QueryEvaluator::pkbd_setup_get_1SS_From_2IS(RelRefType relType) const
+{
+    // no relation has (string,int) arguments
+    assert(false);
+    return NULL;
+}
+
+QueryEvaluator::pkbGet_1IS_From_2SS
+QueryEvaluator::pkbd_setup_get_1IS_From_2SS(RelRefType relType) const
+{
+    switch (relType) {
+    case REL_MODIFIES:
+        return &PKB::modifies_X_Y_get_int_X_from_string_Y;
+        break;
+    case REL_USES:
+        return &PKB::uses_X_Y_get_int_X_from_string_Y;
+        break;
+    default:
+        assert(false);
+    }
+    return NULL;
+}
+
+QueryEvaluator::pkbGet_1IS_From_2IS
+QueryEvaluator::pkbd_setup_get_1IS_From_2IS(RelRefType relType) const
+{
+    switch (relType) {
+    case REL_PARENT:
+        return &PKB::parent_X_Y_get_int_X_from_int_Y;
+        break;
+    case REL_PARENT_STAR:
+        return &PKB::parentStar_X_Y_get_int_X_from_int_Y;
+        break;
+    case REL_FOLLOWS:
+        return &PKB::follows_X_Y_get_int_X_from_int_Y;
+        break;
+    case REL_FOLLOWS_STAR:
+        return &PKB::followsStar_X_Y_get_int_X_from_int_Y;
+        break;
+    case REL_NEXT:
+        return &PKB::next_X_Y_get_int_X_from_int_Y;
+        break;
+    case REL_NEXT_STAR:
+        return &PKB::nextStar_X_Y_get_int_X_from_int_Y;
+        break;
+    case REL_AFFECTS:
+        return &PKB::affects_X_Y_get_int_X_from_int_Y;
+        break;
+    case REL_AFFECTS_STAR:
+        return &PKB::affectsStar_X_Y_get_int_X_from_int_Y;
+        break;
+    default:
+        assert(false);
+    }
+    return NULL;
+}
+
+QueryEvaluator::pkbGet_2SS_From_1SS
+QueryEvaluator::pkbd_setup_get_2SS_From_1SS(RelRefType relType) const
+{
+    switch (relType) {
+    case REL_MODIFIES:
+        return &PKB::modifies_X_Y_get_string_Y_from_string_X;
+        break;
+    case REL_USES:
+        return &PKB::uses_X_Y_get_string_Y_from_string_X;
+        break;
+    case REL_CALLS:
+        return &PKB::calls_X_Y_get_string_Y_from_string_X;
+        break;
+    case REL_CALLS_STAR:
+        return &PKB::callsStar_X_Y_get_string_Y_from_string_X;
+        break;
+    default:
+        assert(false);
+    }
+    return NULL;
+}
+
+QueryEvaluator::pkbGet_2SS_From_1IS
+QueryEvaluator::pkbd_setup_get_2SS_From_1IS(RelRefType relType) const
+{
+    switch (relType) {
+    case REL_MODIFIES:
+        return &PKB::modifies_X_Y_get_string_Y_from_int_X;
+        break;
+    case REL_USES:
+        return &PKB::uses_X_Y_get_string_Y_from_int_X;
+        break;
+    default:
+        assert(false);
+    }
+    return NULL;
+}
+
+QueryEvaluator::pkbGet_2IS_From_1SS
+QueryEvaluator::pkbd_setup_get_2IS_From_1SS(RelRefType relType) const
+{
+    // no Rel with (string,int) as arguments
+    assert(false);
+    return NULL;
+}
+
+QueryEvaluator::pkbGet_2IS_From_1IS
+QueryEvaluator::pkbd_setup_get_2IS_From_1IS(RelRefType relType) const
+{
+    switch (relType) {
+    case REL_PARENT:
+        return &PKB::parent_X_Y_get_int_Y_from_int_X;
+        break;
+    case REL_PARENT_STAR:
+        return &PKB::parentStar_X_Y_get_int_Y_from_int_X;
+        break;
+    case REL_FOLLOWS:
+        return &PKB::follows_X_Y_get_int_Y_from_int_X;
+        break;
+    case REL_FOLLOWS_STAR:
+        return &PKB::followsStar_X_Y_get_int_Y_from_int_X;
+        break;
+    case REL_NEXT:
+        return &PKB::next_X_Y_get_int_Y_from_int_X;
+        break;
+    case REL_NEXT_STAR:
+        return &PKB::nextStar_X_Y_get_int_Y_from_int_X;
+        break;
+    case REL_AFFECTS:
+        return &PKB::affects_X_Y_get_int_Y_from_int_X;
+        break;
+    case REL_AFFECTS_STAR:
+        return &PKB::affectsStar_X_Y_get_int_Y_from_int_X;
+        break;
+    default:
+        assert(false);
+    }
+    return NULL;
 }
 
 void QueryEvaluator::ev_rr_ss_string_string_00_from_argOne(
