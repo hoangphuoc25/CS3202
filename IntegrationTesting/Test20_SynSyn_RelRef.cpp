@@ -928,3 +928,80 @@ void Test20_SynSyn_RelRef::test_ev_rr_ss_int_int_11()
             "31,useless10,32"),
             stringSet);
 }
+
+void Test20_SynSyn_RelRef::test_ev_rr_ss_int_int_22()
+{
+    string simpleProg, queryStr;
+    QueryEvaluator evaluator;
+    list<string> resultList;
+    SetWrapper<string> stringSet;
+
+    simpleProg =
+        "procedure progAnalyse { \
+           ax = bc - seventy; \
+           if conVar then { \
+             call chopList; \
+             while itsTrue { \
+               dont = know; \
+             } \
+             while notTrue { \
+               freak = man; \
+               call chopList; \
+             } \
+           } else { \
+             call chopList; \
+           } \
+           useless1 = 123; \
+           while itsTrue { \
+             bad = ax; \
+             useless1 = 424 - 311; \
+           } \
+           mutiny = board; \
+           if notTrue then { \
+             useless2 = 15; \
+             if useless3 then { \
+               useless4 = 125; \
+             } else { \
+               if mutiny then { \
+                 useless5 = 1676; \
+               } else { \
+                 useless6 = 15 * 41; \
+               } \
+             } \
+           } else { \
+             useless2 = 14; \
+           } \
+         } \
+         procedure chopList { \
+           date = date; \
+         } \
+         procedure Aone { \
+           if notTrue then { \
+             if itsTrue then { \
+               call chopList; \
+             } else { \
+               useless8 = 9; \
+             } \
+           } else { \
+             call chopList; \
+           } \
+           useless3 = useless4; \
+           if true then { \
+             while useless8 { \
+               useless10 = 101; \
+             } \
+           } else { \
+             abc = xyz; \
+           } \
+         } \
+         ";
+    evaluator.parseSimple(simpleProg);
+    queryStr = " assign a1; variable v1; while w1; call c1; ";
+    queryStr += " Select <a1,v1,w1,c1> such that ";
+    queryStr += " Modifies(a1, v1) and Parent(w1, c1) and ";
+    queryStr += " Parent(w1, a1)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "7,freak,6,8"),
+            stringSet);
+}
