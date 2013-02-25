@@ -1219,7 +1219,37 @@ void QueryEvaluator::ev_rr_ss_int_string_11(int rTableIdx,
 void QueryEvaluator::ev_rr_ss_int_string_22(int rTableIdx,
         RelRef *relRef, const EvalPKBDispatch& disp)
 {
-    // TODO: Implement
+    assert(NULL != disp.f_int_argOne_string_argTwo);
+    assert(NULL != disp.relRef_eval);
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    pair<pair<const vector<Record> *, int>,
+         pair<const vector<Record> *, int> > pvriPair =
+            rTable.syn_22_transaction_begin(relRef->argOneString,
+                    relRef->argTwoString);
+    const vector<Record>& argOneVec = *(pvriPair.first.first);
+    int argOneCol = pvriPair.first.second;
+    int nrArgOne = argOneVec.size();
+    const vector<Record>& argTwoVec = *(pvriPair.second.first);
+    int argTwoCol = pvriPair.second.second;
+    int nrArgTwo = argTwoVec.size();
+    for (int i = 0; i < nrArgOne; i++) {
+        for (int k = 0; k < nrArgTwo; k++) {
+            const Record& recOne = argOneVec[i];
+            const pair<string, int>& pairOne =
+                    recOne.get_column(argOneCol);
+            const Record& recTwo = argTwoVec[k];
+            const pair<string, int>& pairTwo =
+                    recTwo.get_column(argTwoCol);
+            int argOneVal = pairOne.second;
+            const string& argTwoVal = pairTwo.first;
+            if ((this->pkb->*(disp.f_int_argOne_string_argTwo))
+                        (relRef->argOneSyn, argOneVal,
+                         relRef->argTwoSyn, argTwoVal)) {
+                rTable.syn_22_add_row(i, k);
+            }
+        }
+    }
+    rTable.syn_22_transaction_end();
 }
 
 void QueryEvaluator::ev_rr_ss_int_int_00_from_argOne(int rTableIdx,
