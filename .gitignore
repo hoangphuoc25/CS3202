@@ -3,6 +3,8 @@
 *.opensdf
 *.sdf
 *.suo
+*.swo
+*.swp
 *.vcxproj.filters
 *.vcxproj.user
 Debug/
