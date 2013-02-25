@@ -240,6 +240,13 @@ private:
     void ev_relRef_X_X(int rTableIdx, RelRef *relRef);
 
     void evaluate_patCl(int rTableIdx, PatCl *patCl);
+    void evaluate_patCl_assign(int rTableIdx, PatCl *patCl);
+    void evaluate_patCl_if(int rTableIdx, PatCl *patCl);
+    void evaluate_patCl_if_var_syn(int rTableIdx, PatCl *patCl);
+    void evaluate_patCl_if_var_syn_11(ResultsTable& rTable,
+            PatCl *patCl);
+    void evaluate_patCl_if_var_string(int rTableIdx, PatCl *patCl);
+    void evaluate_patCl_while(int rTableIdx, PatCl *patCl);
 
     PQLParser pqlParser;
     PKB *pkb;

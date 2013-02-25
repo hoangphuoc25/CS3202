@@ -182,9 +182,14 @@ void Test_30_PKB::test_one(){
     int i;
 
     // Variables
-    CPPUNIT_ASSERT(pkb.get_control_var(9) == "i");
-    CPPUNIT_ASSERT_EQUAL(string("i"), pkb.get_control_var(19));
-    CPPUNIT_ASSERT_EQUAL(string("i"), pkb.get_control_var(28));
+    CPPUNIT_ASSERT_EQUAL(string("i"),
+            pkb.get_control_variable(ENT_WHILE, 9));
+    CPPUNIT_ASSERT_EQUAL(string(""),
+            pkb.get_control_variable(ENT_IF, 9));
+    CPPUNIT_ASSERT_EQUAL(string("i"),
+            pkb.get_control_variable(ENT_WHILE, 19));
+    CPPUNIT_ASSERT_EQUAL(string("i"),
+            pkb.get_control_variable(ENT_IF, 28));
 
     s = pkb.get_all_vars();
     stringSet = SetWrapper<string>(s);

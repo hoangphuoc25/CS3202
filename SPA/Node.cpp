@@ -81,9 +81,9 @@ const set<string>& Node::get_uses() const
     return this->uses;
 }
 
-string Node::get_control_var()
+const string& Node::get_control_var() const
 {
-    return control_var;
+    return this->control_var;
 }
 
 void Node::set_parent(Node* n)

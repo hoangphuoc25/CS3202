@@ -1,6 +1,8 @@
 #include <cassert>
 #include "PKB.h"
 
+const string PKB::EMPTY_STRING = "";
+
 PKB::PKB(){}
 
 PKB::PKB(Node *root, ProcTable *pt, VarTable *vt, StmtBank *sb, vector<CFGNode*> *cfg){
@@ -614,12 +616,32 @@ set<int> PKB::get_call_stmt_calling(const string& proc) const
     return set<int>();
 }
 
-// Variables
-string PKB::get_control_var(int stmtNo){
-    if (is_valid_stmtNo(stmtNo)) {
-        return stmtBank->get_node(stmtNo)->get_control_var();
+const string& PKB::get_control_variable(DesignEnt entType, int stmtNo)
+        const
+{
+    Node *node = this->get_stmt_node(entType, stmtNo);
+    if (NULL == node) {
+        return PKB::EMPTY_STRING;
     } else {
-        return "";
+        NodeType nodeType = node->get_type();
+        if (WHILE_STMT == nodeType || IF_STMT == nodeType) {
+            return node->get_control_var();
+        } else {
+            return PKB::EMPTY_STRING;
+        }
+    }
+}
+
+bool PKB::has_control_variable(DesignEnt entType, int stmtNo,
+        const string& controlVar) const
+{
+    const string& realControlVar =
+            this->get_control_variable(entType, stmtNo);
+    if (0 == controlVar.compare(PKB::EMPTY_STRING) ||
+            0 == realControlVar.compare(PKB::EMPTY_STRING)) {
+        return false;
+    } else {
+        return (realControlVar.compare(controlVar) == 0);
     }
 }
 
@@ -1403,6 +1425,30 @@ void PKB::dfs(CFGNode *node)
 
 }
 
+Node* PKB::get_stmt_node(DesignEnt entType, int stmtNo) const
+{
+    assert(ENT_ASSIGN == entType || ENT_IF == entType ||
+            ENT_WHILE == entType || ENT_CALL == entType ||
+            ENT_STMT == entType || ENT_PROGLINE == entType);
+    switch (entType) {
+    case ENT_ASSIGN:
+        return this->stmtBank->get_assignNode(stmtNo);
+        break;
+    case ENT_IF:
+        return this->stmtBank->get_ifNode(stmtNo);
+        break;
+    case ENT_WHILE:
+        return this->stmtBank->get_whileNode(stmtNo);
+        break;
+    case ENT_CALL:
+        return this->stmtBank->get_callNode(stmtNo);
+        break;
+    case ENT_STMT:
+    case ENT_PROGLINE:
+        return this->stmtBank->get_stmtNode(stmtNo);
+        break;
+    }
+}
 
 // Debuugers
 Node* PKB::get_progRoot(){

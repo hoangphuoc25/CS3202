@@ -545,7 +545,6 @@ public:
     std::set<int> get_call_stmt_calling(const std::string& proc) const;
     
     // Variables
-    string get_control_var(int stmtNo);
     set<string> get_all_vars_by_proc(string procName);
 
     // Calls
@@ -646,6 +645,17 @@ private:
     StmtBank *stmtBank;
     vector<CFGNode*> *CFG;
 
+    /*
+     * Retrieves the Node representing the statement.
+     * @param entType type of the statement
+     * @param stmtNo statement number
+     * @return A Node* representing the statement if there exists
+     *         a statement of entType at stmtNo. Otherwise, returns
+     *         NULL.
+     */
+    Node *get_stmt_node(DesignEnt entType, int stmtNo) const;
+
+    static const std::string EMPTY_STRING;
     const set<string> EMPTY_STRINGSET;
     const set<int> EMPTY_INTSET;
 };

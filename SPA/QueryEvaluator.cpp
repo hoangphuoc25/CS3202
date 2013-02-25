@@ -1428,4 +1428,115 @@ void QueryEvaluator::ev_relRef_X_X(int rTableIdx, RelRef *relRef)
 
 void QueryEvaluator::evaluate_patCl(int rTableIdx, PatCl *patCl)
 {
+    assert(PATCL_INVALID != patCl->type);
+    switch (patCl->type) {
+    case PATCL_ASSIGN:
+        this->evaluate_patCl_assign(rTableIdx, patCl);
+        break;
+    case PATCL_IF:
+        this->evaluate_patCl_if(rTableIdx, patCl);
+        break;
+    case PATCL_WHILE:
+        this->evaluate_patCl_while(rTableIdx, patCl);
+        break;
+    }
+}
+
+void QueryEvaluator::evaluate_patCl_assign(int rTableIdx, PatCl *patCl)
+{
+}
+
+void QueryEvaluator::evaluate_patCl_if(int rTableIdx, PatCl *patCl)
+{
+    assert(PATVARREF_WILDCARD == patCl->varRefType);
+    assert(PATEXPR_WILDCARD == patCl->exprType);
+    assert(PATVARREF_SYN == patCl->varRefType ||
+            PATVARREF_STRING == patCl->varRefType);
+    if (PATVARREF_SYN == patCl->varRefType) {
+        this->evaluate_patCl_if_var_syn(rTableIdx, patCl);
+    } else if (PATVARREF_STRING == patCl->varRefType) {
+        this->evaluate_patCl_if_var_string(rTableIdx, patCl);
+    }
+}
+
+void QueryEvaluator::evaluate_patCl_if_var_syn(int rTableIdx,
+        PatCl *patCl)
+{
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    bool hasIfSyn = rTable.has_synonym(patCl->syn);
+    bool hasVarSyn = rTable.has_synonym(patCl->varRefString);
+    if (hasIfSyn && hasVarSyn) {
+        if (rTable.syn_in_same_table(patCl->syn, patCl->varRefString)) {
+            // pattern ifSyn(varSyn,_,_)
+            // both in SAME table. This is a 11 transaction
+            // For the ifSyn and varSyn in same row, check if varSyn
+            // is a control variable of ifSyn. If so, mark as ok.
+            this->evaluate_patCl_if_var_syn_11(rTable, patCl);
+        } else {
+            // pattern ifSyn(varSyn,_,_)
+            // both in DIFFERENT table. merge. This is a 22 transaction
+        }
+    } else if (hasIfSyn) {
+        // pattern ifSyn(varSyn,_,_)
+        // varSyn is not seen
+        // for each ifSyn, get its control variable and
+        // augment the row.
+        // Make this a 01 transaction using augment_new_row
+    } else if (hasVarSyn) {
+        // pattern ifSyn(varSyn,_,_)
+        // ifSyn is not seen
+        // for each varSyn, get the if statement it is a control
+        // variable (if any) and augment the row.
+        // Make this a 01 transaction using augment_new_row
+    } else {
+        // pattern ifSyn(varSyn,_,_)
+        // both not seen. This is a 00 transaction, but it is
+        // advised to get all if stmts, then get their control
+        // variable, and add the new row.
+    }
+}
+
+void QueryEvaluator::evaluate_patCl_if_var_syn_11(ResultsTable &rTable,
+        PatCl *patCl)
+{
+    pair<const vector<Record> *, pair<int, int> > viiPair =
+            rTable.syn_11_transaction_begin(patCl->syn,
+                    patCl->varRefString);
+    const vector<Record>& records = *(viiPair.first);
+    int nrRecords = records.size();
+    int ifSynCol = viiPair.second.first;
+    int varSynCol = viiPair.second.second;
+    for (int i = 0; i < nrRecords; i++) {
+        const Record& rec = records[i];
+        const pair<string, int>& ifPair = rec.get_column(ifSynCol);
+        const pair<string, int>& varPair = rec.get_column(varSynCol);
+        int ifStmt = ifPair.second;
+        const string& controlVar = varPair.first;
+        if (this->pkb->has_control_variable(ENT_IF, ifStmt,
+                    controlVar)) {
+            rTable.syn_11_mark_row_ok(i);
+        }
+    }
+    rTable.syn_11_transaction_end();
+}
+
+void QueryEvaluator::evaluate_patCl_if_var_string(int rTableIdx,
+        PatCl *patCl)
+{
+    const ResultsTable& rTable = this->resultsTable[rTableIdx];
+    if (rTable.has_synonym(patCl->syn)) {
+        // ifSyn("someVarString",_,_)
+        // ifSyn is seen. Use ResultsTable::syn_1_transaction
+        // Loop through each ifSyn, then use syn_1_mark_row_ok
+        // to mark the ifSyn with "someVarString" as control variable
+    } else {
+        // ifSyn("someVarString",_,_)
+        // ifSyn is NOT seen. Use ResultsTable::syn_0_transaction
+        // Retrieve all if stmt. Loop and only syn_0_add_row
+        // those with "someVarString" as control variable
+    }
+}
+
+void QueryEvaluator::evaluate_patCl_while(int rTableIdx, PatCl *patCl)
+{
 }
