@@ -77,6 +77,32 @@ public:
                 const;
 
     /**
+     * Returns true if Modifies(X,_)
+     * @param xType type of X
+     * @param x statement number of X
+     * @return true if Modifies(X,_), false otherwise
+     */
+    bool modifies_X_Y_int_X_smth(DesignEnt xType, int x) const;
+
+    /**
+     * Returns true if Modifies(X,_)
+     * @param xType type of X
+     * @param x string representing X
+     * @return true if Modifies(X,_), false otherwise
+     */
+    bool modifies_X_Y_string_X_smth(DesignEnt xType,
+            const std::string& x) const;
+
+    /**
+     * Returns true if Modifies(_,Y)
+     * @param yType type of Y
+     * @param y string representing Y
+     * @return true if Modifies(_,Y), false otherwise
+     */
+    bool modifies_X_Y_smth_string_Y(DesignEnt yType,
+            const std::string& y) const;
+
+    /**
      * Given X (int) and Y (string), checks if Modifies(X,Y) is true.
      * @param xType type of X
      * @param x value of X
@@ -154,6 +180,32 @@ public:
             DesignEnt yType, const std::string& y) const;
 
     /**
+     * Returns true if Uses(X,_)
+     * @param xType type of X
+     * @param x statement number of X
+     * @return true if Uses(X,_), false otherwise
+     */
+    bool uses_X_Y_int_X_smth(DesignEnt xType, int x) const;
+
+    /**
+     * Returns true if Uses(X,_)
+     * @param xType type of X
+     * @param x string representing X
+     * @return true if Uses(X,_), false otherwise
+     */
+    bool uses_X_Y_string_X_smth(DesignEnt xType,
+            const std::string& x) const;
+
+    /**
+     * Returns true if Uses(_,Y)
+     * @param yType type of Y
+     * @param y string representing Y
+     * @return true if Uses(_,Y), false otherwise
+     */
+    bool uses_X_Y_smth_string_Y(DesignEnt yType,
+            const std::string& y) const;
+
+    /**
      * Calls(X,Y); given Y (string), get all X (string) such that
      * Calls(X,Y)
      * @param xType type of X
@@ -188,6 +240,24 @@ public:
     bool calls_query_string_X_string_Y(DesignEnt xType,
             const std::string& x, DesignEnt yType, const std::string& y)
                 const;
+
+    /**
+     * Returns true if Calls(X,_)
+     * @param xType type of X
+     * @param x string representing X
+     * @return true if Calls(X,_), false otherwise
+     */
+    bool calls_X_Y_string_X_smth(DesignEnt xType,
+            const std::string& x) const;
+
+    /**
+     * Returns true if Calls(_,Y)
+     * @param yType type of Y
+     * @param y string representing Y
+     * @return true if Calls(_,Y), false otherwise
+     */
+    bool calls_X_Y_smth_string_Y(DesignEnt yType,
+            const std::string& y) const;
 
     /**
      * Calls*(X,Y); given Y (string), get all X (string) such that
@@ -225,6 +295,24 @@ public:
                 const;
 
     /**
+     * Returns true if Calls*(X,_)
+     * @param xType type of X
+     * @param x string representing X
+     * @return true if Calls*(X,_), false otherwise
+     */
+    bool callsStar_X_Y_string_X_smth(DesignEnt xType,
+            const std::string& x) const;
+
+    /**
+     * Returns true if Calls*(_,Y)
+     * @param yType type of Y
+     * @param y string representing Y
+     * @return true if Calls*(_,Y), false otherwise
+     */
+    bool callsStar_X_Y_smth_string_Y(DesignEnt yType,
+            const std::string& y) const;
+
+    /**
      * Parent(X,Y); given Y (int), retrieve all X (int) such that
      * Parent(X,Y).
      * @param xType type of X
@@ -255,6 +343,22 @@ public:
      */
     bool parent_query_int_X_int_Y(DesignEnt xType,
             int x, DesignEnt yType, int y) const;
+
+    /**
+     * Returns true if Parent(X,_)
+     * @param xType type of X
+     * @param x statement number of X
+     * @return true if Parent(X,_), false otherwise
+     */
+    bool parent_X_Y_int_X_smth(DesignEnt xType, int x) const;
+
+    /**
+     * Returns true if Parent(_,Y)
+     * @param xType type of Y
+     * @param x statement number of Y
+     * @return true if Parent(_,Y), false otherwise
+     */
+    bool parent_X_Y_smth_int_Y(DesignEnt yType, int y) const;
 
     /**
      * Parent*(X,Y); given Y (int), retrieve all X (int) such that
@@ -289,6 +393,22 @@ public:
             int x, DesignEnt yType, int y) const;
 
     /**
+     * Returns true if Parent*(X,_)
+     * @param xType type of X
+     * @param x statement number of X
+     * @return true if Parent*(X,_), false otherwise
+     */
+    bool parentStar_X_Y_int_X_smth(DesignEnt xType, int x) const;
+
+    /**
+     * Returns true if Parent*(_,Y)
+     * @param xType type of Y
+     * @param x statement number of Y
+     * @return true if Parent*(_,Y), false otherwise
+     */
+    bool parentStar_X_Y_smth_int_Y(DesignEnt yType, int y) const;
+
+    /**
      * Follows(X,Y); given Y (int), retrieve all X (int) such that
      * Follows(X,Y).
      * @param xType type of X
@@ -319,6 +439,22 @@ public:
      */
     bool follows_query_int_X_int_Y(DesignEnt xType,
             int x, DesignEnt yType, int y) const;
+
+    /**
+     * Returns true if Follows(X,_)
+     * @param xType type of X
+     * @param x statement number of X
+     * @return true if Follows(X,_), false otherwise
+     */
+    bool follows_X_Y_int_X_smth(DesignEnt xType, int x) const;
+
+    /**
+     * Returns true if Follows(_,Y)
+     * @param xType type of Y
+     * @param x statement number of Y
+     * @return true if Follows(_,Y), false otherwise
+     */
+    bool follows_X_Y_smth_int_Y(DesignEnt yType, int y) const;
 
     /**
      * Follows*(X,Y); given Y (int), retrieve all X (int) such that
@@ -353,6 +489,22 @@ public:
             int x, DesignEnt yType, int y) const;
 
     /**
+     * Returns true if Follows*(X,_)
+     * @param xType type of X
+     * @param x statement number of X
+     * @return true if Follows*(X,_), false otherwise
+     */
+    bool followsStar_X_Y_int_X_smth(DesignEnt xType, int x) const;
+
+    /**
+     * Returns true if Follows*(_,Y)
+     * @param xType type of Y
+     * @param x statement number of Y
+     * @return true if Follows*(_,Y), false otherwise
+     */
+    bool followsStar_X_Y_smth_int_Y(DesignEnt yType, int y) const;
+
+    /**
      * Next(X,Y); given Y (int), retrieve all X (int) such that
      * Next(X,Y).
      * @param xType type of X
@@ -383,6 +535,22 @@ public:
      */
     bool next_query_int_X_int_Y(DesignEnt xType,
             int x, DesignEnt yType, int y) const;
+
+    /**
+     * Returns true if Next(X,_)
+     * @param xType type of X
+     * @param x statement number of X
+     * @return true if Next(X,_), false otherwise
+     */
+    bool next_X_Y_int_X_smth(DesignEnt xType, int x) const;
+
+    /**
+     * Returns true if Next(_,Y)
+     * @param xType type of Y
+     * @param x statement number of Y
+     * @return true if Next(_,Y), false otherwise
+     */
+    bool next_X_Y_smth_int_Y(DesignEnt yType, int y) const;
 
     /**
      * Next*(X,Y); given Y (int), retrieve all X (int) such that
@@ -417,6 +585,22 @@ public:
             int x, DesignEnt yType, int y) const;
 
     /**
+     * Returns true if Next*(X,_)
+     * @param xType type of X
+     * @param x statement number of X
+     * @return true if Next*(X,_), false otherwise
+     */
+    bool nextStar_X_Y_int_X_smth(DesignEnt xType, int x) const;
+
+    /**
+     * Returns true if Next*(_,Y)
+     * @param xType type of Y
+     * @param x statement number of Y
+     * @return true if Next*(_,Y), false otherwise
+     */
+    bool nextStar_X_Y_smth_int_Y(DesignEnt yType, int y) const;
+
+    /**
      * Affects(X,Y); given Y (int), retrieve all X (int) such that
      * Affects(X,Y).
      * @param xType type of X
@@ -449,6 +633,22 @@ public:
             int x, DesignEnt yType, int y) const;
 
     /**
+     * Returns true if Affects(X,_)
+     * @param xType type of X
+     * @param x statement number of X
+     * @return true if Affects(X,_), false otherwise
+     */
+    bool affects_X_Y_int_X_smth(DesignEnt xType, int x) const;
+
+    /**
+     * Returns true if Affects(_,Y)
+     * @param xType type of Y
+     * @param x statement number of Y
+     * @return true if Affects(_,Y), false otherwise
+     */
+    bool affects_X_Y_smth_int_Y(DesignEnt yType, int y) const;
+
+    /**
      * Affects*(X,Y); given Y (int), retrieve all X (int) such that
      * Affects*(X,Y).
      * @param xType type of X
@@ -478,6 +678,22 @@ public:
      */
     bool affectsStar_query_int_X_int_Y(DesignEnt xType,
             int x, DesignEnt yType, int y) const;
+
+    /**
+     * Returns true if Affects*(X,_)
+     * @param xType type of X
+     * @param x statement number of X
+     * @return true if Affects*(X,_), false otherwise
+     */
+    bool affectsStar_X_Y_int_X_smth(DesignEnt xType, int x) const;
+
+    /**
+     * Returns true if Affects*(_,Y)
+     * @param xType type of Y
+     * @param x statement number of Y
+     * @return true if Affects*(_,Y), false otherwise
+     */
+    bool affectsStar_X_Y_smth_int_Y(DesignEnt yType, int y) const;
 
     // Retrieve everything
     std::set<int> get_all_assign() const;

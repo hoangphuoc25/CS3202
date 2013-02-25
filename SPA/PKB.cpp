@@ -110,6 +110,26 @@ bool PKB::modifies_query_int_X_string_Y(DesignEnt xType,
     return false;
 }
 
+bool PKB::modifies_X_Y_int_X_smth(DesignEnt xType, int x) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::modifies_X_Y_string_X_smth(DesignEnt xType,
+        const string& x) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::modifies_X_Y_smth_string_Y(DesignEnt yType,
+        const string& y) const
+{
+    // TODO: Please implement
+    return false;
+}
+
 set<int> PKB::uses_X_Y_get_int_X_from_string_Y(DesignEnt xType,
         DesignEnt yType, const string& varName) const
 {
@@ -173,6 +193,24 @@ bool PKB::uses_query_int_X_string_Y(DesignEnt xType, int x,
     return this->varTable->uses_query_int_X_var(xType, x, y);
 }
 
+bool PKB::uses_X_Y_int_X_smth(DesignEnt xType, int x) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::uses_X_Y_string_X_smth(DesignEnt xType, const string& x) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::uses_X_Y_smth_string_Y(DesignEnt yType, const string& y) const
+{
+    // TODO: Please implement
+    return false;
+}
+
 set<string> PKB::calls_X_Y_get_string_X_from_string_Y(DesignEnt xType,
         DesignEnt yType, const string& y) const
 {
@@ -214,6 +252,20 @@ bool PKB::calls_query_string_X_string_Y(DesignEnt xType,
     return false;
 }
 
+bool PKB::calls_X_Y_string_X_smth(DesignEnt xType,
+        const string& x) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::calls_X_Y_smth_string_Y(DesignEnt yType,
+        const string& y) const
+{
+    // TODO: Please implement
+    return false;
+}
+
 set<string> PKB::callsStar_X_Y_get_string_X_from_string_Y
         (DesignEnt xType, DesignEnt yType, const string& y) const
 {
@@ -230,6 +282,20 @@ set<string> PKB::callsStar_X_Y_get_string_Y_from_string_X
 
 bool PKB::callsStar_query_string_X_string_Y(DesignEnt xType,
         const string& x, DesignEnt yType, const string& y) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::callsStar_X_Y_string_X_smth(DesignEnt xType,
+        const string& x) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::callsStar_X_Y_smth_string_Y(DesignEnt yType,
+        const string& y) const
 {
     // TODO: Please implement
     return false;
@@ -316,6 +382,18 @@ bool PKB::parent_query_int_X_int_Y(DesignEnt xType, int x,
     return S.find(y) != S.end();
 }
 
+bool PKB::parent_X_Y_int_X_smth(DesignEnt xType, int x) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::parent_X_Y_smth_int_Y(DesignEnt yType, int y) const
+{
+    // TODO: Please implement
+    return false;
+}
+
 set<int> PKB::parentStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
@@ -332,6 +410,18 @@ set<int> PKB::parentStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
 
 bool PKB::parentStar_query_int_X_int_Y(DesignEnt xType, int x,
         DesignEnt yType, int y) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::parentStar_X_Y_int_X_smth(DesignEnt xType, int x) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::parentStar_X_Y_smth_int_Y(DesignEnt yType, int y) const
 {
     // TODO: Please implement
     return false;
@@ -399,6 +489,18 @@ bool PKB::follows_query_int_X_int_Y(DesignEnt xType, int x,
     }
 }
 
+bool PKB::follows_X_Y_int_X_smth(DesignEnt xType, int x) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::follows_X_Y_smth_int_Y(DesignEnt yType, int y) const
+{
+    // TODO: Please implement
+    return false;
+}
+
 set<int> PKB::followsStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
@@ -415,6 +517,18 @@ set<int> PKB::followsStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
 
 bool PKB::followsStar_query_int_X_int_Y(DesignEnt xType, int x,
         DesignEnt yType, int y) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::followsStar_X_Y_int_X_smth(DesignEnt xType, int x) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::followsStar_X_Y_smth_int_Y(DesignEnt yType, int y) const
 {
     // TODO: Please implement
     return false;
@@ -441,6 +555,18 @@ bool PKB::next_query_int_X_int_Y(DesignEnt xType, int x,
     return false;
 }
 
+bool PKB::next_X_Y_int_X_smth(DesignEnt xType, int x) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::next_X_Y_smth_int_Y(DesignEnt yType, int y) const
+{
+    // TODO: Please implement
+    return false;
+}
+
 set<int> PKB::nextStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
@@ -457,6 +583,18 @@ set<int> PKB::nextStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
 
 bool PKB::nextStar_query_int_X_int_Y(DesignEnt xType, int x,
         DesignEnt yType, int y) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::nextStar_X_Y_int_X_smth(DesignEnt xType, int x) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::nextStar_X_Y_smth_int_Y(DesignEnt yType, int y) const
 {
     // TODO: Please implement
     return false;
@@ -483,6 +621,18 @@ bool PKB::affects_query_int_X_int_Y(DesignEnt xType, int x,
     return false;
 }
 
+bool PKB::affects_X_Y_int_X_smth(DesignEnt xType, int x) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::affects_X_Y_smth_int_Y(DesignEnt yType, int y) const
+{
+    // TODO: Please implement
+    return false;
+}
+
 set<int> PKB::affectsStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
@@ -499,6 +649,18 @@ set<int> PKB::affectsStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
 
 bool PKB::affectsStar_query_int_X_int_Y(DesignEnt xType, int x,
         DesignEnt yType, int y) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::affectsStar_X_Y_int_X_smth(DesignEnt xType, int x) const
+{
+    // TODO: Please implement
+    return false;
+}
+
+bool PKB::affectsStar_X_Y_smth_int_Y(DesignEnt yType, int y) const
 {
     // TODO: Please implement
     return false;
