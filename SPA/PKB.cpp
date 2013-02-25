@@ -240,7 +240,7 @@ set<int> PKB::parent_X_Y_get_int_X_from_int_Y(DesignEnt xType,
     assert(QueryInfo::is_valid_argTwo_syn_type(REL_PARENT, yType));
     set<int> ret;
     Node *node = NULL;
-    switch (xType) {
+    switch (yType) {
     case ENT_ASSIGN:
         node = this->stmtBank->get_assignNode(y);
         break;

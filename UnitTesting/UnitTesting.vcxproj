@@ -75,6 +75,7 @@
     <ClCompile Include="Test_20_Parser.cpp" />
     <ClCompile Include="Test_20_PQLParser.cpp" />
     <ClCompile Include="Test_30_PKB.cpp" />
+    <ClCompile Include="Test_30_PKB_Parent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Test_00_StringBuffer.h" />
@@ -83,7 +84,7 @@
     <ClInclude Include="Test_02_ResultsTable.h" />
     <ClInclude Include="Test_20_Parser.h" />
     <ClInclude Include="Test_20_PQLParser.h" />
-    <ClInclude Include="Test_30_PKB.h" />
+    <ClInclude Include="Test_30_PKB_Parent.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

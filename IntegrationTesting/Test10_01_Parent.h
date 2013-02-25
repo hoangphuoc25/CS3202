@@ -6,12 +6,14 @@
 
 class Test10_01_Parent: public CPPUNIT_NS::TestFixture {
 CPPUNIT_TEST_SUITE(Test10_01_Parent);
+CPPUNIT_TEST(test_parent_if_assign);
 CPPUNIT_TEST_SUITE_END();
 
 public:
     void setUp();
     void tearDown();
 private:
+    void test_parent_if_assign();
 };
 
 #endif
