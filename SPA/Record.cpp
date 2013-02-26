@@ -78,6 +78,7 @@ void Record::add_record(const Record& o)
 
 const pair<string, int>& Record::get_column(int idx) const
 {
+    assert(idx >= 0);
     assert(idx < (int)this->values.size());
     return this->values[idx];
 }

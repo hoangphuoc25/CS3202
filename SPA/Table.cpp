@@ -439,6 +439,9 @@ void Table::augment_existing_row(int row, const string& syn,
     }
     int nrRecords = this->curRecords->size();
     if (row >= 0 && row < nrRecords) {
+        // This assertion ensures that we augment an existing row
+        // at most once
+        assert(this->preserveRow[row] == 0);
         (*(this->curRecords))[row].add_value(val);
         this->preserveRow[row] = 1;
     }
