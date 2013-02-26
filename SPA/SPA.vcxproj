@@ -32,7 +32,6 @@
     <ClCompile Include="VarTable.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\UnitTesting\Test_30_PKB.h" />
     <ClInclude Include="CFGNode.h" />
     <ClInclude Include="Node.h" />
     <ClInclude Include="Parser.h" />
