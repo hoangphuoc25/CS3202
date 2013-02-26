@@ -1189,20 +1189,20 @@ ClauseType QueryInfo::get_nth_clause_type(int n) const
 {
     int len = this->insertOrder.size();
     ClauseType ret = INVALID_CLAUSE;
-    if (n >= len) {
-        return INVALID_CLAUSE;
-    } else {
+    if (n >= 0 && n < len) {
         return this->insertOrder[n].first;
+    } else {
+        return INVALID_CLAUSE;
     }
 }
 
 GenericRef *QueryInfo::get_nth_clause(int n)
 {
     int len = this->insertOrder.size();
-    if (n >= len) {
-        return NULL;
-    } else {
+    if (n >= 0 && n < len) {
         return this->clauses[n];
+    } else {
+        return NULL;
     }
 }
 
