@@ -996,19 +996,24 @@ void QueryEvaluator::ev_rr_ss_string_string_22(int rTableIdx,
     const vector<Record>& argOneVec = *(pvriPair.first.first);
     int argOneCol = pvriPair.first.second;
     int nrArgOne = argOneVec.size();
+    // Collect inner loop stuff once
     const vector<Record>& argTwoVec = *(pvriPair.second.first);
     int argTwoCol = pvriPair.second.second;
     int nrArgTwo = argTwoVec.size();
+    vector<const string *> a2Vec;
+    for (int i = 0; i < nrArgTwo; i++) {
+        const Record& recTwo = argTwoVec[i];
+        const pair<string, int>& pairTwo =
+                recTwo.get_column(argTwoCol);
+        a2Vec.push_back(&(pairTwo.first));
+    }
     for (int i = 0; i < nrArgOne; i++) {
         for (int k = 0; k < nrArgTwo; k++) {
             const Record& recOne = argOneVec[i];
             const pair<string, int>& pairOne =
                     recOne.get_column(argOneCol);
-            const Record& recTwo = argTwoVec[k];
-            const pair<string, int>& pairTwo =
-                    recTwo.get_column(argTwoCol);
             const string& argOneVal = pairOne.first;
-            const string& argTwoVal = pairTwo.first;
+            const string& argTwoVal = *(a2Vec[k]);
             if ((this->pkb->*(disp.f_string_argOne_string_argTwo))
                         (relRef->argOneSyn, argOneVal,
                          relRef->argTwoSyn, argTwoVal)) {
@@ -1229,19 +1234,24 @@ void QueryEvaluator::ev_rr_ss_int_string_22(int rTableIdx,
     const vector<Record>& argOneVec = *(pvriPair.first.first);
     int argOneCol = pvriPair.first.second;
     int nrArgOne = argOneVec.size();
+    // Collect inner loop stuff once
     const vector<Record>& argTwoVec = *(pvriPair.second.first);
     int argTwoCol = pvriPair.second.second;
     int nrArgTwo = argTwoVec.size();
+    vector<const string *> a2Vec;
+    for (int i = 0; i < nrArgTwo; i++) {
+        const Record& recTwo = argTwoVec[i];
+        const pair<string, int>& pairTwo =
+                recTwo.get_column(argTwoCol);
+        a2Vec.push_back(&(pairTwo.first));
+    }
     for (int i = 0; i < nrArgOne; i++) {
         for (int k = 0; k < nrArgTwo; k++) {
             const Record& recOne = argOneVec[i];
             const pair<string, int>& pairOne =
                     recOne.get_column(argOneCol);
-            const Record& recTwo = argTwoVec[k];
-            const pair<string, int>& pairTwo =
-                    recTwo.get_column(argTwoCol);
             int argOneVal = pairOne.second;
-            const string& argTwoVal = pairTwo.first;
+            const string& argTwoVal = *(a2Vec[k]);
             if ((this->pkb->*(disp.f_int_argOne_string_argTwo))
                         (relRef->argOneSyn, argOneVal,
                          relRef->argTwoSyn, argTwoVal)) {
@@ -1391,19 +1401,24 @@ void QueryEvaluator::ev_rr_ss_int_int_22(int rTableIdx, RelRef *relRef,
     const vector<Record>& argOneVec = *(pvriPair.first.first);
     int argOneCol = pvriPair.first.second;
     int nrArgOne = argOneVec.size();
+    // Collect inner loop stuff once
     const vector<Record>& argTwoVec = *(pvriPair.second.first);
     int argTwoCol = pvriPair.second.second;
     int nrArgTwo = argTwoVec.size();
+    vector<int> a2Vec;
+    for (int i = 0; i < nrArgTwo; i++) {
+        const Record& recTwo = argTwoVec[i];
+        const pair<string, int>& pairTwo =
+                recTwo.get_column(argTwoCol);
+        a2Vec.push_back(pairTwo.second);
+    }
     for (int i = 0; i < nrArgOne; i++) {
         for (int k = 0; k < nrArgTwo; k++) {
             const Record& recOne = argOneVec[i];
             const pair<string, int>& pairOne =
                     recOne.get_column(argOneCol);
-            const Record& recTwo = argTwoVec[k];
-            const pair<string, int>& pairTwo =
-                    recTwo.get_column(argTwoCol);
             int argOneVal = pairOne.second;
-            int argTwoVal = pairTwo.second;
+            int argTwoVal = a2Vec[k];
             if ((this->pkb->*(disp.f_int_argOne_int_argTwo))
                         (relRef->argOneSyn, argOneVal,
                          relRef->argTwoSyn, argTwoVal)) {
