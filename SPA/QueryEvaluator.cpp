@@ -1448,14 +1448,15 @@ void QueryEvaluator::evaluate_patCl_assign(int rTableIdx, PatCl *patCl)
 
 void QueryEvaluator::evaluate_patCl_if(int rTableIdx, PatCl *patCl)
 {
-    assert(PATVARREF_WILDCARD == patCl->varRefType);
-    assert(PATEXPR_WILDCARD == patCl->exprType);
     assert(PATVARREF_SYN == patCl->varRefType ||
-            PATVARREF_STRING == patCl->varRefType);
+            PATVARREF_STRING == patCl->varRefType ||
+            PATVARREF_WILDCARD == patCl->varRefType);
     if (PATVARREF_SYN == patCl->varRefType) {
         this->evaluate_patCl_if_var_syn(rTableIdx, patCl);
     } else if (PATVARREF_STRING == patCl->varRefType) {
         this->evaluate_patCl_if_var_string(rTableIdx, patCl);
+    } else if (PATVARREF_WILDCARD == patCl->varRefType) {
+        this->evaluate_patCl_if_var_wildcard(rTableIdx, patCl);
     }
 }
 
@@ -1523,7 +1524,7 @@ void QueryEvaluator::evaluate_patCl_if_var_syn_11(ResultsTable &rTable,
 void QueryEvaluator::evaluate_patCl_if_var_string(int rTableIdx,
         PatCl *patCl)
 {
-    const ResultsTable& rTable = this->resultsTable[rTableIdx];
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
     if (rTable.has_synonym(patCl->syn)) {
         // ifSyn("someVarString",_,_)
         // ifSyn is seen. Use ResultsTable::syn_1_transaction
@@ -1534,6 +1535,20 @@ void QueryEvaluator::evaluate_patCl_if_var_string(int rTableIdx,
         // ifSyn is NOT seen. Use ResultsTable::syn_0_transaction
         // Retrieve all if stmt. Loop and only syn_0_add_row
         // those with "someVarString" as control variable
+    }
+}
+
+void QueryEvaluator::evaluate_patCl_if_var_wildcard(int rTableIdx,
+        PatCl *patCl)
+{
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    if (rTable.has_synonym(patCl->syn)) {
+        // ifSyn(_,_)
+        // ifSyn is seen. we dont need to do anything here
+    } else {
+        // ifSyn(_,_)
+        // ifSyn is not seen. grab all if statements and put
+        // inside the table. this is a syn_0 transaction
     }
 }
 

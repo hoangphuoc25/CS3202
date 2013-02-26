@@ -246,6 +246,7 @@ private:
     void evaluate_patCl_if_var_syn_11(ResultsTable& rTable,
             PatCl *patCl);
     void evaluate_patCl_if_var_string(int rTableIdx, PatCl *patCl);
+    void evaluate_patCl_if_var_wildcard(int rTableIdx, PatCl *patCl);
     void evaluate_patCl_while(int rTableIdx, PatCl *patCl);
 
     PQLParser pqlParser;
