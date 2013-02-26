@@ -1476,6 +1476,7 @@ void QueryEvaluator::evaluate_patCl_if_var_syn(int rTableIdx,
         } else {
             // pattern ifSyn(varSyn,_,_)
             // both in DIFFERENT table. merge. This is a 22 transaction
+            this->evaluate_patCl_if_var_syn_22(rTable, patCl);
         }
     } else if (hasIfSyn) {
         // pattern ifSyn(varSyn,_,_)
@@ -1519,6 +1520,43 @@ void QueryEvaluator::evaluate_patCl_if_var_syn_11(ResultsTable &rTable,
         }
     }
     rTable.syn_11_transaction_end();
+}
+
+void QueryEvaluator::evaluate_patCl_if_var_syn_22(ResultsTable& rTable,
+        PatCl *patCl)
+{
+    pair<pair<const vector<Record> *, int>,
+         pair<const vector<Record> *, int> > vipPair =
+            rTable.syn_22_transaction_begin(patCl->syn,
+                    patCl->varRefString);
+    const vector<Record>& ifSynVec = *(vipPair.first.first);
+    int ifSynCol = vipPair.first.second;
+    int nrIfSyn = ifSynVec.size();
+    // Retrieve contents of inner loop ONCE
+    const vector<Record>& controlVarVec = *(vipPair.second.first);
+    int controlVarCol = vipPair.second.second;
+    int nrControlVar = controlVarVec.size();
+    vector<const string *> cVarVec;
+    for (int i = 0; i < nrControlVar; i++) {
+        const Record& controlVarRecord = controlVarVec[i];
+        const pair<string, int>& controlVarPair =
+                    controlVarRecord.get_column(controlVarCol);
+        cVarVec.push_back(&(controlVarPair.first));
+    }
+    for (int i = 0; i < nrIfSyn; i++) {
+        const Record& ifSynRecord = ifSynVec[i];
+        const pair<string, int>& ifSynPair =
+                ifSynRecord.get_column(ifSynCol);
+        int ifSynVal = ifSynPair.second;
+        for (int k = 0; k < nrControlVar; k++) {
+            const string& controlVarName = *(cVarVec[k]);
+            if (this->pkb->has_control_variable(ENT_IF, ifSynVal,
+                        controlVarName)) {
+                rTable.syn_22_add_row(i, k);
+            }
+        }
+    }
+    rTable.syn_22_transaction_end();
 }
 
 void QueryEvaluator::evaluate_patCl_if_var_string(int rTableIdx,
