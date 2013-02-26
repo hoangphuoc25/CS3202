@@ -16,10 +16,6 @@ enum ResultsTableState {
     RTS_CHECKOUT
 };
 
-enum ResultsTab22Transact {
-    USE_TABLE_A, USE_TABLE_B, USE_NEW_TABLE
-};
-
 enum RecordValType {
     RV_INVALID, RV_STRING, RV_INT
 };
