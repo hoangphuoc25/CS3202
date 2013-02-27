@@ -840,7 +840,7 @@ public:
     set<int> get_all_stmt();
     set<int> get_all_stmt_by_proc(string procName);
 
-    set<int> filter_by_proc(string procName, set<int> s);
+    set<int> filter_by_proc(string procName, const set<int> s);
     set<int> filter_by_stmtType(DesignEnt type, set<int> s);
     int filter_by_stmtType(DesignEnt type, int stmtNo);
 

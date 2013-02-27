@@ -106,28 +106,54 @@ bool PKB::modifies_query_string_X_string_Y(DesignEnt xType,
 bool PKB::modifies_query_int_X_string_Y(DesignEnt xType,
         int x, DesignEnt yType, const string& y) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Please test this
+    if (stmtBank->is_stmtType(x, xType)) {
+        Node *n = stmtBank->get_node(x);
+        assert(NULL != n);
+        const set<string>& s = n->get_modifies();
+        return (s.find(y) != s.end());
+    } else {
+        return false;
+    }
 }
 
 bool PKB::modifies_X_Y_int_X_smth(DesignEnt xType, int x) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Please test this
+    if (stmtBank->is_stmtType(x, xType)) {
+        Node *n = stmtBank->get_node(x);
+        assert(NULL != n);
+        const set<string>& s = n->get_modifies();
+        return (!s.empty());
+    } else {
+        return false;
+    }
 }
 
 bool PKB::modifies_X_Y_string_X_smth(DesignEnt xType,
         const string& x) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Please test this
+    assert(xType == ENT_PROC);
+    if (procTable->get_index(x) != -1) {
+        const set<string>& s = procTable->get_modifies(x);
+        return (!s.empty());
+    } else {
+        return false;
+    }
 }
 
 bool PKB::modifies_X_Y_smth_string_Y(DesignEnt yType,
         const string& y) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Please test this
+    int index = varTable->get_index(y);
+    if (index != -1) {
+        const set<int>& s = varTable->get_modified_by(index);
+        return (!s.empty());
+    } else {
+        return false;
+    }
 }
 
 set<int> PKB::uses_X_Y_get_int_X_from_string_Y(DesignEnt xType,
@@ -195,20 +221,38 @@ bool PKB::uses_query_int_X_string_Y(DesignEnt xType, int x,
 
 bool PKB::uses_X_Y_int_X_smth(DesignEnt xType, int x) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Please test this
+    if (stmtBank->is_stmtType(x, xType)) {
+        Node *n = stmtBank->get_node(x);
+        assert(NULL != n);
+        const set<string>& s = n->get_uses();
+        return (!s.empty());
+    } else {
+        return false;
+    }
 }
 
 bool PKB::uses_X_Y_string_X_smth(DesignEnt xType, const string& x) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Please test this
+    assert(xType == ENT_PROC);
+    if (procTable->get_index(x) != -1) {
+        const set<string>& s = procTable->get_vars_used_by_proc(x);
+        return (!s.empty());
+    } else {
+        return false;
+    }
 }
 
 bool PKB::uses_X_Y_smth_string_Y(DesignEnt yType, const string& y) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Please test this
+    if (varTable->get_index(y) != -1) {
+        const set<int>& s = varTable->get_used_by(y);
+        return (!s.empty());
+    } else {
+        return false;
+    }
 }
 
 set<string> PKB::calls_X_Y_get_string_X_from_string_Y(DesignEnt xType,
@@ -248,57 +292,141 @@ set<string> PKB::calls_X_Y_get_string_Y_from_string_X(DesignEnt xType,
 bool PKB::calls_query_string_X_string_Y(DesignEnt xType,
         const string& x, DesignEnt yType, const string& y) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Please test this
+    assert(xType == ENT_PROC && yType == ENT_PROC);
+    if (procTable->get_index(x) != -1) {
+        const set<string>& s = procTable->get_calls(x);
+        return (s.find(y) != s.end());
+    } else {
+        return false;
+    }
 }
 
 bool PKB::calls_X_Y_string_X_smth(DesignEnt xType,
         const string& x) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Please test this
+    assert(xType == ENT_PROC);
+    if (procTable->get_index(x) != -1) {
+        const set<string>& s = procTable->get_calls(x);
+        return (!s.empty());
+    } else {
+        return false;
+    }
 }
 
 bool PKB::calls_X_Y_smth_string_Y(DesignEnt yType,
         const string& y) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Please test this
+    assert(yType == ENT_PROC);
+    if (procTable->get_index(y) != -1) {
+        set<string> s = procTable->get_called_by(y);
+        return (!s.empty());
+    } else {
+        return false;
+    }
 }
 
 set<string> PKB::callsStar_X_Y_get_string_X_from_string_Y
         (DesignEnt xType, DesignEnt yType, const string& y) const
 {
-    // TODO: Please implement
-    return EMPTY_STRINGSET;
+    // TODO: Please test this
+    assert(ENT_PROC == xType);
+    assert(yType == ENT_PROC);
+    if (procTable->get_index(y) != -1) {
+        queue<string> q;
+        set<string> res;
+        set<string>::const_iterator it;
+        const set<string>& s = procTable->get_called_by(y);
+        for (it = s.begin(); it != s.end(); it++) {
+            q.push(*it);
+        }
+        while (!q.empty()) {
+            res.insert(q.front());
+            const set<string>& s = procTable->get_called_by(q.front());
+            for (it = s.begin(); it != s.end(); it++) {
+                q.push(*it);
+            }
+            q.pop();
+        }
+        return res;
+    } else {
+        return EMPTY_STRINGSET;
+    }
 }
 
 set<string> PKB::callsStar_X_Y_get_string_Y_from_string_X
         (DesignEnt xType, DesignEnt yType, const string& x) const
 {
-    // TODO: Please implement
-    return EMPTY_STRINGSET;
+    // TODO: Please test this
+    assert(xType == ENT_PROC);
+    assert(ENT_PROC == yType);
+    if (procTable->get_index(x) != -1) {
+        queue<string> q;
+        set<string> res;
+        set<string>::const_iterator it;
+        const set<string>& s = procTable->get_calls(x);
+        for (it = s.begin(); it != s.end(); it++) {
+            q.push(*it);
+        }
+        while (!q.empty()) {
+            res.insert(q.front());
+            const set<string>& s = procTable->get_calls(q.front());
+            for (it = s.begin(); it != s.end(); it++) {
+                q.push(*it);
+            }
+            q.pop();
+        }
+        return res;
+    } else {
+        return EMPTY_STRINGSET;
+    }
 }
 
 bool PKB::callsStar_query_string_X_string_Y(DesignEnt xType,
         const string& x, DesignEnt yType, const string& y) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Please test this
+    assert(xType == ENT_PROC);
+    assert(yType == ENT_PROC);
+    if (procTable->get_index(x) != -1) {
+        queue<string> q;
+        set<string>::const_iterator it;
+        const set<string>& s = procTable->get_calls(x);
+        for (it = s.begin(); it != s.end(); it++) {
+            q.push(*it);
+        }
+        while (!q.empty()) {
+            if (q.front().compare(y) == 0) {
+                return true;
+            } else {
+                const set<string>& s = procTable->get_calls(q.front());
+                for (it = s.begin(); it != s.end(); it++) {
+                    q.push(*it);
+                }
+                q.pop();
+            }
+        }
+        return false;
+    } else {
+        return false;
+    }
+
 }
 
 bool PKB::callsStar_X_Y_string_X_smth(DesignEnt xType,
         const string& x) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Please test this
+    return calls_X_Y_string_X_smth(xType, x);
 }
 
 bool PKB::callsStar_X_Y_smth_string_Y(DesignEnt yType,
         const string& y) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Please test this
+    return calls_X_Y_smth_string_Y(yType, y);
 }
 
 set<int> PKB::parent_X_Y_get_int_X_from_int_Y(DesignEnt xType,
@@ -377,70 +505,154 @@ set<int> PKB::parent_X_Y_get_int_Y_from_int_X(DesignEnt xType,
 bool PKB::parent_query_int_X_int_Y(DesignEnt xType, int x,
         DesignEnt yType, int y) const
 {
-    // TODO: Improve efficiency + test?
-    set<int> S = this->parent_X_Y_get_int_Y_from_int_X(xType, yType, x);
-    return S.find(y) != S.end();
+    // TODO: Please test this
+    assert(QueryInfo::is_valid_argOne_syn_type(REL_PARENT, xType));
+    assert(QueryInfo::is_valid_argTwo_syn_type(REL_PARENT, yType));
+    if (this->stmtBank->is_stmtType(x, xType) &&
+                this->stmtBank->is_stmtType(y, yType)) {
+        Node *xNode = stmtBank->get_node(x);
+        Node *yNode = stmtBank->get_node(y);
+        assert(NULL != xNode);
+        assert(NULL != yNode);
+        return (yNode->get_parent() == xNode);
+    } else {
+        return false;
+    }
 }
 
 bool PKB::parent_X_Y_int_X_smth(DesignEnt xType, int x) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Please test this
+    assert(QueryInfo::is_valid_argTwo_syn_type(REL_PARENT, xType));
+    if (this->stmtBank->is_stmtType(x, xType)) {
+        Node* xNode = stmtBank->get_node(x);
+        assert(NULL != xNode);
+        return (!(xNode->get_children().empty()));
+    } else {
+        return false;
+    }
 }
 
 bool PKB::parent_X_Y_smth_int_Y(DesignEnt yType, int y) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Please test this
+    assert(QueryInfo::is_valid_argTwo_syn_type(REL_PARENT, yType));
+    if (this->stmtBank->is_stmtType(y, yType)) {
+        Node* yNode = stmtBank->get_node(y);
+        assert(NULL != yNode);
+        return (yNode->get_parent() != NULL);
+    } else {
+        return false;
+    }
 }
 
 set<int> PKB::parentStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
-    // TODO: Please implement
-    return EMPTY_INTSET;
+    assert(QueryInfo::is_valid_argOne_syn_type(REL_PARENT_STAR, xType));
+    assert(QueryInfo::is_valid_argTwo_syn_type(REL_PARENT_STAR, yType));
+    // TODO: Please test this
+    if (this->stmtBank->is_stmtType(y, yType)) {
+        Node* yNode = stmtBank->get_node(y);
+        assert(NULL != yNode);
+        set<int> res;
+        Node *n = yNode->get_parent();
+        while (n != NULL) {
+            if (stmtBank->is_stmtType(n->get_stmtNo(), xType)) {
+                res.insert(n->get_stmtNo());
+            }
+            n = n->get_parent();
+        }
+        return res;
+    } else {
+        return EMPTY_INTSET;
+    }
 }
 
 set<int> PKB::parentStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
         DesignEnt yType, int x) const
 {
-    // TODO: Please implement
-    return EMPTY_INTSET;
+    // TODO: Please test this
+    assert(QueryInfo::is_valid_argOne_syn_type(REL_PARENT_STAR, xType));
+    assert(QueryInfo::is_valid_argTwo_syn_type(REL_PARENT_STAR, yType));
+    if (this->stmtBank->is_stmtType(x, xType)) {
+        Node* xNode = stmtBank->get_node(x);
+        assert(NULL != xNode);
+        queue<Node*> q;
+        set<int> res;
+        Node *n = xNode;
+        vector<Node*> v = n->get_children();
+        int sz = v.size();
+        for (int i = 0; i < sz; i++) {
+            q.push(v[i]);
+        }
+        while (!q.empty()) {
+            n = q.front(); q.pop();
+            if (stmtBank->is_stmtType(n->get_stmtNo(), xType)) {
+                res.insert(n->get_stmtNo());
+            }
+            v = n->get_children();
+            sz = v.size();
+            for (int i = 0; i < sz; i++) {
+                q.push(v[i]);
+            }
+        }
+        return res;
+    } else {
+        return EMPTY_INTSET;
+    }
 }
 
 bool PKB::parentStar_query_int_X_int_Y(DesignEnt xType, int x,
         DesignEnt yType, int y) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Please test this
+    assert(QueryInfo::is_valid_argOne_syn_type(REL_PARENT_STAR, xType));
+    assert(QueryInfo::is_valid_argTwo_syn_type(REL_PARENT_STAR, yType));
+    Node *xNode = stmtBank->get_node(x);
+    Node *yNode = stmtBank->get_node(y);
+    if (xNode != NULL && yNode != NULL){
+        Node *n = yNode->get_parent();
+        while (n != NULL){
+            if (n == xNode) {
+                return true;
+            } else {
+                n = n->get_parent();
+            }
+        }
+        return false;
+    } else {
+        return false;
+    }
 }
 
 bool PKB::parentStar_X_Y_int_X_smth(DesignEnt xType, int x) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Please test this
+    return parent_X_Y_int_X_smth(xType, x);
 }
 
 bool PKB::parentStar_X_Y_smth_int_Y(DesignEnt yType, int y) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Please test this
+    return parent_X_Y_smth_int_Y(yType, y);
 }
 
 set<int> PKB::follows_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
-    // TODO: Testing
-    Node *yNode = stmtBank->get_stmtNode(y);
-    if (yNode == NULL) {
-        return EMPTY_INTSET;
-    } else {
+    // TODO: Please test this
+    assert(QueryInfo::is_valid_argOne_syn_type(REL_FOLLOWS, xType));
+    assert(QueryInfo::is_valid_argTwo_syn_type(REL_FOLLOWS, yType));
+    if (this->stmtBank->is_stmtType(y, yType)) {
+        Node *yNode = stmtBank->get_stmtNode(y);
+        assert(NULL != yNode);
         Node *xNode = yNode->get_predecessor();
         if (xNode == NULL) {
             return EMPTY_INTSET;
         } else {
             int x = xNode->get_stmtNo();
-            if(stmtBank->is_stmtType(x,xType)) {
+            if(stmtBank->is_stmtType(x, xType)) {
                 set<int> s;
                 s.insert(x);
                 return s;
@@ -448,6 +660,8 @@ set<int> PKB::follows_X_Y_get_int_X_from_int_Y(DesignEnt xType,
                 return EMPTY_INTSET;
             }
         }
+    } else {
+        return EMPTY_INTSET;
     }
 }
 
@@ -455,16 +669,17 @@ set<int> PKB::follows_X_Y_get_int_Y_from_int_X(DesignEnt xType,
         DesignEnt yType, int x) const
 {
     // TODO: Testing
-    Node *xNode = stmtBank->get_stmtNode(x);
-    if (xNode == NULL) {
-        return EMPTY_INTSET;
-    } else {
+    assert(QueryInfo::is_valid_argOne_syn_type(REL_FOLLOWS, xType));
+    assert(QueryInfo::is_valid_argTwo_syn_type(REL_FOLLOWS, yType));
+    if (this->stmtBank->is_stmtType(x, xType)) {
+        Node *xNode = stmtBank->get_stmtNode(x);
+        assert(NULL != xNode);
         Node *yNode = xNode->get_successor();
         if (yNode == NULL) {
             return EMPTY_INTSET;
         } else {
             int y = yNode->get_stmtNo();
-            if(stmtBank->is_stmtType(y,yType)) {
+            if(stmtBank->is_stmtType(y, yType)) {
                 set<int> s;
                 s.insert(y);
                 return s;
@@ -472,33 +687,53 @@ set<int> PKB::follows_X_Y_get_int_Y_from_int_X(DesignEnt xType,
                 return EMPTY_INTSET;
             }
         }
+    } else {
+        return EMPTY_INTSET;
     }
 }
-
 
 bool PKB::follows_query_int_X_int_Y(DesignEnt xType, int x,
         DesignEnt yType, int y) const
 {
-    // TODO: Testing
-    Node *xNode = stmtBank->get_stmtNode(x);
-    Node *yNode = stmtBank->get_stmtNode(y);
-    if (xNode == NULL || yNode == NULL){
-        return false;
-    } else {
+    // TODO: Please test this
+    assert(QueryInfo::is_valid_argOne_syn_type(REL_FOLLOWS, xType));
+    assert(QueryInfo::is_valid_argTwo_syn_type(REL_FOLLOWS, yType));
+    if (this->stmtBank->is_stmtType(x, xType) &&
+                this->stmtBank->is_stmtType(y, yType)) {
+        Node *xNode = stmtBank->get_stmtNode(x);
+        Node *yNode = stmtBank->get_stmtNode(y);
+        assert(NULL != xNode);
+        assert(NULL != yNode);
         return (xNode->get_successor() == yNode);
+    } else {
+        return false;
     }
 }
 
 bool PKB::follows_X_Y_int_X_smth(DesignEnt xType, int x) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Please test this
+    assert(QueryInfo::is_valid_argOne_syn_type(REL_FOLLOWS, xType));
+    if (this->stmtBank->is_stmtType(x, xType)) {
+        Node *xNode = stmtBank->get_stmtNode(x);
+        assert(NULL != xNode);
+        return (xNode->get_successor() != NULL);
+    } else {
+        return false;
+    }
 }
 
 bool PKB::follows_X_Y_smth_int_Y(DesignEnt yType, int y) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Please test this
+    assert(QueryInfo::is_valid_argTwo_syn_type(REL_FOLLOWS, yType));
+    if (this->stmtBank->is_stmtType(y, yType)) {
+        Node *yNode = stmtBank->get_stmtNode(y);
+        assert(NULL != yNode);
+        return (yNode->get_predecessor() != NULL);
+    } else {
+        return false;
+    }
 }
 
 set<int> PKB::followsStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
@@ -525,99 +760,324 @@ bool PKB::followsStar_query_int_X_int_Y(DesignEnt xType, int x,
 bool PKB::followsStar_X_Y_int_X_smth(DesignEnt xType, int x) const
 {
     // TODO: Please implement
-    return false;
+    return follows_X_Y_int_X_smth(xType,x);
 }
 
 bool PKB::followsStar_X_Y_smth_int_Y(DesignEnt yType, int y) const
 {
     // TODO: Please implement
-    return false;
+    return follows_X_Y_smth_int_Y(yType, y);
 }
 
 set<int> PKB::next_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
     // TODO: Please implement
-    return EMPTY_INTSET;
+    if (stmtBank->is_valid_stmtNo(y)) {
+        set<int> s = CFG->at(y)->get_before();
+        for (set<int>::iterator it = s.begin(); it != s.end(); it++){
+            if (!stmtBank->is_stmtType(*it, xType)) {
+                s.erase(it);
+            }
+        }
+        return s;
+    } else {
+        return EMPTY_INTSET;
+    }
 }
 
 set<int> PKB::next_X_Y_get_int_Y_from_int_X(DesignEnt xType,
         DesignEnt yType, int x) const
 {
     // TODO: Please implement
-    return EMPTY_INTSET;
+    if (stmtBank->is_valid_stmtNo(x)) {
+        set<int> s = CFG->at(x)->get_after();
+        for (set<int>::iterator it = s.begin(); it != s.end(); it++){
+            if (!stmtBank->is_stmtType(*it, yType)) {
+                s.erase(it);
+            }
+        }
+        return s;
+    } else {
+        return EMPTY_INTSET;
+    }
 }
 
 bool PKB::next_query_int_X_int_Y(DesignEnt xType, int x,
         DesignEnt yType, int y) const
 {
     // TODO: Please implement
-    return false;
+    if (stmtBank->is_valid_stmtNo(x) && stmtBank->is_valid_stmtNo(y)) {
+        set<int> s =  CFG->at(x)->get_after();
+        return (s.find(y) != s.end());
+    } else {
+        return false;
+    }
 }
 
 bool PKB::next_X_Y_int_X_smth(DesignEnt xType, int x) const
 {
     // TODO: Please implement
-    return false;
+    if (stmtBank->is_valid_stmtNo(x)) {
+        set<int> s =  CFG->at(x)->get_after();
+        return (!s.empty());
+    } else {
+        return false;
+    }
 }
 
 bool PKB::next_X_Y_smth_int_Y(DesignEnt yType, int y) const
 {
     // TODO: Please implement
-    return false;
+    if (stmtBank->is_valid_stmtNo(y)) {
+        set<int> s =  CFG->at(y)->get_before();
+        return (!s.empty());
+    } else {
+        return false;
+    }
 }
 
 set<int> PKB::nextStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
     // TODO: Please implement
-    return EMPTY_INTSET;
+    if (stmtBank->is_valid_stmtNo(y)) {
+        set<int> s =  CFG->at(y)->get_before();
+        set<int>::iterator it;
+        set<int> res , visited;
+        queue<int> q;
+        for (it = s.begin(); it != s.end(); it++) {
+            q.push(*it);
+        }
+        while (!q.empty()) {
+            if (visited.find(q.front()) == visited.end()) {
+                visited.insert(q.front());
+                if (stmtBank->is_stmtType(q.front(), xType)) {
+                    res.insert(q.front());
+                }
+                s = CFG->at(q.front())->get_before();
+                for (it = s.begin(); it != s.end(); it++) {
+                    q.push(*it);
+                }
+            }
+            q.pop();
+        }
+        return res;
+    } else {
+        return EMPTY_INTSET;
+    }
 }
 
 set<int> PKB::nextStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
         DesignEnt yType, int x) const
 {
     // TODO: Please implement
-    return EMPTY_INTSET;
+    if (stmtBank->is_valid_stmtNo(x)) {
+        set<int> s =  CFG->at(x)->get_after();
+        set<int>::iterator it;
+        set<int> res, visited;
+        queue<int> q;
+        for (it = s.begin(); it != s.end(); it++) {
+            q.push(*it);
+        }
+        while (!q.empty()) {
+            if (visited.find(q.front()) == visited.end()) {
+                visited.insert(q.front());
+                if (stmtBank->is_stmtType(q.front(), yType)) {
+                    res.insert(q.front());
+                }
+                s = CFG->at(q.front())->get_after();
+                for (it = s.begin(); it != s.end(); it++) {
+                    q.push(*it);
+                }
+            }
+            q.pop();
+        }
+        return res;
+    } else {
+        return EMPTY_INTSET;
+    }
 }
 
 bool PKB::nextStar_query_int_X_int_Y(DesignEnt xType, int x,
         DesignEnt yType, int y) const
 {
     // TODO: Please implement
-    return false;
+    if (stmtBank->is_valid_stmtNo(x) && stmtBank->is_valid_stmtNo(y)) {
+        set<int> s =  CFG->at(x)->get_after();
+        set<int>::iterator it;
+        queue<int> q;
+        for (it = s.begin(); it != s.end(); it++) {
+            q.push(*it);
+        }
+        while (!q.empty()) {
+            if (q.front() == y) {
+                return true;
+            } else {
+                s = CFG->at(q.front())->get_after();
+                for (it = s.begin(); it != s.end(); it++) {
+                    q.push(*it);
+                }
+                q.pop();
+            }
+        }
+        return false;
+    } else {
+        return false;
+    }
 }
 
 bool PKB::nextStar_X_Y_int_X_smth(DesignEnt xType, int x) const
 {
     // TODO: Please implement
-    return false;
+    return  next_X_Y_int_X_smth(xType,x);
 }
 
 bool PKB::nextStar_X_Y_smth_int_Y(DesignEnt yType, int y) const
 {
     // TODO: Please implement
-    return false;
+    return next_X_Y_smth_int_Y(yType, y);
 }
 
 set<int> PKB::affects_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
     // TODO: Please implement
-    return EMPTY_INTSET;
+    return set<int>();
 }
 
 set<int> PKB::affects_X_Y_get_int_Y_from_int_X(DesignEnt xType,
         DesignEnt yType, int x) const
 {
     // TODO: Please implement
-    return EMPTY_INTSET;
+    assert(yType == ENT_ASSIGN);
+
+    if (!stmtBank->is_stmtType(x, ENT_ASSIGN)) {
+        return EMPTY_INTSET;
+    }
+
+    set<int> res;
+    set<int> visited;
+    set<string> temp;
+    stack<CFGNode*> s;
+    int n;
+    string var = *stmtBank->get_node(x)->get_modifies().begin();
+    CFGNode *curr = CFG->at(x);
+    s.push(curr->get_edge(OUT, 1));
+    s.push(curr->get_edge(OUT, 2));
+    visited.insert(curr->get_stmtNo());
+    while (!s.empty()) {
+        if (s.top() == NULL) {
+            s.pop();
+            continue;
+        }
+        curr = s.top();
+        n = curr->get_stmtNo();
+        // Dummy node -> continue
+        if (n == -1) {
+            s.pop();
+            s.push(curr->get_edge(OUT, 1));
+            continue;
+        }
+        // If visited
+        if (visited.find(n) != visited.end()) {
+            s.pop();
+            continue;
+        } else {
+            visited.insert(n);
+            // Check if calls modifies
+            if (stmtBank->is_stmtType(n, ENT_CALL)) {
+                temp = stmtBank->get_node(n)->get_modifies();
+                // Current path broken.
+                if (temp.find(var) != temp.end()) {
+                    s.pop();
+                    continue;
+                }
+            }
+            // Check stmt only when it is assign stmt
+            if (stmtBank->is_stmtType(n, ENT_ASSIGN)) {
+                // stmt uses var: affects allows this stmt to modify var
+                temp = stmtBank->get_node(n)->get_uses();
+                if (temp.find(var) != temp.end()){
+                    res.insert(n);
+                }
+                temp = stmtBank->get_node(n)->get_modifies();
+                // Current path broken.
+                if (temp.find(var) != temp.end()) {
+                    s.pop();
+                    continue;
+                }
+            }
+            s.pop();
+            s.push(curr->get_edge(OUT, 1));
+            s.push(curr->get_edge(OUT, 2));
+        }
+    }
+    return res;
 }
 
 bool PKB::affects_query_int_X_int_Y(DesignEnt xType, int x,
         DesignEnt yType, int y) const
 {
     // TODO: Please implement
+    if (!stmtBank->is_stmtType(x, ENT_ASSIGN) || !stmtBank->is_stmtType(y, ENT_ASSIGN)) {
+        return false;
+    }
+
+    set<int> visited;
+    set<string> temp;
+    stack<CFGNode*> s;
+    int n;
+    assert(stmtBank->get_node(x) != NULL);
+    string var = *stmtBank->get_node(x)->get_modifies().begin();
+
+    // Initial checks
+    assert(stmtBank->get_node(y) != NULL);
+    temp = stmtBank->get_node(y)->get_uses();
+    if (temp.find(var) == temp.end()) {
+        return false;
+    }
+
+    CFGNode *curr = CFG->at(x);
+    s.push(curr->get_edge(OUT, 1));
+    s.push(curr->get_edge(OUT, 2));
+    visited.insert(curr->get_stmtNo());
+    while (!s.empty()) {
+        if (s.top() == NULL) {
+            s.pop();
+            continue;
+        }
+        curr = s.top();
+        n = curr->get_stmtNo();
+        // Dummy node -> continue
+        if (n == -1) {
+            s.pop();
+            s.push(curr->get_edge(OUT, 1));
+            continue;
+        }
+        // If visited
+        if (visited.find(n) != visited.end()) {
+            s.pop();
+            continue;
+        } else {
+            visited.insert(n);
+            // Reached stmt2 -> done
+            if (n == y) {
+                return true;
+            }
+            // Check stmt only when it is assign stmt or calls
+            if (stmtBank->is_stmtType(n, ENT_ASSIGN) || stmtBank->is_stmtType(n, ENT_CALL)) {
+                temp = stmtBank->get_node(n)->get_modifies();
+                // Path broken
+                if (temp.find(var) != temp.end()) {
+                    continue;
+                }
+            }
+            s.pop();
+            s.push(curr->get_edge(OUT, 1));
+            s.push(curr->get_edge(OUT, 2));
+        }
+    }
     return false;
 }
 
@@ -1523,7 +1983,7 @@ set<int> PKB::get_all_stmt_by_proc(string procName){
     }
 }
 
-set<int> PKB::filter_by_proc(string procName, set<int> s){
+set<int> PKB::filter_by_proc(string procName, const set<int> s){
     int start, end;
     start = procTable->get_start(procName);
     end = procTable->get_end(procName);
