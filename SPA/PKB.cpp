@@ -995,7 +995,26 @@ set<int> PKB::affects_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
     // TODO: Please implement
-    return set<int>();
+    if (!stmtBank->is_stmtType(y, ENT_ASSIGN)) {
+        return EMPTY_INTSET;
+    }
+    Node *n = stmtBank->get_node(y);
+    assert(NULL != n);
+    const set<string>& var = n->get_uses();
+    string procName = procTable->which_proc(y);
+    set<int> s, res;
+    set<int>::const_iterator it_stmt;
+    set<string>::iterator it_var;
+    for (it_var = var.begin(); it_var != var.end(); it_var++) {
+        s = filter_by_proc(procName, get_stmt_modifies(*it_var));
+        for (it_stmt = s.begin(); it_stmt != s.end(); it_stmt++) {
+            if (affects_query_int_X_int_Y(ENT_ASSIGN, *it_stmt,
+                        ENT_ASSIGN, y)) {
+                res.insert(*it_stmt);
+            }
+        }
+    }
+    return res;
 }
 
 set<int> PKB::affects_X_Y_get_int_Y_from_int_X(DesignEnt xType,
@@ -1136,46 +1155,131 @@ bool PKB::affects_query_int_X_int_Y(DesignEnt xType, int x,
 bool PKB::affects_X_Y_int_X_smth(DesignEnt xType, int x) const
 {
     // TODO: Please implement
-    return false;
+    return (!affects_X_Y_get_int_Y_from_int_X(ENT_ASSIGN,ENT_ASSIGN,x).empty());
 }
 
 bool PKB::affects_X_Y_smth_int_Y(DesignEnt yType, int y) const
 {
     // TODO: Please implement
-    return false;
+    return (!affects_X_Y_get_int_X_from_int_Y(ENT_ASSIGN,ENT_ASSIGN,y).empty());
 }
 
 set<int> PKB::affectsStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
     // TODO: Please implement
-    return EMPTY_INTSET;
+    if (!is_stmtType(y, ENT_ASSIGN)) {
+        return EMPTY_INTSET;
+    }
+    queue<int> q;
+    set<int> temp, res, processed;
+    set<int>::iterator it;
+    int n;
+    temp = affects_X_Y_get_int_X_from_int_Y(xType,yType,y);
+    for (it = temp.begin(); it != temp.end(); it++) {
+        q.push(*it);
+    }
+    while (!q.empty()) {
+        n = q.front();
+        if (processed.find(n) != processed.end()) {
+            q.pop();
+            continue;
+        } else {
+            processed.insert(n);
+            res.insert(n);
+            temp = affects_X_Y_get_int_X_from_int_Y(ENT_ASSIGN,ENT_ASSIGN,n);
+            for (it = temp.begin(); it != temp.end(); it++) {
+                q.push(*it);
+            }
+            q.pop();
+        }
+    }
+    return res;
 }
 
 set<int> PKB::affectsStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
         DesignEnt yType, int x) const
 {
     // TODO: Please implement
-    return EMPTY_INTSET;
+    if (!is_stmtType(x, ENT_ASSIGN)) {
+        return EMPTY_INTSET;
+    }
+    set<int> processed;
+    set<int> res;
+    queue<int> q;
+    set<int> temp;
+    set<int>::iterator it;
+    int n;
+    temp = affects_X_Y_get_int_Y_from_int_X(xType, yType, x);
+    for (it = temp.begin(); it != temp.end(); it++) {
+        q.push(*it);
+        res.insert(*it);
+    }
+    while (!q.empty()) {
+        n = q.front();
+        if (processed.find(n) != processed.end()){
+            q.pop();
+            continue;
+        } else {
+            processed.insert(n);
+            temp = affects_X_Y_get_int_Y_from_int_X(ENT_ASSIGN, ENT_ASSIGN, n);
+            for (it = temp.begin(); it != temp.end(); it++) {
+                q.push(*it);
+                res.insert(*it);
+            }
+            q.pop();
+        }
+    }
+    return res;
 }
 
 bool PKB::affectsStar_query_int_X_int_Y(DesignEnt xType, int x,
         DesignEnt yType, int y) const
 {
     // TODO: Please implement
+    if (!is_stmtType(x, ENT_ASSIGN) || !is_stmtType(y, ENT_ASSIGN)) {
+        return false;
+    }
+
+    set<int> processed;
+    queue<int> q;
+    set<int> temp;
+    set<int>::iterator it;
+    int n;
+    temp = affects_X_Y_get_int_Y_from_int_X(xType, yType, x);
+    for (it = temp.begin(); it != temp.end(); it++) {
+        q.push(*it);
+    }
+    while (!q.empty()) {
+        n = q.front();
+        if (processed.find(n) != processed.end()){
+            q.pop();
+            continue;
+        } else {
+            if (n == y) {
+                return true;
+            }
+            processed.insert(n);
+            temp = affects_X_Y_get_int_Y_from_int_X(ENT_ASSIGN, ENT_ASSIGN, n);
+            for (it = temp.begin(); it != temp.end(); it++) {
+                q.push(*it);
+            }
+            q.pop();
+        }
+    }
     return false;
 }
 
 bool PKB::affectsStar_X_Y_int_X_smth(DesignEnt xType, int x) const
 {
     // TODO: Please implement
-    return false;
+    return affects_X_Y_int_X_smth(xType,x);
 }
 
 bool PKB::affectsStar_X_Y_smth_int_Y(DesignEnt yType, int y) const
 {
     // TODO: Please implement
-    return false;
+    return affects_X_Y_smth_int_Y(yType,y);
 }
 
 set<int> PKB::get_all_assign() const
@@ -1434,7 +1538,7 @@ set<string> PKB::get_var_proc_modifies(string procName){
     return procTable->get_modifies(procName);
 }
 
-set<string> PKB::get_var_stmt_modifies(int stmtNo){
+set<string> PKB::get_var_stmt_modifies(int stmtNo) const{
     if (is_valid_stmtNo(stmtNo)) {
         return stmtBank->get_node(stmtNo)->get_modifies();
     } else {
@@ -1470,7 +1574,7 @@ set<string> PKB::get_var_proc_uses(string procName)
     return procTable->get_vars_used_by_proc(procName);
 }
 
-set<string> PKB::get_var_stmt_uses(int stmtNo){
+set<string> PKB::get_var_stmt_uses(int stmtNo) const{
     if (is_valid_stmtNo(stmtNo)) {
         return stmtBank->get_node(stmtNo)->get_uses();
     } else {
@@ -1758,7 +1862,7 @@ set<int> PKB::get_after_star(int stmtNo) {
 }
 
 // Affects
-bool PKB::is_affects(int stmt1, int stmt2)
+bool PKB::is_affects(int stmt1, int stmt2) const
 {
     if (!is_stmtType(stmt1, ENT_ASSIGN) || !is_stmtType(stmt2, ENT_ASSIGN)) {
         return false;
@@ -1938,13 +2042,18 @@ set<int> PKB::get_affects_star(int stmtNo)
     }
     while (!q.empty()) {
         n = q.front();
-        processed.insert(n);
-        temp = get_affects(n);
-        for (it = temp.begin(); it != temp.end(); it++) {
-            q.push(*it);
-            res.insert(*it);
+        if (processed.find(n) != processed.end()){
+            q.pop();
+            continue;
+        } else {
+            processed.insert(n);
+            temp = get_affects(n);
+            for (it = temp.begin(); it != temp.end(); it++) {
+                q.push(*it);
+                res.insert(*it);
+            }
+            q.pop();
         }
-        q.pop();
     }
     return res;
 }
@@ -2002,11 +2111,11 @@ set<int> PKB::get_affected_by_star(int stmtNo)
 }
 
 // Others
-bool PKB::is_stmtType(int stmtNo, DesignEnt type){
+bool PKB::is_stmtType(int stmtNo, DesignEnt type) const{
     return stmtBank->is_stmtType(stmtNo, type);
 }
 
-bool PKB::is_valid_stmtNo(int stmtNo)
+bool PKB::is_valid_stmtNo(int stmtNo) const
 {
     return stmtBank->is_valid_stmtNo(stmtNo);
 }
@@ -2035,21 +2144,14 @@ set<int> PKB::get_all_stmt_by_proc(string procName){
     }
 }
 
-set<int> PKB::filter_by_proc(string procName, const set<int> s){
+set<int> PKB::filter_by_proc(string procName, const set<int>& s) const{
     int start, end;
     start = procTable->get_start(procName);
     end = procTable->get_end(procName);
     if (start == -1 || end == -1) {
         return EMPTY_INTSET;
     } else {
-        set<int> res;
-        std::set<int>::iterator it, low, high;
-        low = s.lower_bound(start);
-        high = s.upper_bound(end);
-        for (it = low; it != high; it++) {
-            res.insert(*it);
-        }
-        return res;
+        return set<int>(s.lower_bound(start),s.upper_bound(end));
     }
 }
 

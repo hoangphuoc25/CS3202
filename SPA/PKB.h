@@ -781,7 +781,7 @@ public:
     set<int> get_stmt_modifies(const std::string& var) const;
     
     set<string> get_var_proc_modifies(string procName);
-    set<string> get_var_stmt_modifies(int stmtNo);
+    set<string> get_var_stmt_modifies(int stmtNo) const;
 
     // Uses
     bool is_uses(string procName, string varName);
@@ -791,7 +791,7 @@ public:
     set<int> get_stmt_uses(string var);
     
     set<string> get_var_proc_uses(string procName);
-    set<string> get_var_stmt_uses(int stmtNo); 
+    set<string> get_var_stmt_uses(int stmtNo) const; 
 
     // Parent
     bool is_parent(int stmt1, int stmt2);
@@ -824,7 +824,7 @@ public:
     set<int> get_after_star(int stmtNo);
 
     // Affects
-    bool is_affects(int stmt1, int stmt2);
+    bool is_affects(int stmt1, int stmt2) const;
     bool is_affects_star(int stmt1, int stmt2);
 
     set<int> get_affects(int stmtNo);
@@ -834,13 +834,13 @@ public:
     set<int> get_affected_by_star(int stmtNo);
 
     // Others
-    bool is_stmtType(int stmtNo, DesignEnt type);
-    bool is_valid_stmtNo(int stmtNo);
+    bool is_stmtType(int stmtNo, DesignEnt type) const;
+    bool is_valid_stmtNo(int stmtNo) const;
 
     set<int> get_all_stmt();
     set<int> get_all_stmt_by_proc(string procName);
 
-    set<int> filter_by_proc(string procName, const set<int> s);
+    set<int> filter_by_proc(string procName, const set<int>& s) const;
     set<int> filter_by_stmtType(DesignEnt type, set<int> s);
     int filter_by_stmtType(DesignEnt type, int stmtNo);
 
