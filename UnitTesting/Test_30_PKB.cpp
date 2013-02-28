@@ -4559,6 +4559,221 @@ void Test_30_PKB::test_follows()
 
 }
 
+void Test_30_PKB::test_followsStar()
+{
+    const string& simpleProg = " procedure roses {\
+                                    rose = red;\
+                                    violet = blue;\
+                                    call flower;\
+                                    while love {\
+                                        rose = 99;\
+                                        if rose then {\
+                                        rose = 999;}\
+                                    else{\
+                                        rose = 0;}\
+                                    violet = 298;\
+                                    call flower;\
+                                    violet = 425;}\
+                                    while choc {\
+                                        choc = 0;\
+                                    while rose {\
+                                        rose = 3;}\
+                                    if red then {\
+                                        green = 777;}\
+                                    else{\
+                                        green = 888;}\
+                                        if green then {\
+                                        red = 123;}\
+                                    else{\
+                                        red = 29384;}\
+                                    while blue {\
+                                        blue = blue + 4;}\
+                                    call flower;\
+                                    call flower;\
+                                    if blue then {\
+                                        green = red;}\
+                                    else{\
+                                        red = blue;}}}\
+                                    procedure flower{\
+                                            while green {\
+                                            red = 0;}\
+                                        blue = 234;}";
+    string queryStr;
+    set<int> intSet;
+    SetWrapper<string> stringSet;
+    Parser parser(simpleProg, FROMSTRING);
+    parser.init();
+    auto_ptr<PKB> pkb(parser.get_pkb());
+
+    CPPUNIT_ASSERT_EQUAL(true,pkb->followsStar_query_int_X_int_Y(ENT_ASSIGN,1,
+        ENT_ASSIGN,2));
+    stringSet = pkb->followsStar_X_Y_get_int_Y_from_int_X(ENT_ASSIGN,ENT_ASSIGN,1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "2"), stringSet);
+    stringSet = pkb->followsStar_X_Y_get_int_X_from_int_Y(ENT_ASSIGN,ENT_ASSIGN,2);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "1"), stringSet);
+
+    CPPUNIT_ASSERT_EQUAL(true,pkb->followsStar_query_int_X_int_Y(ENT_ASSIGN,2,
+        ENT_CALL,3));
+    stringSet = pkb->followsStar_X_Y_get_int_Y_from_int_X(ENT_ASSIGN,ENT_CALL,2);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "3"), stringSet);
+    stringSet = pkb->followsStar_X_Y_get_int_X_from_int_Y(ENT_ASSIGN,ENT_CALL,3);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "1", "2"), stringSet);
+
+    CPPUNIT_ASSERT_EQUAL(true,pkb->followsStar_query_int_X_int_Y(ENT_CALL,3,
+        ENT_WHILE,4));
+    stringSet = pkb->followsStar_X_Y_get_int_Y_from_int_X(ENT_CALL,ENT_WHILE,3);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "4", "12"), stringSet);
+    stringSet = pkb->followsStar_X_Y_get_int_X_from_int_Y(ENT_CALL,ENT_WHILE,4);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "3"), stringSet);
+
+    CPPUNIT_ASSERT_EQUAL(false,pkb->followsStar_query_int_X_int_Y(ENT_WHILE,4,
+        ENT_ASSIGN,5));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->followsStar_query_int_X_int_Y(ENT_WHILE,4,
+        ENT_WHILE,12));
+    stringSet = pkb->followsStar_X_Y_get_int_Y_from_int_X(ENT_WHILE,ENT_WHILE,4);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "12"), stringSet);
+    stringSet = pkb->followsStar_X_Y_get_int_X_from_int_Y(ENT_WHILE,ENT_WHILE,12);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "4"), stringSet);
+
+    CPPUNIT_ASSERT_EQUAL(true,pkb->followsStar_query_int_X_int_Y(ENT_ASSIGN,5,
+        ENT_IF,6));
+    stringSet = pkb->followsStar_X_Y_get_int_Y_from_int_X(ENT_ASSIGN,ENT_IF,5);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "6"), stringSet);
+    stringSet = pkb->followsStar_X_Y_get_int_X_from_int_Y(ENT_ASSIGN,ENT_IF,6);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "5"), stringSet);
+
+    CPPUNIT_ASSERT_EQUAL(false,pkb->followsStar_query_int_X_int_Y(ENT_IF,6,
+        ENT_ASSIGN,7));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->followsStar_query_int_X_int_Y(ENT_IF,6,
+        ENT_ASSIGN,9));
+    stringSet = pkb->followsStar_X_Y_get_int_Y_from_int_X(ENT_IF,ENT_ASSIGN,6);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "9", "11"), stringSet);
+    stringSet = pkb->followsStar_X_Y_get_int_X_from_int_Y(ENT_IF,ENT_ASSIGN,9);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "6"), stringSet);
+
+    CPPUNIT_ASSERT_EQUAL(false,pkb->followsStar_query_int_X_int_Y(ENT_ASSIGN,7,
+        ENT_ASSIGN,8));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->followsStar_query_int_X_int_Y(ENT_ASSIGN,8,
+        ENT_ASSIGN,9));
+
+    CPPUNIT_ASSERT_EQUAL(true,pkb->followsStar_query_int_X_int_Y(ENT_ASSIGN,9,
+        ENT_CALL,10));
+    stringSet = pkb->followsStar_X_Y_get_int_Y_from_int_X(ENT_ASSIGN,ENT_CALL,9);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "10"), stringSet);
+    stringSet = pkb->followsStar_X_Y_get_int_X_from_int_Y(ENT_ASSIGN,ENT_CALL,10);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "5", "9"), stringSet);
+
+    CPPUNIT_ASSERT_EQUAL(true,pkb->followsStar_query_int_X_int_Y(ENT_CALL,10,
+        ENT_ASSIGN,11));
+    stringSet = pkb->followsStar_X_Y_get_int_Y_from_int_X(ENT_CALL,ENT_ASSIGN,10);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "11"), stringSet);
+    stringSet = pkb->followsStar_X_Y_get_int_X_from_int_Y(ENT_CALL,ENT_ASSIGN,11);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "10"), stringSet);
+
+    CPPUNIT_ASSERT_EQUAL(false,pkb->followsStar_query_int_X_int_Y(ENT_ASSIGN,11,
+        ENT_WHILE,12));
+
+    CPPUNIT_ASSERT_EQUAL(false,pkb->followsStar_query_int_X_int_Y(ENT_WHILE,12,
+        ENT_ASSIGN,13));
+
+    CPPUNIT_ASSERT_EQUAL(true,pkb->followsStar_query_int_X_int_Y(ENT_ASSIGN,13,
+        ENT_WHILE,14));
+    stringSet = pkb->followsStar_X_Y_get_int_Y_from_int_X(ENT_ASSIGN,ENT_WHILE,13);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "14", "22"), stringSet);
+    stringSet = pkb->followsStar_X_Y_get_int_X_from_int_Y(ENT_ASSIGN,ENT_WHILE,14);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "13"), stringSet);
+
+    CPPUNIT_ASSERT_EQUAL(false,pkb->followsStar_query_int_X_int_Y(ENT_WHILE,14,
+        ENT_ASSIGN,15));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->followsStar_query_int_X_int_Y(ENT_WHILE,14,
+        ENT_IF,16));
+    stringSet = pkb->followsStar_X_Y_get_int_Y_from_int_X(ENT_WHILE,ENT_IF,14);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "16", "19", "26"), stringSet);
+    stringSet = pkb->followsStar_X_Y_get_int_X_from_int_Y(ENT_WHILE,ENT_IF,16);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "14"), stringSet);
+
+    CPPUNIT_ASSERT_EQUAL(false,pkb->followsStar_query_int_X_int_Y(ENT_ASSIGN,15,
+        ENT_IF,16));
+
+    CPPUNIT_ASSERT_EQUAL(false,pkb->followsStar_query_int_X_int_Y(ENT_IF,16,
+        ENT_ASSIGN,17));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->followsStar_query_int_X_int_Y(ENT_IF,16,
+        ENT_IF,19));
+    stringSet = pkb->followsStar_X_Y_get_int_Y_from_int_X(ENT_IF,ENT_IF,16);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "19", "26"), stringSet);
+    stringSet = pkb->followsStar_X_Y_get_int_X_from_int_Y(ENT_IF,ENT_IF,19);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "16"), stringSet);
+
+    CPPUNIT_ASSERT_EQUAL(false,pkb->followsStar_query_int_X_int_Y(ENT_ASSIGN,17,
+        ENT_ASSIGN,18));
+
+    CPPUNIT_ASSERT_EQUAL(false,pkb->followsStar_query_int_X_int_Y(ENT_ASSIGN,18,
+        ENT_IF,19));
+
+    CPPUNIT_ASSERT_EQUAL(false,pkb->followsStar_query_int_X_int_Y(ENT_IF,19,
+        ENT_ASSIGN,20));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->followsStar_query_int_X_int_Y(ENT_IF,19,
+        ENT_WHILE,22));
+    stringSet = pkb->followsStar_X_Y_get_int_Y_from_int_X(ENT_IF,ENT_WHILE,19);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "22"), stringSet);
+    stringSet = pkb->followsStar_X_Y_get_int_X_from_int_Y(ENT_IF,ENT_WHILE,22);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "16", "19"), stringSet);
+
+    CPPUNIT_ASSERT_EQUAL(false,pkb->followsStar_query_int_X_int_Y(ENT_ASSIGN,20,
+        ENT_ASSIGN,21));
+
+    CPPUNIT_ASSERT_EQUAL(false,pkb->followsStar_query_int_X_int_Y(ENT_ASSIGN,21,
+        ENT_WHILE,22));
+
+    CPPUNIT_ASSERT_EQUAL(false,pkb->followsStar_query_int_X_int_Y(ENT_WHILE,22,
+        ENT_ASSIGN ,23));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->followsStar_query_int_X_int_Y(ENT_WHILE,22,
+        ENT_CALL,24));
+    stringSet = pkb->followsStar_X_Y_get_int_Y_from_int_X(ENT_WHILE,ENT_CALL,22);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "24", "25"), stringSet);
+    stringSet = pkb->followsStar_X_Y_get_int_X_from_int_Y(ENT_WHILE,ENT_CALL,24);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "14", "22"), stringSet);
+
+    CPPUNIT_ASSERT_EQUAL(false,pkb->followsStar_query_int_X_int_Y(ENT_ASSIGN,23,
+        ENT_CALL,24));
+
+    CPPUNIT_ASSERT_EQUAL(true,pkb->followsStar_query_int_X_int_Y(ENT_CALL,24,
+        ENT_CALL,25));
+    stringSet = pkb->followsStar_X_Y_get_int_Y_from_int_X(ENT_CALL,ENT_CALL,24);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "25"), stringSet);
+    stringSet = pkb->followsStar_X_Y_get_int_X_from_int_Y(ENT_CALL,ENT_CALL,25);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "24"), stringSet);
+
+    CPPUNIT_ASSERT_EQUAL(true,pkb->followsStar_query_int_X_int_Y(ENT_CALL,25,
+        ENT_IF,26));
+    stringSet = pkb->followsStar_X_Y_get_int_Y_from_int_X(ENT_CALL,ENT_IF,25);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "26"), stringSet);
+    stringSet = pkb->followsStar_X_Y_get_int_X_from_int_Y(ENT_CALL,ENT_IF,26);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "24", "25"), stringSet);
+
+    CPPUNIT_ASSERT_EQUAL(false,pkb->followsStar_query_int_X_int_Y(ENT_IF,26,
+        ENT_ASSIGN,27));
+
+    CPPUNIT_ASSERT_EQUAL(false,pkb->followsStar_query_int_X_int_Y(ENT_ASSIGN,27,
+        ENT_ASSIGN,28));
+
+    CPPUNIT_ASSERT_EQUAL(false,pkb->followsStar_query_int_X_int_Y(ENT_WHILE,29,
+        ENT_ASSIGN,30));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->followsStar_query_int_X_int_Y(ENT_WHILE,29,
+        ENT_ASSIGN,31));
+    stringSet = pkb->followsStar_X_Y_get_int_Y_from_int_X(ENT_WHILE,ENT_ASSIGN,29);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "31"), stringSet);
+    stringSet = pkb->followsStar_X_Y_get_int_X_from_int_Y(ENT_WHILE,ENT_ASSIGN,31);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "29"), stringSet);
+
+    CPPUNIT_ASSERT_EQUAL(false,pkb->followsStar_query_int_X_int_Y(ENT_ASSIGN,27,
+        ENT_ASSIGN,28));
+
+    CPPUNIT_ASSERT_EQUAL(false,pkb->followsStar_query_int_X_int_Y(ENT_ASSIGN,30,
+        ENT_ASSIGN,31));
+
+}
+
 void Test_30_PKB::test_has_assign()
 {
     const string& simpleProg = this->TEST_MODIFIES_SIMPLE_PROG;

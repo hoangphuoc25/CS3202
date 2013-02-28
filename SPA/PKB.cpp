@@ -739,33 +739,85 @@ bool PKB::follows_X_Y_smth_int_Y(DesignEnt yType, int y) const
 set<int> PKB::followsStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
-    // TODO: Please implement
-    return EMPTY_INTSET;
+    // TODO: Testing
+    assert(QueryInfo::is_valid_argOne_syn_type(REL_FOLLOWS, xType));
+    assert(QueryInfo::is_valid_argTwo_syn_type(REL_FOLLOWS, yType));
+    if (this->stmtBank->is_stmtType(y, yType)) {
+        Node *yNode = stmtBank->get_stmtNode(y);
+        assert(NULL != yNode);
+        set<int> s;
+        Node *xNode = yNode->get_predecessor();
+        while (xNode != NULL) {
+            int x = xNode->get_stmtNo();
+            if(stmtBank->is_stmtType(x,xType)) {
+                s.insert(x);
+            }
+            xNode = xNode->get_predecessor();
+        }
+        return s;
+    } else {
+        return EMPTY_INTSET;
+    }
 }
 
 set<int> PKB::followsStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
         DesignEnt yType, int x) const
 {
-    // TODO: Please implement
-    return EMPTY_INTSET;
+    // TODO: Testing
+    assert(QueryInfo::is_valid_argOne_syn_type(REL_FOLLOWS, xType));
+    assert(QueryInfo::is_valid_argTwo_syn_type(REL_FOLLOWS, yType));
+    if (this->stmtBank->is_stmtType(x, xType)) {
+        Node *xNode = stmtBank->get_stmtNode(x);
+        assert(NULL != xNode);
+        set<int> s;
+        Node *yNode = xNode->get_successor();
+        while (yNode != NULL) {
+            int y = yNode->get_stmtNo();
+            if(stmtBank->is_stmtType(y, yType)) {
+                s.insert(y);
+            }
+            yNode = yNode->get_successor();
+        }
+        return s;
+    } else {
+        return EMPTY_INTSET;
+    }
 }
 
 bool PKB::followsStar_query_int_X_int_Y(DesignEnt xType, int x,
         DesignEnt yType, int y) const
 {
-    // TODO: Please implement
-    return false;
+    // TODO: Testing
+    assert(QueryInfo::is_valid_argOne_syn_type(REL_FOLLOWS, xType));
+    assert(QueryInfo::is_valid_argTwo_syn_type(REL_FOLLOWS, yType));
+    if (this->stmtBank->is_stmtType(x, xType) &&
+                this->stmtBank->is_stmtType(y, yType)) {
+        Node *xNode = stmtBank->get_stmtNode(x);
+        Node *yNode = stmtBank->get_stmtNode(y);
+        assert(NULL != xNode);
+        assert(NULL != yNode);
+        xNode = xNode->get_successor();
+        while (xNode) {
+            if (xNode == yNode) {
+                return true;
+            }
+            xNode = xNode->get_successor();
+        }
+        return false;
+    } else {
+        return false;
+    }
 }
 
 bool PKB::followsStar_X_Y_int_X_smth(DesignEnt xType, int x) const
 {
-    // TODO: Please implement
-    return follows_X_Y_int_X_smth(xType,x);
+    // TODO: Please test this
+    return follows_X_Y_int_X_smth(xType, x);
 }
 
 bool PKB::followsStar_X_Y_smth_int_Y(DesignEnt yType, int y) const
 {
-    // TODO: Please implement
+    // TODO: Please test this
     return follows_X_Y_smth_int_Y(yType, y);
 }
 
