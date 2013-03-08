@@ -1125,9 +1125,6 @@ bool PQLParser::eat_relRef_generic(RelRef &relRef, StringBuffer &sb,
         void (PQLParser::*eat_arg_M)
             (RelRef &relRef, StringBuffer &sb, char **errorMsg))
 {
-    #define RAR_RELREF(ret, saveIdx) relRef = RelRef();\
-        RESTORE_AND_RET(ret, saveIdx)
-
     int saveIdx = this->bufIdx;
     char *errorMsg = NULL;
     ParseError ret;
@@ -1156,9 +1153,7 @@ bool PQLParser::eat_relRef_generic(RelRef &relRef, StringBuffer &sb,
             return true;
         }
     }
-
     return false;
-    #undef RAR_RELREF
 }
 
 void PQLParser::error_add_relRef(ParseError parseErr_, const RelRef &relRef,
