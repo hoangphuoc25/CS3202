@@ -98,7 +98,7 @@ QueryEvaluator::QueryEvaluator():
         pqlParser(), pkb(NULL), resultsProjector(),
         isAlive(true),
         graph_synMap(), graph_adjList(), graph_refToVertex(),
-        graph_vertexCC(), graph_nrVertexCC(0), graph_isolatedRef(),
+        graph_vertexCC(), graph_nrVertexCC(0), graph_isolatedClauses(),
         partitionedClauses(),
         resultsTable()
 {}
@@ -131,10 +131,11 @@ void QueryEvaluator::evaluate(const string& queryStr,
     qinfo = this->pqlParser.get_queryinfo();
     this->partition_evaluation(qinfo);
 
-    // Evaluate isolated refs
-    for (set<int>::const_iterator it = this->graph_isolatedRef.begin();
-            this->isAlive && it != this->graph_isolatedRef.end(); it++) {
-        // TODO: Implement!!!
+    // Evaluate isolated clauses (stuff with no synonyms)
+    for (set<int>::const_iterator it =
+            this->graph_isolatedClauses.begin();
+            this->isAlive && it != this->graph_isolatedClauses.end();
+            it++) {
     }
     if (this->isAlive) {
         // Evaluate everything (sequentially for now)
@@ -227,7 +228,7 @@ void QueryEvaluator::partition_evaluation(QueryInfo *qinfo)
     this->graph_adjList.clear();
     this->graph_refToVertex = vector<int>(nrClauses+5, -1);
     this->graph_vertexCC.clear();
-    this->graph_isolatedRef.clear();
+    this->graph_isolatedClauses.clear();
     this->partitionedClauses.clear();
 
     // Build graph based on clauses
@@ -272,7 +273,7 @@ void QueryEvaluator::partition_process_relRef(int clauseIdx, RelRef *relRef)
         this->partition_add_vertex(clauseIdx, relRef->argTwoString);
     } else {
         // no synonym, push to isolated
-        this->graph_isolatedRef.insert(clauseIdx);
+        this->graph_isolatedClauses.insert(clauseIdx);
     }
 }
 
@@ -362,8 +363,8 @@ void QueryEvaluator::partition_evaluation_partition(int nrClauses)
     for (int i = 0; i < nrClauses; i++) {
         if (this->graph_refToVertex[i] == -1) {
             // no synonym
-            assert(this->graph_isolatedRef.find(i) !=
-                    this->graph_isolatedRef.end());
+            assert(this->graph_isolatedClauses.find(i) !=
+                    this->graph_isolatedClauses.end());
         } else {
             component = this->graph_vertexCC[this->graph_refToVertex[i]];
             this->partitionedClauses[component].push_back(i);

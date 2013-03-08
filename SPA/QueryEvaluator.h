@@ -266,7 +266,7 @@ private:
     std::vector<int> graph_refToVertex;
     std::vector<int> graph_vertexCC;
     int graph_nrVertexCC;
-    std::set<int> graph_isolatedRef;
+    std::set<int> graph_isolatedClauses;
     std::vector<std::vector<int> > partitionedClauses;
     std::vector<ResultsTable> resultsTable;
 };
