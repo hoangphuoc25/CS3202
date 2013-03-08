@@ -215,7 +215,7 @@ void QueryEvaluator::evaluate(const string& queryStr,
     */
 }
 
-void QueryEvaluator::partition_evaluation(QueryInfo *qinfo)
+void QueryEvaluator::partition_evaluation(const QueryInfo *qinfo)
 {
     ClauseType clauseType;
     int nrClauses = qinfo->get_nr_clauses();

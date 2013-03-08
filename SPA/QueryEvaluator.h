@@ -103,7 +103,7 @@ public:
             std::list<std::string>& resultSet);
 private:
     void reset();
-    void partition_evaluation(QueryInfo *qinfo);
+    void partition_evaluation(const QueryInfo *qinfo);
     void partition_process_relRef(int idx, const GenericRef *genRef);
     void partition_process_patCl(int idx, const GenericRef *genRef);
     int partition_add_vertex(int idx, const std::string& syn);
