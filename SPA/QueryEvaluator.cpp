@@ -136,6 +136,10 @@ void QueryEvaluator::evaluate(const string& queryStr,
             this->graph_isolatedClauses.begin();
             this->isAlive && it != this->graph_isolatedClauses.end();
             it++) {
+        if (!this->ev_isolated_clause(qinfo, *it)) {
+            this->isAlive = false;
+            break;
+        }
     }
     if (this->isAlive) {
         // Evaluate everything (sequentially for now)
@@ -181,6 +185,9 @@ void QueryEvaluator::evaluate(const string& queryStr,
                 break;
             }
         }
+    } else {
+        // query failed. kill rTable
+        rTable.kill();
     }
     this->resultsProjector.get_results(rTable, qinfo, pkb, resultSet);
 
@@ -369,6 +376,78 @@ void QueryEvaluator::partition_evaluation_partition(int nrClauses)
             this->partitionedClauses[component].push_back(i);
         }
     }
+}
+
+bool QueryEvaluator::ev_isolated_clause(const QueryInfo *qinfo,
+        int clauseIdx) const
+{
+    ClauseType clauseType;
+    const GenericRef *genericRef =
+            qinfo->get_nth_clause(clauseIdx, &clauseType);
+    assert(NULL != genericRef);
+    assert(INVALID_CLAUSE != clauseType);
+    // pattern clause can NEVER be isolated
+    assert(PATTERN_CLAUSE != clauseType);
+    switch (clauseType) {
+    case SUCHTHAT_CLAUSE:
+        return this->ev_isolated_relation_clause(genericRef);
+        break;
+    case WITH_CLAUSE:
+        return this->ev_isolated_with_clause(genericRef);
+        break;
+    }
+}
+
+bool QueryEvaluator::ev_isolated_relation_clause(const GenericRef *genRef)
+        const
+{
+    const RelRef *relRef = dynamic_cast<const RelRef *>(genRef);
+    assert(NULL != relRef);
+    assert(RelRef::valid(*relRef));
+    switch (relRef->relType) {
+    case REL_MODIFIES:
+        assert(RELARG_STRING == relRef->argTwoType);
+        if (RELARG_STRING == relRef->argOneType) {
+            return this->pkb->modifies_query_string_X_string_Y(ENT_PROC,
+                           relRef->argOneString, ENT_VAR,
+                           relRef->argTwoString);
+        } else if (RELARG_INT == relRef->argOneType) {
+            return this->pkb->modifies_query_int_X_string_Y(ENT_STMT,
+                           relRef->argOneInt, ENT_VAR,
+                           relRef->argTwoString);
+        }
+    case REL_USES:
+        break;
+    case REL_CALLS:
+        break;
+    case REL_CALLS_STAR:
+        break;
+    case REL_PARENT:
+        break;
+    case REL_PARENT_STAR:
+        break;
+    case REL_FOLLOWS:
+        break;
+    case REL_FOLLOWS_STAR:
+        break;
+    case REL_NEXT:
+        break;
+    case REL_NEXT_STAR:
+        break;
+    case REL_AFFECTS:
+        break;
+    case REL_AFFECTS_STAR:
+        break;
+    }
+    assert(false);
+    return false;
+}
+
+bool QueryEvaluator::ev_isolated_with_clause(const GenericRef *genRef)
+        const
+{
+    // TODO: Implement
+    return false;
 }
 
 void QueryEvaluator::evaluate_relRef(int rTableIdx,

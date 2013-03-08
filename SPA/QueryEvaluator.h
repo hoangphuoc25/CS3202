@@ -113,6 +113,25 @@ private:
     void partition_evaluation_cc_bfs(int v);
     void partition_evaluation_partition(int nrClauses);
 
+    /// Evaluates an isolated clause and returns the evaluation
+    /// result (either true / false)
+    /// @param qinfo the QueryInfo data structure for this PQL query
+    /// @param clauseIdx the index of the clause inside the
+    /// @return true if the isolated clause evaluates to true,
+    ///         false otherwise
+    bool ev_isolated_clause(const QueryInfo *qinfo, int clauseIdx) const;
+    /// Evaluates an isolated Relation clause and returns the
+    /// evaluation result
+    /// @param genRef the Relation clause
+    /// @return true if the Relation clause evaluates to true, false
+    ///         otherwise
+    bool ev_isolated_relation_clause(const GenericRef *genRef) const;
+    /// Evaluates an isolated with clause and returns the
+    /// evaluation result
+    /// @param genRef the with clause
+    /// @return true if the with clause evaluates to true, false
+    ///         otherwise
+    bool ev_isolated_with_clause(const GenericRef *genRef) const;
     bool relRef_arg_use_string(DesignEnt entType) const;
     void evaluate_relRef(int rTableIdx, const GenericRef *genRef);
     void ev_relRef_syn_syn(int rTableIdx, const RelRef *relRef);
