@@ -148,20 +148,20 @@ void QueryEvaluator::evaluate(const string& queryStr,
             const ResultsTable& rTable = this->resultsTable[rTableIdx];
             for (int k = 0; k < nrClauses && rTable.is_alive(); k++) {
                 int clauseIdx = vec[k];
-                GenericRef *genericRef =
+                const GenericRef *genericRef =
                         qinfo->get_nth_clause(clauseIdx, &clauseType);
                 assert(INVALID_CLAUSE != clauseType);
                 assert(NULL != genericRef);
-                if (clauseType == SUCHTHAT_CLAUSE) {
-                    RelRef *relRef = dynamic_cast<RelRef *>(genericRef);
-                    assert(relRef != NULL);
-                    this->evaluate_relRef(rTableIdx, relRef);
-                } else if (clauseType == WITH_CLAUSE) {
+                switch (clauseType) {
+                case SUCHTHAT_CLAUSE:
+                    this->evaluate_relRef(rTableIdx, genericRef);
+                    break;
+                case WITH_CLAUSE:
                     // TODO: Implement when pql parser is done
-                } else if (clauseType == PATTERN_CLAUSE) {
-                    PatCl *patCl = dynamic_cast<PatCl *>(genericRef);
-                    assert(patCl != NULL);
-                    this->evaluate_patCl(rTableIdx, patCl);
+                    break;
+                case PATTERN_CLAUSE:
+                    this->evaluate_patCl(rTableIdx, genericRef);
+                    break;
                 }
             }
             if (!rTable.is_alive()) {
@@ -218,10 +218,6 @@ void QueryEvaluator::evaluate(const string& queryStr,
 void QueryEvaluator::partition_evaluation(QueryInfo *qinfo)
 {
     ClauseType clauseType;
-    GenericRef *genericRef;
-    RelRef *relRef;
-    AttrRef *attrRef;
-    PatCl *patCl;
     int nrClauses = qinfo->get_nr_clauses();
     this->graph_synMap.clear();
     this->graph_adjList.clear();
@@ -232,22 +228,19 @@ void QueryEvaluator::partition_evaluation(QueryInfo *qinfo)
 
     // Build graph based on clauses
     for (int i = 0; i < nrClauses; i++) {
-        genericRef = qinfo->get_nth_clause(i, &clauseType);
+        const GenericRef *genericRef =
+                qinfo->get_nth_clause(i, &clauseType);
         assert(INVALID_CLAUSE != clauseType);
         assert(NULL != genericRef);
         switch (clauseType) {
         case SUCHTHAT_CLAUSE:
-            relRef = dynamic_cast<RelRef *>(genericRef);
-            assert(relRef != NULL);
-            this->partition_process_relRef(i, relRef);
+            this->partition_process_relRef(i, genericRef);
             break;
         case WITH_CLAUSE:
             // TODO: Implement
             break;
         case PATTERN_CLAUSE:
-            patCl = dynamic_cast<PatCl *>(genericRef);
-            assert(patCl != NULL);
-            this->partition_process_patCl(i, patCl);
+            this->partition_process_patCl(i, genericRef);
             break;
         }
     }
@@ -258,8 +251,12 @@ void QueryEvaluator::partition_evaluation(QueryInfo *qinfo)
     this->partition_evaluation_partition(nrClauses);
 }
 
-void QueryEvaluator::partition_process_relRef(int clauseIdx, RelRef *relRef)
+void QueryEvaluator::partition_process_relRef(int clauseIdx,
+        const GenericRef *genRef)
 {
+    const RelRef *relRef =
+        dynamic_cast<const RelRef *>(genRef);
+    assert(NULL != relRef);
     assert(relRef->relType != REL_INVALID);
     if (relRef->argOneType == RELARG_SYN &&
             relRef->argTwoType == RELARG_SYN) {
@@ -275,8 +272,12 @@ void QueryEvaluator::partition_process_relRef(int clauseIdx, RelRef *relRef)
     }
 }
 
-void QueryEvaluator::partition_process_patCl(int idx, PatCl *patCl)
+void QueryEvaluator::partition_process_patCl(int idx,
+        const GenericRef *genRef)
 {
+    const PatCl *patCl =
+        dynamic_cast<const PatCl *>(genRef);
+    assert(NULL != patCl);
     assert(patCl->type != PATCL_INVALID);
     if (patCl->varRefType == PATVARREF_SYN) {
         this->partition_add_edge(idx, patCl->syn, patCl->varRefString);
@@ -370,8 +371,12 @@ void QueryEvaluator::partition_evaluation_partition(int nrClauses)
     }
 }
 
-void QueryEvaluator::evaluate_relRef(int rTableIdx, RelRef *relRef)
+void QueryEvaluator::evaluate_relRef(int rTableIdx,
+        const GenericRef *genRef)
 {
+    const RelRef *relRef =
+        dynamic_cast<const RelRef *>(genRef);
+    assert(NULL != relRef);
     if (relRef->argOneType == RELARG_SYN &&
             relRef->argTwoType == RELARG_SYN) {
         this->ev_relRef_syn_syn(rTableIdx, relRef);
@@ -384,7 +389,8 @@ void QueryEvaluator::evaluate_relRef(int rTableIdx, RelRef *relRef)
     }
 }
 
-void QueryEvaluator::ev_relRef_syn_syn(int rTableIdx, RelRef *relRef)
+void QueryEvaluator::ev_relRef_syn_syn(int rTableIdx,
+        const RelRef *relRef)
 {
     enum SynInGraph synInGraph = SYN_ARGS_INVALID;
     EvalSynArgDesc evalSynArgDesc;
@@ -421,7 +427,7 @@ void QueryEvaluator::ev_relRef_syn_syn(int rTableIdx, RelRef *relRef)
 }
 
 void QueryEvaluator::ev_relRef_syn_syn_00_setup(
-        EvalPKBDispatch& pkbDispatch, RelRef *relRef) const
+        EvalPKBDispatch& pkbDispatch, const RelRef *relRef) const
 {
     RelRefArgType argOneType =
             designEnt_to_relRefArgType(relRef->argOneSyn);
@@ -481,7 +487,7 @@ void QueryEvaluator::ev_relRef_syn_syn_00_setup(
 }
 
 void QueryEvaluator::ev_relRef_syn_syn_01_setup(
-        EvalPKBDispatch& pkbDispatch, RelRef *relRef) const
+        EvalPKBDispatch& pkbDispatch, const RelRef *relRef) const
 {
     RelRefArgType argOneType =
             designEnt_to_relRefArgType(relRef->argOneSyn);
@@ -513,7 +519,7 @@ void QueryEvaluator::ev_relRef_syn_syn_01_setup(
 }
 
 void QueryEvaluator::ev_relRef_syn_syn_10_setup(
-        EvalPKBDispatch& pkbDispatch, RelRef *relRef) const
+        EvalPKBDispatch& pkbDispatch, const RelRef *relRef) const
 {
         RelRefArgType argOneType =
             designEnt_to_relRefArgType(relRef->argOneSyn);
@@ -546,7 +552,7 @@ void QueryEvaluator::ev_relRef_syn_syn_10_setup(
 
 void QueryEvaluator::ev_relRef_syn_syn_11_22_setup(
         SynInGraph synInGraph, EvalPKBDispatch& pkbDispatch,
-        RelRef *relRef) const
+        const RelRef *relRef) const
 {
     assert(SYN_SYN_11 == synInGraph || SYN_SYN_22 == synInGraph);
     RelRefArgType argOneType =
@@ -858,7 +864,8 @@ QueryEvaluator::pkbd_setup_get_2IS_From_1IS(RelRefType relType) const
 }
 
 void QueryEvaluator::ev_rr_ss_string_string_00_from_argOne(
-        int rTableIdx, RelRef *relRef, const EvalPKBDispatch& disp)
+        int rTableIdx, const RelRef *relRef,
+        const EvalPKBDispatch& disp)
 {
     assert(disp.get_all_string_argOne != NULL);
     assert(disp.get_string_set_argTwo_from_string_argOne != NULL);
@@ -881,7 +888,8 @@ void QueryEvaluator::ev_rr_ss_string_string_00_from_argOne(
 
 // Currently, nothing uses this and it does not seem it will be used
 void QueryEvaluator::ev_rr_ss_string_string_00_from_argTwo(
-        int rTableIdx, RelRef *relRef, const EvalPKBDispatch& disp)
+        int rTableIdx, const RelRef *relRef,
+        const EvalPKBDispatch& disp)
 {
     assert(disp.get_all_string_argTwo != NULL);
     assert(disp.get_string_set_argOne_from_string_argTwo != NULL);
@@ -904,7 +912,7 @@ void QueryEvaluator::ev_rr_ss_string_string_00_from_argTwo(
 }
 
 void QueryEvaluator::ev_rr_ss_string_string_01(int rTableIdx,
-        RelRef *relRef, const EvalPKBDispatch& disp)
+        const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.get_string_set_argOne_from_string_argTwo != NULL);
     ResultsTable& rTable = this->resultsTable[rTableIdx];
@@ -930,7 +938,7 @@ void QueryEvaluator::ev_rr_ss_string_string_01(int rTableIdx,
 }
 
 void QueryEvaluator::ev_rr_ss_string_string_10(int rTableIdx,
-        RelRef *relRef, const EvalPKBDispatch& disp)
+        const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.get_string_set_argTwo_from_string_argOne != NULL);
     ResultsTable& rTable = this->resultsTable[rTableIdx];
@@ -956,7 +964,7 @@ void QueryEvaluator::ev_rr_ss_string_string_10(int rTableIdx,
 }
 
 void QueryEvaluator::ev_rr_ss_string_string_11(int rTableIdx,
-        RelRef *relRef, const EvalPKBDispatch& disp)
+        const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.f_string_argOne_string_argTwo != NULL);
     ResultsTable& rTable = this->resultsTable[rTableIdx];
@@ -983,7 +991,7 @@ void QueryEvaluator::ev_rr_ss_string_string_11(int rTableIdx,
 }
 
 void QueryEvaluator::ev_rr_ss_string_string_22(int rTableIdx,
-        RelRef *relRef, const EvalPKBDispatch& disp)
+        const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(NULL != disp.f_string_argOne_string_argTwo);
     assert(NULL != disp.relRef_eval);
@@ -1025,7 +1033,7 @@ void QueryEvaluator::ev_rr_ss_string_string_22(int rTableIdx,
 
 // Currently, nothing uses this and it does not seem it will be used
 void QueryEvaluator::ev_rr_ss_string_int_00_from_argOne(int rTableIdx,
-        RelRef *relRef, const EvalPKBDispatch& disp)
+        const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.get_all_string_argOne != NULL);
     assert(disp.get_int_set_argTwo_from_string_argOne != NULL);
@@ -1048,7 +1056,7 @@ void QueryEvaluator::ev_rr_ss_string_int_00_from_argOne(int rTableIdx,
 
 // Currently, nothing uses this and it does not seem it will be used
 void QueryEvaluator::ev_rr_ss_string_int_00_from_argTwo(int rTableIdx,
-        RelRef *relRef, const EvalPKBDispatch& disp)
+        const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.get_all_int_argTwo != NULL);
     assert(disp.get_string_set_argOne_from_int_argTwo != NULL);
@@ -1071,30 +1079,30 @@ void QueryEvaluator::ev_rr_ss_string_int_00_from_argTwo(int rTableIdx,
 
 // Currently, nothing uses this and it does not seem it will be used
 void QueryEvaluator::ev_rr_ss_string_int_01(int rTableIdx,
-        RelRef *relRef, const EvalPKBDispatch& disp)
+        const RelRef *relRef, const EvalPKBDispatch& disp)
 {
 }
 
 // Currently, nothing uses this and it does not seem it will be used
 void QueryEvaluator::ev_rr_ss_string_int_10(int rTableIdx,
-        RelRef *relRef, const EvalPKBDispatch& disp)
+        const RelRef *relRef, const EvalPKBDispatch& disp)
 {
 }
 
 // Currently, nothing uses this and it does not seem it will be used
 void QueryEvaluator::ev_rr_ss_string_int_11(int rTableIdx,
-        RelRef *relRef, const EvalPKBDispatch& disp)
+        const RelRef *relRef, const EvalPKBDispatch& disp)
 {
 }
 
 // Currently, nothing uses this and it does not seem it will be used
 void QueryEvaluator::ev_rr_ss_string_int_22(int rTableIdx,
-        RelRef *relRef, const EvalPKBDispatch& disp)
+        const RelRef *relRef, const EvalPKBDispatch& disp)
 {
 }
 
 void QueryEvaluator::ev_rr_ss_int_string_00_from_argOne(int rTableIdx,
-        RelRef *relRef, const EvalPKBDispatch& disp)
+        const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.get_all_int_argOne != NULL);
     assert(disp.get_string_set_argTwo_from_int_argOne != NULL);
@@ -1117,7 +1125,7 @@ void QueryEvaluator::ev_rr_ss_int_string_00_from_argOne(int rTableIdx,
 
 // not used for now
 void QueryEvaluator::ev_rr_ss_int_string_00_from_argTwo(int rTableIdx,
-        RelRef *relRef, const EvalPKBDispatch& disp)
+        const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.get_all_string_argTwo != NULL);
     assert(disp.get_int_set_argOne_from_string_argTwo != NULL);
@@ -1139,7 +1147,7 @@ void QueryEvaluator::ev_rr_ss_int_string_00_from_argTwo(int rTableIdx,
 }
 
 void QueryEvaluator::ev_rr_ss_int_string_01(int rTableIdx,
-        RelRef *relRef, const EvalPKBDispatch& disp)
+        const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.get_int_set_argOne_from_string_argTwo != NULL);
     ResultsTable& rTable = this->resultsTable[rTableIdx];
@@ -1167,7 +1175,7 @@ void QueryEvaluator::ev_rr_ss_int_string_01(int rTableIdx,
 }
 
 void QueryEvaluator::ev_rr_ss_int_string_10(int rTableIdx,
-        RelRef *relRef, const EvalPKBDispatch& disp)
+        const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.get_string_set_argTwo_from_int_argOne != NULL);
     ResultsTable& rTable = this->resultsTable[rTableIdx];
@@ -1194,7 +1202,7 @@ void QueryEvaluator::ev_rr_ss_int_string_10(int rTableIdx,
 }
 
 void QueryEvaluator::ev_rr_ss_int_string_11(int rTableIdx,
-        RelRef *relRef, const EvalPKBDispatch& disp)
+        const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.f_int_argOne_string_argTwo != NULL);
     ResultsTable& rTable = this->resultsTable[rTableIdx];
@@ -1221,7 +1229,7 @@ void QueryEvaluator::ev_rr_ss_int_string_11(int rTableIdx,
 }
 
 void QueryEvaluator::ev_rr_ss_int_string_22(int rTableIdx,
-        RelRef *relRef, const EvalPKBDispatch& disp)
+        const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(NULL != disp.f_int_argOne_string_argTwo);
     assert(NULL != disp.relRef_eval);
@@ -1262,7 +1270,7 @@ void QueryEvaluator::ev_rr_ss_int_string_22(int rTableIdx,
 }
 
 void QueryEvaluator::ev_rr_ss_int_int_00_from_argOne(int rTableIdx,
-        RelRef *relRef, const EvalPKBDispatch& disp)
+        const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.get_all_int_argOne != NULL);
     assert(disp.get_int_set_argTwo_from_int_argOne != NULL);
@@ -1284,7 +1292,7 @@ void QueryEvaluator::ev_rr_ss_int_int_00_from_argOne(int rTableIdx,
 }
 
 void QueryEvaluator::ev_rr_ss_int_int_00_from_argTwo(int rTableIdx,
-        RelRef *relRef, const EvalPKBDispatch& disp)
+        const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.get_all_int_argTwo != NULL);
     assert(disp.get_int_set_argOne_from_int_argTwo != NULL);
@@ -1305,8 +1313,8 @@ void QueryEvaluator::ev_rr_ss_int_int_00_from_argTwo(int rTableIdx,
     rTable.syn_00_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_int_int_01(int rTableIdx, RelRef *relRef,
-        const EvalPKBDispatch& disp)
+void QueryEvaluator::ev_rr_ss_int_int_01(int rTableIdx,
+        const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(NULL != disp.get_int_set_argOne_from_int_argTwo);
     ResultsTable& rTable = this->resultsTable[rTableIdx];
@@ -1333,8 +1341,8 @@ void QueryEvaluator::ev_rr_ss_int_int_01(int rTableIdx, RelRef *relRef,
     rTable.syn_01_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_int_int_10(int rTableIdx, RelRef *relRef,
-        const EvalPKBDispatch& disp)
+void QueryEvaluator::ev_rr_ss_int_int_10(int rTableIdx,
+        const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.get_int_set_argTwo_from_int_argOne != NULL);
     ResultsTable& rTable = this->resultsTable[rTableIdx];
@@ -1360,8 +1368,8 @@ void QueryEvaluator::ev_rr_ss_int_int_10(int rTableIdx, RelRef *relRef,
     rTable.syn_10_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_int_int_11(int rTableIdx, RelRef *relRef,
-        const EvalPKBDispatch& disp)
+void QueryEvaluator::ev_rr_ss_int_int_11(int rTableIdx,
+        const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.f_int_argOne_int_argTwo != NULL);
     ResultsTable& rTable = this->resultsTable[rTableIdx];
@@ -1387,8 +1395,8 @@ void QueryEvaluator::ev_rr_ss_int_int_11(int rTableIdx, RelRef *relRef,
     rTable.syn_11_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_int_int_22(int rTableIdx, RelRef *relRef,
-        const EvalPKBDispatch& disp)
+void QueryEvaluator::ev_rr_ss_int_int_22(int rTableIdx,
+        const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(NULL != disp.f_int_argOne_int_argTwo);
     assert(NULL != disp.relRef_eval);
@@ -1428,20 +1436,27 @@ void QueryEvaluator::ev_rr_ss_int_int_22(int rTableIdx, RelRef *relRef,
     rTable.syn_22_transaction_end();
 }
 
-void QueryEvaluator::ev_relRef_syn_X(int rTableIdx, RelRef *relRef)
+void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
+        const RelRef *relRef)
 {
 }
 
-void QueryEvaluator::ev_relRef_X_syn(int rTableIdx, RelRef *relRef)
+void QueryEvaluator::ev_relRef_X_syn(int rTableIdx,
+        const RelRef *relRef)
 {
 }
 
-void QueryEvaluator::ev_relRef_X_X(int rTableIdx, RelRef *relRef)
+void QueryEvaluator::ev_relRef_X_X(int rTableIdx,
+        const RelRef *relRef)
 {
 }
 
-void QueryEvaluator::evaluate_patCl(int rTableIdx, PatCl *patCl)
+void QueryEvaluator::evaluate_patCl(int rTableIdx,
+        const GenericRef *genRef)
 {
+    const PatCl *patCl =
+        dynamic_cast<const PatCl *>(genRef);
+    assert(NULL != patCl);
     assert(PATCL_INVALID != patCl->type);
     switch (patCl->type) {
     case PATCL_ASSIGN:
@@ -1456,11 +1471,13 @@ void QueryEvaluator::evaluate_patCl(int rTableIdx, PatCl *patCl)
     }
 }
 
-void QueryEvaluator::evaluate_patCl_assign(int rTableIdx, PatCl *patCl)
+void QueryEvaluator::evaluate_patCl_assign(int rTableIdx,
+        const PatCl *patCl)
 {
 }
 
-void QueryEvaluator::evaluate_patCl_if(int rTableIdx, PatCl *patCl)
+void QueryEvaluator::evaluate_patCl_if(int rTableIdx,
+        const PatCl *patCl)
 {
     assert(PATVARREF_SYN == patCl->varRefType ||
             PATVARREF_STRING == patCl->varRefType ||
@@ -1475,7 +1492,7 @@ void QueryEvaluator::evaluate_patCl_if(int rTableIdx, PatCl *patCl)
 }
 
 void QueryEvaluator::evaluate_patCl_if_var_syn(int rTableIdx,
-        PatCl *patCl)
+        const PatCl *patCl)
 {
     ResultsTable& rTable = this->resultsTable[rTableIdx];
     bool hasIfSyn = rTable.has_synonym(patCl->syn);
@@ -1513,7 +1530,7 @@ void QueryEvaluator::evaluate_patCl_if_var_syn(int rTableIdx,
 }
 
 void QueryEvaluator::evaluate_patCl_if_var_syn_11(ResultsTable &rTable,
-        PatCl *patCl)
+        const PatCl *patCl)
 {
     pair<const vector<Record> *, pair<int, int> > viiPair =
             rTable.syn_11_transaction_begin(patCl->syn,
@@ -1537,7 +1554,7 @@ void QueryEvaluator::evaluate_patCl_if_var_syn_11(ResultsTable &rTable,
 }
 
 void QueryEvaluator::evaluate_patCl_if_var_syn_22(ResultsTable& rTable,
-        PatCl *patCl)
+        const PatCl *patCl)
 {
     pair<pair<const vector<Record> *, int>,
          pair<const vector<Record> *, int> > vipPair =
@@ -1574,7 +1591,7 @@ void QueryEvaluator::evaluate_patCl_if_var_syn_22(ResultsTable& rTable,
 }
 
 void QueryEvaluator::evaluate_patCl_if_var_string(int rTableIdx,
-        PatCl *patCl)
+        const PatCl *patCl)
 {
     ResultsTable& rTable = this->resultsTable[rTableIdx];
     if (rTable.has_synonym(patCl->syn)) {
@@ -1591,7 +1608,7 @@ void QueryEvaluator::evaluate_patCl_if_var_string(int rTableIdx,
 }
 
 void QueryEvaluator::evaluate_patCl_if_var_wildcard(int rTableIdx,
-        PatCl *patCl)
+        const PatCl *patCl)
 {
     ResultsTable& rTable = this->resultsTable[rTableIdx];
     if (rTable.has_synonym(patCl->syn)) {
@@ -1604,6 +1621,7 @@ void QueryEvaluator::evaluate_patCl_if_var_wildcard(int rTableIdx,
     }
 }
 
-void QueryEvaluator::evaluate_patCl_while(int rTableIdx, PatCl *patCl)
+void QueryEvaluator::evaluate_patCl_while(int rTableIdx,
+        const PatCl *patCl)
 {
 }

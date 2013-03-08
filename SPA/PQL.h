@@ -717,13 +717,13 @@ public:
     ///                   it will be set to the ClauseType of the nth
     ///                   clause if it exists and set to INVALID_CLAUSE
     ///                   if the nth clause does not exist.
-    /// @return a GenericRef* of the clause we wish to retrieve, or
+    /// @return a const GenericRef* of the clause we wish to retrieve, or
     ///         the NULL pointer if n is out of bounds.
     ///         The user should use a dynamic_cast to cast the
     ///         GenericRef* to an appropriate pointer. The clause's
     ///         actual type can be deduced by the return value of
     ///         QueryInfo::get_nth_clause_type
-    GenericRef *get_nth_clause(int n, ClauseType *clauseType);
+    const GenericRef *get_nth_clause(int n, ClauseType *clauseType) const;
     /// Returns the number of clauses in the PQL query
     /// @return the number of clauses in the PQL query
     int get_nr_clauses() const;

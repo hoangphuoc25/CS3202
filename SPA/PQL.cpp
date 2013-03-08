@@ -1187,7 +1187,8 @@ int QueryInfo::get_nr_clauses() const
     return (int)this->insertOrder.size();
 }
 
-GenericRef *QueryInfo::get_nth_clause(int n, ClauseType *clauseType)
+const GenericRef *QueryInfo::get_nth_clause(int n,
+        ClauseType *clauseType) const
 {
     int len = this->insertOrder.size();
     if (n >= 0 && n < len) {
