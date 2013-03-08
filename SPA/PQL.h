@@ -518,7 +518,8 @@ public:
     /// Returns a string representation of the RelRef
     /// @return a string representation of the RelRef
     std::string dump(void) const;
-    /// Checks if the RelRef is valid
+    /// Checks if the RelRef is valid, ie. it has valid relation
+    /// type and valid argument types
     /// @param r the RelRef to check
     /// @return true if the RelRef is valid, false otherwise
     static bool valid(const struct RelRef &r);

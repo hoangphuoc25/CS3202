@@ -331,7 +331,9 @@ bool AttrRefCmp::operator()(const AttrRef &a, const AttrRef &b) const
 //////////////////////////////////////////////////////////////////////
 
 bool RelRef::valid(const struct RelRef &r) {
-    return r.relType != REL_INVALID;
+    return ((REL_INVALID != r.relType) &&
+            (RELARG_INVALID != r.argOneType) &&
+            (RELARG_INVALID != r.argTwoType));
 }
 
 RelRef::RelRef(): relType(REL_INVALID), argOneType(RELARG_INVALID),
