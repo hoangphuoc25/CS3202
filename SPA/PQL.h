@@ -711,20 +711,19 @@ public:
     void dump(FILE *f) const;
     /// Returns a string representation of the QueryInfo data structure
     std::string dump_to_string() const;
-    /// Retrieves the nth clause's type
-    /// @param n 0-indexed integer of the clause wish to get at
-    /// @return the appropriate type of the clause, or INVALID_CLAUSE
-    ///         if an out of bounds n is supplied
-    ClauseType get_nth_clause_type(int n) const;
-    /// Retrieves the nth clause
+    /// Retrieves the nth clause and its type
     /// @param n 0-indexed integer of the clause we wish to retrieve
+    /// @param clauseType a pointer to ClauseType. If this is not NULL,
+    ///                   it will be set to the ClauseType of the nth
+    ///                   clause if it exists and set to INVALID_CLAUSE
+    ///                   if the nth clause does not exist.
     /// @return a GenericRef* of the clause we wish to retrieve, or
     ///         the NULL pointer if n is out of bounds.
     ///         The user should use a dynamic_cast to cast the
     ///         GenericRef* to an appropriate pointer. The clause's
     ///         actual type can be deduced by the return value of
     ///         QueryInfo::get_nth_clause_type
-    GenericRef *get_nth_clause(int n);
+    GenericRef *get_nth_clause(int n, ClauseType *clauseType);
     /// Returns the number of clauses in the PQL query
     /// @return the number of clauses in the PQL query
     int get_nr_clauses() const;

@@ -141,18 +141,17 @@ void QueryEvaluator::evaluate(const string& queryStr,
         // Evaluate everything (sequentially for now)
         // NOTE: Take care when we parallelize this
         int nrPartitions = this->partitionedClauses.size();
+        ClauseType clauseType;
         for (int rTableIdx = 0; rTableIdx < nrPartitions; rTableIdx++) {
             const vector<int>& vec = this->partitionedClauses[rTableIdx];
             int nrClauses = vec.size();
             const ResultsTable& rTable = this->resultsTable[rTableIdx];
             for (int k = 0; k < nrClauses && rTable.is_alive(); k++) {
                 int clauseIdx = vec[k];
-                ClauseType clauseType =
-                        qinfo->get_nth_clause_type(clauseIdx);
-                assert(clauseType != INVALID_CLAUSE);
                 GenericRef *genericRef =
-                        qinfo->get_nth_clause(clauseIdx);
-                assert(genericRef != NULL);
+                        qinfo->get_nth_clause(clauseIdx, &clauseType);
+                assert(INVALID_CLAUSE != clauseType);
+                assert(NULL != genericRef);
                 if (clauseType == SUCHTHAT_CLAUSE) {
                     RelRef *relRef = dynamic_cast<RelRef *>(genericRef);
                     assert(relRef != NULL);
@@ -233,10 +232,9 @@ void QueryEvaluator::partition_evaluation(QueryInfo *qinfo)
 
     // Build graph based on clauses
     for (int i = 0; i < nrClauses; i++) {
-        clauseType = qinfo->get_nth_clause_type(i);
-        assert(clauseType != INVALID_CLAUSE);
-        genericRef = qinfo->get_nth_clause(i);
-        assert(genericRef != NULL);
+        genericRef = qinfo->get_nth_clause(i, &clauseType);
+        assert(INVALID_CLAUSE != clauseType);
+        assert(NULL != genericRef);
         switch (clauseType) {
         case SUCHTHAT_CLAUSE:
             relRef = dynamic_cast<RelRef *>(genericRef);
