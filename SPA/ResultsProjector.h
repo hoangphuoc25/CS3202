@@ -15,6 +15,9 @@ public:
     ResultsProjector();
     void get_results(ResultsTable& resultsTable, QueryInfo *qinfo,
             PKB *pkb, std::list<std::string>& results);
+
+    static const std::string TRUE_STR;
+    static const std::string FALSE_STR;
 private:
     void reset();
     void recursive_generate(int n, QueryInfo *qinfo, PKB *pkb);

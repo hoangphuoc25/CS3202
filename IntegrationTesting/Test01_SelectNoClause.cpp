@@ -578,3 +578,22 @@ void Test01_SelectNoClause::test_select_X_Y_Xattr()
             "16,13,16", "17,4,17", "17,13,17", "18,4,18", "18,13,18",
             "19,4,19", "19,13,19", "20,4,20", "20,13,20"));
 }
+
+void Test01_SelectNoClause::test_select_boolean()
+{
+    string simpleProg, queryStr;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+    simpleProg =
+        "procedure P { \
+           a = 123; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    queryStr = "Select BOOLEAN";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+}

@@ -33,6 +33,9 @@ string int_to_string(int x)
     return sb.toString();
 }
 
+const string ResultsProjector::TRUE_STR = "True";
+const string ResultsProjector::FALSE_STR = "False";
+
 ResultsProjector::ResultsProjector()
     : nrSelect(0), sb(), tablesUsed(), tablesUsedMap(), columnToSyn(),
       synToColumn(), columnCount(0), tableColToChoose(),
@@ -135,10 +138,11 @@ void ResultsProjector::get_results(ResultsTable& resultsTable,
     SelectType selectType = qinfo->get_selectType();
     if (selectType == SEL_BOOLEAN) {
         if (resultsTable.is_alive()) {
-            results.push_back("True");
+            results.push_back(ResultsProjector::TRUE_STR);
         } else {
-            results.push_back("False");
+            results.push_back(ResultsProjector::FALSE_STR);
         }
+        return;
     }
     if (!resultsTable.is_alive()) {
         return;

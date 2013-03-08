@@ -11,6 +11,7 @@ CPPUNIT_TEST(test_select_one_syn_attr);
 CPPUNIT_TEST(test_select_two_same_syn);
 CPPUNIT_TEST(test_select_syn_syn_attr);
 CPPUNIT_TEST(test_select_X_Y_Xattr);
+CPPUNIT_TEST(test_select_boolean);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -35,6 +36,7 @@ private:
      * eg. assign a; variable v; Select <v, a, v.varName>
      */
     void test_select_X_Y_Xattr();
+    void test_select_boolean();
 };
 
 #endif
