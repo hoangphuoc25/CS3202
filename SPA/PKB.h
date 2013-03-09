@@ -206,6 +206,12 @@ public:
             const std::string& y) const;
 
     /**
+     * Checks if there is at least one Uses Relation in the PKB
+     * @return true if Uses(_,_), false otherwise
+     */
+    bool uses_X_Y_smth_smth();
+
+    /**
      * Calls(X,Y); given Y (string), get all X (string) such that
      * Calls(X,Y)
      * @param xType type of X
@@ -881,6 +887,12 @@ private:
     static const std::string EMPTY_STRING;
     const set<string> EMPTY_STRINGSET;
     const set<int> EMPTY_INTSET;
+
+    /// Indicates if Uses(_,_) has been computed
+    bool uses_X_Y_smth_smth_computed;
+    /// If PKB::uses_X_Y_smth_smth_computed is true, then this field
+    /// stores the result of Uses(_,_), a true/false value
+    bool uses_X_Y_smth_smth_result;
 };
 
 #endif

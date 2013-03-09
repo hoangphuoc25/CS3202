@@ -270,3 +270,15 @@ bool ProcTable::has_any_proc() const
 {
     return (this->procTable.size() > 0);
 }
+
+bool ProcTable::at_least_one_var_used() const
+{
+    for (vector<ProcElements>::const_iterator it =
+            this->procTable.begin();
+            it != this->procTable.end(); it++) {
+        if (it->uses.size() > 0) {
+            return true;
+        }
+    }
+    return false;
+}

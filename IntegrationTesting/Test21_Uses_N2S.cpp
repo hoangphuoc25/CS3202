@@ -959,3 +959,98 @@ void Test21_Uses_N2S::test_uses_wild_string()
                                  ResultsProjector::FALSE_STR.c_str()),
             stringSet);
 }
+
+void Test21_Uses_N2S::test_uses_wild_wild()
+{
+    string simpleProg, queryStr;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+    queryStr = "Select BOOLEAN such that Uses(_,_)";
+
+    // SIMPLE program with an assignment
+    simpleProg =
+        "procedure exitProc { \
+           ret = zero; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    // SIMPLE program with an if statement
+    simpleProg =
+        "procedure getLength { \
+           five = 15; \
+         } \
+         procedure sizeOf { \
+           size = 0; \
+         } \
+         procedure fooBar { \
+           if truth then { \
+             vone = 2; \
+           } else { \
+             vtwo = 16 * 170 - 86; \
+           } \
+         }";
+    evaluator.parseSimple(simpleProg);
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    // SIMPLE program with a while statement
+    simpleProg =
+        "procedure deer { \
+           five = 15; \
+         } \
+         procedure doe { \
+           size = 0; \
+         } \
+         procedure mZI { \
+           while false { \
+             a = 1; \
+           } \
+         }";
+    evaluator.parseSimple(simpleProg);
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    // SIMPLE program that uses no variables
+    simpleProg =
+        "procedure famine { \
+           famine = 0; \
+         } \
+         procedure pestilence { \
+           pestilence = 17; \
+         } \
+         procedure War { \
+           war = 100; \
+           War = 783 * 47; \
+           compute = 6737; \
+         } \
+         procedure Death { \
+           Death = 200; \
+           death = 2674757; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    // SIMPLE program with an assignment (just to make sure it works)
+    simpleProg =
+        "procedure exitProc { \
+           ret = zero; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+}

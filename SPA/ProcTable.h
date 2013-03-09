@@ -83,6 +83,11 @@ public:
     ///         ProcTable, false otherwise
     bool has_any_proc() const;
 
+    /// Checks if at least one variable is being used by any procedure
+    /// @return true if there is at least one variable used by a
+    ///         procedure, false otherwise
+    bool at_least_one_var_used() const;
+
 private:
     void add_called_by(string proc1, string proc2); 
     
