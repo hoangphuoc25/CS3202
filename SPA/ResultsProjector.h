@@ -23,12 +23,46 @@ private:
     void recursive_generate(int n, QueryInfo *qinfo, PKB *pkb);
     void create_table_from_syn_set(ResultsTable& resultsTable,
             const AttrRef& attrRef, PKB *pkb);
-    void create_table_from_int_syn_set(ResultsTable& resultsTable,
+    /// Creates a Table from a set&gt;int&lt; and absorbs it into
+    /// a given ResultsTable
+    /// @param resultsTable the ResultsTable which should absorb the
+    ///                     Table
+    /// @param attrRef data structure of the synonym we are creating
+    ///                the Table. This synonym should not exist in
+    ///                the ResultsTable, ie.
+    ///                ResultsTable.has_synonym(attrRef.syn) == false,
+    ///                otherwise this will cause an assertion failure
+    /// @param pkb PKB to retrieve the set of synonyms from
+    /// @param pkbRetrievalFn PKB method to retrieve the set of
+    ///                       integer synonyms
+    /// @return true if the ResultsTable is alive after the absorption,
+    ///         false otherwise. The ResultsTable will be dead if the
+    ///         set of synonyms retrieved is empty (eg. trying to
+    ///         retrieve call statements in a program without any
+    ///         call statements)
+    bool create_table_from_int_syn_set(ResultsTable& resultsTable,
             const AttrRef &attrRef, PKB *pkb,
-            std::set<int> (PKB::*)() const);
-    void create_table_from_string_syn_set(ResultsTable& resultsTable,
+            std::set<int> (PKB::*pkbRetrievalFn)() const);
+    /// Creates a Table from a set&gt;string&lt; and absorbs it into
+    /// a given ResultsTable
+    /// @param resultsTable the ResultsTable which should absorb the
+    ///                     Table
+    /// @param attrRef data structure of the synonym we are creating
+    ///                the Table. This synonym should not exist in
+    ///                the ResultsTable, ie.
+    ///                ResultsTable.has_synonym(attrRef.syn) == false,
+    ///                otherwise this will cause an assertion failure
+    /// @param pkb PKB to retrieve the set of synonyms from
+    /// @param pkbRetrievalFn PKB method to retrieve the set of
+    ///                       string synonyms
+    /// @return true if the ResultsTable is alive after the absorption,
+    ///         false otherwise. The ResultsTable will be dead if the
+    ///         set of synonyms retrieved is empty (eg. trying to
+    ///         retrieve call statements in a program without any
+    ///         call statements)
+    bool create_table_from_string_syn_set(ResultsTable& resultsTable,
             const AttrRef &attrRef, PKB *pkb,
-            std::set<std::string> (PKB::*)() const);
+            std::set<std::string> (PKB::*pkbRetrievalFn)() const);
 
     int nrSelect;
     StringBuffer sb;

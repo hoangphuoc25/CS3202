@@ -108,7 +108,7 @@ void ResultsProjector::create_table_from_syn_set(
     }
 }
 
-void ResultsProjector::create_table_from_int_syn_set(
+bool ResultsProjector::create_table_from_int_syn_set(
         ResultsTable& resultsTable, const AttrRef &attrRef, PKB *pkb,
         set<int> (PKB::*retrieve_int_set)() const)
 {
@@ -116,10 +116,10 @@ void ResultsProjector::create_table_from_int_syn_set(
     const string& synName = attrRef.syn;
     Table *table = Table::create_from_set(synName,
             (pkb->*retrieve_int_set)());
-    resultsTable.absorb_table(table);
+    return resultsTable.absorb_table(table);
 }
 
-void ResultsProjector::create_table_from_string_syn_set(
+bool ResultsProjector::create_table_from_string_syn_set(
         ResultsTable& resultsTable, const AttrRef &attrRef, PKB *pkb,
         set<string> (PKB::*retrieve_string_set)() const)
 {
@@ -127,7 +127,7 @@ void ResultsProjector::create_table_from_string_syn_set(
     const string& synName = attrRef.syn;
     Table *table = Table::create_from_set(synName,
             (pkb->*retrieve_string_set)());
-    resultsTable.absorb_table(table);
+    return resultsTable.absorb_table(table);
 }
 
 void ResultsProjector::get_results(ResultsTable& resultsTable,
@@ -150,11 +150,16 @@ void ResultsProjector::get_results(ResultsTable& resultsTable,
     const vector<AttrRef>& selectTuple = qinfo->get_selectTuple();
     this->nrSelect = selectTuple.size();
     // create new tables for synonyms not in any clauses
-    for (int i = 0; i < this->nrSelect; i++) {
+    for (int i = 0; i < this->nrSelect && resultsTable.is_alive();
+            i++) {
         const AttrRef& attrRef = selectTuple[i];
         if (!resultsTable.has_synonym(attrRef.syn)) {
             this->create_table_from_syn_set(resultsTable, attrRef, pkb);
         }
+    }
+    // ResultsTable might be dead after absorption. Check
+    if (!resultsTable.is_alive()) {
+        return;
     }
     resultsTable.checkout_transaction_begin();
     // get the set of tables required and construct table,column info

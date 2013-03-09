@@ -42,6 +42,22 @@ void Test60_Evil::setUp()
            } \
            follow = here; \
          }";
+
+    this->NOWHILE_PROG =
+        "procedure One { \
+           arm = good; \
+           blaster = laster; \
+         } \
+         procedure Two { \
+           if true then { \
+             cat = bad; \
+           } else { \
+             dog = pet; \
+           } \
+         } \
+         procedure Three { \
+           eva = lu + ator; \
+         }";
 }
 
 void Test60_Evil::tearDown() {}
@@ -85,26 +101,12 @@ void Test60_Evil::test_select_a_a()
 
 void Test60_Evil::test_select_a1_a2()
 {
-    string simpleProg, queryStr;
+    string queryStr;
     QueryEvaluator evaluator;
     SetWrapper<string> stringSet;
     list<string> resultList;
 
-    simpleProg =
-        "procedure One { \
-           arm = good; \
-           blaster = laster; \
-         } \
-         procedure Two { \
-           if true then { \
-             cat = bad; \
-           } else { \
-             dog = pet; \
-           } \
-         } \
-         procedure Three { \
-           eva = lu + ator; \
-         }";
+    const string& simpleProg = this->NOWHILE_PROG;
     evaluator.parseSimple(simpleProg);
     queryStr = "assign a1, a2; Select <a1,a2>";
     evaluator.evaluate(queryStr, resultList);
@@ -113,5 +115,54 @@ void Test60_Evil::test_select_a1_a2()
             "1,5", "1,6", "2,1", "2,2", "2,4", "2,5", "2,6", "4,1",
             "4,2", "4,4", "4,5", "4,6", "5,1", "5,2", "5,4", "5,5",
             "5,6", "6,1", "6,2", "6,4", "6,5", "6,6"),
+            stringSet);
+}
+
+void Test60_Evil::test_select_while__no_while()
+{
+    string queryStr;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+
+    const string& simpleProg = this->NOWHILE_PROG;
+    evaluator.parseSimple(simpleProg);
+    queryStr = "while w; Select w";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
+            stringSet);
+}
+
+void Test60_Evil::test_select_assign_while__no_while()
+{
+    string queryStr;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+
+    const string& simpleProg = this->NOWHILE_PROG;
+    evaluator.parseSimple(simpleProg);
+    queryStr = "while w123; assign ahh; Select <ahh,w123>";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
+            stringSet);
+}
+
+void Test60_Evil::test_select_assign_while_true_query__no_while()
+{
+    string queryStr;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+
+    const string& simpleProg = this->NOWHILE_PROG;
+    evaluator.parseSimple(simpleProg);
+    queryStr = "while w123; assign ahh; variable v; ";
+    queryStr += " Select <ahh,w123> such that Modifies(ahh,v)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
             stringSet);
 }

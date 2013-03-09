@@ -1054,6 +1054,7 @@ void Test_02_ResultsTable::test_absorb_table()
 {
     Record record;
     ResultsTable rTable;
+    bool boolVal;
     rTable.syn_00_transaction_begin("Company", RV_STRING,
             "Country", RV_STRING);
     rTable.syn_00_add_row("Microsoft", "USA");
@@ -1067,7 +1068,8 @@ void Test_02_ResultsTable::test_absorb_table()
     table->add_row("Name", "Bean Jackson", "Age", 567);
     table->add_row("Name", "John Tran", "Age", 1);
     table->add_rows_transaction_end();
-    rTable.absorb_table(table);
+    boolVal = rTable.absorb_table(table);
+    CPPUNIT_ASSERT_EQUAL(true, boolVal);
     CPPUNIT_ASSERT_EQUAL(true, rTable.is_alive());
     rTable.checkout_transaction_begin();
     table = rTable.checkout_table("Company");
@@ -1149,6 +1151,22 @@ void Test_02_ResultsTable::test_absorb_table()
     CPPUNIT_ASSERT_EQUAL(record, recordsTwo[2]);
     rTable.checkout_transaction_end();
     CPPUNIT_ASSERT_EQUAL(true, rTable.is_alive());
+
+    // Absorb dead table
+    table = new Table();
+    table->add_rows_transaction_begin();
+    table->add_rows_transaction_end();
+    CPPUNIT_ASSERT_EQUAL(false, table->is_alive());
+    boolVal = rTable.absorb_table(table);
+    CPPUNIT_ASSERT_EQUAL(false, boolVal);
+    CPPUNIT_ASSERT_EQUAL(false, rTable.is_alive());
+
+    // Absorb NULL table
+    ResultsTable rTabTwo;
+    CPPUNIT_ASSERT_EQUAL(true, rTabTwo.is_alive());
+    boolVal = rTabTwo.absorb_table(NULL);
+    CPPUNIT_ASSERT_EQUAL(false, boolVal);
+    CPPUNIT_ASSERT_EQUAL(false, rTabTwo.is_alive());
 }
 
 void Test_02_ResultsTable::test_absorb_ResultsTable()

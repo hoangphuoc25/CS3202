@@ -104,9 +104,15 @@ public:
      *         ResultsTable.has_synonym(syn) == false for all
      *         syn in the input Table.
      *         Otherwise, this will result in an assertion failure
+     *\n\n
+     * NOTE 3: If the input Table is dead, the ResultsTable will
+     *         become dead. This can happen if the input Table has
+     *         no entries.
      * @param table pointer to Table object to be absorbed
+     * @return true if the ResultsTable is alive after the absorption,
+     *         false otherwise.
      */
-    void absorb_table(Table *table);
+    bool absorb_table(Table *table);
     /**
      * Absorbs another ResultsTable
      *\n\n
