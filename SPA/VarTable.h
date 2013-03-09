@@ -92,6 +92,11 @@ public:
 
     set<string> get_all_vars() const;
 
+    /// Checks if the VarTable contains any variable
+    /// @returns true if there is at least one variable in the
+    ///          VarTable, false otherwise
+    bool has_any_var() const;
+
 private:
     const set<int> EMPTY_INTSET;
     const set<string> EMPTY_STRINGSET;

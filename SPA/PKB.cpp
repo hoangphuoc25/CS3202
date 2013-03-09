@@ -1382,6 +1382,29 @@ bool PKB::has_stmtLst(int stmtNo) const
     return this->stmtBank->has_stmtLst(stmtNo);
 }
 
+bool PKB::has_any_ent(DesignEnt entType) const
+{
+    assert(ENT_INVALID != entType);
+    switch (entType) {
+    case ENT_ASSIGN:
+    case ENT_CALL:
+    case ENT_IF:
+    case ENT_WHILE:
+    case ENT_STMT:
+    case ENT_PROGLINE:
+    case ENT_STMTLST:
+    case ENT_CONST:
+        return this->stmtBank->has_any_ent(entType);
+        break;
+    case ENT_VAR:
+        return this->varTable->has_any_var();
+        break;
+    case ENT_PROC:
+        return this->procTable->has_any_proc();
+        break;
+    }
+}
+
 string PKB::get_call_procName(int callStmt) const
 {
     return this->stmtBank->get_call_procName(callStmt);

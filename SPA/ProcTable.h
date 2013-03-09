@@ -78,6 +78,11 @@ public:
 
     string which_proc(int stmtNo);
 
+    /// Checks if there is at least one procedure in the ProcTable
+    /// @return true if there is atl east one procedure in the
+    ///         ProcTable, false otherwise
+    bool has_any_proc() const;
+
 private:
     void add_called_by(string proc1, string proc2); 
     

@@ -175,6 +175,45 @@ const set<int>& StmtBank::get_all_stmtLst() const
     return this->stmtLstSet;
 }
 
+bool StmtBank::has_any_ent(DesignEnt entType) const
+{
+    int sz = 0;
+    switch (entType) {
+    case ENT_ASSIGN:
+        sz = this->assignBank.size();
+        break;
+    case ENT_CALL:
+        sz = this->callBank.size();
+        break;
+    case ENT_IF:
+        sz = this->ifBank.size();
+        break;
+    case ENT_WHILE:
+        sz = this->whileBank.size();
+        break;
+    case ENT_STMT:
+    case ENT_PROGLINE:
+        sz = this->assignBank.size();
+        if (sz <= 0) {
+            sz = this->callBank.size();
+        }
+        if (sz <= 0) {
+            sz = this->ifBank.size();
+        }
+        if (sz <= 0) {
+            sz = this->whileBank.size();
+        }
+        break;
+    case ENT_CONST:
+        sz = this->constBank.size();
+        break;
+    case ENT_STMTLST:
+        sz = this->stmtLstSet.size();
+        break;
+    }
+    return (sz > 0);
+}
+
  const set<string>& StmtBank::get_vars_used_by_stmt(DesignEnt entType,
         int stmtNo) const
  {

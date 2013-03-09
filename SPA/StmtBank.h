@@ -32,6 +32,14 @@ public:
     std::set<int> get_all_stmt() const;
     const std::set<int>& get_all_stmtLst() const;
 
+    /// Checks if the StmtBank has an entity of a given type
+    /// @param entType the type of statement. One of ENT_ASSIGN,
+    ///                ENT_CALL, ENT_IF, ENT_WHILE, ENT_STMT,
+    ///                ENT_PROGLINE, ENT_CONST, ENT_STMTLST
+    /// @return true if the StmtBank has at least one statement of
+    ///         entType, false otherwise
+    bool has_any_ent(DesignEnt entType) const;
+
     /*
      * Retrieves the set of variables used by a statement.
      * @param entType type of statement

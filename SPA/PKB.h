@@ -718,6 +718,13 @@ public:
     bool has_const(int n) const;
     bool has_stmtLst(int stmtNo) const;
 
+    /// Checks if there is at least one of a certain design
+    /// entity present in the PKB
+    /// @param entType type of the design entity
+    /// @return true if at least one design entity of entType
+    /// exists, false otherwise
+    bool has_any_ent(DesignEnt entType) const;
+
     //////////////////////////////////////////////////////////////////
     // For pattern clause
     //////////////////////////////////////////////////////////////////

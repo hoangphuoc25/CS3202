@@ -391,3 +391,8 @@ set<string> VarTable::get_all_vars() const
     }
     return result;
 }
+
+bool VarTable::has_any_var() const
+{
+    return (this->varTable.size() > 0);
+}

@@ -266,3 +266,7 @@ string ProcTable::which_proc(int stmtNo)
     return procFinder.lower_bound(stmtNo)->second;
 }
 
+bool ProcTable::has_any_proc() const
+{
+    return (this->procTable.size() > 0);
+}
