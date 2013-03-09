@@ -133,6 +133,7 @@
     <ClCompile Include="Test20_SynSyn_RelRef.cpp" />
     <ClCompile Include="Test21_Modifies_N2S.cpp" />
     <ClCompile Include="Test30_PatCl_If.cpp" />
+    <ClCompile Include="Test60_Evil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Test01_SelectNoClause.h" />
@@ -200,6 +201,7 @@
     <ClInclude Include="Test20_SynSyn_RelRef.h" />
     <ClInclude Include="Test21_Modifies_N2S.h" />
     <ClInclude Include="Test30_PatCl_If.h" />
+    <ClInclude Include="Test60_Evil.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
