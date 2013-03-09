@@ -14,6 +14,7 @@ CPPUNIT_TEST(test_uses_string_string);
 CPPUNIT_TEST(test_uses_string_wild);
 CPPUNIT_TEST(test_uses_int_string);
 CPPUNIT_TEST(test_uses_int_wild);
+CPPUNIT_TEST(test_uses_wild_string);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -24,6 +25,7 @@ private:
     void test_uses_string_wild();
     void test_uses_int_string();
     void test_uses_int_wild();
+    void test_uses_wild_string();
 };
 
 #endif

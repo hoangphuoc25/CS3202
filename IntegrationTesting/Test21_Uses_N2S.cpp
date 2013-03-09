@@ -802,3 +802,160 @@ void Test21_Uses_N2S::test_uses_int_wild()
                                  ResultsProjector::FALSE_STR.c_str()),
             stringSet);
 }
+
+void Test21_Uses_N2S::test_uses_wild_string()
+{
+    string simpleProg, queryStr;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+
+    simpleProg =
+        "procedure stringCopy { \
+           a = 123; \
+           if uOne then { \
+             while uTwo { \
+               bah = black; \
+             } \
+             help = me; \
+           } else { \
+             deus = ex; \
+             b = a; \
+           } \
+           follow = me; \
+         } \
+         procedure memset { \
+           idx = 0; \
+           while idxLTLen { \
+             mem = zeroed; \
+             idx = idx + 1; \
+           } \
+           hoho = done; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    // variables that are being used
+    queryStr = "Select BOOLEAN such that Uses(_, \"a\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Uses(_, \"black\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Uses(_, \"done\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Uses(_, \"ex\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Uses(_, \"idx\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Uses(_, \"idxLTLen\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Uses(_, \"me\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Uses(_, \"uOne\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Uses(_, \"uTwo\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Uses(_, \"zeroed\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+
+    // variables in program but not used
+    queryStr = "Select BOOLEAN such that Uses(_, \"b\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Uses(_, \"bah\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Uses(_, \"deus\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Uses(_, \"follow\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Uses(_, \"help\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Uses(_, \"hoho\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Uses(_, \"mem\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+
+    // Variables totally not in the program
+    queryStr = "Select BOOLEAN such that Uses(_, \"tough\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Uses(_, \"enough\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Uses(_, \"cppUnit\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+}

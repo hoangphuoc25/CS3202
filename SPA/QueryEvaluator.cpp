@@ -619,7 +619,8 @@ bool QueryEvaluator::ev_isolated_relation_wild_string(
                        relRef->argTwoString);
         break;
     case REL_USES:
-        // TODO: Implement
+        return this->pkb->uses_X_Y_smth_string_Y(ENT_VAR,
+                       relRef->argTwoString);
         break;
     case REL_CALLS:
         // TODO: Implement
