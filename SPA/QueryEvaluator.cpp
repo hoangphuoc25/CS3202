@@ -570,7 +570,8 @@ bool QueryEvaluator::ev_isolated_relation_int_wild(
 {
     switch (relRef->relType) {
     case REL_MODIFIES:
-        // TODO: Implement
+        return this->pkb->modifies_X_Y_int_X_smth(ENT_STMT,
+                       relRef->argOneInt);
         break;
     case REL_USES:
         // TODO: Implement

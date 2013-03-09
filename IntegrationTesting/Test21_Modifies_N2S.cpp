@@ -180,3 +180,129 @@ void Test21_Modifies_N2S::test_modifies_string_wild()
                                  ResultsProjector::FALSE_STR.c_str()),
             stringSet);
 }
+
+void Test21_Modifies_N2S::test_modifies_int_wild()
+{
+    string simpleProg, queryStr;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+
+    simpleProg =
+        "procedure evaluate { \
+           a = 123; \
+           b = 456; \
+         } \
+         procedure secProc { \
+           if true then { \
+             while mad { \
+               g = g + 1;\
+             } \
+           } else { \
+             x = y; \
+           } \
+         } \
+         procedure thirdProc { \
+           call fourthProc; \
+         } \
+         procedure fourthProc { \
+           a = a + 1; \
+         } \
+         procedure fifthProc { \
+           call thirdProc; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    // In theory, every stmt should modify smth
+    // unless it is out of range
+    queryStr = "Select BOOLEAN such that Modifies(1,_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Modifies(2,_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Modifies(3,_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Modifies(4,_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Modifies(5,_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Modifies(6,_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Modifies(7,_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Modifies(8,_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Modifies(9,_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    // Out of range statements
+    queryStr = "Select BOOLEAN such that Modifies(0,_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Modifies(-1,_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Modifies(-55,_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Modifies(10,_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Modifies(11,_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Modifies(350,_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+}
