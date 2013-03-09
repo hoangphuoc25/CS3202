@@ -91,6 +91,11 @@ int StringBuffer::append_int(int x)
     long long tpow = 10;
     int digits = 2;
     int d, ret;
+    if (x < 0) {
+        r = -r;
+        this->grow_buffer(1);
+        this->buf[this->nrChars++] = '-';
+    }
     while (tpow <= r) {
         tpow *= 10;
         digits++;

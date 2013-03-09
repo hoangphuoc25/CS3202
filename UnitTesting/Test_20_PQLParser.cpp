@@ -990,6 +990,14 @@ void Test_20_PQLParser::test_modifies()
     out = "DECLARATIONS\nSELECT BOOLEAN\nModifies(235,_)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
+    // Modifies(int,_), int is negative
+    queryStr = " Select BOOLEAN such that Modifies(-23615, _)";
+    parser.parse(queryStr);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "DECLARATIONS\nSELECT BOOLEAN\nModifies(-23615,_)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
     // Modifies(string,var)
     queryStr = " variable utq; Select utq such that ";
     queryStr += "   Modifies  \t (  \t \"proc1\"  \t ,utq)";
@@ -1391,6 +1399,10 @@ void Test_20_PQLParser::test_err_rel_argtwo()
 
 void Test_20_PQLParser::test_err_rel_arg_int_invalid()
 {
+    // TODO: Replace with stringbuffer
+    char *tmpBuf = new char[500];
+    long long tmpLL;
+
     string queryStr = "variable v; ";
     queryStr += "Select BOOLEAN such that Modifies(551234567890, v)";
     string out;
@@ -1402,19 +1414,66 @@ void Test_20_PQLParser::test_err_rel_arg_int_invalid()
             parser.get_parse_result());
     _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARG_INT_INVALID_STR,
             relRefType_to_string(REL_MODIFIES), "one", "551234567890",
-            S_TO_UINT_TOO_LONG);
+            S_TO_INT_TOO_LONG);
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 
+    // Overflow
     queryStr = "stmt s; Select s such that Modifies(3234567890, _)";
     os = new ostringstream;
     parser.parse(os, queryStr, true, false);
     out = os->str();
     CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARG_INT_INVALID,
             parser.get_parse_result());
+    tmpLL = 3234567890L;
+    _snprintf(tmpBuf, 500, S_TO_INT_OVERFLOW, tmpLL);
     _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARG_INT_INVALID_STR,
             relRefType_to_string(REL_MODIFIES), "one", "3234567890",
-            S_TO_UINT_OVERFLOW);
+            tmpBuf);
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // Overflow by 1
+    queryStr = "stmt s; Select s such that Modifies(2147483648, _)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARG_INT_INVALID,
+            parser.get_parse_result());
+    tmpLL = 2147483648L;
+    _snprintf(tmpBuf, 500, S_TO_INT_OVERFLOW, tmpLL);
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARG_INT_INVALID_STR,
+            relRefType_to_string(REL_MODIFIES), "one", "2147483648",
+            tmpBuf);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // Underflow by 1
+    queryStr = "stmt s; Select s such that Modifies(-2147483649, _)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARG_INT_INVALID,
+            parser.get_parse_result());
+    tmpLL = 2147483649L;
+    _snprintf(tmpBuf, 500, S_TO_INT_UNDERFLOW, tmpLL);
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARG_INT_INVALID_STR,
+            relRefType_to_string(REL_MODIFIES), "one", "-2147483649",
+            tmpBuf);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // Underflow by > 1
+    queryStr = "stmt s; Select s such that Modifies(-5734567890, _)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REL_ARG_INT_INVALID,
+            parser.get_parse_result());
+    tmpLL = 5734567890L;
+    _snprintf(tmpBuf, 500, S_TO_INT_UNDERFLOW, tmpLL);
+    _snprintf_s(this->buf, BUFLEN, BUFLEN, PARSE_REL_ARG_INT_INVALID_STR,
+            relRefType_to_string(REL_MODIFIES), "one", "-5734567890",
+            tmpBuf);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    delete tmpBuf;
 }
 
 void Test_20_PQLParser::test_err_rel_argone_undeclared()
@@ -1663,6 +1722,16 @@ void Test_20_PQLParser::test_uses()
     qinfo = parser.get_queryinfo();
     out = "DECLARATIONS\n  while sd\n  variable bm1\nSELECT TUPLE\n";
     out += "  while sd\nUses(634,bm1)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Uses(int,var), int is negative
+    queryStr = " while sd;variable bm1; Select sd such that ";
+    queryStr += " Uses(  -71231, bm1)";
+    parser.parse(queryStr, false, false);
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    qinfo = parser.get_queryinfo();
+    out = "DECLARATIONS\n  while sd\n  variable bm1\nSELECT TUPLE\n";
+    out += "  while sd\nUses(-71231,bm1)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
     // Uses(int,"string")
@@ -2606,6 +2675,20 @@ void Test_20_PQLParser::test_parent_and_star()
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
+        // Parent(Int,synonym), Int is negative
+        sb.clear();
+        sb.append("stmt bhn1; Select bhn1 such that ");
+        sb.substitutef("%s(-124, bhn1)", *it);
+        queryStr = sb.toString();
+        parser.parse(queryStr, false, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  stmt bhn1\nSELECT TUPLE\n  stmt bhn1\n");
+        sb.substitutef("%s(-124,bhn1)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
         // Parent(Int,Int)
         sb.clear();
         sb.append("while ht1; Select ht1 such that ");
@@ -2617,6 +2700,20 @@ void Test_20_PQLParser::test_parent_and_star()
         sb.clear();
         sb.append("DECLARATIONS\n  while ht1\nSELECT TUPLE\n  while ht1\n");
         sb.substitutef("%s(72,3362)\n", *it);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+        // Parent(Int,Int), both Int are negative
+        sb.clear();
+        sb.append("while ht1; Select ht1 such that ");
+        sb.substitutef("%s( -1578, -2147483648)", *it);
+        queryStr = sb.toString();
+        parser.parse(queryStr, false, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  while ht1\nSELECT TUPLE\n  while ht1\n");
+        sb.substitutef("%s(-1578,-2147483648)\n", *it);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -2902,6 +2999,19 @@ void Test_20_PQLParser::test_follows_and_star()
         sb.clear();
         sb.append("DECLARATIONS\n  stmt Qer1\nSELECT TUPLE\n  stmt Qer1\n");
         sb.substitutef("%s(627,Qer1)\n", *relIt);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+        // Parent(Int,stmt), Int is negative
+        sb.clear();
+        sb.append("stmt Qer1; Select Qer1 such that ");
+        sb.substitutef("%s(-2147483648, Qer1)", *relIt);
+        queryStr = sb.toString();
+        parser.parse(queryStr, false, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  stmt Qer1\nSELECT TUPLE\n  stmt Qer1\n");
+        sb.substitutef("%s(-2147483648,Qer1)\n", *relIt);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
         // Parent(_,stmt)
@@ -3198,6 +3308,20 @@ void Test_20_PQLParser::test_next_and_star()
         sb.append("DECLARATIONS\n  prog_line kmfgd\nSELECT TUPLE\n");
         sb.append("  prog_line kmfgd\n");
         sb.substitutef("%s(782,kmfgd)\n", *relIt);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+        // Next(Int,prog_line), Int is negative
+        sb.clear();
+        sb.append("prog_line kmfgd; Select kmfgd such that ");
+        sb.substitutef("%s(-5136, kmfgd)", *relIt);
+        queryStr = sb.toString();
+        parser.parse(queryStr, false, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  prog_line kmfgd\nSELECT TUPLE\n");
+        sb.append("  prog_line kmfgd\n");
+        sb.substitutef("%s(-5136,kmfgd)\n", *relIt);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
         // Next(_,prog_line)
@@ -3500,6 +3624,19 @@ void Test_20_PQLParser::test_affects_and_star()
         sb.clear();
         sb.append("DECLARATIONS\n  assign bs\nSELECT TUPLE\n  assign bs\n");
         sb.substitutef("%s(612,bs)\n", *relIt);
+        out = sb.toString();
+        CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+        // Affects(Int,assign), Int is negative
+        sb.clear();
+        sb.append(" assign bs; Select bs such that ");
+        sb.substitutef(" %s( -678056, bs)", *relIt);
+        queryStr = sb.toString();
+        parser.parse(queryStr, false, false);
+        qinfo = parser.get_queryinfo();
+        CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+        sb.clear();
+        sb.append("DECLARATIONS\n  assign bs\nSELECT TUPLE\n  assign bs\n");
+        sb.substitutef("%s(-678056,bs)\n", *relIt);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
         // Affects(_,assign)

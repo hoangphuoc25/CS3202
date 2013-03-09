@@ -35,7 +35,7 @@ void StmtBank::add_node_entry(int stmtNo, DesignEnt type, Node* node)
 bool StmtBank::add_constant(const std::string& n, char **errorMsg)
 {
     int value = 0;
-    bool ret = string_to_uint(n, &value, errorMsg);
+    bool ret = string_to_int(n, &value, errorMsg);
     if (ret) {
         this->constBank.insert(value);
     }

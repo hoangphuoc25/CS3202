@@ -405,11 +405,11 @@ ParseError RelRef::set_arg(int which, RelRefArgType argType, StringBuffer &sb,
         break;
     case RELARG_INT:
         if (which == 1) {
-            if (!string_to_uint(sb.toString(), &argOneInt, errorMsg)) {
+            if (!string_to_int(sb.toString(), &argOneInt, errorMsg)) {
                 ret = PARSE_REL_ARG_INT_INVALID;
             }
         } else {
-            if (!string_to_uint(sb.toString(), &argTwoInt, errorMsg)) {
+            if (!string_to_int(sb.toString(), &argTwoInt, errorMsg)) {
                 ret = PARSE_REL_ARG_INT_INVALID;
             }
         }

@@ -574,19 +574,35 @@ bool PQLParser::eat_ident_string(StringBuffer &sb, const char *str)
 
 int PQLParser::eat_int(StringBuffer &sb)
 {
-    if (this->bufIdx < this->bufLen &&
-            isdigit(this->buf[this->bufIdx])) {
-        sb.append(this->buf[this->bufIdx++]);
+    bool neg = false;
+    int charsConsumed = 0;
+    if (this->bufIdx < this->bufLen) {
+        if (this->buf[this->bufIdx] == '-') {
+            sb.append(this->buf[this->bufIdx++]);
+            neg = true;
+            charsConsumed++;
+        }
     } else {
         return 0;
     }
-    int cnt = 1;
+    // must be digit from now on
+    if (this->bufIdx < this->bufLen &&
+            isdigit(this->buf[this->bufIdx])) {
+        sb.append(this->buf[this->bufIdx++]);
+        charsConsumed++;
+    } else {
+        if (neg) {
+            // consumed 1 '-', move back
+            this->bufIdx--;
+        }
+        return 0;
+    }
     while (this->bufIdx < this->bufLen &&
             isdigit(this->buf[this->bufIdx])) {
         sb.append(this->buf[this->bufIdx++]);
-        cnt++;
+        charsConsumed++;
     }
-    return cnt;
+    return charsConsumed;
 }
 
 bool PQLParser::eat_select(StringBuffer &sb)
