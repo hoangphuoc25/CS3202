@@ -665,7 +665,7 @@ bool QueryEvaluator::ev_isolated_relation_wild_wild(
 {
     switch (relRef->relType) {
     case REL_MODIFIES:
-        // TODO: Implement
+        return this->pkb->has_any_ent(ENT_ASSIGN);
         break;
     case REL_USES:
         // TODO: Implement

@@ -402,3 +402,36 @@ void Test21_Modifies_N2S::test_modifies_wild_string()
                                  ResultsProjector::FALSE_STR.c_str()),
             stringSet);
 }
+
+void Test21_Modifies_N2S::test_modifies_wild_wild()
+{
+    string simpleProg, queryStr;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+
+    simpleProg =
+        "procedure procOne { \
+           firstVar = 613; \
+           while notMod { \
+             secVar = true; \
+             if notMod2 then { \
+               thirdVar = 61 * 52; \
+             } else { \
+               fourthVar = 61 + aVar; \
+             } \
+             fifthVar = 157; \
+           } \
+           call eightNine; \
+         } \
+         procedure eightNine { \
+           sixthVar = 6661; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    queryStr = "Select BOOLEAN such that Modifies(_, _)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+}
