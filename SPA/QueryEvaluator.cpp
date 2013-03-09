@@ -578,7 +578,8 @@ bool QueryEvaluator::ev_isolated_relation_int_wild(
                        relRef->argOneInt);
         break;
     case REL_USES:
-        // TODO: Implement
+        return this->pkb->uses_X_Y_int_X_smth(ENT_STMT,
+                       relRef->argOneInt);
         break;
     case REL_PARENT:
         // TODO: Implement
