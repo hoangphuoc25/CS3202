@@ -528,7 +528,8 @@ bool QueryEvaluator::ev_isolated_relation_int_string(
                            relRef->argTwoString);
         break;
     case REL_USES:
-        // TODO: Implement
+        return this->pkb->uses_query_int_X_string_Y(ENT_STMT,
+                       relRef->argOneInt, ENT_VAR, relRef->argTwoString);
         break;
     }
     assert(false);
