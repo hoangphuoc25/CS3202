@@ -504,7 +504,8 @@ bool QueryEvaluator::ev_isolated_relation_string_wild(
                        relRef->argOneString);
         break;
     case REL_USES:
-        // TODO: Implement
+        return this->pkb->uses_X_Y_string_X_smth(ENT_PROC,
+                       relRef->argOneString);
         break;
     case REL_CALLS:
         // TODO: Implement

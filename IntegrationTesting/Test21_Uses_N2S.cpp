@@ -205,3 +205,121 @@ void Test21_Uses_N2S::test_uses_string_string()
                                  ResultsProjector::FALSE_STR.c_str()),
             stringSet);
 }
+
+void Test21_Uses_N2S::test_uses_string_wild()
+{
+    string simpleProg, queryStr;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+
+    simpleProg =
+        "procedure fireWall { \
+           a = 123; \
+           b = 45 * 47 - 62; \
+         } \
+         procedure normProc { \
+           a = b; \
+           if high then { \
+             rest = 10; \
+           } else { \
+             well = done; \
+           } \
+         } \
+         procedure ifUses { \
+           a = 72; \
+           if someVar then { \
+             b = 41; \
+           } else { \
+             c = 82; \
+           } \
+         } \
+         procedure whileUses { \
+           while smth { \
+             great = 116 - 132; \
+           } \
+           bayArea = 14642; \
+         } \
+         procedure callUses { \
+           call normProc; \
+         } \
+         procedure callCallUses { \
+           call callUses; \
+         } \
+         procedure callNoUses { \
+           call fireWall; \
+         } \
+         procedure callCallNoUses { \
+           call callNoUses; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    // procedure that doesnt use any variable
+    queryStr = "Select BOOLEAN such that Uses(\"fireWall\", _)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    // procedure with assignment and if
+    queryStr = "Select BOOLEAN such that Uses(\"normProc\", _)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    // procedure with if; assignments use no variables
+    queryStr = "Select BOOLEAN such that Uses(\"ifUses\", _)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    // procedure with while; assignments use no variables
+    queryStr = "Select BOOLEAN such that Uses(\"whileUses\", _)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    // procedure with single call stmt; target fn uses variables
+    queryStr = "Select BOOLEAN such that Uses(\"callUses\", _)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    // procedure with call -> call -> proc that uses variables
+    queryStr = "Select BOOLEAN such that Uses(\"callCallUses\", _)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    // procedure with one call stmt; target fn uses nothing
+    queryStr = "Select BOOLEAN such that Uses(\"callNoUses\", _)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    // procedure with call -> call -> proc that does not use any var
+    queryStr = "Select BOOLEAN such that Uses(\"callCallNoUses\", _)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    // Non-existent procedures
+    queryStr = "Select BOOLEAN such that Uses(\"notExistProc\", _)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Uses(\"doNth\", _)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+}
