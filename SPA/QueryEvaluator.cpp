@@ -404,39 +404,298 @@ bool QueryEvaluator::ev_isolated_relation_clause(const GenericRef *genRef)
     const RelRef *relRef = dynamic_cast<const RelRef *>(genRef);
     assert(NULL != relRef);
     assert(RelRef::valid(*relRef));
+    int score = 0;
+    switch (relRef->argOneType) {
+    case RELARG_STRING:
+        score += 10;
+        break;
+    case RELARG_INT:
+        score += 20;
+        break;
+    case RELARG_WILDCARD:
+        score += 30;
+        break;
+    }
+    switch (relRef->argTwoType) {
+    case RELARG_STRING:
+        score += 1;
+        break;
+    case RELARG_INT:
+        score += 2;
+        break;
+    case RELARG_WILDCARD:
+        score += 3;
+        break;
+    }
+    assert(score > 10);
+    // dispatch on argument type
+    switch (score) {
+    case 11: // string, string
+        return this->ev_isolated_relation_string_string(relRef);
+        break;
+    case 12: // string, int
+        return this->ev_isolated_relation_string_int(relRef);
+        break;
+    case 13: // string, _
+        return this->ev_isolated_relation_string_wild(relRef);
+        break;
+    case 21: // int, string
+        return this->ev_isolated_relation_int_string(relRef);
+        break;
+    case 22: // int, int
+        return this->ev_isolated_relation_int_int(relRef);
+        break;
+    case 23: // int, _
+        return this->ev_isolated_relation_int_wild(relRef);
+        break;
+    case 31: // _, string
+        return this->ev_isolated_relation_wild_string(relRef);
+        break;
+    case 32: // _, int
+        return this->ev_isolated_relation_wild_int(relRef);
+        break;
+    case 33: // _, _
+        return this->ev_isolated_relation_wild_wild(relRef);
+        break;
+    }
+    assert(false);
+    return false;
+}
+
+bool QueryEvaluator::ev_isolated_relation_string_string(
+        const RelRef *relRef) const
+{
     switch (relRef->relType) {
     case REL_MODIFIES:
-        assert(RELARG_STRING == relRef->argTwoType);
-        if (RELARG_STRING == relRef->argOneType) {
-            return this->pkb->modifies_query_string_X_string_Y(ENT_PROC,
+        return this->pkb->modifies_query_string_X_string_Y(ENT_PROC,
                            relRef->argOneString, ENT_VAR,
                            relRef->argTwoString);
-        } else if (RELARG_INT == relRef->argOneType) {
-            return this->pkb->modifies_query_int_X_string_Y(ENT_STMT,
-                           relRef->argOneInt, ENT_VAR,
-                           relRef->argTwoString);
-        }
+        break;
     case REL_USES:
+        // TODO: Implement
         break;
     case REL_CALLS:
+        // TODO: Implement
         break;
     case REL_CALLS_STAR:
+        // TODO: Implement
         break;
+    }
+    assert(false);
+    return false;
+}
+
+bool QueryEvaluator::ev_isolated_relation_string_int(
+        const RelRef *relRef) const
+{
+    // Never be valid since no Relation has (string,int) args
+    assert(false);
+    return false;
+}
+
+bool QueryEvaluator::ev_isolated_relation_string_wild(
+        const RelRef *relRef) const
+{
+    switch (relRef->relType) {
+    case REL_MODIFIES:
+        // TODO: Implement
+        break;
+    case REL_USES:
+        // TODO: Implement
+        break;
+    case REL_CALLS:
+        // TODO: Implement
+        break;
+    case REL_CALLS_STAR:
+        // TODO: Implement
+        break;
+    }
+    assert(false);
+    return false;
+}
+
+bool QueryEvaluator::ev_isolated_relation_int_string(
+        const RelRef *relRef) const
+{
+    switch (relRef->relType) {
+    case REL_MODIFIES:
+        return this->pkb->modifies_query_int_X_string_Y(ENT_STMT,
+                           relRef->argOneInt, ENT_VAR,
+                           relRef->argTwoString);
+        break;
+    case REL_USES:
+        // TODO: Implement
+        break;
+    }
+    assert(false);
+    return false;
+}
+
+bool QueryEvaluator::ev_isolated_relation_int_int(
+        const RelRef *relRef) const
+{
+    switch (relRef->relType) {
     case REL_PARENT:
+        // TODO: Implement
         break;
     case REL_PARENT_STAR:
+        // TODO: Implement
         break;
     case REL_FOLLOWS:
+        // TODO: Implement
         break;
     case REL_FOLLOWS_STAR:
+        // TODO: Implement
         break;
     case REL_NEXT:
+        // TODO: Implement
         break;
     case REL_NEXT_STAR:
+        // TODO: Implement
         break;
     case REL_AFFECTS:
+        // TODO: Implement
         break;
     case REL_AFFECTS_STAR:
+        // TODO: Implement
+        break;
+    }
+    assert(false);
+    return false;
+}
+
+bool QueryEvaluator::ev_isolated_relation_int_wild(
+        const RelRef *relRef) const
+{
+    switch (relRef->relType) {
+    case REL_MODIFIES:
+        // TODO: Implement
+        break;
+    case REL_USES:
+        // TODO: Implement
+        break;
+    case REL_PARENT:
+        // TODO: Implement
+        break;
+    case REL_PARENT_STAR:
+        // TODO: Implement
+        break;
+    case REL_FOLLOWS:
+        // TODO: Implement
+        break;
+    case REL_FOLLOWS_STAR:
+        // TODO: Implement
+        break;
+    case REL_NEXT:
+        // TODO: Implement
+        break;
+    case REL_NEXT_STAR:
+        // TODO: Implement
+        break;
+    case REL_AFFECTS:
+        // TODO: Implement
+        break;
+    case REL_AFFECTS_STAR:
+        // TODO: Implement
+        break;
+    }
+    assert(false);
+    return false;
+}
+
+bool QueryEvaluator::ev_isolated_relation_wild_string(
+        const RelRef *relRef) const
+{
+    switch (relRef->relType) {
+    case REL_MODIFIES:
+        // TODO: Implement
+        break;
+    case REL_USES:
+        // TODO: Implement
+        break;
+    case REL_CALLS:
+        // TODO: Implement
+        break;
+    case REL_CALLS_STAR:
+        // TODO: Implement
+        break;
+    }
+    assert(false);
+    return false;
+}
+
+bool QueryEvaluator::ev_isolated_relation_wild_int(
+        const RelRef *relRef) const
+{
+    switch (relRef->relType) {
+    case REL_PARENT:
+        // TODO: Implement
+        break;
+    case REL_PARENT_STAR:
+        // TODO: Implement
+        break;
+    case REL_FOLLOWS:
+        // TODO: Implement
+        break;
+    case REL_FOLLOWS_STAR:
+        // TODO: Implement
+        break;
+    case REL_NEXT:
+        // TODO: Implement
+        break;
+    case REL_NEXT_STAR:
+        // TODO: Implement
+        break;
+    case REL_AFFECTS:
+        // TODO: Implement
+        break;
+    case REL_AFFECTS_STAR:
+        // TODO: Implement
+        break;
+    }
+    assert(false);
+    return false;
+}
+
+bool QueryEvaluator::ev_isolated_relation_wild_wild(
+        const RelRef *relRef) const
+{
+    switch (relRef->relType) {
+    case REL_MODIFIES:
+        // TODO: Implement
+        break;
+    case REL_USES:
+        // TODO: Implement
+        break;
+    case REL_CALLS:
+        // TODO: Implement
+        break;
+    case REL_CALLS_STAR:
+        // TODO: Implement
+        break;
+    case REL_PARENT:
+        // TODO: Implement
+        break;
+    case REL_PARENT_STAR:
+        // TODO: Implement
+        break;
+    case REL_FOLLOWS:
+        // TODO: Implement
+        break;
+    case REL_FOLLOWS_STAR:
+        // TODO: Implement
+        break;
+    case REL_NEXT:
+        // TODO: Implement
+        break;
+    case REL_NEXT_STAR:
+        // TODO: Implement
+        break;
+    case REL_AFFECTS:
+        // TODO: Implement
+        break;
+    case REL_AFFECTS_STAR:
+        // TODO: Implement
         break;
     }
     assert(false);

@@ -126,6 +126,51 @@ private:
     /// @return true if the Relation clause evaluates to true, false
     ///         otherwise
     bool ev_isolated_relation_clause(const GenericRef *genRef) const;
+    /// Evaluates an isolated Relation clause with (string,string) args
+    /// @param relRef the Relation clause
+    /// @return true if the Relation clause evaluates to true, false
+    ///         otherwise
+    bool ev_isolated_relation_string_string(const RelRef *relRef) const;
+    /// Evaluates an isolated Relation clause with (string,int) args
+    /// @param relRef the Relation clause
+    /// @return true if the Relation clause evaluates to true, false
+    ///         otherwise
+    bool ev_isolated_relation_string_int(const RelRef *relRef) const;
+    /// Evaluates an isolated Relation clause with (string,_) args
+    /// @param relRef the Relation clause
+    /// @return true if the Relation clause evaluates to true, false
+    ///         otherwise
+    bool ev_isolated_relation_string_wild(const RelRef *relRef) const;
+    /// Evaluates an isolated Relation clause with (int,string) args
+    /// @param relRef the Relation clause
+    /// @return true if the Relation clause evaluates to true, false
+    ///         otherwise
+    bool ev_isolated_relation_int_string(const RelRef *relRef) const;
+    /// Evaluates an isolated Relation clause with (int,int) args
+    /// @param relRef the Relation clause
+    /// @return true if the Relation clause evaluates to true, false
+    ///         otherwise
+    bool ev_isolated_relation_int_int(const RelRef *relRef) const;
+    /// Evaluates an isolated Relation clause with (int,_) args
+    /// @param relRef the Relation clause
+    /// @return true if the Relation clause evaluates to true, false
+    ///         otherwise
+    bool ev_isolated_relation_int_wild(const RelRef *relRef) const;
+    /// Evaluates an isolated Relation clause with (_,string) args
+    /// @param relRef the Relation clause
+    /// @return true if the Relation clause evaluates to true, false
+    ///         otherwise
+    bool ev_isolated_relation_wild_string(const RelRef *relRef) const;
+    /// Evaluates an isolated Relation clause with (_,int) args
+    /// @param relRef the Relation clause
+    /// @return true if the Relation clause evaluates to true, false
+    ///         otherwise
+    bool ev_isolated_relation_wild_int(const RelRef *relRef) const;
+    /// Evaluates an isolated Relation clause with (_,_) args
+    /// @param relRef the Relation clause
+    /// @return true if the Relation clause evaluates to true, false
+    ///         otherwise
+    bool ev_isolated_relation_wild_wild(const RelRef *relRef) const;
     /// Evaluates an isolated with clause and returns the
     /// evaluation result
     /// @param genRef the with clause
