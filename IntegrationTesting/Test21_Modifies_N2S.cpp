@@ -102,3 +102,81 @@ void Test21_Modifies_N2S::test_modifies_string_string()
                                  ResultsProjector::FALSE_STR.c_str()),
             stringSet);
 }
+
+void Test21_Modifies_N2S::test_modifies_string_wild()
+{
+    string simpleProg, queryStr;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+
+    simpleProg =
+        "procedure evaluate { \
+           a = 123; \
+           b = 456; \
+         } \
+         procedure secProc { \
+           if true then { \
+             while mad { \
+               g = g + 1;\
+             } \
+           } else { \
+             x = y; \
+           } \
+         } \
+         procedure thirdProc { \
+           call fourthProc; \
+         } \
+         procedure fourthProc { \
+           a = a + 1; \
+         } \
+         procedure fifthProc { \
+           call thirdProc; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    // procedure with assignment stmt
+    queryStr = "Select BOOLEAN such that Modifies(\"evaluate\",_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    // procedure with assignment stmts nested inside if and while
+    queryStr = "Select BOOLEAN such that Modifies(\"secProc\",_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    // procedure having no assignment stmts, but calls another
+    // procedure with assignment stmts
+    queryStr = "Select BOOLEAN such that Modifies(\"thirdProc\",_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    // procedure with assignment stmt
+    queryStr = "Select BOOLEAN such that Modifies(\"fourthProc\",_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    // procedure which has no assignment stmt, calls another
+    // procedure which has no assignment, but that procedure calls
+    // another procedure with assignment stmt
+    queryStr = "Select BOOLEAN such that Modifies(\"fifthProc\",_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    // non-existent procedure
+    queryStr = "Select BOOLEAN such that Modifies(\"blah\",_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+}

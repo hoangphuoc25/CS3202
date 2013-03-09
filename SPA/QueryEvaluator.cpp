@@ -498,7 +498,8 @@ bool QueryEvaluator::ev_isolated_relation_string_wild(
 {
     switch (relRef->relType) {
     case REL_MODIFIES:
-        // TODO: Implement
+        return this->pkb->modifies_X_Y_string_X_smth(ENT_PROC,
+                       relRef->argOneString);
         break;
     case REL_USES:
         // TODO: Implement

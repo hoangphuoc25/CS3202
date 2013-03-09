@@ -12,6 +12,7 @@ class Test21_Modifies_N2S: public CPPUNIT_NS::TestFixture {
 CPPUNIT_TEST_SUITE(Test21_Modifies_N2S);
 CPPUNIT_TEST(test_modifies_int_string);
 CPPUNIT_TEST(test_modifies_string_string);
+CPPUNIT_TEST(test_modifies_string_wild);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -20,6 +21,7 @@ public:
 private:
     void test_modifies_int_string();
     void test_modifies_string_string();
+    void test_modifies_string_wild();
 };
 
 #endif
