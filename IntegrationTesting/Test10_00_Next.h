@@ -9,6 +9,8 @@ CPPUNIT_TEST_SUITE(Test10_00_Next);
 CPPUNIT_TEST(test_next_stmt_00);
 CPPUNIT_TEST(test_next_assign_00);
 CPPUNIT_TEST(test_next_while_00);
+CPPUNIT_TEST(test_next_if_00);
+CPPUNIT_TEST(test_next_call_00);
 CPPUNIT_TEST_SUITE_END();
 
 public:
