@@ -12,6 +12,7 @@ class Test21_Calls_N2S: public CPPUNIT_NS::TestFixture {
 CPPUNIT_TEST_SUITE(Test21_Calls_N2S);
 CPPUNIT_TEST(test_calls_string_string);
 CPPUNIT_TEST(test_calls_string_wild);
+CPPUNIT_TEST(test_calls_wild_string);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -20,6 +21,7 @@ public:
 private:
     void test_calls_string_string();
     void test_calls_string_wild();
+    void test_calls_wild_string();
 };
 
 #endif

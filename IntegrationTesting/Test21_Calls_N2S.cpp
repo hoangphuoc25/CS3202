@@ -100,3 +100,49 @@ void Test21_Calls_N2S::test_calls_string_wild()
                                ResultsProjector::FALSE_STR.c_str()),
             stringSet);
 }
+
+void Test21_Calls_N2S::test_calls_wild_string()
+{
+    string simpleProg, queryStr;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+
+    simpleProg =
+        "procedure fSharp { \
+           call CSharp; \
+         } \
+         procedure CSharp { \
+           call Java; \
+         } \
+         procedure Java { \
+           assign = var; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    // Correct calls
+    queryStr = "Select BOOLEAN such that Calls(_,\"CSharp\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Calls(_,\"Java\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    // Non-existent calls
+    queryStr = "Select BOOLEAN such that Calls(_,\"fSharp\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Calls(_,\"noSuchProc\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+}
