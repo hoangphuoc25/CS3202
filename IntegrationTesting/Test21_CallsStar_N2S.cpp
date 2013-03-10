@@ -214,3 +214,119 @@ void Test21_CallsStar_N2S::test_callsStar_string_string()
         }
     }
 }
+
+void Test21_CallsStar_N2S::test_callsStar_string_wild()
+{
+    string simpleProg, queryStr;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+
+    simpleProg =
+        "procedure A { \
+           call B; \
+           call F; \
+         } \
+         procedure B { \
+           call C; \
+           call G; \
+         } \
+         procedure C { \
+           call F; \
+           call D; \
+         } \
+         procedure D { \
+           call E; \
+           call H; \
+         } \
+         procedure E { \
+           a = b; \
+         } \
+         procedure F { \
+           call G; \
+         } \
+         procedure G { \
+           x = y; \
+         } \
+         procedure H { \
+           fun = times; \
+         } \
+         procedure I { \
+           shit = day; \
+         } \
+         procedure J { \
+           not = me; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    // call graph:
+    // A -> B -> C -> D -> E
+    // A -> F, B -> G, C -> F, F-> G, D -> H
+    // I and J dont call or get called
+    queryStr = "Select BOOLEAN such that Calls*(\"A\", _)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Calls*(\"B\", _)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Calls*(\"C\", _)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Calls*(\"D\", _)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Calls*(\"F\", _)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    // non-existent calls
+    queryStr = "Select BOOLEAN such that Calls*(\"E\", _)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Calls*(\"G\", _)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Calls*(\"H\", _)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Calls*(\"I\", _)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Calls*(\"J\", _)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Calls*(\"doesntExist\", _)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+}

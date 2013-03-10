@@ -516,7 +516,8 @@ bool QueryEvaluator::ev_isolated_relation_string_wild(
                        relRef->argOneString);
         break;
     case REL_CALLS_STAR:
-        // TODO: Implement
+        return this->pkb->calls_X_Y_string_X_smth(ENT_PROC,
+                       relRef->argOneString);
         break;
     }
     assert(false);
