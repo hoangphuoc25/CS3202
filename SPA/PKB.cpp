@@ -3,14 +3,10 @@
 
 const string PKB::EMPTY_STRING = "";
 
-PKB::PKB() : uses_X_Y_smth_smth_computed(false),
-             uses_X_Y_smth_smth_result(false)
-{}
+PKB::PKB() {}
 
 PKB::PKB(Node *root, ProcTable *pt, VarTable *vt, StmtBank *sb,
         vector<CFGNode*> *cfg)
-            : uses_X_Y_smth_smth_computed(false),
-              uses_X_Y_smth_smth_result(false)
 {
     progRoot = root;
     procTable = pt;
@@ -256,16 +252,9 @@ bool PKB::uses_X_Y_smth_string_Y(DesignEnt yType, const string& y) const
     return this->varTable->anyone_uses_this_var(y);
 }
 
-bool PKB::uses_X_Y_smth_smth()
+bool PKB::uses_X_Y_smth_smth() const
 {
-    if (this->uses_X_Y_smth_smth_computed) {
-        return this->uses_X_Y_smth_smth_result;
-    } else {
-        bool ret = this->uses_X_Y_smth_smth_result =
-                this->procTable->at_least_one_var_used();
-        this->uses_X_Y_smth_smth_computed = true;
-        return ret;
-    }
+    return this->procTable->at_least_one_var_used();
 }
 
 set<string> PKB::calls_X_Y_get_string_X_from_string_Y(DesignEnt xType,
