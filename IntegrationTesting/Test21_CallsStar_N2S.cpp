@@ -447,3 +447,68 @@ void Test21_CallsStar_N2S::test_callsStar_wild_string()
                                  ResultsProjector::FALSE_STR.c_str()),
             stringSet);
 }
+
+void Test21_CallsStar_N2S::test_callsStar_wild_wild()
+{
+    string simpleProg, queryStr;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+
+    queryStr = "Select BOOLEAN such that Calls*(_,_)";
+    simpleProg =
+        "procedure parentStar { \
+           mark = down; \
+           call pA; \
+         } \
+         procedure pA { \
+           x = y; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    // SIMPLE program with more than 1 call in the chain
+    simpleProg =
+        "procedure doA { \
+           call doB; \
+         } \
+         procedure doB { \
+           call doC; \
+         } \
+         procedure doC { \
+           call cleanUp; \
+           arclight = sucks; \
+         } \
+         procedure cleanUp { \
+           damn = it; \
+         } \
+         procedure fight { \
+           agility = 100; \
+           strength = 70; \
+           intelligence = 35; \
+           call cleanUp; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+
+    simpleProg =
+        "procedure aproc { \
+           typhoon = strikes; \
+         } \
+         procedure mathBook { \
+           calculus = derivative; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+}

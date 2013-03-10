@@ -685,10 +685,8 @@ bool QueryEvaluator::ev_isolated_relation_wild_wild(
         return this->pkb->uses_X_Y_smth_smth();
         break;
     case REL_CALLS:
-        return this->pkb->has_any_call();
-        break;
     case REL_CALLS_STAR:
-        // TODO: Implement
+        return this->pkb->has_any_call();
         break;
     case REL_PARENT:
         // TODO: Implement
