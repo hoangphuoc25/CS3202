@@ -94,6 +94,17 @@ void EvalPKBDispatch::reset()
 // Query Evaluator
 //////////////////////////////////////////////////////////////////////
 
+const RelRefType QueryEvaluator::EV_SAME_SYN_RELATION_ARR[
+                                         EV_SAME_SYN_RELATION_ARR_SZ
+                                 ] = {
+    REL_NEXT, REL_NEXT_STAR, REL_AFFECTS, REL_AFFECTS_STAR
+};
+
+const set<RelRefType> QueryEvaluator::EV_SAME_SYN_RELATION(
+        QueryEvaluator::EV_SAME_SYN_RELATION_ARR,
+        QueryEvaluator::EV_SAME_SYN_RELATION_ARR +
+                EV_SAME_SYN_RELATION_ARR_SZ);
+
 QueryEvaluator::QueryEvaluator():
         pqlParser(), pkb(NULL), resultsProjector(),
         isAlive(true),
@@ -751,14 +762,28 @@ void QueryEvaluator::ev_relRef_syn_syn(int rTableIdx,
     const ResultsTable& rTable = this->resultsTable[rTableIdx];
     if (rTable.has_synonym(relRef->argOneString) &&
             rTable.has_synonym(relRef->argTwoString)) {
+        bool setupDone = false;
         if (rTable.syn_in_same_table(relRef->argOneString,
                 relRef->argTwoString)) {
-            synInGraph = SYN_SYN_11;
+            // handle case of same synonym argument
+            // TODO: We can simplify some of these to false
+            //       at the parsing phase
+            if (0 == relRef->argOneString.compare(
+                             relRef->argTwoString)) {
+                this->ev_relRef_syn_syn_1_setup(pkbDispatch, relRef);
+                setupDone = true;
+            } else {
+                // different synonym arguments, 11 case
+                synInGraph = SYN_SYN_11;
+            }
         } else {
             synInGraph = SYN_SYN_22;
         }
-        this->ev_relRef_syn_syn_11_22_setup(synInGraph, pkbDispatch,
-                relRef);
+        // else different synonyms in different table, 22 case
+        if (!setupDone) {
+            this->ev_relRef_syn_syn_11_22_setup(synInGraph, pkbDispatch,
+                    relRef);
+        }
     } else if (rTable.has_synonym(relRef->argOneString)) {
         synInGraph = SYN_SYN_10;
         this->ev_relRef_syn_syn_10_setup(pkbDispatch, relRef);
@@ -767,7 +792,16 @@ void QueryEvaluator::ev_relRef_syn_syn(int rTableIdx,
         this->ev_relRef_syn_syn_01_setup(pkbDispatch, relRef);
     } else {
         synInGraph = SYN_SYN_00;
-        this->ev_relRef_syn_syn_00_setup(pkbDispatch, relRef);
+        // TODO: We can simplify some of these to false
+        //       at the parsing phase
+        if (0 == relRef->argOneString.compare(
+                         relRef->argTwoString)) {
+            // both synonym arguments are same and not seen
+            this->ev_relRef_syn_syn_0_setup(pkbDispatch, relRef);
+        } else {
+            // both synonym arguments different and seen
+            this->ev_relRef_syn_syn_00_setup(pkbDispatch, relRef);
+        }
     }
     evalSynArgDesc.synInGraph = synInGraph;
     evalSynArgDesc.relRefType = relRef->relType;
@@ -777,6 +811,80 @@ void QueryEvaluator::ev_relRef_syn_syn(int rTableIdx,
     assert(pkbDispatch.relRef_eval != NULL);
     // evaluate relRef
     (this->*(pkbDispatch.relRef_eval)) (rTableIdx, relRef, pkbDispatch);
+}
+
+void QueryEvaluator::ev_relRef_syn_syn_0_setup(
+        EvalPKBDispatch& pkbDispatch, const RelRef *relRef) const
+{
+    assert(0 == relRef->argOneString.compare(relRef->argTwoString));
+    assert(RELARG_INVALID != relRef->argOneType);
+    assert(RELARG_INVALID != relRef->argTwoType);
+    // valid type
+    assert(QueryEvaluator::EV_SAME_SYN_RELATION.end() !=
+                   QueryEvaluator::EV_SAME_SYN_RELATION.find(
+                           relRef->relType));
+    assert(relRef->argOneType == relRef->argTwoType);
+    RelRefArgType argType =
+            designEnt_to_relRefArgType(relRef->argOneSyn);
+    assert(RELARG_INT == argType);
+    pkbDispatch.get_all_int_argOne =
+            this->pkbd_setup_get_all_int_method(relRef->argOneSyn);
+    switch (relRef->relType) {
+    case REL_NEXT:
+        pkbDispatch.f_int_argOne_int_argTwo =
+                &PKB::next_query_int_X_int_Y;
+        break;
+    case REL_NEXT_STAR:
+        pkbDispatch.f_int_argOne_int_argTwo =
+                &PKB::nextStar_query_int_X_int_Y;
+        break;
+    case REL_AFFECTS:
+        pkbDispatch.f_int_argOne_int_argTwo =
+                &PKB::affects_query_int_X_int_Y;
+        break;
+    case REL_AFFECTS_STAR:
+        pkbDispatch.f_int_argOne_int_argTwo =
+                &PKB::affectsStar_query_int_X_int_Y;
+        break;
+    }
+    pkbDispatch.relRef_eval =
+            &QueryEvaluator::ev_rr_ss_int_int_0;
+}
+
+void QueryEvaluator::ev_relRef_syn_syn_1_setup(
+        EvalPKBDispatch& pkbDispatch, const RelRef *relRef) const
+{
+    assert(0 == relRef->argOneString.compare(relRef->argTwoString));
+    assert(RELARG_INVALID != relRef->argOneType);
+    assert(RELARG_INVALID != relRef->argTwoType);
+    // valid type
+    assert(QueryEvaluator::EV_SAME_SYN_RELATION.end() !=
+                   QueryEvaluator::EV_SAME_SYN_RELATION.find(
+                           relRef->relType));
+    assert(relRef->argOneType == relRef->argTwoType);
+    RelRefArgType argType =
+            designEnt_to_relRefArgType(relRef->argOneSyn);
+    assert(RELARG_INT == argType);
+    switch (relRef->relType) {
+    case REL_NEXT:
+        pkbDispatch.f_int_argOne_int_argTwo =
+                &PKB::next_query_int_X_int_Y;
+        break;
+    case REL_NEXT_STAR:
+        pkbDispatch.f_int_argOne_int_argTwo =
+                &PKB::nextStar_query_int_X_int_Y;
+        break;
+    case REL_AFFECTS:
+        pkbDispatch.f_int_argOne_int_argTwo =
+                &PKB::affects_query_int_X_int_Y;
+        break;
+    case REL_AFFECTS_STAR:
+        pkbDispatch.f_int_argOne_int_argTwo =
+                &PKB::affectsStar_query_int_X_int_Y;
+        break;
+    }
+    pkbDispatch.relRef_eval =
+            &QueryEvaluator::ev_rr_ss_int_int_1;
 }
 
 void QueryEvaluator::ev_relRef_syn_syn_00_setup(
@@ -1787,6 +1895,51 @@ void QueryEvaluator::ev_rr_ss_int_int_22(int rTableIdx,
         }
     }
     rTable.syn_22_transaction_end();
+}
+
+void QueryEvaluator::ev_rr_ss_int_int_0(int rTableIdx,
+        const RelRef *relRef, const EvalPKBDispatch& disp)
+{
+    assert(NULL != disp.get_all_int_argOne);
+    assert(NULL != disp.f_int_argOne_int_argTwo);
+    assert(NULL != disp.relRef_eval);
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    rTable.syn_0_transaction_begin(relRef->argOneString, RV_INT);
+    set<int> argSet = (this->pkb->*(disp.get_all_int_argOne))();
+    for (set<int>::const_iterator argIt = argSet.begin();
+            argIt != argSet.end(); argIt++) {
+        int argVal = *argIt;
+        if ((this->pkb->*(disp.f_int_argOne_int_argTwo))
+                   (relRef->argOneSyn, argVal,
+                    relRef->argOneSyn, argVal)) {
+            rTable.syn_0_add_row(argVal);
+        }
+    }
+    rTable.syn_0_transaction_end();
+}
+
+void QueryEvaluator::ev_rr_ss_int_int_1(int rTableIdx,
+        const RelRef *relRef, const EvalPKBDispatch& disp)
+{
+    assert(NULL != disp.f_int_argOne_int_argTwo);
+    assert(NULL != disp.relRef_eval);
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    pair<const vector<Record> *, int> viPair =
+            rTable.syn_1_transaction_begin(relRef->argOneString);
+    const vector<Record>& records = *(viPair.first);
+    int nrRecords = records.size();
+    int colIdx = viPair.second;
+    for (int rowNum = 0; rowNum < nrRecords; rowNum++) {
+        const Record& record = records[rowNum];
+        const pair<string, int>& siPair = record.get_column(colIdx);
+        int argVal = siPair.second;
+        if ((this->pkb->*(disp.f_int_argOne_int_argTwo))
+                    (relRef->argOneSyn, argVal,
+                     relRef->argOneSyn, argVal)) {
+            rTable.syn_1_mark_row_ok(rowNum);
+        }
+    }
+    rTable.syn_1_transaction_end();
 }
 
 void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,

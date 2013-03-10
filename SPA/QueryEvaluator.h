@@ -180,6 +180,10 @@ private:
     bool relRef_arg_use_string(DesignEnt entType) const;
     void evaluate_relRef(int rTableIdx, const GenericRef *genRef);
     void ev_relRef_syn_syn(int rTableIdx, const RelRef *relRef);
+    void ev_relRef_syn_syn_0_setup(EvalPKBDispatch& pkbDispatch,
+            const RelRef *relRef) const;
+    void ev_relRef_syn_syn_1_setup(EvalPKBDispatch& pkbDispatch,
+            const RelRef *relRef) const;
     void ev_relRef_syn_syn_00_setup(EvalPKBDispatch& pkbDispatch,
             const RelRef *relRef) const;
     void ev_relRef_syn_syn_01_setup(EvalPKBDispatch& pkbDispatch,
@@ -297,6 +301,25 @@ private:
     void ev_rr_ss_int_int_22(int rTableIdx, const RelRef *relRef,
             const EvalPKBDispatch& disp);
 
+    /// Evaluating of Relation where synonym arguments are both of
+    /// type int, both synonym arguments are the same and unseen
+    /// @param rTableIdx index of the ResultsTable
+    /// @param relRef a pointer to the RelRef describing the Relation
+    ///               and its parameters
+    /// @param disp A dispatch table into PKB and QueryEvaluator methods
+    ///             for query evaluation purposes
+    void ev_rr_ss_int_int_0(int rTableIdx, const RelRef *relRef,
+            const EvalPKBDispatch& disp);
+    /// Evaluating of Relation where synonym arguments are both of
+    /// type int, both synonym arguments are the same and seen
+    /// @param rTableIdx index of the ResultsTable
+    /// @param relRef a pointer to the RelRef describing the Relation
+    ///               and its parameters
+    /// @param disp A dispatch table into PKB and QueryEvaluator methods
+    ///             for query evaluation purposes
+    void ev_rr_ss_int_int_1(int rTableIdx, const RelRef *relRef,
+            const EvalPKBDispatch& disp);
+
     // evaluate relRef, one of the arguments is a synonym
     void ev_relRef_syn_X(int rTableIdx, const RelRef *relRef);
     void ev_relRef_X_syn(int rTableIdx, const RelRef *relRef);
@@ -335,6 +358,11 @@ private:
     std::set<int> graph_isolatedClauses;
     std::vector<std::vector<int> > partitionedClauses;
     std::vector<ResultsTable> resultsTable;
+
+    #define EV_SAME_SYN_RELATION_ARR_SZ 4
+    static const RelRefType EV_SAME_SYN_RELATION_ARR[
+                         EV_SAME_SYN_RELATION_ARR_SZ];
+    static const std::set<RelRefType> EV_SAME_SYN_RELATION;
 };
 
 #endif

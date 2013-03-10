@@ -317,7 +317,6 @@ enum ParseError {
     PARSE_UNKNOWN
 };
 
-
 /// Returns a string equivalent of a given RelRefType
 /// @param relType relation type eg. REL_MODIFIES, REL_USES
 /// @return a string constant of the equivalent RelRefType,

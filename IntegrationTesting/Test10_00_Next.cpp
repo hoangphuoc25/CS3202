@@ -221,7 +221,7 @@ void Test10_00_Next::test_next_while_00()
             stringSet);
 
     queryStr = "while w;";
-    queryStr += " Select w such that Next*(w,w)";
+    queryStr += " Select w such that Next(w,w)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),
@@ -231,21 +231,23 @@ void Test10_00_Next::test_next_while_00()
     queryStr += " Select s such that Next(w,s)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "3","11","18"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "2", "3",
+            "11", "12", "14", "18"),
             stringSet);
 
     queryStr = "while w; prog_line n;";
     queryStr += " Select n such that Next(w,n)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "3","11","18"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "2", "3",
+            "11", "12", "14", "18"),
             stringSet);
 
     queryStr = "while w; if i;";
     queryStr += " Select i such that Next(w,i)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "12"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "3", "12"),
             stringSet);
 
     queryStr = "while w; call c;";
