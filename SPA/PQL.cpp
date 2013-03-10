@@ -1139,6 +1139,12 @@ std::string QueryInfo::dump_to_string() const
 
 void QueryInfo::dump_decl_select(StringBuffer &sb) const
 {
+    if (this->alive) {
+        sb.append("ALIVE\n");
+    } else {
+        sb.append("DEAD\n");
+        return;
+    }
     sb.append("DECLARATIONS\n");
     for (vector<pair<DesignEnt, string> >::const_iterator it =
             this->entVec.begin(); it != this->entVec.end(); it++) {
@@ -1212,4 +1218,14 @@ SelectType QueryInfo::get_selectType() const
 const vector<AttrRef>& QueryInfo::get_selectTuple() const
 {
     return this->selectTuple;
+}
+
+bool QueryInfo::is_alive() const
+{
+    return this->alive;
+}
+
+void QueryInfo::kill()
+{
+    this->alive = false;
 }

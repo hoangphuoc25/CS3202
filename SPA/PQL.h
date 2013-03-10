@@ -735,6 +735,12 @@ public:
     ///         The contents of the vector should only be trusted
     ///         if QueryInfo::get_selectType == SEL_TUPLE
     const std::vector<AttrRef>& get_selectTuple() const;
+    /// Checks if the current query is alive
+    /// @return true if the current query is alive, false otherwise
+    bool is_alive() const;
+    /// Kills the current query so that the QueryEvaluator will not
+    /// process it
+    void kill();
 
     /// Checks if synonyms of a certain DesignEnt is an acceptable
     /// type for the first argument of a Relation
@@ -792,6 +798,10 @@ private:
     std::set<PatCl, PatClCmp> patClSet;
     /// vector of all the clauses (in textual order)
     std::vector<GenericRef *> clauses;
+    /// if this is true, the QueryEvaluator will continue to
+    /// process the query. Otherwise, the query evaluator will
+    /// not process the query.
+    bool alive;
 
     /// character buffer used to store error messages
     char errorBuf[QINFO_ERROR_LEN+5];

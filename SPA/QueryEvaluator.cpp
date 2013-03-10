@@ -140,6 +140,10 @@ void QueryEvaluator::evaluate(const string& queryStr,
     this->reset();
     this->pqlParser.parse(queryStr, true, true);
     qinfo = this->pqlParser.get_queryinfo();
+    resultSet.clear();
+    if (!qinfo->is_alive()) {
+        return;
+    }
     this->partition_evaluation(qinfo);
 
     // Evaluate isolated clauses (stuff with no synonyms)

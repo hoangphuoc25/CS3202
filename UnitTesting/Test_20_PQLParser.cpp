@@ -42,7 +42,7 @@ void Test_20_PQLParser::test_one_decl_one()
     CPPUNIT_ASSERT(it != entTable.end());
     CPPUNIT_ASSERT_EQUAL(it->first, s);
     CPPUNIT_ASSERT_EQUAL(it->second, ENT_ASSIGN);
-    s = "DECLARATIONS\n  assign al3t\nSELECT TUPLE\n  assign al3t\n";
+    s = "ALIVE\nDECLARATIONS\n  assign al3t\nSELECT TUPLE\n  assign al3t\n";
     CPPUNIT_ASSERT_EQUAL(s, qinfo->dump_to_string());
 
     queryStr = "procedure bnvb#; Select bnvb#";
@@ -56,7 +56,8 @@ void Test_20_PQLParser::test_one_decl_one()
     CPPUNIT_ASSERT(it != entTable.end());
     CPPUNIT_ASSERT_EQUAL(it->first, s);
     CPPUNIT_ASSERT_EQUAL(it->second, ENT_PROC);
-    s = "DECLARATIONS\n  procedure bnvb#\nSELECT TUPLE\n  procedure bnvb#\n";
+    s = "ALIVE\nDECLARATIONS\n  procedure bnvb#\n";
+    s += "SELECT TUPLE\n  procedure bnvb#\n";
     CPPUNIT_ASSERT_EQUAL(s, qinfo->dump_to_string());
 
     queryStr = "stmtLst H1bvg; Select H1bvg";
@@ -70,7 +71,8 @@ void Test_20_PQLParser::test_one_decl_one()
     CPPUNIT_ASSERT(it != entTable.end());
     CPPUNIT_ASSERT_EQUAL(it->first, s);
     CPPUNIT_ASSERT_EQUAL(it->second, ENT_STMTLST);
-    s = "DECLARATIONS\n  stmtLst H1bvg\nSELECT TUPLE\n  stmtLst H1bvg\n";
+    s = "ALIVE\nDECLARATIONS\n  stmtLst H1bvg\n";
+    s += "SELECT TUPLE\n  stmtLst H1bvg\n";
     CPPUNIT_ASSERT_EQUAL(s, qinfo->dump_to_string());
 
     queryStr = "stmt s7772a;   \n Select s7772a  ";
@@ -84,7 +86,8 @@ void Test_20_PQLParser::test_one_decl_one()
     CPPUNIT_ASSERT(it != entTable.end());
     CPPUNIT_ASSERT_EQUAL(it->first, s);
     CPPUNIT_ASSERT_EQUAL(it->second, ENT_STMT);
-    s = "DECLARATIONS\n  stmt s7772a\nSELECT TUPLE\n  stmt s7772a\n";
+    s = "ALIVE\nDECLARATIONS\n  stmt s7772a\n";
+    s += "SELECT TUPLE\n  stmt s7772a\n";
     CPPUNIT_ASSERT_EQUAL(s, qinfo->dump_to_string());
 
     queryStr = "call Gbcv1;   \t\n  \t Select  \n \t Gbcv1  \t";
@@ -98,7 +101,8 @@ void Test_20_PQLParser::test_one_decl_one()
     CPPUNIT_ASSERT(it != entTable.end());
     CPPUNIT_ASSERT_EQUAL(it->first, s);
     CPPUNIT_ASSERT_EQUAL(it->second, ENT_CALL);
-    s = "DECLARATIONS\n  call Gbcv1\nSELECT TUPLE\n  call Gbcv1\n";
+    s = "ALIVE\nDECLARATIONS\n  call Gbcv1\n";
+    s += "SELECT TUPLE\n  call Gbcv1\n";
     CPPUNIT_ASSERT_EQUAL(s, qinfo->dump_to_string());
 
     queryStr = "while KMB2vx;Select KMB2vx";
@@ -112,7 +116,8 @@ void Test_20_PQLParser::test_one_decl_one()
     CPPUNIT_ASSERT(it != entTable.end());
     CPPUNIT_ASSERT_EQUAL(it->first, s);
     CPPUNIT_ASSERT_EQUAL(it->second, ENT_WHILE);
-    s = "DECLARATIONS\n  while KMB2vx\nSELECT TUPLE\n  while KMB2vx\n";
+    s = "ALIVE\nDECLARATIONS\n  while KMB2vx\n";
+    s += "SELECT TUPLE\n  while KMB2vx\n";
     CPPUNIT_ASSERT_EQUAL(s, qinfo->dump_to_string());
 
     queryStr = "if u; Select u";
@@ -126,7 +131,7 @@ void Test_20_PQLParser::test_one_decl_one()
     CPPUNIT_ASSERT(it != entTable.end());
     CPPUNIT_ASSERT_EQUAL(it->first, s);
     CPPUNIT_ASSERT_EQUAL(it->second, ENT_IF);
-    s = "DECLARATIONS\n  if u\nSELECT TUPLE\n  if u\n";
+    s = "ALIVE\nDECLARATIONS\n  if u\nSELECT TUPLE\n  if u\n";
     CPPUNIT_ASSERT_EQUAL(s, qinfo->dump_to_string());
 
     queryStr = "variable x; Select x";
@@ -140,7 +145,8 @@ void Test_20_PQLParser::test_one_decl_one()
     CPPUNIT_ASSERT(it != entTable.end());
     CPPUNIT_ASSERT_EQUAL(it->first, s);
     CPPUNIT_ASSERT_EQUAL(it->second, ENT_VAR);
-    s = "DECLARATIONS\n  variable x\nSELECT TUPLE\n  variable x\n";
+    s = "ALIVE\nDECLARATIONS\n  variable x\n";
+    s += "SELECT TUPLE\n  variable x\n";
     CPPUNIT_ASSERT_EQUAL(s, qinfo->dump_to_string());
 
     queryStr = "constant c2; \n Select \n\n c2\n \t";
@@ -154,7 +160,8 @@ void Test_20_PQLParser::test_one_decl_one()
     CPPUNIT_ASSERT(it != entTable.end());
     CPPUNIT_ASSERT_EQUAL(it->first, s);
     CPPUNIT_ASSERT_EQUAL(it->second, ENT_CONST);
-    s = "DECLARATIONS\n  constant c2\nSELECT TUPLE\n  constant c2\n";
+    s = "ALIVE\nDECLARATIONS\n  constant c2\n";
+    s += "SELECT TUPLE\n  constant c2\n";
     CPPUNIT_ASSERT_EQUAL(s, qinfo->dump_to_string());
        
     queryStr = "prog_line plbc;  Select plbc ";
@@ -168,7 +175,8 @@ void Test_20_PQLParser::test_one_decl_one()
     CPPUNIT_ASSERT(it != entTable.end());
     CPPUNIT_ASSERT_EQUAL(it->first, s);
     CPPUNIT_ASSERT_EQUAL(it->second, ENT_PROGLINE);
-    s = "DECLARATIONS\n  prog_line plbc\nSELECT TUPLE\n  prog_line plbc\n";
+    s = "ALIVE\nDECLARATIONS\n  prog_line plbc\n";
+    s += "SELECT TUPLE\n  prog_line plbc\n";
     CPPUNIT_ASSERT_EQUAL(s, qinfo->dump_to_string());
 
     // whitespace test
@@ -184,7 +192,7 @@ void Test_20_PQLParser::test_one_decl_one()
     CPPUNIT_ASSERT(it != entTable.end());
     CPPUNIT_ASSERT_EQUAL(it->first, s);
     CPPUNIT_ASSERT_EQUAL(it->second, ENT_ASSIGN);
-    s = "DECLARATIONS\n  assign nbnesdf1#bvsAA\nSELECT TUPLE\n";
+    s = "ALIVE\nDECLARATIONS\n  assign nbnesdf1#bvsAA\nSELECT TUPLE\n";
     s += "  assign nbnesdf1#bvsAA\n";
     CPPUNIT_ASSERT_EQUAL(s, qinfo->dump_to_string());
 }
@@ -218,7 +226,8 @@ void Test_20_PQLParser::test_one_decl()
     CPPUNIT_ASSERT(it != endIt);
     CPPUNIT_ASSERT_EQUAL(it->first, s);
     CPPUNIT_ASSERT_EQUAL(it->second, ENT_ASSIGN);
-    s = "DECLARATIONS\n  assign afC\n  assign bca\n  assign ncvb1\n";
+    s = "ALIVE\nDECLARATIONS\n  assign afC\n  assign bca\n";
+    s += "  assign ncvb1\n";
     s += "SELECT TUPLE\n  assign ncvb1\n";
     CPPUNIT_ASSERT_EQUAL(s, qinfo->dump_to_string());
 
@@ -250,7 +259,7 @@ void Test_20_PQLParser::test_one_decl()
     CPPUNIT_ASSERT(it != endIt);
     CPPUNIT_ASSERT_EQUAL(it->first, s);
     CPPUNIT_ASSERT_EQUAL(it->second, ENT_PROC);
-    s = "DECLARATIONS\n  procedure pl123\n  procedure ABsx1\n";
+    s = "ALIVE\nDECLARATIONS\n  procedure pl123\n  procedure ABsx1\n";
     s += "  procedure gawdvbS1\n  procedure xujrE1\n";
     s += "SELECT TUPLE\n  procedure ABsx1\n";
     CPPUNIT_ASSERT_EQUAL(s, qinfo->dump_to_string());
@@ -288,8 +297,8 @@ void Test_20_PQLParser::test_one_decl()
     CPPUNIT_ASSERT(it != endIt);
     CPPUNIT_ASSERT_EQUAL(it->first, s);
     CPPUNIT_ASSERT_EQUAL(it->second, ENT_STMTLST);
-    s = "DECLARATIONS\n  stmtLst bhvx1\n  stmtLst CVS1\n  stmtLst MBMcb1\n";
-    s += "  stmtLst HH123\n  stmtLst YFS1cvx\n";
+    s = "ALIVE\nDECLARATIONS\n  stmtLst bhvx1\n  stmtLst CVS1\n";
+    s += "  stmtLst MBMcb1\n  stmtLst HH123\n  stmtLst YFS1cvx\n";
     s += "SELECT TUPLE\n  stmtLst MBMcb1\n";
     CPPUNIT_ASSERT_EQUAL(s, qinfo->dump_to_string());
 
@@ -315,7 +324,7 @@ void Test_20_PQLParser::test_one_decl()
     CPPUNIT_ASSERT(it != endIt);
     CPPUNIT_ASSERT_EQUAL(it->first, s);
     CPPUNIT_ASSERT_EQUAL(it->second, ENT_STMT);
-    s = "DECLARATIONS\n  stmt a\n  stmt b\n  stmt f#1sdc\n";
+    s = "ALIVE\nDECLARATIONS\n  stmt a\n  stmt b\n  stmt f#1sdc\n";
     s += "SELECT TUPLE\n  stmt b\n";
     CPPUNIT_ASSERT_EQUAL(s, qinfo->dump_to_string());
 
@@ -336,7 +345,7 @@ void Test_20_PQLParser::test_one_decl()
     CPPUNIT_ASSERT(it != endIt);
     CPPUNIT_ASSERT_EQUAL(it->first, s);
     CPPUNIT_ASSERT_EQUAL(it->second, ENT_CALL);
-    s = "DECLARATIONS\n  call gbd1\n  call ccAS123\n";
+    s = "ALIVE\nDECLARATIONS\n  call gbd1\n  call ccAS123\n";
     s += "SELECT TUPLE\n  call gbd1\n";
     CPPUNIT_ASSERT_EQUAL(s, qinfo->dump_to_string());
 
@@ -373,8 +382,9 @@ void Test_20_PQLParser::test_one_decl()
     CPPUNIT_ASSERT(it != endIt);
     CPPUNIT_ASSERT_EQUAL(it->first, s);
     CPPUNIT_ASSERT_EQUAL(it->second, ENT_WHILE);
-    s = "DECLARATIONS\n  while W123v\n  while qfdf1t5\n  while bv11bv\n";
-    s += "  while x\n  while nbnx1\nSELECT TUPLE\n  while bv11bv\n";
+    s = "ALIVE\nDECLARATIONS\n  while W123v\n  while qfdf1t5\n";
+    s += "  while bv11bv\n  while x\n  while nbnx1\n";
+    s += "SELECT TUPLE\n  while bv11bv\n";
     CPPUNIT_ASSERT_EQUAL(s, qinfo->dump_to_string());
 
     queryStr = "\n\n\n\tif nmb1, \n  xgcx1;  Select xgcx1";
@@ -394,7 +404,8 @@ void Test_20_PQLParser::test_one_decl()
     CPPUNIT_ASSERT(it != endIt);
     CPPUNIT_ASSERT_EQUAL(it->first, s);
     CPPUNIT_ASSERT_EQUAL(it->second, ENT_IF);
-    s = "DECLARATIONS\n  if nmb1\n  if xgcx1\nSELECT TUPLE\n  if xgcx1\n";
+    s = "ALIVE\nDECLARATIONS\n  if nmb1\n  if xgcx1\n";
+    s += "SELECT TUPLE\n  if xgcx1\n";
     CPPUNIT_ASSERT_EQUAL(s, qinfo->dump_to_string());
 
     queryStr = " variable   Bb1, cvx1, \n v1sbaA12# ;  Select Bb1";
@@ -419,7 +430,7 @@ void Test_20_PQLParser::test_one_decl()
     CPPUNIT_ASSERT(it != endIt);
     CPPUNIT_ASSERT_EQUAL(it->first, s);
     CPPUNIT_ASSERT_EQUAL(it->second, ENT_VAR);
-    s = "DECLARATIONS\n  variable Bb1\n  variable cvx1\n";
+    s = "ALIVE\nDECLARATIONS\n  variable Bb1\n  variable cvx1\n";
     s += "  variable v1sbaA12#\nSELECT TUPLE\n  variable Bb1\n";
     CPPUNIT_ASSERT_EQUAL(s, qinfo->dump_to_string());
 
@@ -451,7 +462,7 @@ void Test_20_PQLParser::test_one_decl()
     CPPUNIT_ASSERT(it != endIt);
     CPPUNIT_ASSERT_EQUAL(it->first, s);
     CPPUNIT_ASSERT_EQUAL(it->second, ENT_CONST);
-    s = "DECLARATIONS\n  constant Cb#zsd1\n  constant Jvd11a\n";
+    s = "ALIVE\nDECLARATIONS\n  constant Cb#zsd1\n  constant Jvd11a\n";
     s += "  constant y1123h\n  constant kkj1#n\n";
     s += "SELECT TUPLE\n  constant kkj1#n\n";
     CPPUNIT_ASSERT_EQUAL(s, qinfo->dump_to_string());
@@ -499,7 +510,8 @@ void Test_20_PQLParser::test_one_decl()
     CPPUNIT_ASSERT(it != endIt);
     CPPUNIT_ASSERT_EQUAL(it->first, s);
     CPPUNIT_ASSERT_EQUAL(it->second, ENT_PROGLINE);
-    s = "DECLARATIONS\n  prog_line a01tT1z\n  prog_line bcv1\n  prog_line x\n";
+    s = "ALIVE\nDECLARATIONS\n  prog_line a01tT1z\n";
+    s += "  prog_line bcv1\n  prog_line x\n";
     s += "  prog_line B\n  prog_line cx1\n  prog_line X\n  prog_line z\n";
     s += "SELECT TUPLE\n  prog_line B\n";
     CPPUNIT_ASSERT_EQUAL(s, qinfo->dump_to_string());
@@ -679,7 +691,8 @@ void Test_20_PQLParser::test_mult_decl()
     CPPUNIT_ASSERT_EQUAL(it->first, s);
     CPPUNIT_ASSERT_EQUAL(it->second, ENT_STMT);
 
-    s = "DECLARATIONS\n  assign Ccxx1\n  assign bd1\n  procedure pl123\n";
+    s = "ALIVE\nDECLARATIONS\n  assign Ccxx1\n  assign bd1\n";
+    s += "  procedure pl123\n";
     s += "  procedure xvcxv1\n  procedure ggs1g\n  call call123\n  call x\n";
     s += "  call nbc\n  stmtLst ssbdv1\n  stmtLst g2cx1#\n  stmtLst X\n";
     s += "  stmtLst mmmio\n  variable vvvv1\n  variable nbv1\n  stmt Ty123\n";
@@ -700,7 +713,8 @@ void Test_20_PQLParser::test_select_bool()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    s = "DECLARATIONS\n  assign bb1\n  prog_line X1g\nSELECT BOOLEAN\n";
+    s = "ALIVE\nDECLARATIONS\n  assign bb1\n  prog_line X1g\n";
+    s += "SELECT BOOLEAN\n";
     CPPUNIT_ASSERT_EQUAL(s, qinfo->dump_to_string());
 }
 
@@ -714,7 +728,7 @@ void Test_20_PQLParser::test_select_tuple()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    output = "DECLARATIONS\n  assign bcv1\n  prog_line bvcb1\n";
+    output = "ALIVE\nDECLARATIONS\n  assign bcv1\n  prog_line bvcb1\n";
     output += "  prog_line GS1\n  stmt SS123\nSELECT TUPLE\n  assign bcv1\n";
     output += "  prog_line GS1\n";
     CPPUNIT_ASSERT_EQUAL(output, qinfo->dump_to_string());
@@ -727,7 +741,8 @@ void Test_20_PQLParser::test_select_tuple()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    output = "DECLARATIONS\n  stmtLst QQwe1\n  stmtLst hg1\n  prog_line x\n";
+    output = "ALIVE\nDECLARATIONS\n  stmtLst QQwe1\n  stmtLst hg1\n";
+    output += "  prog_line x\n";
     output += "  prog_line bv13hs#1\n  call vvbx1\n  while X\n";
     output += "  variable VBCV1\n  variable KJj12\n  constant bnbn\n";
     output += "  assign BBVB123jh\n  variable thd15\n";
@@ -745,7 +760,7 @@ void Test_20_PQLParser::test_select_attrRef()
     qinfo = parser.get_queryinfo();
     string output;
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    output = "DECLARATIONS\n  procedure p1\nSELECT TUPLE\n";
+    output = "ALIVE\nDECLARATIONS\n  procedure p1\nSELECT TUPLE\n";
     output += "  procedure p1 procName\n";
     CPPUNIT_ASSERT_EQUAL(output, qinfo->dump_to_string());
 
@@ -753,14 +768,15 @@ void Test_20_PQLParser::test_select_attrRef()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    output = "DECLARATIONS\n  assign a12\nSELECT TUPLE\n  assign a12 stmt#\n";
+    output = "ALIVE\nDECLARATIONS\n  assign a12\n";
+    output += "SELECT TUPLE\n  assign a12 stmt#\n";
     CPPUNIT_ASSERT_EQUAL(output, qinfo->dump_to_string());
 
     queryStr = "stmtLst sl43#; Select sl43#.stmt#";
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    output = "DECLARATIONS\n  stmtLst sl43#\n";
+    output = "ALIVE\nDECLARATIONS\n  stmtLst sl43#\n";
     output += "SELECT TUPLE\n  stmtLst sl43# stmt#\n";
     CPPUNIT_ASSERT_EQUAL(output, qinfo->dump_to_string());
 
@@ -768,7 +784,7 @@ void Test_20_PQLParser::test_select_attrRef()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    output = "DECLARATIONS\n  stmt gbv#c\n";
+    output = "ALIVE\nDECLARATIONS\n  stmt gbv#c\n";
     output += "SELECT TUPLE\n  stmt gbv#c stmt#\n";
     CPPUNIT_ASSERT_EQUAL(output, qinfo->dump_to_string());
 
@@ -776,7 +792,7 @@ void Test_20_PQLParser::test_select_attrRef()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    output = "DECLARATIONS\n  call nba1\n";
+    output = "ALIVE\nDECLARATIONS\n  call nba1\n";
     output += "SELECT TUPLE\n  call nba1 procName\n";
     CPPUNIT_ASSERT_EQUAL(output, qinfo->dump_to_string());
 
@@ -784,7 +800,7 @@ void Test_20_PQLParser::test_select_attrRef()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    output = "DECLARATIONS\n  call Tnbvc1\n";
+    output = "ALIVE\nDECLARATIONS\n  call Tnbvc1\n";
     output += "SELECT TUPLE\n  call Tnbvc1 stmt#\n";
     CPPUNIT_ASSERT_EQUAL(output, qinfo->dump_to_string());
 
@@ -792,7 +808,7 @@ void Test_20_PQLParser::test_select_attrRef()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    output = "DECLARATIONS\n  while pklf9\n";
+    output = "ALIVE\nDECLARATIONS\n  while pklf9\n";
     output += "SELECT TUPLE\n  while pklf9 stmt#\n";
     CPPUNIT_ASSERT_EQUAL(output, qinfo->dump_to_string());
 
@@ -800,7 +816,7 @@ void Test_20_PQLParser::test_select_attrRef()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    output = "DECLARATIONS\n  if HHbvc1\n";
+    output = "ALIVE\nDECLARATIONS\n  if HHbvc1\n";
     output += "SELECT TUPLE\n  if HHbvc1 stmt#\n";
     CPPUNIT_ASSERT_EQUAL(output, qinfo->dump_to_string());
 
@@ -808,7 +824,7 @@ void Test_20_PQLParser::test_select_attrRef()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    output = "DECLARATIONS\n  variable uvdg#\n";
+    output = "ALIVE\nDECLARATIONS\n  variable uvdg#\n";
     output += "SELECT TUPLE\n  variable uvdg# varName\n";
     CPPUNIT_ASSERT_EQUAL(output, qinfo->dump_to_string());
 
@@ -816,7 +832,7 @@ void Test_20_PQLParser::test_select_attrRef()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    output = "DECLARATIONS\n  constant dfb1\n";
+    output = "ALIVE\nDECLARATIONS\n  constant dfb1\n";
     output += "SELECT TUPLE\n  constant dfb1 value\n";
     CPPUNIT_ASSERT_EQUAL(output, qinfo->dump_to_string());
 
@@ -824,7 +840,7 @@ void Test_20_PQLParser::test_select_attrRef()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    output = "DECLARATIONS\n  prog_line pofd1\n";
+    output = "ALIVE\nDECLARATIONS\n  prog_line pofd1\n";
     output += "SELECT TUPLE\n  prog_line pofd1 stmt#\n";
     CPPUNIT_ASSERT_EQUAL(output, qinfo->dump_to_string());
 
@@ -839,7 +855,8 @@ void Test_20_PQLParser::test_select_attrRef()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    output = "DECLARATIONS\n  procedure proc1\n  procedure proc2\n";
+    output = "ALIVE\nDECLARATIONS\n  procedure proc1\n";
+    output += "  procedure proc2\n";
     output += "  stmtLst ST1\n  stmtLst ST2\n  stmt s1\n  stmt s2\n  stmt s3\n";
     output += "  assign a1\n  assign a2\n  assign a3\n  call c1\n  call c2\n";
     output += "  call c3\n  while w1\n  while w2\n  while w3\n  if i1\n";
@@ -868,7 +885,8 @@ void Test_20_PQLParser::test_modifies()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  assign ad\n  variable vhd\nSELECT TUPLE\n";
+    out = "ALIVE\nDECLARATIONS\n  assign ad\n  variable vhd\n";
+    out += "SELECT TUPLE\n";
     out += "  assign ad\nModifies(ad,vhd)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -879,7 +897,8 @@ void Test_20_PQLParser::test_modifies()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  assign fh1\n  variable gdfg1\n  variable hgf1udA\n";
+    out = "ALIVE\nDECLARATIONS\n  assign fh1\n  variable gdfg1\n";
+    out += "  variable hgf1udA\n";
     out += "SELECT TUPLE\n  variable hgf1udA\nModifies(fh1,gdfg1)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -889,7 +908,7 @@ void Test_20_PQLParser::test_modifies()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  procedure plf1\n  variable gbdg1\n";
+    out = "ALIVE\nDECLARATIONS\n  procedure plf1\n  variable gbdg1\n";
     out += "SELECT TUPLE\n  procedure plf1\nModifies(plf1,gbdg1)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -899,7 +918,8 @@ void Test_20_PQLParser::test_modifies()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  variable mmvd1\n  if nfI1g\nSELECT TUPLE\n";
+    out = "ALIVE\nDECLARATIONS\n  variable mmvd1\n  if nfI1g\n";
+    out += "SELECT TUPLE\n";
     out += "  if nfI1g\nModifies(nfI1g,mmvd1)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -909,7 +929,8 @@ void Test_20_PQLParser::test_modifies()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  while bcv1\n  variable TQWEx1\nSELECT TUPLE\n";
+    out = "ALIVE\nDECLARATIONS\n  while bcv1\n  variable TQWEx1\n";
+    out += "SELECT TUPLE\n";
     out += "  variable TQWEx1\nModifies(bcv1,TQWEx1)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -919,7 +940,8 @@ void Test_20_PQLParser::test_modifies()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  variable qecxv1#\n  call Kmmbc1\nSELECT TUPLE\n";
+    out = "ALIVE\nDECLARATIONS\n  variable qecxv1#\n  call Kmmbc1\n";
+    out += "SELECT TUPLE\n";
     out += "  call Kmmbc1\nModifies(Kmmbc1,qecxv1#)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -929,7 +951,8 @@ void Test_20_PQLParser::test_modifies()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  stmt Iuvc1\n  variable lljgbf1\nSELECT TUPLE\n";
+    out = "ALIVE\nDECLARATIONS\n  stmt Iuvc1\n  variable lljgbf1\n";
+    out += "SELECT TUPLE\n";
     out += "  stmt Iuvc1\nModifies(Iuvc1,lljgbf1)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -939,7 +962,8 @@ void Test_20_PQLParser::test_modifies()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  variable hjf1#xa\n  prog_line poiote\n";
+    out = "ALIVE\nDECLARATIONS\n  variable hjf1#xa\n";
+    out += "  prog_line poiote\n";
     out += "SELECT TUPLE\n  prog_line poiote\nModifies(poiote,hjf1#xa)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -949,7 +973,8 @@ void Test_20_PQLParser::test_modifies()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  stmt fvb1\nSELECT TUPLE\n  stmt fvb1\n";
+    out = "ALIVE\nDECLARATIONS\n  stmt fvb1\nSELECT TUPLE\n";
+    out += "  stmt fvb1\n";
     out += "Modifies(fvb1,\"abvxc\")\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -959,7 +984,7 @@ void Test_20_PQLParser::test_modifies()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  while df1\n  stmt BBx1\n";
+    out = "ALIVE\nDECLARATIONS\n  while df1\n  stmt BBx1\n";
     out += "SELECT TUPLE\n  while df1\n  stmt BBx1\nModifies(df1,_)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -969,7 +994,8 @@ void Test_20_PQLParser::test_modifies()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  variable hcb\n  variable m2df1\nSELECT TUPLE\n";
+    out = "ALIVE\nDECLARATIONS\n  variable hcb\n  variable m2df1\n";
+    out += "SELECT TUPLE\n";
     out += "  variable m2df1\nModifies(5,m2df1)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -978,7 +1004,8 @@ void Test_20_PQLParser::test_modifies()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  variable BLEh\nSELECT TUPLE\n  variable BLEh\n";
+    out = "ALIVE\nDECLARATIONS\n  variable BLEh\n";
+    out += "SELECT TUPLE\n  variable BLEh\n";
     out += "Modifies(13,\"Ex1\")\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -987,7 +1014,7 @@ void Test_20_PQLParser::test_modifies()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\nSELECT BOOLEAN\nModifies(235,_)\n";
+    out = "ALIVE\nDECLARATIONS\nSELECT BOOLEAN\nModifies(235,_)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
     // Modifies(int,_), int is negative
@@ -995,7 +1022,7 @@ void Test_20_PQLParser::test_modifies()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\nSELECT BOOLEAN\nModifies(-23615,_)\n";
+    out = "ALIVE\nDECLARATIONS\nSELECT BOOLEAN\nModifies(-23615,_)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
     // Modifies(string,var)
@@ -1004,7 +1031,8 @@ void Test_20_PQLParser::test_modifies()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  variable utq\nSELECT TUPLE\n  variable utq\n";
+    out = "ALIVE\nDECLARATIONS\n  variable utq\nSELECT TUPLE\n";
+    out += "  variable utq\n";
     out += "Modifies(\"proc1\",utq)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -1014,7 +1042,8 @@ void Test_20_PQLParser::test_modifies()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  while xfgvb1\nSELECT TUPLE\n  while xfgvb1\n";
+    out = "ALIVE\nDECLARATIONS\n  while xfgvb1\nSELECT TUPLE\n";
+    out += "  while xfgvb1\n";
     out += "Modifies(\"fvProc\",\"bcb14\")\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -1023,7 +1052,8 @@ void Test_20_PQLParser::test_modifies()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  stmtLst sf\nSELECT TUPLE\n  stmtLst sf\n";
+    out = "ALIVE\nDECLARATIONS\n  stmtLst sf\nSELECT TUPLE\n";
+    out += "  stmtLst sf\n";
     out += "Modifies(\"qbcvb1\",_)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -1033,7 +1063,8 @@ void Test_20_PQLParser::test_modifies()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  variable gvbcvb\nSELECT TUPLE\n  variable gvbcvb\n";
+    out = "ALIVE\nDECLARATIONS\n  variable gvbcvb\nSELECT TUPLE\n";
+    out += "  variable gvbcvb\n";
     out += "Modifies(_,gvbcvb)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -1042,7 +1073,7 @@ void Test_20_PQLParser::test_modifies()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  assign a\nSELECT TUPLE\n  assign a\n";
+    out = "ALIVE\nDECLARATIONS\n  assign a\nSELECT TUPLE\n  assign a\n";
     out += "Modifies(_,\"bmcvkb\")\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -1051,7 +1082,8 @@ void Test_20_PQLParser::test_modifies()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  variable sdfv1\nSELECT TUPLE\n  variable sdfv1\n";
+    out = "ALIVE\nDECLARATIONS\n  variable sdfv1\nSELECT TUPLE\n";
+    out += "  variable sdfv1\n";
     out += "Modifies(_,_)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -1061,7 +1093,8 @@ void Test_20_PQLParser::test_modifies()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  assign Asd1\n  variable bv1\n  procedure eh1ty\n";
+    out = "ALIVE\nDECLARATIONS\n  assign Asd1\n  variable bv1\n";
+    out += "  procedure eh1ty\n";
     out += "SELECT TUPLE\n  variable bv1\nModifies(Asd1,bv1)\n";
     out += "Modifies(eh1ty,bv1)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -1073,7 +1106,8 @@ void Test_20_PQLParser::test_modifies()
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  variable nfbg1\n  while dxfg1\n  if bv1hda\n";
+    out = "ALIVE\nDECLARATIONS\n  variable nfbg1\n  while dxfg1\n";
+    out += "  if bv1hda\n";
     out += "SELECT TUPLE\n  if bv1hda\n  while dxfg1\nModifies(dxfg1,nfbg1)\n";
     out += "Modifies(bv1hda,nfbg1)\nModifies(_,\"hjs1\")\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -1124,7 +1158,8 @@ void Test_20_PQLParser::test_modifies()
     parser.parse(queryStr, true, false);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  while w1\n  while w2\n  assign a1\n  assign a2\n";
+    out = "ALIVE\nDECLARATIONS\n  while w1\n  while w2\n  assign a1\n";
+    out += "  assign a2\n";
     out += "  procedure proc1\n  procedure proc2\n  stmt stmt1\n";
     out += "  stmt stmt2\n  call call1\n  call call2\n  if if1\n  if if2\n";
     out += "  variable var1\n  variable var2\n  variable var3\n";
@@ -1606,7 +1641,8 @@ void Test_20_PQLParser::test_uses()
     parser.parse(queryStr, false, false);
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
     qinfo = parser.get_queryinfo();
-    out = "DECLARATIONS\n  assign a\n  variable v\nSELECT TUPLE\n";
+    out = "ALIVE\nDECLARATIONS\n  assign a\n  variable v\n";
+    out += "SELECT TUPLE\n";
     out += "  assign a\nUses(a,v)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -1616,7 +1652,8 @@ void Test_20_PQLParser::test_uses()
     parser.parse(queryStr, false, false);
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
     qinfo = parser.get_queryinfo();
-    out = "DECLARATIONS\n  if ivb1\n  variable sdf1\nSELECT TUPLE\n";
+    out = "ALIVE\nDECLARATIONS\n  if ivb1\n  variable sdf1\n";
+    out += "SELECT TUPLE\n";
     out += "  variable sdf1\nUses(ivb1,sdf1)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -1626,7 +1663,8 @@ void Test_20_PQLParser::test_uses()
     parser.parse(queryStr, false, false);
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
     qinfo = parser.get_queryinfo();
-    out = "DECLARATIONS\n  while fdg1\n  variable hd1bd#\nSELECT TUPLE\n";
+    out = "ALIVE\nDECLARATIONS\n  while fdg1\n  variable hd1bd#\n";
+    out += "SELECT TUPLE\n";
     out += "  while fdg1\nUses(fdg1,hd1bd#)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -1636,7 +1674,7 @@ void Test_20_PQLParser::test_uses()
     parser.parse(queryStr, false, false);
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
     qinfo = parser.get_queryinfo();
-    out = "DECLARATIONS\n  variable mmmsdf1\n  procedure pfdgy\n";
+    out = "ALIVE\nDECLARATIONS\n  variable mmmsdf1\n  procedure pfdgy\n";
     out += "SELECT TUPLE\n  variable mmmsdf1\nUses(pfdgy,mmmsdf1)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -1646,7 +1684,8 @@ void Test_20_PQLParser::test_uses()
     parser.parse(queryStr, false, false);
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
     qinfo = parser.get_queryinfo();
-    out = "DECLARATIONS\n  call cvfh\n  variable tr14531\nSELECT TUPLE\n";
+    out = "ALIVE\nDECLARATIONS\n  call cvfh\n  variable tr14531\n";
+    out += "SELECT TUPLE\n";
     out += "  call cvfh\nUses(cvfh,tr14531)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -1656,7 +1695,8 @@ void Test_20_PQLParser::test_uses()
     parser.parse(queryStr, false, false);
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
     qinfo = parser.get_queryinfo();
-    out = "DECLARATIONS\n  stmt sfsdf1\n  variable mbv\nSELECT TUPLE\n";
+    out = "ALIVE\nDECLARATIONS\n  stmt sfsdf1\n  variable mbv\n";
+    out += "SELECT TUPLE\n";
     out += "  variable mbv\nUses(sfsdf1,mbv)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -1666,7 +1706,7 @@ void Test_20_PQLParser::test_uses()
     parser.parse(queryStr, false, false);
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
     qinfo = parser.get_queryinfo();
-    out = "DECLARATIONS\n  variable ywert1\n  prog_line pldg1\n";
+    out = "ALIVE\nDECLARATIONS\n  variable ywert1\n  prog_line pldg1\n";
     out += "SELECT TUPLE\n  prog_line pldg1\nUses(pldg1,ywert1)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -1675,7 +1715,7 @@ void Test_20_PQLParser::test_uses()
     parser.parse(queryStr, false, false);
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
     qinfo = parser.get_queryinfo();
-    out = "DECLARATIONS\n  stmt fg1\nSELECT TUPLE\n  stmt fg1\n";
+    out = "ALIVE\nDECLARATIONS\n  stmt fg1\nSELECT TUPLE\n  stmt fg1\n";
     out += "Uses(fg1,\"bleh\")\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -1684,7 +1724,7 @@ void Test_20_PQLParser::test_uses()
     parser.parse(queryStr, false, false);
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
     qinfo = parser.get_queryinfo();
-    out = "DECLARATIONS\n  procedure qwey1b\nSELECT BOOLEAN\n";
+    out = "ALIVE\nDECLARATIONS\n  procedure qwey1b\nSELECT BOOLEAN\n";
     out += "Uses(qwey1b,_)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -1693,7 +1733,8 @@ void Test_20_PQLParser::test_uses()
     parser.parse(queryStr, false, false);
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
     qinfo = parser.get_queryinfo();
-    out = "DECLARATIONS\n  variable v1\n  variable v2\nSELECT TUPLE\n";
+    out = "ALIVE\nDECLARATIONS\n  variable v1\n  variable v2\n";
+    out += "SELECT TUPLE\n";
     out += "  variable v1\nUses(\"proc\",v1)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -1702,7 +1743,8 @@ void Test_20_PQLParser::test_uses()
     parser.parse(queryStr, false, false);
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
     qinfo = parser.get_queryinfo();
-    out = "DECLARATIONS\n  assign db1\nSELECT TUPLE\n  assign db1\n";
+    out = "ALIVE\nDECLARATIONS\n  assign db1\nSELECT TUPLE\n";
+    out += "  assign db1\n";
     out += "Uses(\"bxcv1\",\"mmn1\")\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -1711,7 +1753,8 @@ void Test_20_PQLParser::test_uses()
     parser.parse(queryStr, false, false);
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
     qinfo = parser.get_queryinfo();
-    out = "DECLARATIONS\n  while sfg1\nSELECT TUPLE\n  while sfg1\n";
+    out = "ALIVE\nDECLARATIONS\n  while sfg1\nSELECT TUPLE\n";
+    out += "  while sfg1\n";
     out += "Uses(\"uydr\",_)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -1720,7 +1763,8 @@ void Test_20_PQLParser::test_uses()
     parser.parse(queryStr, false, false);
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
     qinfo = parser.get_queryinfo();
-    out = "DECLARATIONS\n  while sd\n  variable bm1\nSELECT TUPLE\n";
+    out = "ALIVE\nDECLARATIONS\n  while sd\n  variable bm1\n";
+    out += "SELECT TUPLE\n";
     out += "  while sd\nUses(634,bm1)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -1730,7 +1774,8 @@ void Test_20_PQLParser::test_uses()
     parser.parse(queryStr, false, false);
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
     qinfo = parser.get_queryinfo();
-    out = "DECLARATIONS\n  while sd\n  variable bm1\nSELECT TUPLE\n";
+    out = "ALIVE\nDECLARATIONS\n  while sd\n  variable bm1\n";
+    out += "SELECT TUPLE\n";
     out += "  while sd\nUses(-71231,bm1)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -1739,7 +1784,8 @@ void Test_20_PQLParser::test_uses()
     parser.parse(queryStr, false, false);
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
     qinfo = parser.get_queryinfo();
-    out = "DECLARATIONS\n  prog_line pl1\nSELECT TUPLE\n  prog_line pl1\n";
+    out = "ALIVE\nDECLARATIONS\n  prog_line pl1\nSELECT TUPLE\n";
+    out += "  prog_line pl1\n";
     out += "Uses(83,\"warf\")\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -1748,7 +1794,7 @@ void Test_20_PQLParser::test_uses()
     parser.parse(queryStr, false, false);
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
     qinfo = parser.get_queryinfo();
-    out = "DECLARATIONS\nSELECT BOOLEAN\nUses(58542,_)\n";
+    out = "ALIVE\nDECLARATIONS\nSELECT BOOLEAN\nUses(58542,_)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
     // Uses(_,var)
@@ -1756,7 +1802,8 @@ void Test_20_PQLParser::test_uses()
     parser.parse(queryStr, false, false);
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
     qinfo = parser.get_queryinfo();
-    out = "DECLARATIONS\n  call cl13\n  variable x\nSELECT TUPLE\n";
+    out = "ALIVE\nDECLARATIONS\n  call cl13\n  variable x\n";
+    out += "SELECT TUPLE\n";
     out += "  call cl13\nUses(_,x)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -1765,7 +1812,8 @@ void Test_20_PQLParser::test_uses()
     parser.parse(queryStr, false, false);
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
     qinfo = parser.get_queryinfo();
-    out = "DECLARATIONS\n  constant m2\nSELECT TUPLE\n  constant m2\n";
+    out = "ALIVE\nDECLARATIONS\n  constant m2\nSELECT TUPLE\n";
+    out += "  constant m2\n";
     out += "Uses(_,\"hohoho\")\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -1775,7 +1823,8 @@ void Test_20_PQLParser::test_uses()
     parser.parse(queryStr, false, false);
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
     qinfo = parser.get_queryinfo();
-    out = "DECLARATIONS\n  assign a3\n  variable sdf1\nSELECT TUPLE\n";
+    out = "ALIVE\nDECLARATIONS\n  assign a3\n  variable sdf1\n";
+    out += "SELECT TUPLE\n";
     out += "  assign a3\n  variable sdf1\nUses(_,_)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -1785,7 +1834,8 @@ void Test_20_PQLParser::test_uses()
     parser.parse(queryStr, false, false);
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
     qinfo = parser.get_queryinfo();
-    out = "DECLARATIONS\n  assign a\n  variable v\n  variable v2\n";
+    out = "ALIVE\nDECLARATIONS\n  assign a\n  variable v\n";
+    out += "  variable v2\n";
     out += "  procedure p\nSELECT TUPLE\n  assign a\n  procedure p\n";
     out += "Uses(a,v)\nUses(p,v2)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -1826,7 +1876,7 @@ void Test_20_PQLParser::test_uses()
     parser.parse(queryStr, true, false);
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
     qinfo = parser.get_queryinfo();
-    out = "DECLARATIONS\n  assign a1\n  assign a2\n  assign a3\n";
+    out = "ALIVE\nDECLARATIONS\n  assign a1\n  assign a2\n  assign a3\n";
     out += "  if i1\n  if i2\n  if i3\n  while w1\n  while w2\n  while w3\n";
     out += "  procedure p1\n  procedure p2\n  procedure p3\n  call c1\n";
     out += "  call c2\n  call c3\n  stmt s1\n  stmt s2\n  stmt s3\n";
@@ -2006,7 +2056,8 @@ void Test_20_PQLParser::test_calls_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  procedure p1\n  procedure p2\n");
+        sb.append("ALIVE\nDECLARATIONS\n  procedure p1\n");
+        sb.append("  procedure p2\n");
         sb.append("SELECT TUPLE\n  procedure p1\n");
         sb.substitutef("%s(p1,p2)\n", *it);
         out = sb.toString();
@@ -2023,7 +2074,8 @@ void Test_20_PQLParser::test_calls_and_star()
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
         sb.append(
-            "DECLARATIONS\n  procedure fv1\nSELECT TUPLE\n  procedure fv1\n");
+            "ALIVE\nDECLARATIONS\n  procedure fv1\nSELECT TUPLE\n");
+        sb.append("  procedure fv1\n");
         sb.substitutef("%s(fv1,\"proc2\")\n", *it);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -2039,7 +2091,8 @@ void Test_20_PQLParser::test_calls_and_star()
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
         sb.append(
-            "DECLARATIONS\n  procedure bfg1\n  assign a123\nSELECT TUPLE\n");
+            "ALIVE\nDECLARATIONS\n  procedure bfg1\n  assign a123\n");
+        sb.append("SELECT TUPLE\n");
         sb.substitutef("  assign a123\n%s(bfg1,_)\n", *it);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -2055,7 +2108,8 @@ void Test_20_PQLParser::test_calls_and_star()
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
         sb.append(
-            "DECLARATIONS\n  procedure s1\nSELECT TUPLE\n  procedure s1\n");
+            "ALIVE\nDECLARATIONS\n  procedure s1\nSELECT TUPLE\n");
+        sb.append("  procedure s1\n");
         sb.substitutef("%s(\"myProc\",s1)\n", *it);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -2071,7 +2125,8 @@ void Test_20_PQLParser::test_calls_and_star()
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
         sb.append(
-            "DECLARATIONS\n  procedure f\nSELECT TUPLE\n  procedure f\n");
+            "ALIVE\nDECLARATIONS\n  procedure f\nSELECT TUPLE\n");
+        sb.append("  procedure f\n");
         sb.substitutef("%s(\"a1\",\"b2s\")\n", *it);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -2086,7 +2141,8 @@ void Test_20_PQLParser::test_calls_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  assign sd1\nSELECT TUPLE\n  assign sd1\n");
+        sb.append("ALIVE\nDECLARATIONS\n  assign sd1\nSELECT TUPLE\n");
+        sb.append("  assign sd1\n");
         sb.substitutef("%s(\"blah\",_)\n", *it);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -2101,7 +2157,8 @@ void Test_20_PQLParser::test_calls_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  while w1\n  procedure s\nSELECT TUPLE\n");
+        sb.append("ALIVE\nDECLARATIONS\n  while w1\n  procedure s\n");
+        sb.append("SELECT TUPLE\n");
         sb.substitutef("  while w1\n  procedure s\n%s(_,s)\n", *it);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -2115,7 +2172,8 @@ void Test_20_PQLParser::test_calls_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  stmt s1\nSELECT TUPLE\n  stmt s1\n");
+        sb.append("ALIVE\nDECLARATIONS\n  stmt s1\nSELECT TUPLE\n");
+        sb.append("  stmt s1\n");
         sb.substitutef("%s(_,\"df1\")\n", *it);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -2129,7 +2187,8 @@ void Test_20_PQLParser::test_calls_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  assign asb\nSELECT TUPLE\n  assign asb\n");
+        sb.append("ALIVE\nDECLARATIONS\n  assign asb\nSELECT TUPLE\n");
+        sb.append("  assign asb\n");
         sb.substitutef("%s(_,_)\n", *it);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -2145,7 +2204,8 @@ void Test_20_PQLParser::test_calls_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  procedure p1\n  procedure p2\n");
+        sb.append("ALIVE\nDECLARATIONS\n  procedure p1\n");
+        sb.append("  procedure p2\n");
         sb.substitutef(
             "SELECT TUPLE\n  procedure p1\n%s(p1,p2)\n%s(p2,\"tig\")\n", *it);
         out = sb.toString();
@@ -2176,7 +2236,8 @@ void Test_20_PQLParser::test_calls_and_star()
         parser.parse(os, queryStr, true, false);
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  procedure p1\n  procedure p2\n");
+        sb.append("ALIVE\nDECLARATIONS\n  procedure p1\n");
+        sb.append("  procedure p2\n");
         sb.append("  procedure p3\n  procedure p4\n  procedure p5\n");
         sb.append("  while w1\n  assign a2\n");
         sb.append("SELECT TUPLE\n  procedure p1 procName\n  procedure p1\n");
@@ -2515,7 +2576,8 @@ void Test_20_PQLParser::test_parent_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  stmt sg\n  stmt jdg1\nSELECT TUPLE\n");
+        sb.append("ALIVE\nDECLARATIONS\n  stmt sg\n  stmt jdg1\n"
+                "SELECT TUPLE\n");
         sb.substitutef("  stmt sg\n%s(sg,jdg1)\n", *it);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -2529,7 +2591,8 @@ void Test_20_PQLParser::test_parent_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  stmt bndf\n  while sdf\nSELECT TUPLE\n");
+        sb.append("ALIVE\nDECLARATIONS\n  stmt bndf\n  while sdf\n"
+                "SELECT TUPLE\n");
         sb.substitutef("  while sdf\n%s(sdf,bndf)\n", *it);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -2543,7 +2606,8 @@ void Test_20_PQLParser::test_parent_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  if mkh1\n  stmt nf1\nSELECT TUPLE\n");
+        sb.append("ALIVE\nDECLARATIONS\n  if mkh1\n  stmt nf1\n"
+                "SELECT TUPLE\n");
         sb.substitutef("  if mkh1\n%s(mkh1,nf1)\n", *it);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -2557,7 +2621,8 @@ void Test_20_PQLParser::test_parent_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  stmt b1\n  prog_line ply1\nSELECT TUPLE\n");
+        sb.append("ALIVE\nDECLARATIONS\n  stmt b1\n  prog_line ply1\n"
+                "SELECT TUPLE\n");
         sb.substitutef("  prog_line ply1\n%s(ply1,b1)\n", *it);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -2571,7 +2636,8 @@ void Test_20_PQLParser::test_parent_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  assign qw1\n  stmt jf\nSELECT TUPLE\n");
+        sb.append("ALIVE\nDECLARATIONS\n  assign qw1\n  stmt jf\n"
+                "SELECT TUPLE\n");
         sb.substitutef("  stmt jf\n%s(jf,qw1)\n", *it);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -2585,7 +2651,8 @@ void Test_20_PQLParser::test_parent_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  stmt jhd\n  call cy\nSELECT TUPLE\n");
+        sb.append("ALIVE\nDECLARATIONS\n  stmt jhd\n  call cy\n"
+                "SELECT TUPLE\n");
         sb.substitutef("  stmt jhd\n  call cy\n%s(jhd,cy)\n", *it);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -2599,7 +2666,8 @@ void Test_20_PQLParser::test_parent_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  while hb1\n  stmt ksdfg\nSELECT TUPLE\n");
+        sb.append("ALIVE\nDECLARATIONS\n  while hb1\n  stmt ksdfg\n"
+                "SELECT TUPLE\n");
         sb.substitutef("  while hb1\n%s(ksdfg,hb1)\n", *it);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -2613,7 +2681,8 @@ void Test_20_PQLParser::test_parent_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  if kh1\n  stmt s123\nSELECT TUPLE\n");
+        sb.append("ALIVE\nDECLARATIONS\n  if kh1\n  stmt s123\n"
+                "SELECT TUPLE\n");
         sb.substitutef("  if kh1\n%s(s123,kh1)\n", *it);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -2627,7 +2696,7 @@ void Test_20_PQLParser::test_parent_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  stmt yrq\n  prog_line plb1\n");
+        sb.append("ALIVE\nDECLARATIONS\n  stmt yrq\n  prog_line plb1\n");
         sb.append("SELECT TUPLE\n  prog_line plb1\n");
         sb.substitutef("%s(yrq,plb1)\n", *it);
         out = sb.toString();
@@ -2642,7 +2711,8 @@ void Test_20_PQLParser::test_parent_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  while g1\nSELECT TUPLE\n  while g1\n");
+        sb.append("ALIVE\nDECLARATIONS\n  while g1\nSELECT TUPLE\n"
+                "  while g1\n");
         sb.substitutef("%s(g1,6724)\n", *it);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -2656,7 +2726,8 @@ void Test_20_PQLParser::test_parent_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  assign bd1\n  stmt uy7\nSELECT TUPLE\n");
+        sb.append("ALIVE\nDECLARATIONS\n  assign bd1\n  stmt uy7\n"
+                "SELECT TUPLE\n");
         sb.substitutef("  assign bd1\n%s(uy7,_)\n", *it);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -2670,7 +2741,8 @@ void Test_20_PQLParser::test_parent_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  stmt bhn1\nSELECT TUPLE\n  stmt bhn1\n");
+        sb.append("ALIVE\nDECLARATIONS\n  stmt bhn1\nSELECT TUPLE\n"
+                "  stmt bhn1\n");
         sb.substitutef("%s(32,bhn1)\n", *it);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -2684,7 +2756,8 @@ void Test_20_PQLParser::test_parent_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  stmt bhn1\nSELECT TUPLE\n  stmt bhn1\n");
+        sb.append("ALIVE\nDECLARATIONS\n  stmt bhn1\nSELECT TUPLE\n"
+                "  stmt bhn1\n");
         sb.substitutef("%s(-124,bhn1)\n", *it);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -2698,7 +2771,8 @@ void Test_20_PQLParser::test_parent_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  while ht1\nSELECT TUPLE\n  while ht1\n");
+        sb.append("ALIVE\nDECLARATIONS\n  while ht1\nSELECT TUPLE\n"
+                "  while ht1\n");
         sb.substitutef("%s(72,3362)\n", *it);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -2712,7 +2786,8 @@ void Test_20_PQLParser::test_parent_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  while ht1\nSELECT TUPLE\n  while ht1\n");
+        sb.append("ALIVE\nDECLARATIONS\n  while ht1\nSELECT TUPLE\n"
+                "  while ht1\n");
         sb.substitutef("%s(-1578,-2147483648)\n", *it);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -2726,7 +2801,7 @@ void Test_20_PQLParser::test_parent_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  constant vb1\nSELECT TUPLE\n");
+        sb.append("ALIVE\nDECLARATIONS\n  constant vb1\nSELECT TUPLE\n");
         sb.substitutef("  constant vb1\n%s(4,_)\n", *it);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -2740,7 +2815,8 @@ void Test_20_PQLParser::test_parent_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  stmt khs\nSELECT TUPLE\n  stmt khs\n");
+        sb.append("ALIVE\nDECLARATIONS\n  stmt khs\nSELECT TUPLE\n"
+                "  stmt khs\n");
         sb.substitutef("%s(_,khs)\n", *it);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -2754,7 +2830,7 @@ void Test_20_PQLParser::test_parent_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  variable v\nSELECT TUPLE\n");
+        sb.append("ALIVE\nDECLARATIONS\n  variable v\nSELECT TUPLE\n");
         sb.substitutef("  variable v\n%s(_,51)\n", *it);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -2767,7 +2843,8 @@ void Test_20_PQLParser::test_parent_and_star()
         parser.parse(queryStr, false, false);
         qinfo = parser.get_queryinfo();
         sb.clear();
-        sb.append("DECLARATIONS\n  stmt s\nSELECT TUPLE\n  stmt s\n");
+        sb.append("ALIVE\nDECLARATIONS\n  stmt s\nSELECT TUPLE\n"
+                "  stmt s\n");
         sb.substitutef("%s(_,_)\n", *it);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -2780,7 +2857,8 @@ void Test_20_PQLParser::test_parent_and_star()
         parser.parse(queryStr, false, false);
         qinfo = parser.get_queryinfo();
         sb.clear();
-        sb.append("DECLARATIONS\n  stmt s1\n  while w1\n  if i1\n");
+        sb.append("ALIVE\nDECLARATIONS\n  stmt s1\n  while w1\n"
+                "  if i1\n");
         sb.append("  assign a1\nSELECT TUPLE\n  stmt s1\n  while w1\n");
         sb.substitutef("%s(s1,i1)\n%s(w1,a1)\n", *it);
         out = sb.toString();
@@ -2819,7 +2897,8 @@ void Test_20_PQLParser::test_parent_and_star()
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         qinfo = parser.get_queryinfo();
         sb.clear();
-        sb.append("DECLARATIONS\n  stmt s1\n  stmt s2\n  stmt s3\n");
+        sb.append("ALIVE\nDECLARATIONS\n  stmt s1\n  stmt s2\n"
+                "  stmt s3\n");
         sb.append("  assign a1\n  assign a2\n  assign a3\n  call c1\n");
         sb.append("  call c2\n  call c3\n  while w1\n  while w2\n");
         sb.append("  while w3\n  if i1\n  if i2\n  if i3\n  variable v1\n");
@@ -2981,7 +3060,7 @@ void Test_20_PQLParser::test_follows_and_star()
             qinfo = parser.get_queryinfo();
             CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
             sb.clear();
-            sb.append("DECLARATIONS\n  stmt jfd\n");
+            sb.append("ALIVE\nDECLARATIONS\n  stmt jfd\n");
             sb.sprintf("  %s %s\nSELECT TUPLE\n  %s %s\n%s(%s,jfd)\n",
                     entIt->first, entIt->second, entIt->first, entIt->second,
                     *relIt, entIt->second);
@@ -2997,7 +3076,8 @@ void Test_20_PQLParser::test_follows_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  stmt Qer1\nSELECT TUPLE\n  stmt Qer1\n");
+        sb.append("ALIVE\nDECLARATIONS\n  stmt Qer1\nSELECT TUPLE\n"
+                "  stmt Qer1\n");
         sb.substitutef("%s(627,Qer1)\n", *relIt);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -3010,7 +3090,8 @@ void Test_20_PQLParser::test_follows_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  stmt Qer1\nSELECT TUPLE\n  stmt Qer1\n");
+        sb.append("ALIVE\nDECLARATIONS\n  stmt Qer1\nSELECT TUPLE\n"
+                "  stmt Qer1\n");
         sb.substitutef("%s(-2147483648,Qer1)\n", *relIt);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -3023,7 +3104,8 @@ void Test_20_PQLParser::test_follows_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  stmt df1\nSELECT TUPLE\n  stmt df1\n");
+        sb.append("ALIVE\nDECLARATIONS\n  stmt df1\nSELECT TUPLE\n"
+                "  stmt df1\n");
         sb.substitutef("%s(_,df1)\n", *relIt);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -3041,7 +3123,7 @@ void Test_20_PQLParser::test_follows_and_star()
             qinfo = parser.get_queryinfo();
             CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
             sb.clear();
-            sb.append("DECLARATIONS\n");
+            sb.append("ALIVE\nDECLARATIONS\n");
             sb.sprintf("  %s %s\nSELECT TUPLE\n  %s %s\n%s(_,%s)\n",
                     entIt->first, entIt->second, entIt->first, entIt->second,
                     *relIt, entIt->second);
@@ -3057,7 +3139,7 @@ void Test_20_PQLParser::test_follows_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  assign nd\nSELECT TUPLE\n");
+        sb.append("ALIVE\nDECLARATIONS\n  assign nd\nSELECT TUPLE\n");
         sb.append("  assign nd\n");
         sb.substitutef("%s(_,41)\n", *relIt);
         out = sb.toString();
@@ -3071,7 +3153,8 @@ void Test_20_PQLParser::test_follows_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  stmt ummf\nSELECT TUPLE\n  stmt ummf\n");
+        sb.append("ALIVE\nDECLARATIONS\n  stmt ummf\nSELECT TUPLE\n"
+                "  stmt ummf\n");
         sb.substitutef("%s(_,_)\n", *relIt);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -3086,7 +3169,8 @@ void Test_20_PQLParser::test_follows_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  stmt s1\n  stmt s2\n  assign a1\n");
+        sb.append("ALIVE\nDECLARATIONS\n  stmt s1\n  stmt s2\n"
+                "  assign a1\n");
         sb.append("  assign a2\n  call c3\nSELECT TUPLE\n  stmt s2\n");
         sb.append("  assign a1\n");
         sb.substitutef("%s(s1,a1)\n%s(c3,a2)\n", *relIt);
@@ -3136,7 +3220,8 @@ void Test_20_PQLParser::test_follows_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  procedure p\n  stmt s1\n  stmt s2\n");
+        sb.append("ALIVE\nDECLARATIONS\n  procedure p\n  stmt s1\n"
+                "  stmt s2\n");
         sb.append("  stmt s3\n  assign a1\n  assign a2\n  assign a3\n");
         sb.append("  call c1\n  call c2\n  call c3\n  while w1\n");
         sb.append("  while w2\n  while w3\n  if i1\n  if i2\n  if i3\n");
@@ -3289,7 +3374,7 @@ void Test_20_PQLParser::test_next_and_star()
             qinfo = parser.get_queryinfo();
             CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
             sb.clear();
-            sb.append("DECLARATIONS\n  prog_line qnda\n");
+            sb.append("ALIVE\nDECLARATIONS\n  prog_line qnda\n");
             sb.sprintf("  %s %s\nSELECT TUPLE\n  %s %s\n%s(%s,qnda)\n",
                     entIt->first, entIt->second, entIt->first, entIt->second,
                     *relIt, entIt->second);
@@ -3305,7 +3390,8 @@ void Test_20_PQLParser::test_next_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  prog_line kmfgd\nSELECT TUPLE\n");
+        sb.append("ALIVE\nDECLARATIONS\n  prog_line kmfgd\n"
+                "SELECT TUPLE\n");
         sb.append("  prog_line kmfgd\n");
         sb.substitutef("%s(782,kmfgd)\n", *relIt);
         out = sb.toString();
@@ -3319,7 +3405,8 @@ void Test_20_PQLParser::test_next_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  prog_line kmfgd\nSELECT TUPLE\n");
+        sb.append("ALIVE\nDECLARATIONS\n  prog_line kmfgd\n"
+                "SELECT TUPLE\n");
         sb.append("  prog_line kmfgd\n");
         sb.substitutef("%s(-5136,kmfgd)\n", *relIt);
         out = sb.toString();
@@ -3333,7 +3420,8 @@ void Test_20_PQLParser::test_next_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  prog_line mb\nSELECT TUPLE\n");
+        sb.append("ALIVE\nDECLARATIONS\n  prog_line mb\n"
+                "SELECT TUPLE\n");
         sb.append("  prog_line mb\n");
         sb.substitutef("%s(_,mb)\n", *relIt);
         out = sb.toString();
@@ -3352,7 +3440,7 @@ void Test_20_PQLParser::test_next_and_star()
             qinfo = parser.get_queryinfo();
             CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
             sb.clear();
-            sb.append("DECLARATIONS\n");
+            sb.append("ALIVE\nDECLARATIONS\n");
             sb.sprintf("  %s %s\n  prog_line ksndgb#\nSELECT TUPLE\n",
                     entIt->first, entIt->second);
             sb.sprintf("  %s %s\n%s(ksndgb#,%s)\n", entIt->first,
@@ -3369,7 +3457,7 @@ void Test_20_PQLParser::test_next_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  prog_line bs\nSELECT TUPLE\n");
+        sb.append("ALIVE\nDECLARATIONS\n  prog_line bs\nSELECT TUPLE\n");
         sb.append("  prog_line bs\n");
         sb.substitutef("%s(bs,1235)\n", *relIt);
         out = sb.toString();
@@ -3383,7 +3471,8 @@ void Test_20_PQLParser::test_next_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  prog_line hsef\nSELECT TUPLE\n");
+        sb.append("ALIVE\nDECLARATIONS\n  prog_line hsef\n"
+                "SELECT TUPLE\n");
         sb.append("  prog_line hsef\n");
         sb.substitutef("%s(hsef,_)\n", *relIt);
         out = sb.toString();
@@ -3399,7 +3488,8 @@ void Test_20_PQLParser::test_next_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  prog_line pl1\n  prog_line pl6\n");
+        sb.append("ALIVE\nDECLARATIONS\n  prog_line pl1\n"
+                "  prog_line pl6\n");
         sb.append("  assign a1\n  assign a2\nSELECT TUPLE\n");
         sb.append("  assign a1\n  prog_line pl1\n");
         sb.substitutef("%s(pl1,a1)\n%s(a2,pl6)\n", *relIt);
@@ -3456,7 +3546,8 @@ void Test_20_PQLParser::test_next_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  procedure p1\n  procedure p2\n");
+        sb.append("ALIVE\nDECLARATIONS\n  procedure p1\n"
+                "  procedure p2\n");
         sb.append("  procedure p3\n  stmtLst sl1\n  stmtLst sl2\n");
         sb.append("  stmtLst sl3\n  stmt s1\n  stmt s2\n  stmt s3\n");
         sb.append("  assign a1\n  assign a2\n  assign a3\n  call c1\n");
@@ -3606,7 +3697,7 @@ void Test_20_PQLParser::test_affects_and_star()
             qinfo = parser.get_queryinfo();
             CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
             sb.clear();
-            sb.append("DECLARATIONS\n  assign t\n");
+            sb.append("ALIVE\nDECLARATIONS\n  assign t\n");
             sb.sprintf("  %s %s\nSELECT TUPLE\n  %s %s\n%s(%s,t)\n",
                     entIt->first, entIt->second, entIt->first, entIt->second,
                     *relIt, entIt->second);
@@ -3622,7 +3713,8 @@ void Test_20_PQLParser::test_affects_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  assign bs\nSELECT TUPLE\n  assign bs\n");
+        sb.append("ALIVE\nDECLARATIONS\n  assign bs\nSELECT TUPLE\n"
+                "  assign bs\n");
         sb.substitutef("%s(612,bs)\n", *relIt);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -3635,7 +3727,8 @@ void Test_20_PQLParser::test_affects_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  assign bs\nSELECT TUPLE\n  assign bs\n");
+        sb.append("ALIVE\nDECLARATIONS\n  assign bs\nSELECT TUPLE\n"
+                "  assign bs\n");
         sb.substitutef("%s(-678056,bs)\n", *relIt);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -3648,7 +3741,8 @@ void Test_20_PQLParser::test_affects_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  assign bds\nSELECT TUPLE\n  assign bds\n");
+        sb.append("ALIVE\nDECLARATIONS\n  assign bds\nSELECT TUPLE\n"
+                "  assign bds\n");
         sb.substitutef("%s(_,bds)\n", *relIt);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -3662,7 +3756,7 @@ void Test_20_PQLParser::test_affects_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\nSELECT BOOLEAN\n");
+        sb.append("ALIVE\nDECLARATIONS\nSELECT BOOLEAN\n");
         sb.substitutef("%s(_,735146)\n", *relIt);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -3674,7 +3768,8 @@ void Test_20_PQLParser::test_affects_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  stmt s\nSELECT TUPLE\n  stmt s\n");
+        sb.append("ALIVE\nDECLARATIONS\n  stmt s\nSELECT TUPLE\n"
+                "  stmt s\n");
         sb.substitutef("%s(_,_)\n", *relIt);
         out = sb.toString();
         CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -3688,7 +3783,8 @@ void Test_20_PQLParser::test_affects_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  assign a1\n  assign a2\nSELECT TUPLE\n");
+        sb.append("ALIVE\nDECLARATIONS\n  assign a1\n  assign a2\n"
+                "SELECT TUPLE\n");
         sb.append("  assign a1\n  assign a2 stmt#\n");
         sb.substitutef("%s(a1,561)\n%s(a2,a1)\n", *relIt);
         out = sb.toString();
@@ -3725,7 +3821,7 @@ void Test_20_PQLParser::test_affects_and_star()
         qinfo = parser.get_queryinfo();
         CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
         sb.clear();
-        sb.append("DECLARATIONS\n  stmtLst sl1\n  stmtLst sl2\n");
+        sb.append("ALIVE\nDECLARATIONS\n  stmtLst sl1\n  stmtLst sl2\n");
         sb.append("  stmtLst sl3\n  procedure p1\n  procedure p2\n");
         sb.append("  procedure p3\n  stmt s1\n  stmt s2\n  stmt s3\n");
         sb.append("  call c1\n  call c2\n  call c3\n  assign a1\n");
@@ -3863,7 +3959,8 @@ void Test_20_PQLParser::test_pattern()
     parser.parse(queryStr, false, false);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  assign a\n  variable v\nSELECT TUPLE\n";
+    out = "ALIVE\nDECLARATIONS\n  assign a\n  variable v\n"
+            "SELECT TUPLE\n";
     out += "  assign a\nassign pattern a(v,_)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -3873,7 +3970,7 @@ void Test_20_PQLParser::test_pattern()
     parser.parse(queryStr, false, false);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  assign nbd\n  variable vdfa\n";
+    out = "ALIVE\nDECLARATIONS\n  assign nbd\n  variable vdfa\n";
     out += "SELECT TUPLE\n  variable vdfa\n";
     out += "assign pattern nbd(vdfa,\"2*5\")\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -3884,7 +3981,7 @@ void Test_20_PQLParser::test_pattern()
     parser.parse(queryStr, false, false);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  assign kkq\n  variable hfh\n";
+    out = "ALIVE\nDECLARATIONS\n  assign kkq\n  variable hfh\n";
     out += "SELECT TUPLE\n  assign kkq\n";
     out += "assign pattern kkq(hfh,_\"6+5*a\"_)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -3894,7 +3991,8 @@ void Test_20_PQLParser::test_pattern()
     parser.parse(queryStr, false, false);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  assign bfb\nSELECT TUPLE\n  assign bfb\n";
+    out = "ALIVE\nDECLARATIONS\n  assign bfb\nSELECT TUPLE\n"
+            "  assign bfb\n";
     out += "assign pattern bfb(\"someVar\",_)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -3903,7 +4001,8 @@ void Test_20_PQLParser::test_pattern()
     parser.parse(queryStr, false, false);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  assign ja\nSELECT TUPLE\n  assign ja\n";
+    out = "ALIVE\nDECLARATIONS\n  assign ja\nSELECT TUPLE\n"
+            "  assign ja\n";
     out += "assign pattern ja(\"bvv\",\"a+b-3\")\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -3912,7 +4011,8 @@ void Test_20_PQLParser::test_pattern()
     parser.parse(queryStr, false, false);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  assign lkka\nSELECT TUPLE\n  assign lkka\n";
+    out = "ALIVE\nDECLARATIONS\n  assign lkka\nSELECT TUPLE\n"
+            "  assign lkka\n";
     out += "assign pattern lkka(\"ca\",_\"v\"_)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -3921,7 +4021,7 @@ void Test_20_PQLParser::test_pattern()
     parser.parse(queryStr, false, false);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  assign x\nSELECT TUPLE\n  assign x\n";
+    out = "ALIVE\nDECLARATIONS\n  assign x\nSELECT TUPLE\n  assign x\n";
     out += "assign pattern x(_,_)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -3930,7 +4030,7 @@ void Test_20_PQLParser::test_pattern()
     parser.parse(queryStr, false, false);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  assign g\nSELECT TUPLE\n  assign g\n";
+    out = "ALIVE\nDECLARATIONS\n  assign g\nSELECT TUPLE\n  assign g\n";
     out += "assign pattern g(_,\"3*aba+4-ca1g\")\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -3939,7 +4039,8 @@ void Test_20_PQLParser::test_pattern()
     parser.parse(queryStr, false, false);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  assign nna\nSELECT TUPLE\n  assign nna\n";
+    out = "ALIVE\nDECLARATIONS\n  assign nna\nSELECT TUPLE\n"
+            "  assign nna\n";
     out += "assign pattern nna(_,_\"df+1-4\"_)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -3949,7 +4050,8 @@ void Test_20_PQLParser::test_pattern()
     parser.parse(queryStr, false, false);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  assign qq\n  variable ngd\nSELECT TUPLE\n";
+    out = "ALIVE\nDECLARATIONS\n  assign qq\n  variable ngd\n"
+            "SELECT TUPLE\n";
     out += "  assign qq\n  variable ngd\nassign pattern qq(ngd,_)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -3960,7 +4062,8 @@ void Test_20_PQLParser::test_pattern()
     parser.parse(queryStr, true, false);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  assign nbs\n  variable qhgs#1\nSELECT TUPLE\n";
+    out = "ALIVE\nDECLARATIONS\n  assign nbs\n  variable qhgs#1\n"
+            "SELECT TUPLE\n";
     out += "  assign nbs\nassign pattern nbs(qhgs#1,_\"1251+51*cba-hsf\"_)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -3970,7 +4073,8 @@ void Test_20_PQLParser::test_pattern()
     parser.parse(queryStr, false, false);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  if isdf\n  variable sa\nSELECT TUPLE\n";
+    out = "ALIVE\nDECLARATIONS\n  if isdf\n  variable sa\n"
+            "SELECT TUPLE\n";
     out += "  if isdf\nif pattern isdf(sa,_,_)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -3979,7 +4083,7 @@ void Test_20_PQLParser::test_pattern()
     parser.parse(queryStr, false, false);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  if bba\nSELECT TUPLE\n  if bba\n";
+    out = "ALIVE\nDECLARATIONS\n  if bba\nSELECT TUPLE\n  if bba\n";
     out += "if pattern bba(\"vv\",_,_)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -3988,7 +4092,7 @@ void Test_20_PQLParser::test_pattern()
     parser.parse(queryStr, false, false);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  if ajaq\nSELECT TUPLE\n  if ajaq\n";
+    out = "ALIVE\nDECLARATIONS\n  if ajaq\nSELECT TUPLE\n  if ajaq\n";
     out += "if pattern ajaq(_,_,_)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -3999,7 +4103,8 @@ void Test_20_PQLParser::test_pattern()
     parser.parse(queryStr, false, false);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  variable bvbsa\n  if fvaf\nSELECT TUPLE\n";
+    out = "ALIVE\nDECLARATIONS\n  variable bvbsa\n  if fvaf\n"
+            "SELECT TUPLE\n";
     out += "  if fvaf\n  variable bvbsa\n";
     out += "if pattern fvaf(bvbsa,_,_)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
@@ -4010,7 +4115,8 @@ void Test_20_PQLParser::test_pattern()
     parser.parse(queryStr, false, false);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  while aa\n  variable ppq\nSELECT TUPLE\n";
+    out = "ALIVE\nDECLARATIONS\n  while aa\n  variable ppq\n"
+            "SELECT TUPLE\n";
     out += "  while aa\nwhile pattern aa(ppq,_)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -4019,7 +4125,8 @@ void Test_20_PQLParser::test_pattern()
     parser.parse(queryStr, false, false);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  while bba\nSELECT TUPLE\n  while bba\n";
+    out = "ALIVE\nDECLARATIONS\n  while bba\nSELECT TUPLE\n"
+            "  while bba\n";
     out += "while pattern bba(\"nafg\",_)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -4028,7 +4135,8 @@ void Test_20_PQLParser::test_pattern()
     parser.parse(queryStr, false, false);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  while ghaq\nSELECT TUPLE\n  while ghaq\n";
+    out = "ALIVE\nDECLARATIONS\n  while ghaq\nSELECT TUPLE\n"
+            "  while ghaq\n";
     out += "while pattern ghaq(_,_)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -4038,7 +4146,7 @@ void Test_20_PQLParser::test_pattern()
     parser.parse(queryStr, false, false);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  while basdfa\nSELECT BOOLEAN\n";
+    out = "ALIVE\nDECLARATIONS\n  while basdfa\nSELECT BOOLEAN\n";
     out += "while pattern basdfa(\"avar\",_)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
@@ -4051,7 +4159,8 @@ void Test_20_PQLParser::test_pattern()
     parser.parse(queryStr, false, false);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  assign aadf\n  while wgn2#\n  if iisdfa\n";
+    out = "ALIVE\nDECLARATIONS\n  assign aadf\n  while wgn2#\n"
+            "  if iisdfa\n";
     out += "  variable vbba\n  variable v3y\n  variable vj1\nSELECT TUPLE\n";
     out += "  assign aadf\n  variable vbba\n  while wgn2#\n  if iisdfa\n";
     out += "assign pattern aadf(vbba,_\"63-sfv*721\"_)\n";
@@ -4100,7 +4209,7 @@ void Test_20_PQLParser::test_pattern()
     parser.parse(queryStr, false, false);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    out = "DECLARATIONS\n  assign a1\n  assign a2\n  assign a3\n";
+    out = "ALIVE\nDECLARATIONS\n  assign a1\n  assign a2\n  assign a3\n";
     out += "  while w1\n  while w2\n  while w3\n  if i1\n  if i2\n";
     out += "  if i3\n  procedure p1\n  procedure p2\n  procedure p3\n";
     out += "  stmtLst sl1\n  stmtLst sl2\n  stmtLst sl3\n  stmt s1\n";
