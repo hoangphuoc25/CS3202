@@ -1,7 +1,7 @@
 #include <memory>
 #include <set>
 #include <string>
-#include "Test_30_PKB_has_any_ent.h"
+#include "Test_30_PKB_has_any_X.h"
 #include "../SPA/Parser.h"
 #include "../SPA/PKB.h"
 #include "../SPA/PQL.h"
@@ -10,13 +10,13 @@ using std::auto_ptr;
 using std::set;
 using std::string;
 
-void Test_30_PKB_has_any_ent::setUp() {}
+void Test_30_PKB_has_any_X::setUp() {}
 
-void Test_30_PKB_has_any_ent::tearDown() {}
+void Test_30_PKB_has_any_X::tearDown() {}
 
-CPPUNIT_TEST_SUITE_REGISTRATION(Test_30_PKB_has_any_ent);
+CPPUNIT_TEST_SUITE_REGISTRATION(Test_30_PKB_has_any_X);
 
-void Test_30_PKB_has_any_ent::test_has_any_ent()
+void Test_30_PKB_has_any_X::test_has_any_ent()
 {
     PKB *pkbPtr;
     string queryStr, simpleProg;
