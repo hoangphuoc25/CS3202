@@ -15,6 +15,7 @@ CPPUNIT_TEST(testStrcmp);
 CPPUNIT_TEST(testCstr);
 CPPUNIT_TEST(testSprintf);
 CPPUNIT_TEST(testSubstitutef);
+CPPUNIT_TEST(testSubstitutefCppString);
 CPPUNIT_TEST(testRemovespaces);
 CPPUNIT_TEST(testSize);
 CPPUNIT_TEST_SUITE_END();
@@ -34,6 +35,7 @@ private:
     void testCstr();
     void testSprintf();
     void testSubstitutef();
+    void testSubstitutefCppString();
     void testRemovespaces();
     void testSize();
 };

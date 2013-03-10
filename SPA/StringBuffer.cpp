@@ -243,6 +243,11 @@ int StringBuffer::substitutef(const char *fmt, const char *sub)
     return ate;
 }
 
+int StringBuffer::substitutef(const char *fmt, const string& sub)
+{
+    return this->substitutef(fmt, sub.c_str());
+}
+
 void StringBuffer::remove_spaces(void)
 {
     char *copyBuf = new char[this->nrChars+5];

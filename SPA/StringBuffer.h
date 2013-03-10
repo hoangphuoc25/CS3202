@@ -26,6 +26,7 @@ public:
     int sprintf(const char *fmt, ...);
     int vsprintf(const char *fmt, va_list ap);
     int substitutef(const char *fmt, const char *sub);
+    int substitutef(const char *fmt, const std::string& sub);
     void remove_spaces(void);
     void clear(void);
     int size(void) const;

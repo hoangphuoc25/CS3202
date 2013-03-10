@@ -221,6 +221,17 @@ void Test_00_StringBuffer::testSubstitutef()
     CPPUNIT_ASSERT_EQUAL(out, strbuf.toString());
 }
 
+void Test_00_StringBuffer::testSubstitutefCppString()
+{
+    StringBuffer sb;
+    const char *fmt = "this is %s so %e %d shit %% %s xors";
+    string sub = "bleh";
+    string out = "this is bleh so %e %d shit %% bleh xors";
+    int ate = sb.substitutef(fmt, sub);
+    CPPUNIT_ASSERT_EQUAL(39, ate);
+    CPPUNIT_ASSERT_EQUAL(out, sb.toString());
+}
+
 void Test_00_StringBuffer::testRemovespaces()
 {
     StringBuffer sb;
