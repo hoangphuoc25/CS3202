@@ -829,12 +829,13 @@ set<int> PKB::next_X_Y_get_int_X_from_int_Y(DesignEnt xType,
     // TODO: Please implement
     if (stmtBank->is_valid_stmtNo(y)) {
         set<int> s = CFG->at(y)->get_before();
+        set<int> res;
         for (set<int>::iterator it = s.begin(); it != s.end(); it++){
-            if (!stmtBank->is_stmtType(*it, xType)) {
-                s.erase(it);
+            if (stmtBank->is_stmtType(*it, xType)) {
+                res.insert(*it);
             }
         }
-        return s;
+        return res;
     } else {
         return EMPTY_INTSET;
     }
@@ -846,12 +847,13 @@ set<int> PKB::next_X_Y_get_int_Y_from_int_X(DesignEnt xType,
     // TODO: Please implement
     if (stmtBank->is_valid_stmtNo(x)) {
         set<int> s = CFG->at(x)->get_after();
+        set<int> res;
         for (set<int>::iterator it = s.begin(); it != s.end(); it++){
-            if (!stmtBank->is_stmtType(*it, yType)) {
-                s.erase(it);
+            if (stmtBank->is_stmtType(*it, yType)) {
+                res.insert(*it);
             }
         }
-        return s;
+        return res;
     } else {
         return EMPTY_INTSET;
     }
