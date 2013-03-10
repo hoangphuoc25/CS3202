@@ -10,6 +10,7 @@
 class Test_30_PKB_has_any_X: public CPPUNIT_NS::TestFixture {
 CPPUNIT_TEST_SUITE(Test_30_PKB_has_any_X);
 CPPUNIT_TEST(test_has_any_ent);
+CPPUNIT_TEST(test_has_any_call);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -17,6 +18,7 @@ public:
     void tearDown();
 private:
     void test_has_any_ent();
+    void test_has_any_call();
 };
 
 #endif

@@ -1407,6 +1407,11 @@ bool PKB::has_any_ent(DesignEnt entType) const
     }
 }
 
+bool PKB::has_any_call() const
+{
+    return this->stmtBank->has_any_call();
+}
+
 string PKB::get_call_procName(int callStmt) const
 {
     return this->stmtBank->get_call_procName(callStmt);

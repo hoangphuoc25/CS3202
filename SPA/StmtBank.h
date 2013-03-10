@@ -40,6 +40,11 @@ public:
     ///         entType, false otherwise
     bool has_any_ent(DesignEnt entType) const;
 
+    /// Checks if there is any call statement inside the StmtBank
+    /// @return true if there is at least one call statement
+    ///         inside the StmtBank, false otherwise
+    bool has_any_call() const;
+
     /*
      * Retrieves the set of variables used by a statement.
      * @param entType type of statement

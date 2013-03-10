@@ -214,6 +214,11 @@ bool StmtBank::has_any_ent(DesignEnt entType) const
     return (sz > 0);
 }
 
+bool StmtBank::has_any_call() const
+{
+    return this->callBank.size() > 0;
+}
+
  const set<string>& StmtBank::get_vars_used_by_stmt(DesignEnt entType,
         int stmtNo) const
  {

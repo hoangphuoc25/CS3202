@@ -731,6 +731,12 @@ public:
     /// exists, false otherwise
     bool has_any_ent(DesignEnt entType) const;
 
+    /// Checks if there is any call statement inside the
+    /// PKB
+    /// @return true if there is at least one call statement
+    ///         inside the PKB, false otherwise
+    bool has_any_call() const;
+
     //////////////////////////////////////////////////////////////////
     // For pattern clause
     //////////////////////////////////////////////////////////////////

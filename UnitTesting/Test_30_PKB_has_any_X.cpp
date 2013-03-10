@@ -80,3 +80,50 @@ void Test_30_PKB_has_any_X::test_has_any_ent()
     CPPUNIT_ASSERT_EQUAL(true, pkb->has_any_ent(ENT_CONST));
     CPPUNIT_ASSERT_EQUAL(true, pkb->has_any_ent(ENT_STMTLST));
 }
+
+void Test_30_PKB_has_any_X::test_has_any_call()
+{
+    PKB *pkbPtr;
+    string queryStr, simpleProg;
+    simpleProg =
+        "procedure abc { \
+           call xyz; \
+         } \
+         procedure xyz { \
+           call F; \
+         } \
+         procedure F { \
+           keyboard = typist; \
+         }";
+    Parser parser(simpleProg, FROMSTRING);
+    parser.init();
+    auto_ptr<PKB> pkb(parser.get_pkb());
+    CPPUNIT_ASSERT_EQUAL(true, pkb->has_any_call());
+    pkbPtr = pkb.release();
+    delete pkbPtr;
+
+    simpleProg =
+        "procedure moony { \
+           prongs = 36; \
+           if tooth then { \
+             fairy = 1 + abs; \
+           } else { \
+             heart = ache; \
+             race = car; \
+           } \
+           fol = low; \
+           star = dark; \
+         }  \
+         procedure padlock { \
+           hah = hah; \
+           synonym = argument; \
+           while true { \
+             go = daddy; \
+             true = false; \
+           } \
+         }";
+    parser = Parser(simpleProg, FROMSTRING);
+    parser.init();
+    pkb = auto_ptr<PKB>(parser.get_pkb());
+    CPPUNIT_ASSERT_EQUAL(false, pkb->has_any_call());
+}
