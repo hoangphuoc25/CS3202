@@ -477,7 +477,9 @@ bool QueryEvaluator::ev_isolated_relation_string_string(
                        relRef->argTwoString);
         break;
     case REL_CALLS:
-        // TODO: Implement
+        return this->pkb->calls_query_string_X_string_Y(ENT_PROC,
+                       relRef->argOneString, ENT_PROC,
+                       relRef->argTwoString);
         break;
     case REL_CALLS_STAR:
         // TODO: Implement

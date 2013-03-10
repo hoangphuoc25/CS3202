@@ -131,6 +131,7 @@
     <ClCompile Include="Test10_22_Uses.cpp" />
     <ClCompile Include="Test11_SelectDisjointTables.cpp" />
     <ClCompile Include="Test20_SynSyn_RelRef.cpp" />
+    <ClCompile Include="Test21_Calls_N2S.cpp" />
     <ClCompile Include="Test21_Modifies_N2S.cpp" />
     <ClCompile Include="Test21_Uses_N2S.cpp" />
     <ClCompile Include="Test30_PatCl_If.cpp" />
@@ -200,6 +201,7 @@
     <ClInclude Include="Test10_22_Uses.h" />
     <ClInclude Include="Test11_SelectDisjointTables.h" />
     <ClInclude Include="Test20_SynSyn_RelRef.h" />
+    <ClInclude Include="Test21_Calls_N2S.h" />
     <ClInclude Include="Test21_Modifies_N2S.h" />
     <ClInclude Include="Test21_Uses_N2S.h" />
     <ClInclude Include="Test30_PatCl_If.h" />

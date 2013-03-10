@@ -1,0 +1,62 @@
+#include <list>
+#include <set>
+#include <string>
+#include "Test21_Calls_N2S.h"
+#include "../SPA/SetWrapper.h"
+#include "../SPA/QueryEvaluator.h"
+
+using std::list;
+using std::set;
+using std::string;
+
+void Test21_Calls_N2S::setUp() {}
+
+void Test21_Calls_N2S::tearDown() {}
+
+CPPUNIT_TEST_SUITE_REGISTRATION(Test21_Calls_N2S);
+
+void Test21_Calls_N2S::test_calls_string_string()
+{
+    string simpleProg, queryStr;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+
+    simpleProg =
+        "procedure fSharp { \
+           call CSharp; \
+         } \
+         procedure CSharp { \
+           call Java; \
+         } \
+         procedure Java { \
+           assign = var; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    // Correct calls
+    queryStr = "Select BOOLEAN such that Calls(\"fSharp\", \"CSharp\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                               ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Calls(\"CSharp\", \"Java\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                               ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+    // Non-existent calls
+    queryStr = "Select BOOLEAN such that Calls(\"CSharp\", \"fSharp\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                               ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Calls(\"Java\", \"fSharp\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                               ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+}
