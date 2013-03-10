@@ -1,5 +1,5 @@
 #include "CFGNode.h"
-
+#include <cassert>
 
 CFGNode::CFGNode()
 {
@@ -92,16 +92,14 @@ set<int> CFGNode::get_before(){
             s.insert(n);
         } else {
             temp = inTwo->get_before();
-            for (set<int>::iterator it = temp.begin(); it != temp.end(); it++) {
-                s.insert(*it);
-            }
+            s.insert(temp.begin(),temp.end());
         }
     }
     return s;
 }
 
 set<int> CFGNode::get_after(){
-    set<int> s;
+    set<int> s,temp;
     int n;
     if (outOne != NULL) {
         n = outOne->get_stmtNo();
@@ -109,11 +107,13 @@ set<int> CFGNode::get_after(){
             s.insert(n);
         } else {
             // Dummy nodes only have outOne.
-            return outOne->get_after();
+            s =  outOne->get_after();
         }
     }
     if (outTwo != NULL) {
-        s.insert(outTwo->get_stmtNo());
+        n = outTwo->get_stmtNo();
+        assert(n != -1);
+        s.insert(n);
     }
     return s;
 }
