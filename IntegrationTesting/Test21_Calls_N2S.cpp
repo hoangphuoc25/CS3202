@@ -146,3 +146,72 @@ void Test21_Calls_N2S::test_calls_wild_string()
                                 ResultsProjector::FALSE_STR.c_str()),
             stringSet);
 }
+
+void Test21_Calls_N2S::test_calls_wild_wild()
+{
+    string simpleProg, queryStr;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+
+    simpleProg =
+        "procedure fSharp { \
+           call CSharp; \
+         } \
+         procedure CSharp { \
+           call Java; \
+         } \
+         procedure Java { \
+           assign = var; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    queryStr = "Select BOOLEAN such that Calls(_,_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+
+    // 1 call statement
+    simpleProg =
+        "procedure A { \
+           call B; \
+         } \
+         procedure B { \
+           a = b; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    queryStr = "Select BOOLEAN such that Calls(_,_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::TRUE_STR.c_str()),
+            stringSet);
+
+    // No calls statement at all
+    simpleProg =
+        "procedure Astar { \
+           search = is + futile; \
+         } \
+         procedure Bstar { \
+           if b then { \
+             a = is + not - good; \
+           } else { \
+             a = is + good; \
+           } \
+           my = friend; \
+         }  \
+         procedure DeathStar { \
+           anakin = skywalker; \
+           while true { \
+             darth = vader; \
+           } \
+         }";
+    evaluator.parseSimple(simpleProg);
+    queryStr = "Select BOOLEAN such that Calls(_,_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
+                                 ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+}

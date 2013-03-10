@@ -13,6 +13,7 @@ CPPUNIT_TEST_SUITE(Test21_Calls_N2S);
 CPPUNIT_TEST(test_calls_string_string);
 CPPUNIT_TEST(test_calls_string_wild);
 CPPUNIT_TEST(test_calls_wild_string);
+CPPUNIT_TEST(test_calls_wild_wild);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -22,6 +23,7 @@ private:
     void test_calls_string_string();
     void test_calls_string_wild();
     void test_calls_wild_string();
+    void test_calls_wild_wild();
 };
 
 #endif
