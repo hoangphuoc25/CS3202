@@ -97,6 +97,12 @@ public:
     ///          VarTable, false otherwise
     bool has_any_var() const;
 
+    /// Checks if anything uses a given variable
+    /// @param varName the name of the variable
+    /// @return true if the given variable is used somewhere,
+    ///         false otherwise
+    bool anyone_uses_this_var(const std::string& varName) const;
+
 private:
     const set<int> EMPTY_INTSET;
     const set<string> EMPTY_STRINGSET;

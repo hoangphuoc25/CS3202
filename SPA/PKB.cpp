@@ -253,12 +253,7 @@ bool PKB::uses_X_Y_string_X_smth(DesignEnt xType, const string& x) const
 bool PKB::uses_X_Y_smth_string_Y(DesignEnt yType, const string& y) const
 {
     // TODO: Please test this
-    if (varTable->get_index(y) != -1) {
-        const set<int>& s = varTable->get_used_by(y);
-        return (!s.empty());
-    } else {
-        return false;
-    }
+    return this->varTable->anyone_uses_this_var(y);
 }
 
 bool PKB::uses_X_Y_smth_smth()

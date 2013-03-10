@@ -13,6 +13,8 @@ void Test21_Uses_N2S::setUp() {}
 
 void Test21_Uses_N2S::tearDown() {}
 
+CPPUNIT_TEST_SUITE_REGISTRATION(Test21_Uses_N2S);
+
 void Test21_Uses_N2S::test_uses_string_string()
 {
     string simpleProg, queryStr;
@@ -382,7 +384,7 @@ void Test21_Uses_N2S::test_uses_int_string()
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
-                                 ResultsProjector::TRUE_STR.c_str()),
+                                 ResultsProjector::FALSE_STR.c_str()),
             stringSet);
     queryStr = "Select BOOLEAN such that Uses(2, \"b\")";
     evaluator.evaluate(queryStr, resultList);

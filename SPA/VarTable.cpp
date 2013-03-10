@@ -396,3 +396,18 @@ bool VarTable::has_any_var() const
 {
     return (this->varTable.size() > 0);
 }
+
+bool VarTable::anyone_uses_this_var(const string& varName) const
+{
+    int varIdx = this->get_index(varName);
+    if (varIdx != -1) {
+        const VarElements& varElem = this->varTable[varIdx];
+        return ((!varElem.assignUsing.empty()) ||
+                (!varElem.ifUsing.empty()) ||
+                (!varElem.whileUsing.empty()) ||
+                (!varElem.callUsing.empty()) ||
+                (!varElem.stmtUsing.empty()) ||
+                (!varElem.usedByProc.empty()));
+    }
+    return false;
+}
