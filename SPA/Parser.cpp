@@ -163,7 +163,7 @@ void Parser::update_calls()
 void Parser::match(tokenType type)
 {
     if (nextToken.get_type() == type) {
-        token_out();
+        //token_out();
         currToken = nextToken;
         nextToken = tokenizer.get_token();
     } else {
@@ -174,7 +174,7 @@ void Parser::match(tokenType type)
 void Parser::match(string str)
 {
      if (!str.compare(nextToken.get_name())) {
-         token_out(); 
+         //token_out(); 
          currToken = nextToken;
          nextToken = tokenizer.get_token();
      } else {
@@ -186,6 +186,7 @@ void Parser::error()
 {
      printf("Error!!!\n");
      printf("State: %s\n",state.c_str());
+     token_out();
      getchar();
      exit(1);
 }
@@ -695,6 +696,7 @@ void Parser::add_uses(Node* n, string var)
 // Printer
 void Parser::token_out()
 {
-    //printf("Token parsed: (%s , %s)\n",nextToken.get_name().c_str(),printer[nextToken.get_type()].c_str());     
+    printf("Now at stmtNo %d\n",stmtNo);
+    printf("Token parsed: %s , type: %s\n",nextToken.get_name().c_str(),printer[nextToken.get_type()].c_str());
 
 }
