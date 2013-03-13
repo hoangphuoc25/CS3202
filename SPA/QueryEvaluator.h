@@ -97,6 +97,9 @@ public:
     QueryEvaluator();
     // used to parse a SIMPLE program. Must be called before evaluate
     void parseSimple(const std::string& simple);
+    /// Parses a SIMPLE program in a given file
+    /// @fname name of the file containing the SIMPLE program
+    void parseSimple_from_file(const std::string& fname);
     // Called after parseSimple. Evaluates a query based on the SIMPLE program
     // Results are returned in resultsSet
     void evaluate(const std::string& queryStr,

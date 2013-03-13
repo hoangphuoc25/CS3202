@@ -128,6 +128,13 @@ void QueryEvaluator::parseSimple(const string& simple)
     this->pkb = parser.get_pkb();
 }
 
+void QueryEvaluator::parseSimple_from_file(const string& fname)
+{
+    Parser parser(fname, FROMFILE);
+    parser.init();
+    this->pkb = parser.get_pkb();
+}
+
 bool QueryEvaluator::relRef_arg_use_string(DesignEnt entType) const
 {
     return (entType == ENT_PROC || entType == ENT_VAR);
