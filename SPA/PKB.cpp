@@ -590,7 +590,7 @@ set<int> PKB::parentStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
         }
         while (!q.empty()) {
             n = q.front(); q.pop();
-            if (stmtBank->is_stmtType(n->get_stmtNo(), xType)) {
+            if (stmtBank->is_stmtType(n->get_stmtNo(), yType)) {
                 res.insert(n->get_stmtNo());
             }
             v = n->get_children();
@@ -603,6 +603,40 @@ set<int> PKB::parentStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
     } else {
         return EMPTY_INTSET;
     }
+
+        // TODO:
+    // Change how we obtain children nodes
+    //   might want to store set<int> of assign children, call children,
+    //   if children, etc.
+    /*
+    assert(QueryInfo::is_valid_argOne_syn_type(REL_PARENT, xType));
+    assert(QueryInfo::is_valid_argTwo_syn_type(REL_PARENT, yType));
+    set<int> ret;
+    Node *node = NULL;
+    switch (xType) {
+    case ENT_WHILE:
+        node = this->stmtBank->get_whileNode(x);
+        break;
+    case ENT_IF:
+        node = this->stmtBank->get_ifNode(x);
+        break;
+    case ENT_STMT:
+    case ENT_PROGLINE:
+        node = this->stmtBank->get_stmtNode(x);
+        break;
+    }
+    if (node != NULL) {
+        vector<Node*> v = node->get_children();
+        int sz = v.size();
+        for(int i = 0; i < sz; i++) {
+            int stmt = v[i]->get_stmtNo();
+            if (this->stmtBank->is_stmtType(stmt, yType)) {
+                ret.insert(stmt);
+            }
+        }
+    }
+    return ret;
+    */
 }
 
 bool PKB::parentStar_query_int_X_int_Y(DesignEnt xType, int x,
