@@ -386,12 +386,15 @@ public:
     /// Returns a "syn.attrName" representation of the AttrRef
     /// @return string in "syn.attrName" format of the AttrRef
     std::string toPeriodString() const;
-
-private:
     /// Used to swap two AttrRef
     /// @param one the first AttrRef
     /// @param two the second AttrRef
-    void swap(AttrRef& one, AttrRef& two);
+    friend void swap(AttrRef& one, AttrRef& two) {
+        using std::swap;
+        swap(one.syn, two.syn);
+        swap(one.entType, two.entType);
+        swap(one.attr, two.attr);
+    }
 };
 
 /// Used for comparing AttrRef objects
@@ -524,12 +527,21 @@ public:
     static bool valid(const struct RelRef &r);
     /// dummy method inherited from GenericRef
     void dummy();
-
-private:
     /// swaps two RelRef
     /// @param one the first RelRef
     /// @param two the second RelRef
-    void swap(RelRef& one, RelRef& two);
+    friend void swap(RelRef& one, RelRef& two) {
+        using std::swap;
+        swap(one.relType, two.relType);
+        swap(one.argOneType, two.argOneType);
+        swap(one.argOneSyn, two.argOneSyn);
+        swap(one.argOneString, two.argOneString);
+        swap(one.argOneInt, two.argOneInt);
+        swap(one.argTwoType, two.argTwoType);
+        swap(one.argTwoSyn, two.argTwoSyn);
+        swap(one.argTwoString, two.argTwoString);
+        swap(one.argTwoInt, two.argTwoInt);
+    }
 };
 
 /// For comparing RelRef so that we will not insert repeated RelRef
@@ -629,12 +641,18 @@ public:
     static bool valid(const PatCl &p);
     /// dummy method inherited from GenericRef
     void dummy();
-
-private:
     /// swaps two PatCl
     /// @param one the first PatCl
     /// @param two the second PatCl
-    void swap(PatCl &one, PatCl &two);
+    friend void swap(PatCl &one, PatCl &two) {
+        using std::swap;
+        swap(one.type, two.type);
+        swap(one.syn, two.syn);
+        swap(one.varRefType, two.varRefType);
+        swap(one.varRefString, two.varRefString);
+        swap(one.exprType, two.exprType);
+        swap(one.exprString, two.exprString);
+    }
 };
 
 /// Used to compare two PatCl

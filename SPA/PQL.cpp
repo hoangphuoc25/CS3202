@@ -280,20 +280,13 @@ AttrRef::AttrRef(const AttrRef& o)
 
 AttrRef& AttrRef::operator=(const AttrRef &o)
 {
+    using std::swap;
     AttrRef tmp(o);
-    this->swap(*this, tmp);
+    swap(*this, tmp);
     return *this;
 }
 
 AttrRef::~AttrRef() {}
-
-void AttrRef::swap(AttrRef& one, AttrRef& two)
-{
-    using std::swap;
-    swap(one.syn, two.syn);
-    swap(one.entType, two.entType);
-    swap(one.attr, two.attr);
-}
 
 void AttrRef::dump_to_sb(StringBuffer &sb) const
 {
@@ -350,26 +343,13 @@ RelRef::RelRef(const RelRef &o)
 
 RelRef& RelRef::operator=(const RelRef &o)
 {
+    using std::swap;
     RelRef tmp(o);
-    this->swap(*this, tmp);
+    swap(*this, tmp);
     return *this;
 }
 
 RelRef::~RelRef() {}
-
-void RelRef::swap(RelRef& one, RelRef& two)
-{
-    using std::swap;
-    swap(one.relType, two.relType);
-    swap(one.argOneType, two.argOneType);
-    swap(one.argOneSyn, two.argOneSyn);
-    swap(one.argOneString, two.argOneString);
-    swap(one.argOneInt, two.argOneInt);
-    swap(one.argTwoType, two.argTwoType);
-    swap(one.argTwoSyn, two.argTwoSyn);
-    swap(one.argTwoString, two.argTwoString);
-    swap(one.argTwoInt, two.argTwoInt);
-}
 
 ParseError RelRef::set_arg_one(RelRefArgType argType, StringBuffer &sb,
         char **errorMsg)
@@ -546,23 +526,13 @@ PatCl::PatCl(const PatCl &o)
 
 PatCl& PatCl::operator=(const PatCl& o)
 {
+    using std::swap;
     PatCl tmp(o);
     swap(*this, tmp);
     return *this;
 }
 
 PatCl::~PatCl() {}
-
-void PatCl::swap(PatCl &one, PatCl &two)
-{
-    using std::swap;
-    swap(one.type, two.type);
-    swap(one.syn, two.syn);
-    swap(one.varRefType, two.varRefType);
-    swap(one.varRefString, two.varRefString);
-    swap(one.exprType, two.exprType);
-    swap(one.exprString, two.exprString);
-}
 
 void PatCl::set_pat_assign(const string& syn_, enum PatClVarRefType vrType,
         const string& vr, enum PatClExprType exType,
