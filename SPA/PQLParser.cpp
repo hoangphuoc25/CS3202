@@ -352,6 +352,33 @@ void PQLParser::print_error(va_list ap)
     case PARSE_QINFO_INSERT_INVALID_RELREF:
         sb.vsprintf(PARSE_QINFO_INSERT_INVALID_RELREF_STR, ap);
         break;
+    case PARSE_WITHCLAUSE_REFS_INVALID:
+        sb.vsprintf(PARSE_WITHCLAUSE_REFS_INVALID_STR, ap);
+        break;
+    case PARSE_WITHCLAUSE_TYPE_MISMATCH:
+        sb.vsprintf(PARSE_WITHCLAUSE_TYPE_MISMATCH_STR, ap);
+        break;
+    case PARSE_WITHCLAUSE_AND_NOSEP:
+        sb.vsprintf(PARSE_WITHCLAUSE_AND_NOSEP_STR, ap);
+        break;
+    case PARSE_WITHCLAUSE_EXPECT_REF_ON_RHS:
+        sb.vsprintf(PARSE_WITHCLAUSE_EXPECT_REF_ON_RHS_STR, ap);
+        break;
+    case PARSE_WITHCLAUSE_EXPECT_WITH:
+        sb.vsprintf(PARSE_WITHCLAUSE_EXPECT_WITH_STR, ap);
+        break;
+    case PARSE_REF_INTEGER_ERROR:
+        sb.vsprintf(PARSE_REF_INTEGER_ERROR_STR, ap);
+        break;
+    case PARSE_REF_ATTRREF_ERROR:
+        sb.vsprintf(PARSE_REF_ATTRREF_ERROR_STR, ap);
+        break;
+    case PARSE_DQUOTED_IDENT_INVALID:
+        sb.vsprintf(PARSE_DQUOTED_IDENT_INVALID_STR, ap);
+        break;
+    case PARSE_DQUOTED_IDENT_MISSING_CLOSE_QUOTE:
+        sb.vsprintf(PARSE_DQUOTED_IDENT_MISSING_CLOSE_QUOTE_STR, ap);
+        break;
     case PARSE_END_OF_QUERY_ERROR:
         sb.vsprintf(PARSE_END_OF_QUERY_ERROR_STR, ap);
         break;
@@ -454,6 +481,11 @@ bool is_alpha_underscore(char ch)
 bool is_ident(char ch)
 {
     return (isalnum(ch) || ch == '#');
+}
+
+bool is_space(char ch)
+{
+    return isspace(ch);
 }
 
 template<bool (*fn)(char ch)>
@@ -572,6 +604,28 @@ bool PQLParser::eat_ident_string(StringBuffer &sb, const char *str)
     }
 }
 
+bool PQLParser::eat_dquoted_ident(StringBuffer &sb)
+{
+    int saveIdx = this->bufIdx;
+    if (!this->eat_dquote()) {
+        RESTORE_AND_RET(false, saveIdx);
+    }
+    sb.clear();
+    if (this->bufIdx < this->bufLen &&
+            is_alpha(this->buf[this->bufIdx])) {
+        sb.append(this->buf[this->bufIdx++]);
+    } else {
+        // invalid identifier string
+        this->eat_while<not_dquote>(sb);
+        this->error(PARSE_DQUOTED_IDENT_INVALID, sb.c_str());
+    }
+    this->eat_while<is_ident>(sb);
+    if (!this->eat_dquote()) {
+        this->error(PARSE_DQUOTED_IDENT_MISSING_CLOSE_QUOTE, sb.c_str());
+    }
+    return true;
+}
+
 int PQLParser::eat_int(StringBuffer &sb)
 {
     bool neg = false;
@@ -603,6 +657,14 @@ int PQLParser::eat_int(StringBuffer &sb)
         charsConsumed++;
     }
     return charsConsumed;
+}
+
+void PQLParser::eat_till_end(StringBuffer& sb)
+{
+    sb.clear();
+    while (this->bufIdx < this->bufLen) {
+        sb.append(this->buf[this->bufIdx++]);
+    }
 }
 
 bool PQLParser::eat_select(StringBuffer &sb)
@@ -653,6 +715,11 @@ bool PQLParser::eat_underscore()
 bool PQLParser::eat_dquote()
 {
     return this->eat_one_char('"');
+}
+
+bool PQLParser::eat_equal()
+{
+    return this->eat_one_char('=');
 }
 
 bool PQLParser::eat_synonym(StringBuffer &sb)
@@ -1036,6 +1103,7 @@ RelRefArgType PQLParser::eat_varRef(StringBuffer &sb)
     } else if (this->eat_underscore()) {
         return RELARG_WILDCARD;
     } else if (this->eat_dquote()) {
+        // TODO: Change this to use this->eat_dquoted_ident
         sb.clear();
         if (this->eat_while<is_ident>(sb) > 0 && this->eat_dquote()) {
             return RELARG_STRING;
@@ -1664,6 +1732,177 @@ bool PQLParser::eat_patternCond(StringBuffer &sb) throw(ParseError)
     return true;
 }
 
+bool PQLParser::eat_ref(StringBuffer& sb, Ref& refOut,
+        bool triggerError, Ref *lhsRef)
+{
+    this->eat_while<is_space>(sb);
+    bool ret = false;
+    int saveIdx = this->bufIdx;
+    sb.clear();
+    if (this->eat_dquoted_ident(sb)) {
+        refOut.refType = REF_STRING;
+        refOut.refStringVal = sb.toString();
+        ret = true;
+    } else {
+        this->bufIdx = saveIdx;
+        sb.clear();
+        if (this->eat_int(sb) > 0) {
+            int intVal = 0;
+            char *errorMsg = NULL;
+            string intString = sb.toString();
+            if (string_to_int(intString, &intVal, &errorMsg)) {
+                refOut.refType = REF_INT;
+                refOut.refIntVal = intVal;
+                ret = true;
+            } else {
+                // integer conversion error
+                string errorMsgStr;
+                if (errorMsg) {
+                    errorMsgStr = string(errorMsg);
+                    free(errorMsg);
+                } else {
+                    errorMsgStr = "";
+                }
+                if (triggerError) {
+                    this->error(PARSE_REF_INTEGER_ERROR,
+                            intString.c_str(), errorMsgStr.c_str());
+                } else {
+                    this->warning(PARSE_REF_INTEGER_ERROR_STR,
+                            intString.c_str(), errorMsgStr.c_str());
+                }
+            }
+        } else {
+            // try eating AttrRef
+            this->bufIdx = saveIdx;
+            AttrRef attrRef = this->eat_attrRef(sb);
+            if (attrRef.attr != ATTR_INVALID) {
+                RefSynType refSynType = attrRef_to_RefSynType(attrRef);
+                if (REFSYN_INVALID != refSynType) {
+                    refOut.refType = REF_ATTRREF;
+                    refOut.refStringVal = attrRef.syn;
+                    refOut.refSynType = refSynType;
+                    ret = true;
+                } else {
+                    // invalid AttrRef
+                    if (triggerError) {
+                        this->error(PARSE_REF_ATTRREF_ERROR,
+                                sb.c_str());
+                    } else {
+                        this->warning(PARSE_REF_ATTRREF_ERROR_STR,
+                                sb.c_str());
+                    }
+                }
+            } else {
+                // parsing of ref has failed at this stage
+                this->bufIdx = saveIdx;
+                if (triggerError) {
+                    this->eat_while<is_space>(sb);
+                    sb.clear();
+                    this->eat_while<not_space>(sb);
+                    assert(NULL != lhsRef);
+                    this->error(PARSE_WITHCLAUSE_EXPECT_REF_ON_RHS,
+                            lhsRef->toString().c_str(),
+                            sb.c_str());
+                }
+            }
+        }
+    }
+    return ret;
+}
+
+bool PQLParser::eat_withClause_one(StringBuffer &sb,
+        WithClause& withClause, ParseError *parseError)
+{
+    assert(NULL != parseError);
+    int saveIdx = this->bufIdx;
+    char *errorMsg = NULL;
+    Ref leftRef, rightRef;
+    sb.clear();
+    if (!this->eat_ref(sb, leftRef, false, NULL)) {
+        RESTORE_AND_RET(false, saveIdx);
+    }
+    // eat space
+    this->eat_while<is_space>(sb);
+    // eat '=' sign
+    if (!this->eat_equal()) {
+        RESTORE_AND_RET(false, saveIdx);
+    }
+    // eat space after '='
+    this->eat_while<is_space>(sb);
+    // seen left ref and '=', must be a WithClause
+    // just error out from now on
+    this->eat_ref(sb, rightRef, true, &leftRef);
+    // set left and right ref
+    withClause.leftRef = leftRef;
+    withClause.rightRef = rightRef;
+    // With Clause with invalid ref(s), shouldnt happen
+    if (!WithClause::valid_refs(withClause)) {
+        sb.clear();
+        sb.append(withClause.toString());
+        this->error(PARSE_WITHCLAUSE_REFS_INVALID, sb.c_str());
+    }
+    // type mismatch between left and right Ref
+    if (!WithClause::valid_type(withClause)) {
+        BaseType leftRefType = Ref::get_BaseType(withClause.leftRef);
+        BaseType rightRefType = Ref::get_BaseType(withClause.rightRef);
+        sb.clear();
+        sb.append(withClause.toString());
+        this->error(PARSE_WITHCLAUSE_TYPE_MISMATCH, sb.c_str(),
+                baseType_to_string(leftRefType),
+                baseType_to_string(rightRefType));
+    }
+    *parseError = this->qinfo->add_withClause(withClause, &errorMsg);
+    if (errorMsg) {
+        this->warning(errorMsg);
+        free(errorMsg);
+    }
+    return true;
+}
+
+bool PQLParser::eat_withClause(StringBuffer& sb) throw(ParseError)
+{
+    int saveIdx = this->bufIdx;
+    WithClause withClause, prevWithClause;
+    ParseError parseError;
+    char *errorMsg;
+    if (this->eat_space() <= 0) {
+        RESTORE_AND_RET(false, saveIdx);
+    }
+    if (!this->eat_withClause_one(sb, withClause, &parseError)) {
+        RESTORE_AND_RET(false, saveIdx);
+    }
+    if (PARSE_OK != parseError) {
+        throw parseError;
+    }
+    while (1) {
+        saveIdx = this->bufIdx;
+        if (this->eat_space() <= 0) {
+            break;
+        }
+        if (!this->eat_and(sb)) {
+            this->bufIdx = saveIdx;
+            break;
+        }
+        if (this->eat_space() <= 0) {
+            sb.clear();
+            this->eat_while<not_space>(sb);
+            this->error(PARSE_WITHCLAUSE_AND_NOSEP, sb.c_str());
+        }
+        prevWithClause = withClause;
+        withClause = WithClause();
+        if (!this->eat_withClause_one(sb, withClause, &parseError)) {
+            // Read 'and', so we naturally expect a with clause
+            this->eat_till_end(sb);
+            this->error(PARSE_WITHCLAUSE_EXPECT_WITH, sb.c_str(),
+                    prevWithClause.toString().c_str());
+        }
+        if (PARSE_OK != parseError) {
+            throw parseError;
+        }
+    }
+    return true;
+}
+
 void PQLParser::eat_select_stwithpat(StringBuffer &sb)
 {
     if (this->bufIdx >= this->bufLen) {
@@ -1676,8 +1915,8 @@ void PQLParser::eat_select_stwithpat(StringBuffer &sb)
         }
         if (this->eat_such_that(sb) && this->eat_relCond(sb)) {
             // nothing
-        } else if (this->eat_with(sb)) {
-            // TODO: Fill in
+        } else if (this->eat_with(sb) && this->eat_withClause(sb)) {
+            // nothing
         } else if (this->eat_pattern(sb) && this->eat_patternCond(sb)) {
             // nothing
         } else {
@@ -1740,7 +1979,9 @@ void PQLParser::_parse(const string &s, bool showErrors_, bool showWarnings_)
                 this->buf.c_str() + this->bufIdx);
         }
     } catch (ParseError err_) {
-        // nothing
+        // kill qinfo upon encountering parse error
+        this->parseErr = err_;
+        this->qinfo->kill();
     }
 }
 

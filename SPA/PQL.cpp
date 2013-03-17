@@ -10,6 +10,12 @@ using std::set;
 using std::string;
 using std::vector;
 
+/// Global AttrRefCmp
+struct AttrRefCmp glob__AttrRefCmp;
+
+/// Global RefCmp
+struct RefCmp glob__RefCmp;
+
 const char *TYPE_ERROR_EMPTY[TYPE_ERROR_ARRAY_SZ] = {
     "", ""
 };
@@ -261,6 +267,117 @@ RelRefArgType designEnt_to_relRefArgType(DesignEnt ent)
     }
 }
 
+BaseType refSynType_to_BaseType(RefSynType refSynType)
+{
+    switch (refSynType) {
+    case REFSYN_PROC:
+    case REFSYN_CALL_PROCNAME:
+    case REFSYN_VAR:
+        return BASETYPE_STRING;
+        break;
+    case REFSYN_STMTLST:
+    case REFSYN_STMT:
+    case REFSYN_ASSIGN:
+    case REFSYN_CALL:
+    case REFSYN_WHILE:
+    case REFSYN_IF:
+    case REFSYN_CONST:
+    case REFSYN_PROGLINE:
+        return BASETYPE_INT;
+        break;
+    case REFSYN_INVALID:
+    default:
+        return BASETYPE_INVALID;
+        break;
+    }
+}
+
+const char *baseType_to_string(BaseType baseType)
+{
+    switch (baseType) {
+    case BASETYPE_STRING:
+        return BASETYPE_STRING_STR;
+        break;
+    case BASETYPE_INT:
+        return BASETYPE_INT_STR;
+        break;
+    default:
+        return INVALID_STR;
+        break;
+    }
+}
+
+RefSynType attrRef_to_RefSynType(const AttrRef& attrRef)
+{
+    switch (attrRef.entType) {
+    case ENT_ASSIGN:
+        if (ATTR_DEFAULT == attrRef.attr ||
+                ATTR_STMTNO == attrRef.attr) {
+            return REFSYN_ASSIGN;
+        }
+        break;
+    case ENT_CALL:
+        if (ATTR_DEFAULT == attrRef.attr ||
+                ATTR_STMTNO == attrRef.attr) {
+            return REFSYN_CALL;
+        } else if (ATTR_PROCNAME == attrRef.attr) {
+            return REFSYN_CALL_PROCNAME;
+        }
+        break;
+    case ENT_IF:
+        if (ATTR_DEFAULT == attrRef.attr ||
+                ATTR_STMTNO == attrRef.attr) {
+            return REFSYN_IF;
+        }
+        break;
+    case ENT_WHILE:
+        if (ATTR_DEFAULT == attrRef.attr ||
+                ATTR_STMTNO == attrRef.attr) {
+            return REFSYN_WHILE;
+        }
+        break;
+    case ENT_STMT:
+        if (ATTR_DEFAULT == attrRef.attr ||
+                ATTR_STMTNO == attrRef.attr) {
+            return REFSYN_STMT;
+        }
+        break;
+    case ENT_PROGLINE:
+        if (ATTR_DEFAULT == attrRef.attr ||
+                ATTR_STMTNO == attrRef.attr) {
+            return REFSYN_PROGLINE;
+        }
+        break;
+    case ENT_STMTLST:
+        if (ATTR_DEFAULT == attrRef.attr ||
+                ATTR_STMTNO == attrRef.attr) {
+            return REFSYN_STMTLST;
+        }
+        break;
+    case ENT_CONST:
+        if (ATTR_DEFAULT == attrRef.attr ||
+                ATTR_VALUE == attrRef.attr) {
+            return REFSYN_CONST;
+        }
+        break;
+    case ENT_PROC:
+        if (ATTR_DEFAULT == attrRef.attr ||
+                ATTR_PROCNAME == attrRef.attr) {
+            return REFSYN_PROC;
+        }
+        break;
+    case ENT_VAR:
+        if (ATTR_DEFAULT == attrRef.attr ||
+                ATTR_VARNAME == attrRef.attr) {
+            return REFSYN_VAR;
+        }
+        break;
+    default:
+        break;
+    }
+    return REFSYN_INVALID;
+}
+
 //////////////////////////////////////////////////////////////////////
 // GenericRef
 //////////////////////////////////////////////////////////////////////
@@ -287,6 +404,13 @@ AttrRef& AttrRef::operator=(const AttrRef &o)
 }
 
 AttrRef::~AttrRef() {}
+
+bool AttrRef::operator==(const AttrRef& o) const
+{
+    return ((0 == this->syn.compare(o.syn)) &&
+            (this->entType == o.entType) &&
+            (this->attr == o.attr));
+}
 
 void AttrRef::dump_to_sb(StringBuffer &sb) const
 {
@@ -686,6 +810,209 @@ bool PatClCmp::operator()(const PatCl &a, const PatCl &b) const
     }
 }
 
+//////////////////////////////////////////////////////////////////////
+// Ref
+//////////////////////////////////////////////////////////////////////
+
+Ref::Ref()
+        : refType(REF_INVALID), refStringVal(), refIntVal(),
+          refSynType(REFSYN_INVALID) {}
+
+Ref::Ref(const Ref& o)
+        : refType(o.refType), refStringVal(o.refStringVal),
+          refIntVal(o.refIntVal), refSynType(o.refSynType) {}
+
+Ref& Ref::operator=(const Ref& o)
+{
+    using std::swap;
+    Ref tmp(o);
+    swap(*this, tmp);
+    return *this;
+}
+
+bool Ref::operator==(const Ref& o) const
+{
+    if (this->refType != o.refType) {
+        return false;
+    } else {
+        switch (this->refType) {
+        case REF_STRING:
+            return (0 == this->refStringVal.compare(o.refStringVal));
+            break;
+        case REF_INT:
+            return (this->refIntVal == o.refIntVal);
+            break;
+        case REF_ATTRREF:
+            return (0 == this->refStringVal.compare(o.refStringVal) &&
+                    this->refSynType == o.refSynType);
+            break;
+        default:
+            // REF_INVALID
+            return true;
+            break;
+        }
+    }
+}
+
+string Ref::toString() const
+{
+    StringBuffer sb;
+    switch (this->refType) {
+    case REF_STRING:
+        sb.append('"');
+        sb.append(this->refStringVal);
+        sb.append('"');
+        break;
+    case REF_INT:
+        sb.append_int(this->refIntVal);
+        break;
+    case REF_ATTRREF:
+        if (REFSYN_INVALID == this->refSynType) {
+            sb.append("Invalid RefSynType");
+        } else {
+            sb.append(this->refStringVal);
+            switch (this->refSynType) {
+            case REFSYN_ASSIGN:
+            case REFSYN_CALL:
+            case REFSYN_IF:
+            case REFSYN_WHILE:
+            case REFSYN_STMT:
+            case REFSYN_PROGLINE:
+            case REFSYN_STMTLST:
+                sb.append(ATTR_STMTNO_STR);
+                break;
+            case REFSYN_PROC:
+            case REFSYN_CALL_PROCNAME:
+                sb.append(ATTR_PROCNAME_STR);
+                break;
+            case REFSYN_VAR:
+                sb.append(ATTR_VARNAME_STR);
+                break;
+            case REFSYN_CONST:
+                sb.append(ATTR_VALUE_STR);
+                break;
+            }
+            break;
+        }
+    default:
+        sb.append("Invalid Ref");
+        break;
+    }
+    return sb.toString();
+}
+
+bool Ref::valid(const Ref& ref)
+{
+    if (REF_INVALID == ref.refType) {
+        return false;
+    } else if (REF_ATTRREF == ref.refType) {
+        return REFSYN_INVALID != ref.refSynType;
+    }
+    return true;
+}
+
+BaseType Ref::get_BaseType(const Ref& ref)
+{
+    switch (ref.refType) {
+    case REF_STRING:
+        return BASETYPE_STRING;
+        break;
+    case REF_INT:
+        return BASETYPE_INT;
+        break;
+    case REF_ATTRREF:
+        return refSynType_to_BaseType(ref.refSynType);
+        break;
+    default:
+        return BASETYPE_INVALID;
+    }
+}
+
+bool RefCmp::operator()(const Ref& x, const Ref& y) const
+{
+    int cmp;
+    if (x.refType != y.refType) {
+        return x.refType < y.refType;
+    } else {
+        switch (x.refType) {
+        case REF_STRING:
+            return x.refStringVal < y.refStringVal;
+            break;
+        case REF_INT:
+            return x.refIntVal < y.refIntVal;
+            break;
+        case REF_ATTRREF:
+            cmp = x.refStringVal.compare(y.refStringVal);
+            if (0 == cmp) {
+                return x.refSynType < y.refSynType;
+            } else if (cmp < 0) {
+                // x.refStringVal < y.refStringVal
+                return false;
+            } else {
+                // x.refStringVal > y.refStringVal
+                return true;
+            }
+            break;
+        default:
+            // REF_INVALID and REF_INVALID, return false
+            return false;
+            break;
+        }
+    }
+}
+
+WithClause::WithClause()
+        : leftRef(), rightRef() {}
+
+WithClause::WithClause(const WithClause& o)
+        : leftRef(o.leftRef), rightRef(o.rightRef) {}
+
+WithClause& WithClause::operator=(const WithClause& o)
+{
+    using std::swap;
+    WithClause tmp(o);
+    swap(*this, tmp);
+    return *this;
+}
+
+string WithClause::toString() const
+{
+    StringBuffer sb;
+    sb.append(leftRef.toString());
+    sb.append(" = ");
+    sb.append(rightRef.toString());
+    return sb.toString();
+}
+
+void WithClause::dummy() {}
+
+bool WithClause::valid_refs(const WithClause& withClause)
+{
+    return Ref::valid(withClause.leftRef) &&
+            Ref::valid(withClause.rightRef);
+}
+
+bool WithClause::valid_type(const WithClause& withClause)
+{
+    BaseType leftRefType = Ref::get_BaseType(withClause.leftRef);
+    BaseType rightRefType = Ref::get_BaseType(withClause.rightRef);
+    if (BASETYPE_INVALID == leftRefType ||
+            BASETYPE_INVALID == rightRefType) {
+        return false;
+    }
+    return leftRefType == rightRefType;
+}
+
+bool WithClauseCmp::operator()(const WithClause& x,
+        const WithClause& y) const
+{
+    if (x.leftRef == y.leftRef) {
+        return glob__RefCmp(x.rightRef, y.rightRef);
+    } else {
+        return glob__RefCmp(x.leftRef, y.leftRef);
+    }
+}
+
 /* class QueryInfo */
 
 DesignEnt QueryInfo::MODIFIES_ARGONE_TYPES_ARR
@@ -912,6 +1239,8 @@ void QueryInfo::reset(const map<string, DesignEnt>& etab,
     this->relRefsSet.clear();
     this->patCls.clear();
     this->patClSet.clear();
+    this->withClauseVec.clear();
+    this->withClauseSet.clear();
     this->clauses.clear();
 }
 
@@ -1090,6 +1419,87 @@ ParseError QueryInfo::add_patCl(const PatCl &p, char **errorMsg)
     return ret;
 }
 
+ParseError QueryInfo::add_withClause(const WithClause& withClause,
+        char **errorMsg)
+{
+    // at this point, WithClause::valid_refs(withClause) == true
+    // and WithClause::valid_type(withClause) == true
+
+    // For withClause with one concrete ref and one synonym ref,
+    // we will reorder it such that it is of the form:
+    // synonym ref = concrete ref
+    using std::swap;
+    ParseError ret = PARSE_OK;
+    WithClause swappedWithClause(withClause);
+    swap(swappedWithClause.leftRef, swappedWithClause.rightRef);
+    if ((this->withClauseSet.end() !=
+            this->withClauseSet.find(withClause)) ||
+            (this->withClauseSet.end() !=
+                this->withClauseSet.find(swappedWithClause))) {
+        if (errorMsg) {
+            StringBuffer sb;
+            sb.append("QueryInfo::add_withClause - repeated clause: ");
+            sb.append(withClause.toString());
+            *errorMsg = strdup(sb.c_str());
+        }
+    } else {
+        if (withClause.leftRef.refType ==
+                withClause.rightRef.refType) {
+            switch (withClause.leftRef.refType) {
+            case REF_STRING:
+                // the two strings are different
+                // this query should just fail
+                if (0 != withClause.leftRef.refStringVal.compare(
+                                 withClause.rightRef.refStringVal)) {
+                    ret = PARSE_WITHCLAUSE_VALUE_MISMATCH;
+                }
+                // else string = string, tautology
+                break;
+            case REF_INT:
+                // the two int are different
+                // this query should just fail
+                if (withClause.leftRef.refIntVal !=
+                        withClause.rightRef.refIntVal) {
+                    ret = PARSE_WITHCLAUSE_VALUE_MISMATCH;
+                }
+                // else int = int, tautology
+                break;
+            case REF_ATTRREF:
+                if (withClause.leftRef.refSynType !=
+                        withClause.rightRef.refSynType) {
+                    // different AttrRef, insert
+                    this->insertOrder.push_back(
+                            make_pair(WITH_CLAUSE,
+                                    this->withClauseVec.size()));
+                    this->withClauseSet.insert(withClause);
+                    this->withClauseVec.push_back(withClause);
+                    this->clauses.push_back(new WithClause(withClause));
+                }
+                // else AttrRef = AttrRef, tautology
+                break;
+            default:
+                assert(false);
+            }
+        } else if (REF_ATTRREF == withClause.rightRef.refType) {
+            // concrete = syn
+            // insert swappedWithClause (which has form "syn = concrete")
+            this->insertOrder.push_back(
+                    make_pair(WITH_CLAUSE, this->withClauseVec.size()));
+            this->withClauseSet.insert(swappedWithClause);
+            this->withClauseVec.push_back(swappedWithClause);
+            this->clauses.push_back(new WithClause(swappedWithClause));
+        } else {
+            // insert withClause
+            this->insertOrder.push_back(
+                    make_pair(WITH_CLAUSE, this->withClauseVec.size()));
+            this->withClauseSet.insert(withClause);
+            this->withClauseVec.push_back(withClause);
+            this->clauses.push_back(new WithClause(withClause));
+        }
+    }
+    return ret;
+}
+
 void QueryInfo::dump(void) const
 {
     this->dump(stdout);
@@ -1155,6 +1565,10 @@ void QueryInfo::dump_clauses(StringBuffer &sb) const
             break;
         case PATTERN_CLAUSE:
             sb.append(this->patCls[it->second].toString(true));
+            sb.append('\n');
+            break;
+        case WITH_CLAUSE:
+            sb.append(this->withClauseVec[it->second].toString());
             sb.append('\n');
             break;
         }

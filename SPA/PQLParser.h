@@ -63,6 +63,7 @@ private:
     bool eat_rparen();
     bool eat_underscore();
     bool eat_dquote();
+    bool eat_equal();
     template<bool (*fn)(char ch)>
         int eat_while(StringBuffer &sb);
     bool eat_synonym(StringBuffer &sb);
@@ -74,9 +75,15 @@ private:
     bool eat_alpha_underscore_string(StringBuffer &sb, const char *s);
     bool eat_design_entity(StringBuffer &sb);
     bool eat_ident_string(StringBuffer &sb, const char *s);
+    /// Triggers parsing error on:
+    /// 1. invalid identity string (PARSE_DQUOTED_IDENT_INVALID)
+    /// 2. missing closing quote (PARSE_DQUOTED_IDENT_MISSING_CLOSE_QUOTE)
     bool eat_dquoted_ident(StringBuffer &sb);
     bool eat_string_till_ws(StringBuffer &sb, const char *s);
     int eat_int(StringBuffer &sb);
+    /// Eats the entire PQL Query from this->bufIdx
+    /// @param sb the StringBuffer to store the characters eaten
+    void eat_till_end(StringBuffer& sb);
     bool eat_select(StringBuffer &sb);
     bool eat_select_tuple(StringBuffer &sb) throw(ParseError);
     AttrRef eat_select_tuple_elem(StringBuffer &sb) throw(ParseError);
@@ -143,6 +150,35 @@ private:
     bool eat_relCond(StringBuffer &sb) throw(ParseError);
     PatCl eat_patternClause(StringBuffer &sb) throw(ParseError);
     bool eat_patternCond(StringBuffer &sb) throw(ParseError);
+    /// Eats a ref.
+    /// There are a few points where an error can occur
+    /// 1. When parsing a double quoted identity string, the
+    ///    PQLParser::eat_dquoted_ident method may result in an error
+    /// 2. If PQLParser::eat_int successfully eats an integer but
+    ///    the string_to_int function fails and the triggerError param
+    ///    is set to true
+    /// 3. PQLParser::eat_attrRef returns a valid AttrRef which somehow
+    ///    fails to convert to a RefSynType. This should NEVER happen
+    /// 4. Parsing of "IDENT", integer and AttrRef all fail and the
+    ///    triggerError param is set to true. This will mean we are
+    ///    trying to parse the right hand side ref of a WithClause.
+    ///    Since we have seen the '=', an error should be raised when
+    ///    parsing of the right hand side ref fails.
+    /// @param sb StringBuffer for parsing purposes
+    /// @param refOut the Ref to modify upon successful parse
+    /// @param triggerError whether to trigger an error if parsing
+    ///                     fails at some point. This should only be
+    ///                     set to true if we are parsing the right side
+    ///                     of a WithClause
+    /// @param lhsRef pointer to a Ref. This field should point to
+    ///               a valid Ref if triggerError is true, otherwise
+    ///               it should contain NULL.
+    /// @return true if parsing a Ref succeeds, false otherwise
+    bool eat_ref(StringBuffer &sb, Ref& refOut, bool triggerError,
+            Ref *lhsRef);
+    bool eat_withClause_one(StringBuffer &sb, WithClause& WithClause,
+            ParseError *parseError);
+    bool eat_withClause(StringBuffer& sb) throw(ParseError);
     void eat_select_stwithpat(StringBuffer &sb);
     bool insert_syn(DesignEnt ent, const std::string &s) throw(ParseError);
     DesignEnt retrieve_syn_type(const std::string& s) const;

@@ -7,6 +7,8 @@
 #include <vector>
 #include "StringBuffer.h"
 
+#define INVALID_STR "invalid"
+
 #define ENT_PROC_STR     "procedure"
 #define ENT_STMTLST_STR  "stmtLst"
 #define ENT_STMT_STR     "stmt"
@@ -46,6 +48,9 @@
 #define ATTR_STMTNO_STR   "stmt#"
 #define ATTR_DEFAULT_STR  "default"
 #define ATTR_INVALID_STR  "invalid"
+
+#define BASETYPE_INT_STR    "int"
+#define BASETYPE_STRING_STR "string"
 
 // arg: synonym type
 #define PARSE_DECL_EMPTY_SYN_STR \
@@ -173,6 +178,36 @@
     "Expected patCl, got \"%s\" [after %s]"
 #define PARSE_QINFO_INSERT_INVALID_RELREF_STR \
     "QueryInfo::add_relRef - Trying to insert invalid relRef"
+// arg: withClause.toString()
+#define PARSE_WITHCLAUSE_REFS_INVALID_STR \
+    "WithClause: Invalid Ref in ' %s '"
+// args: withClause, left ref BaseType, rightRef BaseType
+#define PARSE_WITHCLAUSE_TYPE_MISMATCH_STR \
+    "WithClause: type mismatch for %s [%s vs. %s]"
+// arg: PQLParser::eat_while<not_space>(sb) --> sb.c_str()
+#define PARSE_WITHCLAUSE_AND_NOSEP_STR \
+    "WithClause: expect whitespace after \"and\" [got %s]"
+// args: left_side_ref.toString().c_str(),
+//       PQLParser::eat_while<not_space>(sb) --> sb.c_str()
+#define PARSE_WITHCLAUSE_EXPECT_REF_ON_RHS_STR \
+    "WithClause: expect ref on right hand side of \"%s = \", " \
+    "got \"%s\"]"
+// args: PQLParser::eat_till_end(sb) --> sb._str(),
+//       prevWithClause.toString().c_str()
+#define PARSE_WITHCLAUSE_EXPECT_WITH_STR \
+    "WithClause: expect with after 'and', got \"%s\" [after %s]"
+// args: integer string, errorMsg
+#define PARSE_REF_INTEGER_ERROR_STR \
+    "Ref: integer conversion error for \"%s\" [%s]"
+// arg: sb.c_str()
+#define PARSE_REF_ATTRREF_ERROR_STR \
+    "Ref: expected AttrRef, got \"%s\""
+// arg: PQLParser::eat_while<not_dquote>(sb) --> sb.c_str()
+#define PARSE_DQUOTED_IDENT_INVALID_STR \
+    "Quoted identifier: expected identifier string, got \"%s\""
+// arg: sb.c_str()
+#define PARSE_DQUOTED_IDENT_MISSING_CLOSE_QUOTE_STR \
+    "Quoted identifier: expect close quote for \"%s\""
 // arg: StringBuffer contents
 #define PARSE_END_OF_QUERY_ERROR_STR \
     "Expected end of query, got \"%s\""
@@ -213,6 +248,30 @@ enum DesignEnt {
 enum SelectType {
     SEL_TUPLE,  ///< Select tuple
     SEL_BOOLEAN ///< Select boolean
+};
+
+/// Type of a 'ref' in the PQL grammar
+enum RefType {
+    REF_STRING,  ///< a string
+    REF_INT,     ///< an integer
+    REF_ATTRREF, ///< an attrRef
+    REF_INVALID
+};
+
+/// Representation of a 'ref' which is a synonym
+enum RefSynType {
+    REFSYN_PROC,          ///< procedure
+    REFSYN_STMTLST,       ///< stmtLst
+    REFSYN_STMT,          ///< stmt
+    REFSYN_ASSIGN,        ///< assign
+    REFSYN_CALL,          ///< call.stmt#
+    REFSYN_CALL_PROCNAME, ///< call.procName
+    REFSYN_WHILE,         ///< while
+    REFSYN_IF,            ///< if
+    REFSYN_VAR,           ///< variable
+    REFSYN_CONST,         ///< constant
+    REFSYN_PROGLINE,      ///< prog_line
+    REFSYN_INVALID        ///< invalid type
 };
 
 /// Type of an attrName in the PQL grammar
@@ -285,6 +344,18 @@ enum PatClExprType {
     PATEXPR_INVALID        ///< Invalid type, indicates an error
 };
 
+/// General Type, read explanation for more details
+/// For instance,
+/// ENT_ASSIGN -> BASETYPE_INT
+/// ENT_PROC   -> BASETYPE_STRING
+/// REFSYN_CALL -> BASETYPE_INT
+/// REFSYN_CALL_PROCNAME -> BASETYPE_STRING
+enum BaseType {
+    BASETYPE_INT,    ///< int type
+    BASETYPE_STRING, ///< string type
+    BASETYPE_INVALID ///< invalid type
+};
+
 /// PQLParser error types
 enum ParseError {
     PARSE_OK,
@@ -313,9 +384,22 @@ enum ParseError {
     PARSE_PATCL_NOLPAREN, PARSE_PATCL_SYN_TYPE_ERROR,
     PARSE_PATCOND_AND_NOSEP, PARSE_PATCOND_INVALID_PATCL,
     PARSE_QINFO_INSERT_INVALID_RELREF,
+    PARSE_WITHCLAUSE_REFS_INVALID, PARSE_WITHCLAUSE_TYPE_MISMATCH,
+    /// Triggered for concrete with clause whose values dont match
+    /// eg. "astring" = "bstring", 35 = 1024
+    /// This should not be handled by PQLParser::error
+    PARSE_WITHCLAUSE_VALUE_MISMATCH,
+    PARSE_WITHCLAUSE_AND_NOSEP,
+    PARSE_WITHCLAUSE_EXPECT_REF_ON_RHS, PARSE_WITHCLAUSE_EXPECT_WITH,
+    PARSE_REF_INTEGER_ERROR, PARSE_REF_ATTRREF_ERROR,
+    PARSE_DQUOTED_IDENT_INVALID,
+    PARSE_DQUOTED_IDENT_MISSING_CLOSE_QUOTE,
     PARSE_END_OF_QUERY_ERROR,
     PARSE_UNKNOWN
 };
+
+// Forward declaration
+struct AttrRef;
 
 /// Returns a string equivalent of a given RelRefType
 /// @param relType relation type eg. REL_MODIFIES, REL_USES
@@ -338,6 +422,18 @@ const char *attrType_to_string(AttrType attrType);
 /// @return a RelRefArgType indicating the type of the DesignEnt,
 ///         or RELARG_INVALID if ENT_INVALID was supplied
 RelRefArgType designEnt_to_relRefArgType(DesignEnt ent);
+/// Converts a RefSynType to a BaseType
+/// @param refSynType the input RefSynType to convert
+/// @return a BaseType corresponding to the given RefSynType
+BaseType refSynType_to_BaseType(RefSynType refSynType);
+/// Converts a BaseType to a string
+/// @param baseType the BaseType to convert
+/// @return a string representation of the BaseType
+const char *baseType_to_string(BaseType baseType);
+/// Converts an AttrRef to a RefSynType
+/// @param attrRef the AttrRef to convert
+/// @return a RefSynType equivalent to the AttrRef
+RefSynType attrRef_to_RefSynType(const AttrRef& attrRef);
 
 /// Interface inherited by RelRef, PatCl
 /// This allows us to use a single type to store RelRef and PatCl
@@ -378,6 +474,11 @@ public:
     /// @param et DesignEnt of the synonym s
     /// @param a AttrType of the AttrRef
     AttrRef(std::string s, DesignEnt et, AttrType a);
+    /// Compares this AttrRef with another AttrRef for equality
+    /// @param o the AttrRef to compare with
+    /// @return true if this AttrRef is equal to the other AttrRef,
+    ///         false otherwise
+    bool operator==(const AttrRef& o) const;
     /// dumps a string representation of the AttrRef into the
     /// StringBuffer
     /// @param sb StringBuffer to dump the string representation of
@@ -664,6 +765,107 @@ struct PatClCmp {
     bool operator()(const PatCl &a, const PatCl &b) const;
 };
 
+/// Ref data structure
+struct Ref {
+    /// type of Ref
+    RefType refType;
+    /// if refType == REF_STRING, this holds the literal string value
+    /// if refType == REF_ATTRREF, this holds the synonym
+    std::string refStringVal;
+    /// if refType == REF_INT, this holds the literal integer value
+    int refIntVal;
+    /// if refType == REF_ATTRREF, this holds the type of AttrRef
+    /// eg. REFSYN_ASSIGN, REFSYN_CALL, REFSYN_CALL_PROCNAME
+    RefSynType refSynType;
+    /// Constructor
+    Ref();
+    /// Copy constructor
+    Ref(const Ref& o);
+    /// Copy assignment operator
+    /// @param o the Ref to copy
+    /// @return a reference to this Ref
+    Ref& operator=(const Ref& o);
+    /// Compare with another Ref for equality
+    /// @param o the Ref to compare against
+    /// @return true if this Ref is equal to the other Ref
+    bool operator==(const Ref& o) const;
+    /// Converts the Ref to a string
+    /// @return a string representation of the Ref
+    std::string toString() const;
+    /// Swaps two Ref
+    /// @param x the first Ref
+    /// @param y the second Ref
+    friend void swap(Ref& x, Ref& y) {
+        using std::swap;
+        swap(x.refType, y.refType);
+        swap(x.refStringVal, y.refStringVal);
+        swap(x.refIntVal, y.refIntVal);
+        swap(x.refSynType, y.refSynType);
+    }
+    /// Checks if a Ref is valid
+    /// @param ref the Ref to check validity
+    /// @return true if the Ref is valid, false otherwise
+    static bool valid(const Ref& ref);
+    /// Gets the BaseType of a Ref
+    /// @return the BaseType of the Ref
+    static BaseType get_BaseType(const Ref& ref);
+};
+
+/// Comparator for Ref
+struct RefCmp {
+    /// Compares two Ref using < relationship
+    /// @param x the first Ref
+    /// @param y the second Ref
+    /// @return true if x < y, false otherwise
+    bool operator()(const Ref& x, const Ref& y) const;
+};
+
+/// Data structure for WithClause
+struct WithClause: public GenericRef {
+    /// ref on left hand side of '='
+    Ref leftRef;
+    /// ref on right hand side of '='
+    Ref rightRef;
+
+    /// Default constructor
+    WithClause();
+    /// Copy constructor
+    /// @param o the WithClause to copy
+    WithClause(const WithClause& o);
+    /// Copy assignment operator
+    /// @param o the WithClause to copy
+    /// @return a reference to this WithClause
+    WithClause& operator=(const WithClause& o);
+    /// Converts the WithClause to a string
+    /// @return a string representation of the WithClause
+    std::string toString() const;
+    /// dummy method
+    void dummy();
+    /// Swaps two WithClause
+    /// @param x the first WithClause
+    /// @param y the second WithClause
+    friend void swap(WithClause& x, WithClause& y) {
+        using std::swap;
+        swap(x.leftRef, y.leftRef);
+        swap(x.rightRef, y.rightRef);
+    }
+    /// Checks if a WithClause's left and right refs are valid
+    /// @return true if a WithClause's refs are valid, false otherwise
+    static bool valid_refs(const WithClause& withClause);
+    /// Checks for type validity of WithClause
+    /// @return true if a WithClause's leftRef type matches its rightRef
+    ///         type, false otherwise
+    static bool valid_type(const WithClause& withClause);
+};
+
+/// Comparator for WithClause
+struct WithClauseCmp {
+    /// Compares two WithClause using '<' relation
+    /// @param x the first WithClause
+    /// @param y the second WithClause
+    /// @return true if x < y, false otherwise
+    bool operator()(const WithClause& x, const WithClause& y) const;
+};
 
 #define QINFO_ERROR_LEN 1000
 
@@ -721,6 +923,18 @@ public:
     /// @return a ParseError enum indicating PARSE_OK on success
     ///         or an apporpriate error otherwise.
     ParseError add_patCl(const PatCl &p, char **errorMsg);
+    /// Adds a new WithClause
+    /// @param withClause the WithClause to add
+    /// @param errorMsg pointer to char*. If supplied, the char *
+    ///                 should contain the value NULL. Otherwise, this
+    ///                 field should be set to NULL.
+    ///                 If supplied, this field allows an appropriate
+    ///                 error message to be returned to the user.
+    ///                 The user should check this field and call the
+    ///                 free function on the string if *errorMsg != NULL
+    /// @return PARSE_OK on success, or an appropriate error otherwise
+    ParseError add_withClause(const WithClause &withClause,
+            char **errorMsg);
     /// Dumps a representation of the QueryInfo data structure to stdout
     void dump(void) const;
     /// Dumps a representation of the QueryInfo data structure to
@@ -814,6 +1028,11 @@ private:
     /// Set of Pattern clauses. This allows us to avoid adding
     /// duplicated Pattern clauses as an optimization.
     std::set<PatCl, PatClCmp> patClSet;
+    /// vector of WithClause (in textual order)
+    std::vector<WithClause> withClauseVec;
+    /// Set of WithClause. This allows us to avoid adding duplicated
+    /// WithClause as an optimization
+    std::set<WithClause, WithClauseCmp> withClauseSet;
     /// vector of all the clauses (in textual order)
     std::vector<GenericRef *> clauses;
     /// if this is true, the QueryEvaluator will continue to
@@ -981,5 +1200,13 @@ private:
     static const std::set<DesignEnt> AFFECTS_ARGONE_TYPES;
     static const std::set<DesignEnt> AFFECTS_ARGTWO_TYPES;
 };
+
+// Globals
+
+/// Global AttrRefCmp, defined in PQL.cpp
+extern struct AttrRefCmp glob__AttrRefCmp;
+
+/// Global RefCmp, defined in PQL.cpp
+extern struct RefCmp glob__RefCmp;
 
 #endif
