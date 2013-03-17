@@ -90,6 +90,7 @@ void Test_20_PQLParser_With::test_with_string_string_different_halt()
             parser.get_parse_result());
     out = "DEAD\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
 
     // RHS of 3rd WithClause is not equal
     queryStr = "procedure p1; variable v2; Select <p1, v2> with ";
@@ -101,6 +102,7 @@ void Test_20_PQLParser_With::test_with_string_string_different_halt()
             parser.get_parse_result());
     out = "DEAD\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
     // query above is alive without 3rd WithClause
     queryStr = "procedure p1; variable v2; Select <p1, v2> with ";
     queryStr += " \"single\" = \"single\" and \"T\" = \"T\" and ";
@@ -111,6 +113,7 @@ void Test_20_PQLParser_With::test_with_string_string_different_halt()
     out = "ALIVE\nDECLARATIONS\n  procedure p1\n  variable v2\n";
     out += "SELECT TUPLE\n  procedure p1\n  variable v2\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+    CPPUNIT_ASSERT_EQUAL(true, qinfo->is_alive());
 
     // Relation + With, 6th WithClause is different
     queryStr = " assign a1, a2; while w1, w2; if if1, if2; call c1, c2;";
@@ -129,6 +132,7 @@ void Test_20_PQLParser_With::test_with_string_string_different_halt()
             parser.get_parse_result());
     out = "DEAD\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
     // above query is true with corrected 6th WithClause
     queryStr = " assign a1, a2; while w1, w2; if if1, if2; call c1, c2;";
     queryStr += " procedure p1, p2; variable v1, v2; ";
@@ -151,6 +155,7 @@ void Test_20_PQLParser_With::test_with_string_string_different_halt()
     out += "Modifies(a2,v1)\nParent(if1,c2)\nParent*(w2,if2)\n";
     out += "Affects(a2,a1)\nUses(p2,v2)\nCalls(p2,p1)\nModifies(c2,v2)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+    CPPUNIT_ASSERT_EQUAL(true, qinfo->is_alive());
 }
 
 void Test_20_PQLParser_With::test_with_int_int_same()
