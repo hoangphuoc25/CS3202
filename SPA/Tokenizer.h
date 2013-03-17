@@ -31,6 +31,7 @@ private:
     char currChar;
     int tokenNo;
     bool done;
+    bool procFlag;
 
     string inputString;
     int start;

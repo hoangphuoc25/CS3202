@@ -67,15 +67,21 @@ void Test_20_Parser::test_four()
     Node *n;
 
     putchar('\n');
-    n = Parser("(x+y)",FROMSTRING).yard();
-    if (n != NULL) {
-        n ->preorder(4);
-    } else {
-        printf("Invalid expr\n");
-    }
-    putchar('\n');
-    putchar('\n');
+    n = Parser("((((x+y))))",FROMSTRING).yard();
+    dump(n);
     n = Parser("4+((def))",FROMSTRING).yard();
+    dump(n);
+    n = Parser("x+y*z-2-3+4*5-6",FROMSTRING).yard();
+    dump(n);
+    n = Parser("13-(2-(3*(47+((5-6*7+834))-965)*72-8+(9*112))+27*92)+5",FROMSTRING).yard();
+    dump(n);
+    n = Parser("x+y-)",FROMSTRING).yard();
+    dump(n);
+}
+
+void Test_20_Parser::dump(Node* n)
+{
+    putchar('\n');
     if (n != NULL) {
         n ->preorder(4);
     } else {
@@ -83,4 +89,3 @@ void Test_20_Parser::test_four()
     }
     putchar('\n');
 }
-

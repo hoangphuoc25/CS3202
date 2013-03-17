@@ -9,6 +9,7 @@ Tokenizer::Tokenizer()
     tokenNo = 0;
     currChar = ' ';
     done = false;
+    procFlag = false;
 }
 
 Tokenizer::Tokenizer(string s, ReadMode mode)
@@ -17,6 +18,7 @@ Tokenizer::Tokenizer(string s, ReadMode mode)
     tokenNo = 0;
     currChar = ' ';
     done = false;
+    procFlag = false;
     fmode = mode;
     if (mode == 0) {
         pFile = fopen(s.c_str(),"r");
@@ -170,10 +172,15 @@ Token Tokenizer::get_token()
 
     // determine token type
     tokenNo++;
+    if (!tokenString.compare("procedure")) {
+        procFlag = true;
+    }
+
     if (is_keyword(tokenString)) {
         return Token(tokenString, KEYWORD);
     } else if (is_name(tokenString)) {
-        if (tokenNo<=2) {
+        if (procFlag) {
+            procFlag = false;
             return Token(tokenString, PROC_NAME);
         } else {
             return Token(tokenString, VAR_NAME);

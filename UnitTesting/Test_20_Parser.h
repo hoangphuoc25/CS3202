@@ -2,7 +2,7 @@
 #define T11_TEST_20_PARSER_H
 
 #include <cppunit/extensions/HelperMacros.h>
-
+#include "../SPA/Node.h"
 
 class Test_20_Parser: public CPPUNIT_NS::TestFixture {
 
@@ -22,6 +22,7 @@ private:
     void test_two();
     void test_three();
     void test_four();
+    void dump(Node* n);
 
 };
 

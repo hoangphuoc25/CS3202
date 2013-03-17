@@ -236,10 +236,9 @@ void Parser::procedure()
 {
     state = "procedure";
     match("procedure");
-    if (nextToken.get_type() == VAR_NAME) {
+    /*if (nextToken.get_type() == VAR_NAME) {
         nextToken = Token(nextToken.get_name(), PROC_NAME);
-    }
-
+    }*/
     match(PROC_NAME);
     procName = currToken.get_name();
     procRoot = new Node(procName, PROCEDURE, 0);
@@ -520,9 +519,6 @@ Node* Parser::yard()
 {
     makeTree = true;
     treeError = false;
-    if (nextToken.get_type() == PROC_NAME) {
-        nextToken = Token(nextToken.get_name(), VAR_NAME);
-    }
     expr();
     if (treeError) {
         return NULL;
