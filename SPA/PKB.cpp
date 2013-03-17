@@ -1002,6 +1002,7 @@ bool PKB::nextStar_query_int_X_int_Y(DesignEnt xType, int x,
     // TODO: Please implement
     if (stmtBank->is_valid_stmtNo(x) && stmtBank->is_valid_stmtNo(y)) {
         set<int> s =  CFG->at(x)->get_after();
+        set<int> vis;
         set<int>::iterator it;
         queue<int> q;
         for (it = s.begin(); it != s.end(); it++) {
@@ -1011,10 +1012,13 @@ bool PKB::nextStar_query_int_X_int_Y(DesignEnt xType, int x,
             if (q.front() == y) {
                 return true;
             } else {
-                s = CFG->at(q.front())->get_after();
-                for (it = s.begin(); it != s.end(); it++) {
-                    q.push(*it);
+                if (vis.find(q.front()) == vis.end()) {
+                    s = CFG->at(q.front())->get_after();
+                    for (it = s.begin(); it != s.end(); it++) {
+                        q.push(*it);
+                    }
                 }
+                vis.insert(q.front());
                 q.pop();
             }
         }
