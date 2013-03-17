@@ -12,6 +12,8 @@ Parser::Parser(string s, ReadMode mode)
     tokenizer = *new Tokenizer(s.c_str(), mode);
     nextToken = tokenizer.get_token();
     stmtNo = 0;
+    makeTree = false;
+    treeError = false;
 
     varTable = new VarTable();
     stmtBank = new StmtBank();
@@ -167,7 +169,11 @@ void Parser::match(tokenType type)
         currToken = nextToken;
         nextToken = tokenizer.get_token();
     } else {
-        error(type);
+        if(makeTree) {
+            treeError = true;
+        } else {
+            error(type);
+        }
     }
 }
 
@@ -178,7 +184,11 @@ void Parser::match(string str)
          currToken = nextToken;
          nextToken = tokenizer.get_token();
      } else {
-         error(str);
+        if(makeTree) {
+            treeError = true;
+        } else {
+            error(str);
+        }
      }
 }
 
@@ -374,14 +384,23 @@ void Parser::expr()
 {
     state = "expr";
     term();
+    if (treeError) {
+        return;
+    }
     string s = nextToken.get_name();
     if (s == "+") {
         match("+");
+        if (treeError) {
+            return;
+        }
         tempNode = new Node("+", OPERATOR_, stmtNo);
         check_pre(tempNode);
         expr();
     } else if (s == "-") {
         match("-");
+        if (treeError) {
+            return;
+        }
         tempNode = new Node("-", OPERATOR_, stmtNo);
         check_pre(tempNode);
         expr();
@@ -392,8 +411,14 @@ void Parser::term()
 {
     state = "term";
     factor();
+    if (treeError) {
+        return;
+    }
     if (nextToken.get_name() == "*") {
         match("*");
+        if (treeError) {
+            return;
+        }
         tempNode = new Node("*", OPERATOR_, stmtNo);
         check_pre(tempNode);
         term();
@@ -406,13 +431,21 @@ void Parser::factor()
     tokenType t = nextToken.get_type();
     if (t == VAR_NAME) {
         match(VAR_NAME);
+        if (treeError) {
+            return;
+        }
         tempNode = new Node(currToken.get_name(), VARIABLE_, stmtNo);
-        add_uses(assignNode, tempNode->get_name());
+        if (!makeTree) {
+            add_uses(assignNode, tempNode->get_name());
+        }
         outStack.push(tempNode);
     } else if (t == CONSTANT) {
         char *errorMsg = NULL;
         bool ret;
         match(CONSTANT);
+        if (treeError) {
+            return;
+        }
         ret = stmtBank->add_constant(currToken.get_name(), &errorMsg);
         if (!ret) {
             // TODO: error out and show error message??
@@ -423,10 +456,19 @@ void Parser::factor()
         }
     } else {
         match("(");
+        if (treeError) {
+            return;
+        }
         tempNode = new Node("(", BRACKETS_, stmtNo);
         check_pre(tempNode);
         expr();
+        if (treeError) {
+            return;
+        }
         match(")");
+        if (treeError) {
+            return;
+        }
         tempNode = new Node(")", BRACKETS_, stmtNo);
         check_pre(tempNode);
     }
@@ -476,22 +518,21 @@ void Parser::check_pre(Node *op)
 
 Node* Parser::yard()
 {
+    makeTree = true;
+    treeError = false;
     if (nextToken.get_type() == PROC_NAME) {
         nextToken = Token(nextToken.get_name(), VAR_NAME);
     }
-    match(VAR_NAME);
-    tempNode = new Node(currToken.get_name(), VARIABLE_, stmtNo);
-    match("=");
-    create_node("=", ASSIGN_STMT);
-    nextNode->add_leaf(tempNode);
-    assignNode = nextNode;
     expr();
+    if (treeError) {
+        return NULL;
+    }
     while (!opStack.empty()) {
         join();
     }
-    nextNode->add_leaf(outStack.top());
+    treeNode = outStack.top();
     outStack.pop();
-    return nextNode;
+    return treeNode;
 }
 
 // CFG builder

@@ -58,6 +58,9 @@ private:
     // Shunting yard stacks
     stack<Node*> opStack;
     stack<Node*> outStack;
+    bool makeTree;
+    bool treeError;
+    Node *treeNode;
 
     // Printer data
     map<tokenType, string> printer; 

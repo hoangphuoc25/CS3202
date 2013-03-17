@@ -13,7 +13,8 @@ void Test_20_Parser::tearDown() {}
 CPPUNIT_TEST_SUITE_REGISTRATION(Test_20_Parser);
 
 // Test shunting yard
-void Test_20_Parser::test_one(){
+void Test_20_Parser::test_one()
+{
     Parser p;
     p = Parser("Test_20_Parser\\test1\\proc1.txt",FROMFILE);
     p.init();
@@ -22,7 +23,8 @@ void Test_20_Parser::test_one(){
 }
 
 // TEST AST relationships
-void Test_20_Parser::test_two(){
+void Test_20_Parser::test_two()
+{
 
     Parser p;
     Node* n;
@@ -49,7 +51,8 @@ void Test_20_Parser::test_two(){
 }
 
 // TEST AST relationships for program
-void Test_20_Parser::test_three(){
+void Test_20_Parser::test_three()
+{
     Parser p;
     p = Parser("Test_20_Parser\\test3\\assign1.txt",FROMFILE);
     p.init();
@@ -57,3 +60,27 @@ void Test_20_Parser::test_three(){
     n->out(0, "Test_20_Parser\\test3\\assign1_out.txt");
     n->out_relationship("Test_20_Parser\\test3\\assign1_out_relationship.txt");
 }
+
+void Test_20_Parser::test_four()
+{
+
+    Node *n;
+
+    putchar('\n');
+    n = Parser("(x+y)",FROMSTRING).yard();
+    if (n != NULL) {
+        n ->preorder(4);
+    } else {
+        printf("Invalid expr\n");
+    }
+    putchar('\n');
+    putchar('\n');
+    n = Parser("4+((def))",FROMSTRING).yard();
+    if (n != NULL) {
+        n ->preorder(4);
+    } else {
+        printf("Invalid expr\n");
+    }
+    putchar('\n');
+}
+

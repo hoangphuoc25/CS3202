@@ -45,6 +45,7 @@ void Test_30_PKB_Next::test_next()
             }\
             procedure lala {\
                 a = 1;\
+                e = (x+y)+1;\
             }";
 
     string queryStr;
