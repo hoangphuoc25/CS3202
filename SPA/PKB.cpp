@@ -1237,10 +1237,10 @@ set<int> PKB::affectsStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
             continue;
         } else {
             processed.insert(n);
-            res.insert(n);
             temp = affects_X_Y_get_int_X_from_int_Y(ENT_ASSIGN,ENT_ASSIGN,n);
             for (it = temp.begin(); it != temp.end(); it++) {
                 q.push(*it);
+                res.insert(*it);
             }
             q.pop();
         }
@@ -2235,15 +2235,16 @@ set<int> PKB::get_affected_by_star(int stmtNo)
     processed.insert(stmtNo);
     while (!q.empty()) {
         n = q.front();
+        //res.insert(n);
         if (processed.find(n) != processed.end()) {
             q.pop();
             continue;
         } else {
             processed.insert(n);
-            res.insert(n);
             temp = get_affected_by(n);
             for (it = temp.begin(); it != temp.end(); it++) {
                 q.push(*it);
+                res.insert(*it);
             }
             q.pop();
         }

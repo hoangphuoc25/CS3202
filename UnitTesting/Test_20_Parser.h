@@ -10,7 +10,7 @@ CPPUNIT_TEST_SUITE(Test_20_Parser);
 //CPPUNIT_TEST(test_one);
 //CPPUNIT_TEST(test_two);
 //CPPUNIT_TEST(test_three);
-CPPUNIT_TEST(test_four);
+//CPPUNIT_TEST(test_four);
 CPPUNIT_TEST_SUITE_END();
 
 public:

@@ -11,48 +11,48 @@ using std::string;
 
 void Test10_00_Affects::setUp() {
     this->AFFECTS_00_PROG = 
-"procedure affects{\
-    while w1 {\
-        if i2 then {\
-            if i3 then {\
-                if i4 then {\
-                    a = a + 5;\
+        "procedure affects{\
+            while w1 {\
+                if i2 then {\
+                    if i3 then {\
+                        if i4 then {\
+                            a = a + 5;\
+                        } else {\
+                            c = b + 6;\
+                        }\
+                    } else {\
+                        if i7 then {\
+                            b = a + 8;\
+                        } else {\
+                            d = c + 9;\
+                        }\
+                    }\
                 } else {\
-                    c = b + 6;\
+                    if i10 then {\
+                        if i11 then {\
+                            b = a +12;\
+                        } else {\
+                            d = c + 13;\
+                        }\
+                    } else {\
+                        while w14 {\
+                            b = e + 15;\
+                            e = d + 16;\
+                            d = 17;\
+                        }\
+                    }\
                 }\
-            } else {\
-                if i7 then {\
-                    b = a + 8;\
-                } else {\
-                    d = c + 9;\
-                }\
-            }\
-        } else {\
-            if i10 then {\
-                if i11 then {\
-                    b = a +12;\
-                } else {\
-                    d = c + 13;\
-                }\
-            } else {\
-                while w14 {\
-                    b = e + 15;\
-                    e = d + 16;\
-                    d = 17;\
-                }\
+                call lala;\
             }\
         }\
-        call lala;\
-    }\
-}\
-procedure lala{\
-    f = 1;\
-    call rara;\
-    g = f;\
-}\
-procedure rara {\
-    f = 2;\
-}";
+        procedure lala{\
+            f = 1;\
+            call rara;\
+            g = f;\
+        }\
+        procedure rara {\
+            f = 2;\
+        }";
 }
 
 void Test10_00_Affects::tearDown() {}
@@ -101,11 +101,11 @@ void Test10_00_Affects::test_affects_stmt_00()
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"5"),
             stringSet);
 
-
-
+    queryStr = "assign a1,a2,a3;";
+    queryStr += " Select a3 such that Affects(a1,a2) and Affects(a2,a3)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(8,"5","8","12","6","9","13","16","15"),
+            stringSet);
 
 }
-void Test10_00_Affects::test_affects_assign_00(){}
-void Test10_00_Affects::test_affects_while_00(){}
-void Test10_00_Affects::test_affects_if_00(){}
-void Test10_00_Affects::test_affects_call_00(){}

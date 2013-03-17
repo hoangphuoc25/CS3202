@@ -12,6 +12,8 @@ public:
     void setUp();
     void tearDown();
 private:
+    void test_affects_star_stmt_00();
+    std::string AFFECTS_STAR_00_PROG;
 };
 
 #endif
