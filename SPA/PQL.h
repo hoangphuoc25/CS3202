@@ -178,6 +178,13 @@
     "Expected patCl, got \"%s\" [after %s]"
 #define PARSE_QINFO_INSERT_INVALID_RELREF_STR \
     "QueryInfo::add_relRef - Trying to insert invalid relRef"
+// arg: sb.c_str()
+#define PARSE_WITHCLAUSE_REF_SYNONYM_UNDECLARED_STR \
+    "Ref in WithClause: undefined synonym \"%s\""
+// args: synName.c_str(), entity_type_to_string(entType)
+#define PARSE_WITHCLAUSE_REF_SYNONYM_NOT_PROGLINE_STR \
+    "Ref in WithClause: synonym \"%s\" of type \"%s\" " \
+    "has no attrName, only prog_line can have no attrName"
 // arg: withClause.toString()
 #define PARSE_WITHCLAUSE_REFS_INVALID_STR \
     "WithClause: Invalid Ref in ' %s '"
@@ -384,6 +391,12 @@ enum ParseError {
     PARSE_PATCL_NOLPAREN, PARSE_PATCL_SYN_TYPE_ERROR,
     PARSE_PATCOND_AND_NOSEP, PARSE_PATCOND_INVALID_PATCL,
     PARSE_QINFO_INSERT_INVALID_RELREF,
+    /// Triggered when a ref is a synonym and the
+    /// synonym is undeclared
+    PARSE_WITHCLAUSE_REF_SYNONYM_UNDECLARED,
+    /// Triggered when a ref in with clause is a synonym
+    /// but not a prog_line
+    PARSE_WITHCLAUSE_REF_SYNONYM_NOT_PROGLINE,
     PARSE_WITHCLAUSE_REFS_INVALID, PARSE_WITHCLAUSE_TYPE_MISMATCH,
     /// Triggered for concrete with clause whose values dont match
     /// eg. "astring" = "bstring", 35 = 1024

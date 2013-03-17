@@ -352,6 +352,9 @@ void PQLParser::print_error(va_list ap)
     case PARSE_QINFO_INSERT_INVALID_RELREF:
         sb.vsprintf(PARSE_QINFO_INSERT_INVALID_RELREF_STR, ap);
         break;
+    case PARSE_WITHCLAUSE_REF_SYNONYM_UNDECLARED:
+        sb.vsprintf(PARSE_WITHCLAUSE_REF_SYNONYM_UNDECLARED_STR, ap);
+        break;
     case PARSE_WITHCLAUSE_REFS_INVALID:
         sb.vsprintf(PARSE_WITHCLAUSE_REFS_INVALID_STR, ap);
         break;
@@ -1775,7 +1778,8 @@ bool PQLParser::eat_ref(StringBuffer& sb, Ref& refOut,
             // try eating AttrRef
             this->bufIdx = saveIdx;
             AttrRef attrRef = this->eat_attrRef(sb);
-            if (attrRef.attr != ATTR_INVALID) {
+            if (ATTR_INVALID != attrRef.attr) {
+                // TODO: Are the checks in this block necessary
                 RefSynType refSynType = attrRef_to_RefSynType(attrRef);
                 if (REFSYN_INVALID != refSynType) {
                     refOut.refType = REF_ATTRREF;
@@ -1793,16 +1797,37 @@ bool PQLParser::eat_ref(StringBuffer& sb, Ref& refOut,
                     }
                 }
             } else {
-                // parsing of ref has failed at this stage
                 this->bufIdx = saveIdx;
-                if (triggerError) {
-                    this->eat_while<is_space>(sb);
-                    sb.clear();
-                    this->eat_while<not_space>(sb);
-                    assert(NULL != lhsRef);
-                    this->error(PARSE_WITHCLAUSE_EXPECT_REF_ON_RHS,
-                            lhsRef->toString().c_str(),
-                            sb.c_str());
+                // parse synonym
+                if (this->eat_synonym(sb)) {
+                    string synName = sb.toString();
+                    DesignEnt entType =
+                            this->retrieve_syn_type(synName);
+                    if (ENT_INVALID == entType) {
+                        this->error(PARSE_WITHCLAUSE_REF_SYNONYM_UNDECLARED,
+                                synName.c_str());
+                    }
+                    if (ENT_PROGLINE != entType) {
+                        this->error(PARSE_WITHCLAUSE_REF_SYNONYM_NOT_PROGLINE,
+                                synName.c_str(),
+                                entity_type_to_string(entType));
+                    }
+                    refOut.refType = REF_ATTRREF;
+                    refOut.refStringVal = synName;
+                    refOut.refSynType = REFSYN_PROGLINE;
+                    ret = true;
+                } else {
+                    // parsing of ref has failed at this stage
+                    this->bufIdx = saveIdx;
+                    if (triggerError) {
+                        this->eat_while<is_space>(sb);
+                        sb.clear();
+                        this->eat_while<not_space>(sb);
+                        assert(NULL != lhsRef);
+                        this->error(PARSE_WITHCLAUSE_EXPECT_REF_ON_RHS,
+                                lhsRef->toString().c_str(),
+                                sb.c_str());
+                    }
                 }
             }
         }
@@ -1817,6 +1842,8 @@ bool PQLParser::eat_withClause_one(StringBuffer &sb,
     int saveIdx = this->bufIdx;
     char *errorMsg = NULL;
     Ref leftRef, rightRef;
+    AttrRef attrRef;
+    bool parsedSynonym;
     sb.clear();
     if (!this->eat_ref(sb, leftRef, false, NULL)) {
         RESTORE_AND_RET(false, saveIdx);
@@ -1831,6 +1858,7 @@ bool PQLParser::eat_withClause_one(StringBuffer &sb,
     this->eat_while<is_space>(sb);
     // seen left ref and '=', must be a WithClause
     // just error out from now on
+    attrRef = AttrRef();
     this->eat_ref(sb, rightRef, true, &leftRef);
     // set left and right ref
     withClause.leftRef = leftRef;

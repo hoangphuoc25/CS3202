@@ -159,7 +159,9 @@ private:
     ///    is set to true
     /// 3. PQLParser::eat_attrRef returns a valid AttrRef which somehow
     ///    fails to convert to a RefSynType. This should NEVER happen
-    /// 4. Parsing of "IDENT", integer and AttrRef all fail and the
+    /// 4. We parse a synonym and it is either (a). not declared or
+    ///    (b). not of type prog_line
+    /// 5. Parsing of "IDENT", integer, AttrRef and ref all fail and the
     ///    triggerError param is set to true. This will mean we are
     ///    trying to parse the right hand side ref of a WithClause.
     ///    Since we have seen the '=', an error should be raised when

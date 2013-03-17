@@ -681,3 +681,159 @@ void Test_20_PQLParser_With::test_err_parse_ref_integer_error_str()
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
     CPPUNIT_ASSERT_EQUAL(true, qinfo->is_alive());
 }
+
+void Test_20_PQLParser_With::
+        test_err_parse_withclause_ref_synonym_undeclared()
+{
+    string queryStr, out;
+    ostringstream *os;
+    PQLParser parser;
+    QueryInfo *qinfo;
+
+    // LHS of 1st WithClause is undeclared synonym
+    queryStr = "assign a; Select a with as1 = a.stmt#";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    qinfo = parser.get_queryinfo();
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_REF_SYNONYM_UNDECLARED,
+            parser.get_parse_result());
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_REF_SYNONYM_UNDECLARED_STR, "as1");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // RHS of 1st WithClause is undeclared synonym
+    queryStr = "call c1; Select c1 with c1.stmt# = B2i";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    qinfo = parser.get_queryinfo();
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_REF_SYNONYM_UNDECLARED,
+            parser.get_parse_result());
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_REF_SYNONYM_UNDECLARED_STR, "B2i");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // LHS of 3rd WithClause is undeclared synonym
+    queryStr = "call c1, c2; assign a1, a2; ";
+    queryStr += " Select <a1,c1> with 12 = 12 and 13 = 13 and ";
+    queryStr += " asc = a1.stmt# and 157 = 157";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    qinfo = parser.get_queryinfo();
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_REF_SYNONYM_UNDECLARED,
+            parser.get_parse_result());
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_REF_SYNONYM_UNDECLARED_STR, "asc");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // RHS of 3rd WithClause is undeclared synonym
+    queryStr = " assign a1; procedure p2; ";
+    queryStr += " Select <p2.procName, a1> with 1=1 and 2=2 and ";
+    queryStr += " a1.stmt# = basic and 3 = 3";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    qinfo = parser.get_queryinfo();
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_REF_SYNONYM_UNDECLARED,
+            parser.get_parse_result());
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_REF_SYNONYM_UNDECLARED_STR, "basic");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // LHS of 6th WithClause is undeclared synonym
+    queryStr = " assign a1, a2; procedure proc1, proc2; call c1, c2;";
+    queryStr += " stmt s1, s2; prog_line pl1, pl2; variable v1, v2;";
+    queryStr += " Select <a2.stmt#, proc2.procName, c1.stmt#, pl1> ";
+    queryStr += " with 1=1 and 36=36 such that Uses(pl2, v2) and ";
+    queryStr += " Modifies(proc1, v1) with 377= 377 and 0=0 and -1=-1";
+    queryStr += " such that Parent(pl1, s1) and Next*(s1, c1) with ";
+    queryStr += " pl1 = somePL and 856=856 such that ";
+    queryStr += " Calls(proc2, proc1) and Affects(a2,a1)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    qinfo = parser.get_queryinfo();
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_REF_SYNONYM_UNDECLARED,
+            parser.get_parse_result());
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_REF_SYNONYM_UNDECLARED_STR, "somePL");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // above query corrected
+    queryStr = " assign a1, a2; procedure proc1, proc2; call c1, c2;";
+    queryStr += " stmt s1, s2; prog_line pl1, pl2; variable v1, v2;";
+    queryStr += " Select <a2.stmt#, proc2.procName, c1.stmt#, pl1> ";
+    queryStr += " with 1=1 and 36=36 such that Uses(pl2, v2) and ";
+    queryStr += " Modifies(proc1, v1) with 377= 377 and 0=0 and -1=-1";
+    queryStr += " such that Parent(pl1, s1) and Next*(s1, c1) with ";
+    queryStr += " pl1 = pl1 and 856=856 such that ";
+    queryStr += " Calls(proc2, proc1) and Affects(a2,a1)";
+    parser.parse(queryStr, true, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    CPPUNIT_ASSERT_EQUAL(true, qinfo->is_alive());
+    out = "ALIVE\nDECLARATIONS\n  assign a1\n  assign a2\n";
+    out += "  procedure proc1\n  procedure proc2\n  call c1\n";
+    out += "  call c2\n  stmt s1\n  stmt s2\n  prog_line pl1\n";
+    out += "  prog_line pl2\n  variable v1\n  variable v2\n";
+    out += "SELECT TUPLE\n  assign a2 stmt#\n  procedure proc2 procName\n";
+    out += "  call c1 stmt#\n  prog_line pl1\nUses(pl2,v2)\n";
+    out += "Modifies(proc1,v1)\nParent(pl1,s1)\nNext*(s1,c1)\n";
+    out += "Calls(proc2,proc1)\nAffects(a2,a1)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // RHS of 7th WithClause is undeclared synonym
+    queryStr = " prog_line pl1, pl2; stmt s1, s2; constant c1, c2; ";
+    queryStr += " procedure proc1, proc2; variable var1, var2; ";
+    queryStr += " assign a1, a2; if if1, if2; ";
+    queryStr += " Select <pl1, if1.stmt#, var2.varName, c1.value, ";
+    queryStr += "  proc1.procName> with 1=1 and 25=25 such that ";
+    queryStr += " Modifies(if2, var2) and Calls(proc2, \"game\") and ";
+    queryStr += " Affects*(a2,a1) with 77=77 and 11566=11566 and ";
+    queryStr += " 89 = 89 such that Parent*(if1, pl2) and ";
+    queryStr += " Follows*(pl2, a2) with 0=0 and pl1 = anotherPL ";
+    queryStr += " such that Next(s1,pl1) and Parent(s2, pl1) with ";
+    queryStr += " 78889 = 78889";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    qinfo = parser.get_queryinfo();
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_REF_SYNONYM_UNDECLARED,
+            parser.get_parse_result());
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_REF_SYNONYM_UNDECLARED_STR, "anotherPL");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // above query corrected
+    queryStr = " prog_line pl1, pl2; stmt s1, s2; constant c1, c2; ";
+    queryStr += " procedure proc1, proc2; variable var1, var2; ";
+    queryStr += " assign a1, a2; if if1, if2; ";
+    queryStr += " Select <pl1, if1.stmt#, var2.varName, c1.value, ";
+    queryStr += "  proc1.procName> with 1=1 and 25=25 such that ";
+    queryStr += " Modifies(if2, var2) and Calls(proc2, \"game\") and ";
+    queryStr += " Affects*(a2,a1) with 77=77 and 11566=11566 and ";
+    queryStr += " 89 = 89 such that Parent*(if1, pl2) and ";
+    queryStr += " Follows*(pl2, a2) with 0=0 and pl1 = pl1 ";
+    queryStr += " such that Next(s1,pl1) and Parent(s2, pl1) with ";
+    queryStr += " 78889 = 78889";
+    parser.parse(queryStr, true, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    CPPUNIT_ASSERT_EQUAL(true, qinfo->is_alive());
+    out = "ALIVE\nDECLARATIONS\n  prog_line pl1\n  prog_line pl2\n";
+    out += "  stmt s1\n  stmt s2\n  constant c1\n  constant c2\n";
+    out += "  procedure proc1\n  procedure proc2\n  variable var1\n";
+    out += "  variable var2\n  assign a1\n  assign a2\n  if if1\n";
+    out += "  if if2\nSELECT TUPLE\n  prog_line pl1\n  if if1 stmt#\n";
+    out += "  variable var2 varName\n  constant c1 value\n";
+    out += "  procedure proc1 procName\nModifies(if2,var2)\n";
+    out += "Calls(proc2,\"game\")\nAffects*(a2,a1)\nParent*(if1,pl2)\n";
+    out += "Follows*(pl2,a2)\nNext(s1,pl1)\nParent(s2,pl1)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+}
