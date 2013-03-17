@@ -11,6 +11,7 @@ CPPUNIT_TEST(test_with_string_string_same);
 CPPUNIT_TEST(test_with_string_string_different_halt);
 CPPUNIT_TEST(test_err_parse_dquoted_ident_invalid);
 CPPUNIT_TEST(test_err_parse_dquoted_ident_missing_close_quote);
+CPPUNIT_TEST(test_err_parse_ref_integer_error_str);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -26,6 +27,7 @@ private:
 
     void test_err_parse_dquoted_ident_invalid();
     void test_err_parse_dquoted_ident_missing_close_quote();
+    void test_err_parse_ref_integer_error_str();
 };
 
 #endif

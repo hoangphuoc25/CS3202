@@ -260,3 +260,237 @@ void Test_20_PQLParser_With::
             "haha");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
+
+void Test_20_PQLParser_With::test_err_parse_ref_integer_error_str()
+{
+    string queryStr, out, warningStr;
+    ostringstream *os;
+    PQLParser parser;
+    QueryInfo *qinfo;
+    long long tmpLL;
+
+    // string is too long
+    queryStr = " assign a; Select a with 57 = 12345678901";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REF_INTEGER_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            S_TO_INT_TOO_LONG);
+    warningStr = string(this->buf);
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_REF_INTEGER_ERROR_STR,
+            "12345678901", warningStr.c_str());
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // string is too long for RHS of 3rd WithClause
+    queryStr = "assign a; procedure procN; Select <procN, a> with ";
+    queryStr += " 65 = 65 and 1=1 and 99=75562484845445";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REF_INTEGER_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            S_TO_INT_TOO_LONG);
+    warningStr = string(this->buf);
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_REF_INTEGER_ERROR_STR,
+            "75562484845445", warningStr.c_str());
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // Relations + WithClause
+    // string is too long for RHS of 5th WithClause
+    queryStr = " assign as1, as2; procedure proc1, proc2; call c1, c2; ";
+    queryStr += " while w1, w2; if if1, if2; variable var1, var2; ";
+    queryStr += " Select <as1, w2.stmt#, if2, proc2.procName, c2.stmt#> ";
+    queryStr += " with 1=1 and -6246 = -6246 such that ";
+    queryStr += " Modifies(as1, var1) and Calls(proc1, proc2) with ";
+    queryStr += " 3664=3664 such that Parent*(w2, if2) and ";
+    queryStr += " Uses(if2,var2) and Modifies(c1, var1) with ";
+    queryStr += " 75633=887967845652 and 39=39 such that ";
+    queryStr += " Uses(proc2,var2) and Follows(if1, c2) with 18=18";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REF_INTEGER_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            S_TO_INT_TOO_LONG);
+    warningStr = string(this->buf);
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_REF_INTEGER_ERROR_STR,
+            "887967845652", warningStr.c_str());
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // above query is correct without 5th WithClause
+    queryStr = " assign as1, as2; procedure proc1, proc2; call c1, c2; ";
+    queryStr += " while w1, w2; if if1, if2; variable var1, var2; ";
+    queryStr += " Select <as1, w2.stmt#, if2, proc2.procName, c2.stmt#> ";
+    queryStr += " with 1=1 and -6246 = -6246 such that ";
+    queryStr += " Modifies(as1, var1) and Calls(proc1, proc2) with ";
+    queryStr += " 3664=3664 such that Parent*(w2, if2) and ";
+    queryStr += " Uses(if2,var2) and Modifies(c1, var1) with ";
+    queryStr += " 39=39 such that ";
+    queryStr += " Uses(proc2,var2) and Follows(if1, c2) with 18=18";
+    parser.parse(queryStr, true, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "ALIVE\nDECLARATIONS\n  assign as1\n  assign as2\n";
+    out += "  procedure proc1\n  procedure proc2\n  call c1\n  call c2\n";
+    out += "  while w1\n  while w2\n  if if1\n  if if2\n";
+    out += "  variable var1\n  variable var2\nSELECT TUPLE\n";
+    out += "  assign as1\n  while w2 stmt#\n  if if2\n";
+    out += "  procedure proc2 procName\n  call c2 stmt#\n";
+    out += "Modifies(as1,var1)\nCalls(proc1,proc2)\nParent*(w2,if2)\n";
+    out += "Uses(if2,var2)\nModifies(c1,var1)\nUses(proc2,var2)\n";
+    out += "Follows(if1,c2)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // overflow by 1
+    queryStr = " assign a; Select a with 15636 = 2147483648";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REF_INTEGER_ERROR,
+            parser.get_parse_result());
+    tmpLL = 2147483648LL;
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            S_TO_INT_OVERFLOW, tmpLL);
+    warningStr = string(this->buf);
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_REF_INTEGER_ERROR_STR,
+            "2147483648", warningStr.c_str());
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // overflow by 1 in 4th WithClause
+    queryStr = "Select BOOLEAN with 17=17 and 236=236 and ";
+    queryStr += " 775 = 2147483648";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REF_INTEGER_ERROR,
+            parser.get_parse_result());
+    tmpLL = 2147483648LL;
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            S_TO_INT_OVERFLOW, tmpLL);
+    warningStr = string(this->buf);
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_REF_INTEGER_ERROR_STR,
+            "2147483648", warningStr.c_str());
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // Relations + WithClause. overflow by 1 in 8th WithClause
+    queryStr = "assign a1, a2; while w1, w2; procedure p1, p2; ";
+    queryStr += " stmt s1, s2; call c1, c2; variable v1, v2; ";
+    queryStr += " Select <s1.stmt#, c1> with 166 = 166 and 1=1  ";
+    queryStr += " such that Modifies(a2, v1) and Uses(p2, v1) and ";
+    queryStr += " Parent*(s2,w2) ";
+    queryStr += " with 3466 = 3466 and -1246 = -1246 and 7457 = 7457 ";
+    queryStr += " such that Calls*(p2, p1) and Next(a2, c2) with ";
+    queryStr += " 66 = 66 and 89 = 89 and 677 = 2147483648 and 22 = 22 ";
+    queryStr += " such that Modifies(s2, v2)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REF_INTEGER_ERROR,
+            parser.get_parse_result());
+    tmpLL = 2147483648LL;
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            S_TO_INT_OVERFLOW, tmpLL);
+    warningStr = string(this->buf);
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_REF_INTEGER_ERROR_STR,
+            "2147483648", warningStr.c_str());
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // above query corrected
+    queryStr = "assign a1, a2; while w1, w2; procedure p1, p2; ";
+    queryStr += " stmt s1, s2; call c1, c2; variable v1, v2; ";
+    queryStr += " Select <s1.stmt#, c1> with 166 = 166 and 1=1  ";
+    queryStr += " such that Modifies(a2, v1) and Uses(p2, v1) and ";
+    queryStr += " Parent*(s2,w2) ";
+    queryStr += " with 3466 = 3466 and -1246 = -1246 and 7457 = 7457 ";
+    queryStr += " such that Calls*(p2, p1) and Next(a2, c2) with ";
+    queryStr += " 66 = 66 and 89 = 89 and 677 = 677 and 22 = 22 ";
+    queryStr += " such that Modifies(s2, v2)";
+    parser.parse(queryStr, true, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "ALIVE\nDECLARATIONS\n  assign a1\n  assign a2\n  while w1\n";
+    out += "  while w2\n  procedure p1\n  procedure p2\n  stmt s1\n";
+    out += "  stmt s2\n  call c1\n  call c2\n  variable v1\n";
+    out += "  variable v2\nSELECT TUPLE\n  stmt s1 stmt#\n  call c1\n";
+    out += "Modifies(a2,v1)\nUses(p2,v1)\nParent*(s2,w2)\n";
+    out += "Calls*(p2,p1)\nNext(a2,c2)\nModifies(s2,v2)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // overflow by a lot
+    queryStr = "Select BOOLEAN with 33 = 3234567890";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REF_INTEGER_ERROR,
+            parser.get_parse_result());
+    tmpLL = 3234567890LL;
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            S_TO_INT_OVERFLOW, tmpLL);
+    warningStr = string(this->buf);
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_REF_INTEGER_ERROR_STR,
+            "3234567890", warningStr.c_str());
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // overflow by a lot in 4th WithClause
+    queryStr = " while whg; procedure Bsd; Select <whg, Bsd> with ";
+    queryStr += " 1245 = 1245 and 77 = 77 and 7457 = 7457 and ";
+    queryStr += " 27568 = 5634567890";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REF_INTEGER_ERROR,
+            parser.get_parse_result());
+    tmpLL = 5634567890LL;
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            S_TO_INT_OVERFLOW, tmpLL);
+    warningStr = string(this->buf);
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_REF_INTEGER_ERROR_STR,
+            "5634567890", warningStr.c_str());
+    // Relations + WithClause. overflow by a lot in 6th WithClause
+    queryStr = " procedure pr1, pr2; variable v1, v2; assign a2, a1; ";
+    queryStr += " call c2, c1; while w1, w2; prog_line pl1, pl2; ";
+    queryStr += " Select <c2.procName, pl1, w2.stmt#, a1, v2.varName> ";
+    queryStr += " with 1=1 and 777= 777 such that Modifies(pl2, v2) ";
+    queryStr += " and Follows(w1, pl2) and Uses(a2, v2) with 6=6 and ";
+    queryStr += " 87763= 87763 such that Parent(w1, a1) with ";
+    queryStr += " 8688=8688 and 346636= 7684567890 and 77=77 such that ";
+    queryStr += " Calls*(pr2,pr1) and Follows(pl2, c1)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_REF_INTEGER_ERROR,
+            parser.get_parse_result());
+    tmpLL = 7684567890LL;
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            S_TO_INT_OVERFLOW, tmpLL);
+    warningStr = string(this->buf);
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_REF_INTEGER_ERROR_STR,
+            "7684567890", warningStr.c_str());
+    // above query corrected
+    queryStr = " procedure pr1, pr2; variable v1, v2; assign a2, a1; ";
+    queryStr += " call c2, c1; while w1, w2; prog_line pl1, pl2; ";
+    queryStr += " Select <c2.procName, pl1, w2.stmt#, a1, v2.varName> ";
+    queryStr += " with 1=1 and 777= 777 such that Modifies(pl2, v2) ";
+    queryStr += " and Follows(w1, pl2) and Uses(a2, v2) with 6=6 and ";
+    queryStr += " 87763= 87763 such that Parent(w1, a1) with ";
+    queryStr += " 8688=8688 and 346636= 346636 and 77=77 such that ";
+    queryStr += " Calls*(pr2,pr1) and Follows(pl2, c1)";
+    parser.parse(queryStr, true, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "ALIVE\nDECLARATIONS\n  procedure pr1\n  procedure pr2\n";
+    out += "  variable v1\n  variable v2\n  assign a2\n  assign a1\n";
+    out += "  call c2\n  call c1\n  while w1\n  while w2\n";
+    out += "  prog_line pl1\n  prog_line pl2\nSELECT TUPLE\n";
+    out += "  call c2 procName\n  prog_line pl1\n  while w2 stmt#\n";
+    out += "  assign a1\n  variable v2 varName\nModifies(pl2,v2)\n";
+    out += "Follows(w1,pl2)\nUses(a2,v2)\nParent(w1,a1)\n";
+    out += "Calls*(pr2,pr1)\nFollows(pl2,c1)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+}
