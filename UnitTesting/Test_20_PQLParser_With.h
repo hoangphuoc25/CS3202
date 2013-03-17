@@ -9,6 +9,7 @@ class Test_20_PQLParser_With: public CPPUNIT_NS::TestFixture {
 CPPUNIT_TEST_SUITE(Test_20_PQLParser_With);
 CPPUNIT_TEST(test_with_string_string_same);
 CPPUNIT_TEST(test_with_string_string_different_halt);
+CPPUNIT_TEST(test_with_int_int_same);
 CPPUNIT_TEST(test_err_parse_dquoted_ident_invalid);
 CPPUNIT_TEST(test_err_parse_dquoted_ident_missing_close_quote);
 CPPUNIT_TEST(test_err_parse_ref_integer_error_str);
@@ -24,6 +25,7 @@ private:
 
     void test_with_string_string_same();
     void test_with_string_string_different_halt();
+    void test_with_int_int_same();
 
     void test_err_parse_dquoted_ident_invalid();
     void test_err_parse_dquoted_ident_missing_close_quote();

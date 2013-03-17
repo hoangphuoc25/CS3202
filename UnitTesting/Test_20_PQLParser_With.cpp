@@ -153,6 +153,78 @@ void Test_20_PQLParser_With::test_with_string_string_different_halt()
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 }
 
+void Test_20_PQLParser_With::test_with_int_int_same()
+{
+    string queryStr, out;
+    ostringstream *os;
+    PQLParser parser;
+    QueryInfo *qinfo;
+
+    // 1 WithClause
+    queryStr = " call callOne; Select callOne with 6575 = 6575";
+    parser.parse(queryStr, true, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "ALIVE\nDECLARATIONS\n  call callOne\nSELECT TUPLE\n";
+    out += "  call callOne\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+    // 1 WithClause, negative integers
+    queryStr = " Select BOOLEAN with -3468 = -3468";
+    parser.parse(queryStr, true, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "ALIVE\nDECLARATIONS\nSELECT BOOLEAN\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+    // 1 WithClause, largest integer
+    queryStr = " Select BOOLEAN with 2147483647 = 2147483647";
+    parser.parse(queryStr, true, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "ALIVE\nDECLARATIONS\nSELECT BOOLEAN\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+    // 1 WithClause, smallest integer
+    queryStr = " Select BOOLEAN with -2147483648 = -2147483648";
+    parser.parse(queryStr, true, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "ALIVE\nDECLARATIONS\nSELECT BOOLEAN\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // 6 WithClause with max int, min int, negative int
+    queryStr = " assign a1; variable v2; Select <v2, a1> with ";
+    queryStr += " 2147483647 = 2147483647 and 125 = 125 and ";
+    queryStr += " -735 = -735 and -2147483648 = -2147483648 and 0=0 ";
+    queryStr += " and 1=1";
+    parser.parse(queryStr, true, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "ALIVE\nDECLARATIONS\n  assign a1\n  variable v2\n";
+    out += "SELECT TUPLE\n  variable v2\n  assign a1\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // Mixed Relation + WithClauses with max int, min int, negative int
+    queryStr = " variable var1, var2, var3; procedure proc1, proc2; ";
+    queryStr += " call c1, c2; assign a1, a2; stmt s1, s2; ";
+    queryStr += " Select <c1.procName, a2, var3, proc2.procName, s2> ";
+    queryStr += " with 687= 687 such that Modifies(c2, var3) and ";
+    queryStr += " Parent(s1, a1) with 2147483647 = 2147483647 and ";
+    queryStr += " -166=-166 such that Calls(proc1, proc2) and ";
+    queryStr += " Next*(c1, a2) with 0 = 0 and ";
+    queryStr += " -2147483648 = -2147483648 and 5755=5755 such that ";
+    queryStr += " Affects*(a1,a2) and Next(s2, s1)";
+    parser.parse(queryStr, true, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "ALIVE\nDECLARATIONS\n  variable var1\n  variable var2\n";
+    out += "  variable var3\n  procedure proc1\n  procedure proc2\n";
+    out += "  call c1\n  call c2\n  assign a1\n  assign a2\n  stmt s1\n";
+    out += "  stmt s2\nSELECT TUPLE\n  call c1 procName\n  assign a2\n";
+    out += "  variable var3\n  procedure proc2 procName\n  stmt s2\n";
+    out += "Modifies(c2,var3)\nParent(s1,a1)\nCalls(proc1,proc2)\n";
+    out += "Next*(c1,a2)\nAffects*(a1,a2)\nNext(s2,s1)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+}
+
 void Test_20_PQLParser_With::test_err_parse_dquoted_ident_invalid()
 {
     string queryStr, out;
