@@ -896,6 +896,7 @@ QueryInfo::~QueryInfo()
 void QueryInfo::reset(const map<string, DesignEnt>& etab,
         const vector<pair<DesignEnt, string> > &eVec)
 {
+    this->alive = true;
     this->entTable.clear();
     for (map<string, DesignEnt>::const_iterator it = etab.begin();
             it != etab.end(); it++) {
@@ -1103,7 +1104,9 @@ std::string QueryInfo::dump_to_string() const
 {
     StringBuffer sb;
     this->dump_decl_select(sb);
-    this->dump_clauses(sb);
+    if (this->alive) {
+        this->dump_clauses(sb);
+    }
     return sb.toString();
 }
 
