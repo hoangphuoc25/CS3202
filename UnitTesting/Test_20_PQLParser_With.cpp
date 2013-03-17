@@ -225,6 +225,79 @@ void Test_20_PQLParser_With::test_with_int_int_same()
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 }
 
+void Test_20_PQLParser_With::test_with_int_int_different_halt()
+{
+    string queryStr, out;
+    ostringstream *os;
+    PQLParser parser;
+    QueryInfo *qinfo;
+
+    // 1 different integer
+    queryStr = "assign a24; Select a24  with 77 = 88 ";
+    parser.parse(queryStr, true, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_VALUE_MISMATCH,
+            parser.get_parse_result());
+    out = "DEAD\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
+
+    // 3 WithClause, different integer at 3rd WithClause
+    queryStr = "Select BOOLEAN with 777=777 and -146 = -146 and ";
+    queryStr += " 35757 = -11";
+    parser.parse(queryStr, true, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_VALUE_MISMATCH,
+            parser.get_parse_result());
+    out = "DEAD\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
+
+    // Relations + WithClause. different integer at 7th WithClause
+    queryStr = " call c1, c2; procedure proc1, proc2; assign a1, a2; ";
+    queryStr += " variable var1, var2; while w1, w2; prog_line pl1, pl2;";
+    queryStr += " Select <var1.varName, proc2, pl1, a2.stmt#> such that ";
+    queryStr += " Modifies(c2, var2) with 2334 = 2334 and 0 = 0 ";
+    queryStr += " such that Uses(proc2, var1) and Next(pl2, a2) and ";
+    queryStr += " Affects(a2, a1) with 777 = 777 and ";
+    queryStr += " 2147483644 = 2147483644 and 688 = 688 such that ";
+    queryStr += " Calls(proc1, proc2) and Parent(w2, c2) with ";
+    queryStr += " 56879 = 56879 and 2456 = -2456 such that ";
+    queryStr += " Follows(pl1, c2) and Next*(a2, c2)";
+    parser.parse(queryStr, true, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_VALUE_MISMATCH,
+            parser.get_parse_result());
+    out = "DEAD\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
+    // above query corrected
+    queryStr = " call c1, c2; procedure proc1, proc2; assign a1, a2; ";
+    queryStr += " variable var1, var2; while w1, w2; prog_line pl1, pl2;";
+    queryStr += " Select <var1.varName, proc2, pl1, a2.stmt#> such that ";
+    queryStr += " Modifies(c2, var2) with 2334 = 2334 and 0 = 0 ";
+    queryStr += " such that Uses(proc2, var1) and Next(pl2, a2) and ";
+    queryStr += " Affects(a2, a1) with 777 = 777 and ";
+    queryStr += " 2147483644 = 2147483644 and 688 = 688 such that ";
+    queryStr += " Calls(proc1, proc2) and Parent(w2, c2) with ";
+    queryStr += " 56879 = 56879 and -2456 = -2456 such that ";
+    queryStr += " Follows(pl1, c2) and Next*(a2, c2)";
+    parser.parse(queryStr, true, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "ALIVE\nDECLARATIONS\n  call c1\n  call c2\n";
+    out += "  procedure proc1\n  procedure proc2\n  assign a1\n";
+    out += "  assign a2\n  variable var1\n  variable var2\n  while w1\n";
+    out += "  while w2\n  prog_line pl1\n  prog_line pl2\nSELECT TUPLE\n";
+    out += "  variable var1 varName\n  procedure proc2\n";
+    out += "  prog_line pl1\n  assign a2 stmt#\nModifies(c2,var2)\n";
+    out += "Uses(proc2,var1)\nNext(pl2,a2)\nAffects(a2,a1)\n";
+    out += "Calls(proc1,proc2)\nParent(w2,c2)\nFollows(pl1,c2)\n";
+    out += "Next*(a2,c2)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+    CPPUNIT_ASSERT_EQUAL(true, qinfo->is_alive());
+}
+
 void Test_20_PQLParser_With::test_err_parse_dquoted_ident_invalid()
 {
     string queryStr, out;
