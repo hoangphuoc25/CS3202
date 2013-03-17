@@ -2003,8 +2003,198 @@ void QueryEvaluator::evaluate_patCl(int rTableIdx,
 void QueryEvaluator::evaluate_patCl_assign(int rTableIdx,
         const PatCl *patCl)
 {
+    assert(patCl->varRefType == PATVARREF_SYN ||
+        patCl->varRefType == PATVARREF_STRING ||
+        patCl->varRefType == PATVARREF_WILDCARD);
+    assert(patCl->exprType != PATEXPR_INVALID);
+    if (patCl->varRefType == PATVARREF_SYN) {
+        if (patCl->exprType == PATEXPR_EXPR) {
+            this->evaluate_patCl_assign_syn_expr(rTableIdx, patCl);
+        } else if (patCl->exprType == PATEXPR_EXPR_WILDCARD) {
+            this->evaluate_patCl_assign_syn_exprwild(rTableIdx, patCl);
+        } else if (patCl->exprType == PATEXPR_WILDCARD) {
+            this->evaluate_patCl_assign_syn_wildcard(rTableIdx, patCl);
+        }
+    }
+    if (patCl->varRefType == PATVARREF_STRING) {
+        if (patCl->exprType == PATEXPR_EXPR) {
+            this->evaluate_patCl_assign_string_expr(rTableIdx, patCl);
+        } else if (patCl->exprType == PATEXPR_EXPR_WILDCARD) {
+            this->evaluate_patCl_assign_string_exprwild(rTableIdx, patCl);
+        } else if (patCl->exprType == PATEXPR_WILDCARD) {
+            this->evaluate_patCl_assign_string_wildcard(rTableIdx, patCl);
+        }
+    }
+    if (patCl->varRefType == PATVARREF_WILDCARD) {
+        if (patCl->exprType == PATEXPR_EXPR) {
+            this->evaluate_patCl_assign_wildcard_expr(rTableIdx, patCl);
+        } else if (patCl->exprType == PATEXPR_EXPR_WILDCARD) {
+            this->evaluate_patCl_assign_wildcard_exprwild(rTableIdx, patCl);
+        } else if (patCl->exprType == PATEXPR_WILDCARD) {
+            this->evaluate_patCl_assign_wildcard_wildcard(rTableIdx, patCl);
+        }
+    }
 }
 
+void QueryEvaluator::evaluate_patCl_assign_string_expr(int rTableIdx,
+        const PatCl *patCl) {
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    bool hasAssgnSyn = rTable.has_synonym(patCl->syn);
+    bool hasVarSyn = rTable.has_synonym(patCl->varRefString);
+
+	//queryStr = "while w; assign a; variable v;";
+	//queryStr += "Select a such that Parent(w, a) and pattern a(v, _)";
+	//a = syn, v = varRefType, _ = exprType
+
+    if (hasAssgnSyn && hasVarSyn) {
+        if (rTable.syn_in_same_table(patCl->syn, patCl->varRefString)) {
+			//11 case
+            //this->evaluate_patCl_assign_syn_var_11(rTable, patCl);
+        } else {
+			//22 case
+            //this->evaluate_patCl_assign_syn_var_22(rTable, patCl);
+        }
+    } else if (hasAssgnSyn) {
+		// pattern assign(var, expr)
+		// assign seen, var not seen
+		// 10 case
+    } else if (hasVarSyn) {
+		// pattern assign(var, expr)
+		// assign not seen, var seen
+		// 01 case
+    } else {
+		// both not seen
+		// 00 case
+		// what to do?
+    }
+}
+void QueryEvaluator::evaluate_patCl_assign_string_exprwild(int rTableIdx,
+        const PatCl *patCl)
+{
+}
+
+void QueryEvaluator::evaluate_patCl_assign_string_wildcard(int rTableIdx,
+        const PatCl *patCl)
+{
+	//ResultsTable& rTable = this->resultsTable[rTableIdx];
+	//bool hasAgnSyn = rTable.has_synonym(patCl->syn);
+	//if (hasAgnSyn) {
+	//	//10, or 1
+	//	rTable.
+	//} else {
+
+	//}
+}
+
+void QueryEvaluator::evaluate_patCl_assign_syn_expr(int rTableIdx,
+        const PatCl *patCl)
+{
+}
+
+void QueryEvaluator::evaluate_patCl_assign_syn_exprwild(int rTableIdx,
+        const PatCl *patCl)
+{
+}
+
+void QueryEvaluator::evaluate_patCl_assign_syn_wildcard(int rTableIdx,
+        const PatCl *patCl)
+{
+	ResultsTable& rTable = this->resultsTable[rTableIdx];
+	bool hasAgnSyn = rTable.has_synonym(patCl->syn);
+	bool hasVarSyn = rTable.has_synonym(patCl->varRefString);
+
+	if (hasAgnSyn && hasVarSyn) {
+		if (rTable.syn_in_same_table(patCl->syn, patCl->varRefString)) {
+			//this->evaluate_patCl_assign_syn_wildcard_11(rTable, patCl);
+		} else {
+			//this->evaluate_patCl_assign_syn_wildcard_22(rTable, patCl);
+		}
+	} else if (hasAgnSyn) {
+		//Agn synonym has been seen, 
+		//get all assignment stmts, augment with its ctrl var
+		//10
+		pair<const vector<Record>*, int> viPair = rTable.
+			syn_10_transaction_begin(patCl->syn, patCl->varRefString, RV_STRING);
+		const vector<Record>& records = *(viPair.first);
+		int assignCol = viPair.second;
+		int assignSize = records.size();
+		for (int i=0; i<assignSize; i++) {
+			const Record& rec = records[i];
+			const pair<string, int>& assignPair = rec.get_column(assignCol);
+			int assignStmt = assignPair.second;
+			set<string> get_modifies = this->pkb->get_var_stmt_modifies(assignStmt);
+			for (set<string>::iterator k=get_modifies.begin(); k!=get_modifies.end(); k++) {
+				string var = *k;
+				rTable.syn_10_augment_new_row(i, var);
+			}
+		}
+		rTable.syn_10_transaction_end();
+	} else if (hasVarSyn) {
+		//01
+		pair<const vector<Record>*, int> viPair = rTable.
+			syn_01_transaction_begin(patCl->syn, patCl->varRefString, RV_INT);
+		const vector<Record>& records = *(viPair.first);
+		int varCol = viPair.second;
+		int noRecords = records.size();
+		for (int i=0; i<noRecords; i++) {
+			const Record& rec = records[i];
+			const pair<string, int>& varPair = rec.get_column(varCol);
+			string var = varPair.first;
+			set<int> stmtModifies = this->pkb->get_stmt_modifies(var);
+			for (set<int>::iterator k=stmtModifies.begin(); k!= stmtModifies.end(); k++) {
+				int stmt = *k;
+				rTable.syn_01_augment_new_row(i, stmt);
+			}
+		}
+		rTable.syn_01_transaction_end();
+	} else {
+		//00
+		rTable.syn_00_transaction_begin(patCl->syn, RV_INT, patCl->varRefString, RV_STRING);
+		set<int> allAssignStmts = this->pkb->get_all_assign();
+		for (set<int>::iterator i=allAssignStmts.begin(); i!=allAssignStmts.end(); i++) {
+			int assignStmt = *i;
+			set<string> get_modifies = this->pkb->get_var_stmt_modifies(assignStmt);
+			for (set<string>::iterator k=get_modifies.begin(); k!=get_modifies.end(); k++) {
+				string var = *k;
+				rTable.syn_00_add_row(assignStmt, var);
+			}
+		}
+		rTable.syn_00_transaction_end();
+	}
+}
+
+//void evaluate_patCl_assign_syn_wildcard_11(ResultsTable& rTable, 
+//		const PatCl *patCl)
+//{
+//}
+//void evaluate_patCl_assign_syn_wildcard_22(ResultsTable& rTable, 
+//		const PatCl *patCl)
+//{
+//}
+
+void QueryEvaluator::evaluate_patCl_assign_wildcard_expr(int rTableIdx,
+        const PatCl *patCl)
+{
+
+}
+
+void QueryEvaluator::evaluate_patCl_assign_wildcard_exprwild(int rTableIdx,
+        const PatCl *patCl)
+{
+}
+
+void QueryEvaluator::evaluate_patCl_assign_wildcard_wildcard(int rTableIdx,
+        const PatCl *patCl)
+{
+	ResultsTable& rTable = this->resultsTable[rTableIdx];
+	rTable.syn_0_transaction_begin(patCl->syn, RV_INT);
+	set<int> allAssignStmts = this->pkb->get_all_assign();
+	for (set<int>::iterator i=allAssignStmts.begin(); i!=allAssignStmts.end(); i++) {
+		int assignStmt = *i;
+		rTable.syn_0_add_row(assignStmt);
+	}
+	rTable.syn_0_transaction_end();
+}
 void QueryEvaluator::evaluate_patCl_if(int rTableIdx,
         const PatCl *patCl)
 {
@@ -2026,6 +2216,9 @@ void QueryEvaluator::evaluate_patCl_if_var_syn(int rTableIdx,
     ResultsTable& rTable = this->resultsTable[rTableIdx];
     bool hasIfSyn = rTable.has_synonym(patCl->syn);
     bool hasVarSyn = rTable.has_synonym(patCl->varRefString);
+	//queryStr = "while w; if i; variable v;";
+	//queryStr += "Select a such that Modifies(w, i) and pattern i(v, _)";
+	//i = syn, v = varRefType, _ = exprType
     if (hasIfSyn && hasVarSyn) {
         if (rTable.syn_in_same_table(patCl->syn, patCl->varRefString)) {
             // pattern ifSyn(varSyn,_,_)
@@ -2043,18 +2236,57 @@ void QueryEvaluator::evaluate_patCl_if_var_syn(int rTableIdx,
         // varSyn is not seen
         // for each ifSyn, get its control variable and
         // augment the row.
-        // Make this a 01 transaction using augment_new_row
+        // Make this a 10 transaction using augment_new_row
+		std::pair<const std::vector<Record>*, int> viPair = 
+			rTable.syn_10_transaction_begin(patCl->syn, patCl->varRefString, RV_STRING);
+		const vector<Record>& record = *(viPair.first);
+		int noRecords = record.size();
+		int synColNo = viPair.second;
+		for (int i=0; i<noRecords; i++) {
+			const Record& rec = record[i];
+			const pair<string, int>& ifPair = rec.get_column(synColNo);
+			int ifStmt = ifPair.second;
+			const string& controlVariable = this->pkb->get_control_variable(ENT_IF, ifStmt);
+			rTable.syn_10_augment_new_row(i, controlVariable);
+		}
+		rTable.syn_10_transaction_end();
     } else if (hasVarSyn) {
         // pattern ifSyn(varSyn,_,_)
         // ifSyn is not seen
         // for each varSyn, get the if statement it is a control
         // variable (if any) and augment the row.
         // Make this a 01 transaction using augment_new_row
+		std::pair<const std::vector<Record>*, int> viPair =
+			rTable.syn_01_transaction_begin(patCl->syn, patCl->varRefString, RV_STRING);
+		const vector<Record>& record = *(viPair.first);
+		int noRecords = record.size();
+		int varColNo = viPair.second;
+		for (int i=0; i<noRecords; i++) {
+			const Record& rec = record[i];
+			const pair<string, int>& varPair = rec.get_column(varColNo);
+			string var = varPair.first;
+			const std::set<int> allIfStmts = this->pkb->get_all_if();
+			for (set<int>::iterator m = allIfStmts.begin(); m != allIfStmts.end(); i++) {
+				int ifStmt = *m;
+				if (this->pkb->has_control_variable(ENT_IF, ifStmt, var)) {
+					rTable.syn_01_augment_new_row(i, *m);
+				}
+			}
+		}
+		rTable.syn_01_transaction_end();
     } else {
         // pattern ifSyn(varSyn,_,_)
         // both not seen. This is a 00 transaction, but it is
         // advised to get all if stmts, then get their control
         // variable, and add the new row.
+		rTable.syn_00_transaction_begin(patCl->syn, RV_INT, patCl->varRefString, RV_STRING);
+		set<int> allIfStmts = this->pkb->get_all_if();
+		for (set<int>::iterator m = allIfStmts.begin(); m != allIfStmts.end(); m++) {
+			int ifStmt = *m;
+			const string& controlVariable = this->pkb->get_control_variable(ENT_IF, *m);
+			rTable.syn_00_add_row(*m, controlVariable);
+		}
+		rTable.syn_00_transaction_end();
     }
 }
 
@@ -2096,7 +2328,7 @@ void QueryEvaluator::evaluate_patCl_if_var_syn_22(ResultsTable& rTable,
     const vector<Record>& controlVarVec = *(vipPair.second.first);
     int controlVarCol = vipPair.second.second;
     int nrControlVar = controlVarVec.size();
-    vector<const string *> cVarVec;
+	vector<const string *> cVarVec;
     for (int i = 0; i < nrControlVar; i++) {
         const Record& controlVarRecord = controlVarVec[i];
         const pair<string, int>& controlVarPair =
@@ -2128,11 +2360,32 @@ void QueryEvaluator::evaluate_patCl_if_var_string(int rTableIdx,
         // ifSyn is seen. Use ResultsTable::syn_1_transaction
         // Loop through each ifSyn, then use syn_1_mark_row_ok
         // to mark the ifSyn with "someVarString" as control variable
+		pair<const vector<Record>*, int> viPair = rTable.syn_1_transaction_begin(patCl->syn);
+		int ifSynCol = viPair.second;
+		const vector<Record>& ifPair = *(viPair.first);
+		for (int i=0; i<ifPair.size(); i++) {
+			const Record& rec = ifPair[i];
+			const pair<string, int>& ifSynPair = rec.get_column(ifSynCol);
+			int ifSynStmt = ifSynPair.second;
+			if (this->pkb->has_control_variable(ENT_IF, ifSynStmt, patCl->varRefString)) {
+				rTable.syn_1_mark_row_ok(i);
+			}
+		}
+		rTable.syn_1_transaction_end();
     } else {
         // ifSyn("someVarString",_,_)
         // ifSyn is NOT seen. Use ResultsTable::syn_0_transaction
         // Retrieve all if stmt. Loop and only syn_0_add_row
         // those with "someVarString" as control variable
+		rTable.syn_0_transaction_begin(patCl->syn, RV_INT);
+		set<int> allIfStmts = this->pkb->get_all_if();
+		for (set<int>::iterator i = allIfStmts.begin(); i != allIfStmts.end(); i++) {
+			int ifStmt = *i;
+			if (this->pkb->has_control_variable(ENT_IF, ifStmt, patCl->varRefString)) {
+				rTable.syn_0_add_row(ifStmt);
+			}
+		}
+		rTable.syn_0_transaction_end();
     }
 }
 
@@ -2147,10 +2400,191 @@ void QueryEvaluator::evaluate_patCl_if_var_wildcard(int rTableIdx,
         // ifSyn(_,_)
         // ifSyn is not seen. grab all if statements and put
         // inside the table. this is a syn_0 transaction
+		rTable.syn_0_transaction_begin(patCl->syn, RV_INT);
+		set<int> allIfStmts = this->pkb->get_all_if();
+		for (set<int>::iterator i = allIfStmts.begin(); i != allIfStmts.end(); i++) {
+			int ifStmt = *i;
+			rTable.syn_0_add_row(ifStmt);
+		}
+		rTable.syn_0_transaction_end();
     }
 }
 
 void QueryEvaluator::evaluate_patCl_while(int rTableIdx,
         const PatCl *patCl)
 {
+	assert(patCl->varRefType == PATVARREF_SYN || 
+		patCl->varRefType == PATVARREF_STRING || 
+		patCl->varRefType == PATVARREF_WILDCARD);
+	if (patCl->varRefType == PATVARREF_SYN) {
+		this->evaluate_patCl_while_var_syn(rTableIdx, patCl);
+	} else if (patCl->varRefType == PATVARREF_STRING) {
+		this->evaluate_patCl_while_var_string(rTableIdx, patCl);
+	} else if (patCl->varRefType == PATVARREF_WILDCARD) {
+		this->evaluate_patCl_while_var_wildcard(rTableIdx, patCl);
+	}
+}
+
+void QueryEvaluator::evaluate_patCl_while_var_syn(int rTableIdx, 
+		const PatCl *patCl) 
+{
+	ResultsTable& rTable = this->resultsTable[rTableIdx];
+	bool hasWhileSyn = rTable.has_synonym(patCl->syn);
+	bool hasVarSyn = rTable.has_synonym(patCl->varRefString);
+	if (hasWhileSyn && hasVarSyn) {
+		//whileSynand varSyn have been seen
+		if (rTable.syn_in_same_table(patCl->syn, patCl->varRefString)) {
+			this->evaluate_patCl_while_var_syn_11(rTable, patCl);
+		} else {
+			this->evaluate_patCl_while_var_syn_22(rTable, patCl);
+		}
+	} else if (hasWhileSyn) {
+		//whileSyn seen, varSyn not seen
+		//10 transaction
+		pair<const vector<Record>*, int> viPair = rTable.
+			syn_10_transaction_begin(patCl->syn, patCl->varRefString, RV_INT);
+		const vector<Record>& records = *(viPair.first);
+		int whileCol = viPair.second;
+		for (int i=0; i<records.size(); i++) {
+			const pair<string, int> &whileStmt = records[i].get_column(whileCol);
+			int whileStmtNo = whileStmt.second;
+			string varString = this->pkb->get_control_variable(ENT_WHILE, whileStmtNo);
+			rTable.syn_10_augment_new_row(i, varString);
+		}
+		rTable.syn_10_transaction_end();
+	} else if (hasVarSyn) {
+		//whileSyn not seen, varSyn seen
+		//01 transaction
+		pair<const vector<Record>*, int> viPair = rTable.
+			syn_01_transaction_begin(patCl->syn, patCl->varRefString, RV_INT);
+		const vector<Record>& records = *(viPair.first);
+		//vector<Record> records = *(viPair.first);
+		int varCol = viPair.second;
+		int noRecords = records.size();
+
+		for (int i=0; i<noRecords; i++) {
+			const Record& rec = records[i];
+			const pair<string, int>& varPair = rec.get_column(varCol);
+			string var = varPair.first;
+			const set<int> allWhileStmts = this->pkb->get_all_while();
+			for (set<int>::iterator k=allWhileStmts.begin(); k!=allWhileStmts.end(); k++) {
+				int whileStmt = *k;
+				if (this->pkb->has_control_variable(ENT_WHILE, whileStmt, var)) {
+					rTable.syn_01_augment_new_row(i, whileStmt);
+				}
+			}
+		}
+		rTable.syn_01_transaction_end();
+		/*set<int> allWhileStmts = this->pkb->get_all_while();
+		for (set<int>::iterator i = allWhileStmts.begin(); i!=allWhileStmts.end(); i++) {
+			int whileStmt = *i;
+			if (this->pkb->has_control_variable(ENT_WHILE, whileStmt, patCl->varRefString)) {
+				rTable.syn_01_augment_new_row();
+			}
+		}*/
+	}
+}
+void QueryEvaluator::evaluate_patCl_while_var_string(int rTableIdx, 
+		const PatCl *patCl) 
+{
+	ResultsTable& rTable = this->resultsTable[rTableIdx];
+	if (rTable.has_synonym(patCl->syn)) {
+		//whileSyn has been seen
+		pair<const vector<Record>*, int> viPair = rTable.syn_1_transaction_begin(patCl->syn);
+		int whileCol = viPair.second;
+		const vector<Record>& records = *(viPair.first);
+		int noRecords = records.size();
+		for (int i=0; i<noRecords; i++) {
+			const Record& rec = records[i];
+			const pair<string, int>& whilePair = rec.get_column(whileCol);
+			int whileStmt = whilePair.second;
+			if (this->pkb->has_control_variable(ENT_WHILE, whileStmt, patCl->varRefString)) {
+				rTable.syn_1_mark_row_ok(i);
+			}
+		}
+		rTable.syn_1_transaction_end();
+	} else {
+		//whileSyn has not been seen
+		rTable.syn_0_transaction_begin(patCl->syn, RV_INT);
+		set<int> allWhileStmts = this->pkb->get_all_while();
+		for (set<int>::iterator i=allWhileStmts.begin(); i!=allWhileStmts.end(); i++) {
+			int whileStmt = *i;
+			if (this->pkb->has_control_variable(ENT_WHILE, whileStmt, patCl->varRefString)) {
+				rTable.syn_0_add_row(whileStmt);
+			}
+		}
+		rTable.syn_0_transaction_end();
+	}
+}
+void QueryEvaluator::evaluate_patCl_while_var_wildcard(int rTableIdx, 
+		const PatCl *patCl) 
+{
+	//pattern while(_, _)
+	ResultsTable& rTable = this->resultsTable[rTableIdx];
+	if (rTable.has_synonym(patCl->syn)) {
+		//rTable has whileSyn, nothing to do
+	} else {
+		//syn_0
+		rTable.syn_0_transaction_begin(patCl->syn, RV_INT);
+		set<int> allWhileStmts = this->pkb->get_all_while();
+		for (set<int>::iterator i=allWhileStmts.begin(); i!=allWhileStmts.end(); i++) {
+			int whileStmt = *i;
+			rTable.syn_0_add_row(whileStmt);
+		}
+		rTable.syn_0_transaction_end();
+	}
+}
+void QueryEvaluator::evaluate_patCl_while_var_syn_11(ResultsTable& rTable, const PatCl *patCl) 
+{
+	pair<const vector<Record>*, pair<int, int>> viiPair = rTable.syn_11_transaction_begin(patCl->syn, patCl->varRefString);
+	const vector<Record>& records = *(viiPair.first);
+	int whileSynCol = viiPair.second.first;
+	int varSynCol = viiPair.second.second;
+	int noRecords = records.size();
+	for (int i=0; i<noRecords; i++) {
+		const Record& rec = records[i];
+		const pair<string, int>& whilePair = rec.get_column(whileSynCol);
+		const pair<string, int>& varPair = rec.get_column(varSynCol);
+		int whileStmt = whilePair.second;
+		const string& controlVar = varPair.first;
+		if (this->pkb->has_control_variable(ENT_WHILE, whileStmt, controlVar)) {
+			rTable.syn_11_mark_row_ok(i);
+		}
+	}
+	rTable.syn_11_transaction_end();
+}
+void QueryEvaluator::evaluate_patCl_while_var_syn_22(ResultsTable& rTable, const PatCl *patCl) 
+{
+	pair<pair<const vector<Record>*, int>, 
+		pair<const vector<Record>*, int>> vipPair = 
+			rTable.syn_22_transaction_begin(patCl->syn, patCl->varRefString);
+	const vector<Record>& whileSynVec = *(vipPair.first.first);
+	int whileCol = vipPair.first.second;
+	int whileSynSize = whileSynVec.size();
+
+	const vector<Record>& varSynVec = *(vipPair.second.first);
+	int controlVarCol = vipPair.second.second;
+	int varSynSize = varSynVec.size();
+
+	vector<const string *> cVarVec;
+	for (int i=0; i<varSynSize; i++) {
+		const Record& controlVarRecord = varSynVec[i];
+		const pair<string, int>& controlVarPair = 
+			controlVarRecord.get_column(controlVarCol);
+		cVarVec.push_back(&(controlVarPair.first));
+	}
+
+	for (int i=0; i<whileSynSize; i++) {
+		const Record& whileSynRecord = whileSynVec[i];
+		const pair<string, int>& whileSynPair =
+			whileSynRecord.get_column(whileCol);
+		int whileStmt = whileSynPair.second;
+		for (int k=0; k<varSynSize; k++) {
+			const string& controlVarName = *(cVarVec[k]);
+			if (this->pkb->has_control_variable(ENT_IF, whileStmt, controlVarName)) {
+				rTable.syn_22_add_row(i, k);
+			}
+		}
+	}
+	rTable.syn_22_transaction_end();
 }

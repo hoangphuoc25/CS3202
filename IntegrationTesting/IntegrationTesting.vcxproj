@@ -80,6 +80,7 @@
     <ClCompile Include="Test10_00_NextStar.cpp" />
     <ClCompile Include="Test10_00_Parent.cpp" />
     <ClCompile Include="Test10_00_ParentStar.cpp" />
+    <ClCompile Include="Test10_00_Pattern.cpp" />
     <ClCompile Include="Test10_00_Uses.cpp" />
     <ClCompile Include="Test10_01_Affects.cpp" />
     <ClCompile Include="Test10_01_AffectsStar.cpp" />
@@ -152,6 +153,7 @@
     <ClInclude Include="Test10_00_NextStar.h" />
     <ClInclude Include="Test10_00_Parent.h" />
     <ClInclude Include="Test10_00_ParentStar.h" />
+    <ClInclude Include="Test10_00_Pattern.h" />
     <ClInclude Include="Test10_00_Uses.h" />
     <ClInclude Include="Test10_01_Affects.h" />
     <ClInclude Include="Test10_01_AffectsStar.h" />

@@ -330,9 +330,33 @@ private:
     void ev_relRef_X_X(int rTableIdx, const RelRef *relRef);
 
     void evaluate_patCl(int rTableIdx, const GenericRef *genRef);
-    void evaluate_patCl_assign(int rTableIdx, const PatCl *patCl);
     void evaluate_patCl_if(int rTableIdx, const PatCl *patCl);
     void evaluate_patCl_if_var_syn(int rTableIdx, const PatCl *patCl);
+
+    void evaluate_patCl_assign(int rTableIdx, const PatCl *patCl);
+    void evaluate_patCl_assign_string_expr(int rTableIdx,
+            const PatCl *patCl);
+    void evaluate_patCl_assign_string_exprwild(int rTableIdx,
+            const PatCl *patCl);
+    void evaluate_patCl_assign_string_wildcard(int rTableIdx,
+            const PatCl *patCl);
+    void evaluate_patCl_assign_syn_expr(int rTableIdx,
+            const PatCl *patCl);
+    void evaluate_patCl_assign_syn_exprwild(int rTableIdx,
+            const PatCl *patCl);
+    void evaluate_patCl_assign_syn_wildcard(int rTableIdx,
+            const PatCl *patCl);
+	void evaluate_patCl_assign_syn_wildcard_11(ResultsTable& rTable, 
+			const PatCl *patCl);
+	void evaluate_patCl_assign_syn_wildcard_22(ResultsTable& rTable, 
+			const PatCl *patCl);
+    void evaluate_patCl_assign_wildcard_expr(int rTableIdx,
+            const PatCl *patCl);
+    void evaluate_patCl_assign_wildcard_exprwild(int rTableIdx,
+            const PatCl *patCl);
+    void evaluate_patCl_assign_wildcard_wildcard(int rTableIdx,
+            const PatCl *patCl);
+
     void evaluate_patCl_if_var_syn_11(ResultsTable& rTable,
             const PatCl *patCl);
     void evaluate_patCl_if_var_syn_22(ResultsTable& rTable,
@@ -341,7 +365,13 @@ private:
             const PatCl *patCl);
     void evaluate_patCl_if_var_wildcard(int rTableIdx,
             const PatCl *patCl);
-    void evaluate_patCl_while(int rTableIdx, const PatCl *patCl);
+    
+	void evaluate_patCl_while(int rTableIdx, const PatCl *patCl);
+	void evaluate_patCl_while_var_syn(int rTableIdx, const PatCl *patCl);
+	void evaluate_patCl_while_var_syn_11(ResultsTable& rTable, const PatCl *patCl);
+	void evaluate_patCl_while_var_syn_22(ResultsTable& rTable, const PatCl *patCl);
+	void evaluate_patCl_while_var_string(int rTableIdx, const PatCl *patCl);
+	void evaluate_patCl_while_var_wildcard(int rTableIdx, const PatCl *patCl);
 
     PQLParser pqlParser;
     PKB *pkb;

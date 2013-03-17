@@ -44,7 +44,6 @@ void Test10_00_Calls::setUp()
            call cleanUp; \
            well = done; \
            call X; \
-           call XProc; \
          } \
          procedure aaaaa { \
            aa = abb; \
@@ -81,5 +80,22 @@ void Test10_00_Calls::test_select_one_syn()
     const string simpleProg = this->SELECT_ONE_SIMPLEPROG;
     string queryStr;
     QueryEvaluator evaluator;
-    // evaluator.parseSimple(simpleProg);
+    evaluator.parseSimple(simpleProg);
+    list<string> resultList;
+    SetWrapper<string> stringSet;
+    
+    queryStr = "procedure p, q;";
+    queryStr += "Select p such that Calls(p, q)";
+    // Calls(p, q)
+    // p | q
+    // XProc,YProc YProc,aaaa godoSmth,cleanUp godoSmth,X godoSmth,XProc X,cleanUp
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(4, "XProc", "yProc", "godoSmth", "X"));
+
+    queryStr = "procedure p, q; variable v;";
+    queryStr += "Select q such that Calls(p, q) and Modifies(q, v)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(5, "godoSmth", "cleanUp", "yProc", "X", "aaaaa"));
 }
