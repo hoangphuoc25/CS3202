@@ -1099,39 +1099,39 @@ set<int> PKB::affects_X_Y_get_int_Y_from_int_X(DesignEnt xType,
             s.push(curr->get_edge(OUT, 1));
             continue;
         }
+
+        // Check if calls modifies
+        if (stmtBank->is_stmtType(n, ENT_CALL)) {
+            temp = stmtBank->get_node(n)->get_modifies();
+            // Current path broken.
+            if (temp.find(var) != temp.end()) {
+                s.pop();
+                continue;
+            }
+        }
+        // Check stmt only when it is assign stmt
+        if (stmtBank->is_stmtType(n, ENT_ASSIGN)) {
+            // stmt uses var: affects allows this stmt to modify var
+            temp = stmtBank->get_node(n)->get_uses();
+            if (temp.find(var) != temp.end()){
+                res.insert(n);
+            }
+            temp = stmtBank->get_node(n)->get_modifies();
+            // Current path broken.
+            if (temp.find(var) != temp.end()) {
+                s.pop();
+                continue;
+            }
+        }
         // If visited
         if (visited.find(n) != visited.end()) {
             s.pop();
             continue;
-        } else {
-            visited.insert(n);
-            // Check if calls modifies
-            if (stmtBank->is_stmtType(n, ENT_CALL)) {
-                temp = stmtBank->get_node(n)->get_modifies();
-                // Current path broken.
-                if (temp.find(var) != temp.end()) {
-                    s.pop();
-                    continue;
-                }
-            }
-            // Check stmt only when it is assign stmt
-            if (stmtBank->is_stmtType(n, ENT_ASSIGN)) {
-                // stmt uses var: affects allows this stmt to modify var
-                temp = stmtBank->get_node(n)->get_uses();
-                if (temp.find(var) != temp.end()){
-                    res.insert(n);
-                }
-                temp = stmtBank->get_node(n)->get_modifies();
-                // Current path broken.
-                if (temp.find(var) != temp.end()) {
-                    s.pop();
-                    continue;
-                }
-            }
-            s.pop();
-            s.push(curr->get_edge(OUT, 1));
-            s.push(curr->get_edge(OUT, 2));
         }
+        visited.insert(n);
+        s.pop();
+        s.push(curr->get_edge(OUT, 1));
+        s.push(curr->get_edge(OUT, 2));
     }
     return res;
 }
@@ -1175,16 +1175,16 @@ bool PKB::affects_query_int_X_int_Y(DesignEnt xType, int x,
             s.push(curr->get_edge(OUT, 1));
             continue;
         }
+        // Reached stmt2 -> done
+        if (n == y) {
+            return true;
+        }
         // If visited
         if (visited.find(n) != visited.end()) {
             s.pop();
             continue;
         } else {
             visited.insert(n);
-            // Reached stmt2 -> done
-            if (n == y) {
-                return true;
-            }
             // Check stmt only when it is assign stmt or calls
             if (stmtBank->is_stmtType(n, ENT_ASSIGN) || stmtBank->is_stmtType(n, ENT_CALL)) {
                 temp = stmtBank->get_node(n)->get_modifies();
@@ -1227,7 +1227,9 @@ set<int> PKB::affectsStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
     temp = affects_X_Y_get_int_X_from_int_Y(xType,yType,y);
     for (it = temp.begin(); it != temp.end(); it++) {
         q.push(*it);
+        res.insert(*it);
     }
+    processed.insert(y);
     while (!q.empty()) {
         n = q.front();
         if (processed.find(n) != processed.end()) {
@@ -1264,6 +1266,7 @@ set<int> PKB::affectsStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
         q.push(*it);
         res.insert(*it);
     }
+    processed.insert(x);
     while (!q.empty()) {
         n = q.front();
         if (processed.find(n) != processed.end()){
@@ -1301,13 +1304,13 @@ bool PKB::affectsStar_query_int_X_int_Y(DesignEnt xType, int x,
     }
     while (!q.empty()) {
         n = q.front();
+        if (n == y) {
+            return true;
+        }
         if (processed.find(n) != processed.end()){
             q.pop();
             continue;
         } else {
-            if (n == y) {
-                return true;
-            }
             processed.insert(n);
             temp = affects_X_Y_get_int_Y_from_int_X(ENT_ASSIGN, ENT_ASSIGN, n);
             for (it = temp.begin(); it != temp.end(); it++) {
@@ -2032,16 +2035,16 @@ bool PKB::is_affects(int stmt1, int stmt2) const
             s.push(curr->get_edge(OUT, 1));
             continue;
         }
+         // Reached stmt2 -> done
+        if (n == stmt2) {
+            return true;
+        }
         // If visited
         if (visited.find(n) != visited.end()) {
             s.pop();
             continue;
         } else {
             visited.insert(n);
-            // Reached stmt2 -> done
-            if (n == stmt2) {
-                return true;
-            }
             // Check stmt only when it is assign stmt or calls
             if (is_stmtType(n, ENT_ASSIGN) || is_stmtType(n, ENT_CALL)) {
                 temp = get_var_stmt_modifies(n);
@@ -2073,15 +2076,16 @@ bool PKB::is_affects_star(int stmt1, int stmt2)
     for (it = temp.begin(); it != temp.end(); it++) {
         q.push(*it);
     }
+    processed.insert(stmt1);
     while (!q.empty()) {
         n = q.front();
+        if (n == stmt2) {
+            return true;
+        }
         if (processed.find(n) != processed.end()){
             q.pop();
             continue;
         } else {
-            if (n == stmt2) {
-                return true;
-            }
             processed.insert(n);
             temp = get_affects(n);
             for (it = temp.begin(); it != temp.end(); it++) {
@@ -2122,40 +2126,39 @@ set<int> PKB::get_affects(int stmtNo)
             s.push(curr->get_edge(OUT, 1));
             continue;
         }
+        // Check if calls modifies
+        if (is_stmtType(n, ENT_CALL)) {
+            temp = get_var_stmt_modifies(n);
+            // Current path broken.
+            if (temp.find(var) != temp.end()) {
+                s.pop();
+                continue;
+            }
+        }
+        // Check stmt only when it is assign stmt
+        if (is_stmtType(n, ENT_ASSIGN)) {
+            // stmt uses var: affects allows this stmt to modify var
+            temp = get_var_stmt_uses(n);
+            if (temp.find(var) != temp.end()){
+                res.insert(n);
+            }
+            temp = get_var_stmt_modifies(n);
+            // Current path broken.
+            if (temp.find(var) != temp.end()) {
+                s.pop();
+                continue;
+            }
+        }
         // If visited
         if (visited.find(n) != visited.end()) {
             s.pop();
             continue;
-        } else {
-            visited.insert(n);
-            // Check if calls modifies
-            if (is_stmtType(n, ENT_CALL)) {
-                temp = get_var_stmt_modifies(n);
-                // Current path broken.
-                if (temp.find(var) != temp.end()) {
-                    s.pop();
-                    continue;
-                }
-            }
-            // Check stmt only when it is assign stmt
-            if (is_stmtType(n, ENT_ASSIGN)) {
-                // stmt uses var: affects allows this stmt to modify var
-                temp = get_var_stmt_uses(n);
-                if (temp.find(var) != temp.end()){
-                    res.insert(n);
-                }
-                temp = get_var_stmt_modifies(n);
-                // Current path broken.
-                if (temp.find(var) != temp.end()) {
-                    s.pop();
-                    continue;
-                }
-            }
-            s.pop();
-            s.push(curr->get_edge(OUT, 1));
-            s.push(curr->get_edge(OUT, 2));
         }
-    }
+        visited.insert(n);
+        s.pop();
+        s.push(curr->get_edge(OUT, 1));
+        s.push(curr->get_edge(OUT, 2));
+}
     return res;
 }
 
@@ -2175,6 +2178,7 @@ set<int> PKB::get_affects_star(int stmtNo)
         q.push(*it);
         res.insert(*it);
     }
+    processed.insert(stmtNo);
     while (!q.empty()) {
         n = q.front();
         if (processed.find(n) != processed.end()){
@@ -2226,7 +2230,9 @@ set<int> PKB::get_affected_by_star(int stmtNo)
     temp = get_affected_by(stmtNo);
     for (it = temp.begin(); it != temp.end(); it++) {
         q.push(*it);
+        res.insert(*it);
     }
+    processed.insert(stmtNo);
     while (!q.empty()) {
         n = q.front();
         if (processed.find(n) != processed.end()) {

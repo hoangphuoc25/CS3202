@@ -78,6 +78,7 @@
     <ClCompile Include="Test_20_PQLParser_DeadQuery.cpp" />
     <ClCompile Include="Test_20_PQLParser_With.cpp" />
     <ClCompile Include="Test_30_PKB.cpp" />
+    <ClCompile Include="Test_30_PKB_Affects.cpp" />
     <ClCompile Include="Test_30_PKB_has_any_X.cpp" />
     <ClCompile Include="Test_30_PKB_Next.cpp" />
     <ClCompile Include="Test_30_PKB_Parent.cpp" />
@@ -93,6 +94,7 @@
     <ClInclude Include="Test_20_PQLParser_DeadQuery.h" />
     <ClInclude Include="Test_20_PQLParser_With.h" />
     <ClInclude Include="Test_30_PKB.h" />
+    <ClInclude Include="Test_30_PKB_Affects.h" />
     <ClInclude Include="Test_30_PKB_has_any_X.h" />
     <ClInclude Include="Test_30_PKB_Next.h" />
     <ClInclude Include="Test_30_PKB_Parent.h" />

@@ -652,7 +652,7 @@ void Test_30_PKB::test_one(){
     // Q47
     s1 = pkb.get_affected_by_star(12);
     stringSet = SetWrapper<string>(s1);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"12"), stringSet);
     s1 = pkb.get_affected_by_star(26);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "25"), stringSet);

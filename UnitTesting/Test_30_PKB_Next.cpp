@@ -66,8 +66,9 @@ void Test_30_PKB_Next::test_next()
         CPPUNIT_ASSERT_EQUAL(false,pkb->nextStar_query_int_X_int_Y(ENT_WHILE,10,
         ENT_ASSIGN,20));
         CPPUNIT_ASSERT_EQUAL(true,pkb->is_valid_stmtNo(14));
- //       stringSet = pkb->get_CFG()->at(13)->get_after();
- //      CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "14","18"),stringSet);
+         CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star(2,2));
+    stringSet = pkb->get_before_star(2);
+   // CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "14","18"),stringSet);
 
 
 }
