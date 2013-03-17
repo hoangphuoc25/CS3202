@@ -1895,6 +1895,7 @@ bool PKB::is_next_star(int stmt1, int stmt2)
 {
     if (is_valid_stmtNo(stmt1) && is_valid_stmtNo(stmt2)) {
         set<int> s =  CFG->at(stmt1)->get_after();
+        set<int> vis;
         set<int>::iterator it;
         queue<int> q;
         for (it = s.begin(); it != s.end(); it++) {
@@ -1904,10 +1905,13 @@ bool PKB::is_next_star(int stmt1, int stmt2)
             if (q.front() == stmt2) {
                 return true;
             } else {
-                s = CFG->at(q.front())->get_after();
-                for (it = s.begin(); it != s.end(); it++) {
-                    q.push(*it);
+                if (vis.find(q.front())==vis.end()) {
+                    s = CFG->at(q.front())->get_after();
+                    for (it = s.begin(); it != s.end(); it++) {
+                        q.push(*it);
+                    }
                 }
+                vis.insert(q.front());
                 q.pop();
             }
         }
