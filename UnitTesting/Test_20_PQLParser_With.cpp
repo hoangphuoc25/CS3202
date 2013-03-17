@@ -308,28 +308,33 @@ void Test_20_PQLParser_With::test_err_parse_dquoted_ident_invalid()
     string queryStr, out;
     ostringstream *os;
     PQLParser parser;
+    QueryInfo *qinfo;
 
     // 1st argument not valid identifier
     queryStr = "assign a; Select a with \"1ab\" = \"c\"";
     os = new ostringstream;
     parser.parse(os, queryStr, true, false);
+    qinfo = parser.get_queryinfo();
     out = os->str();
     CPPUNIT_ASSERT_EQUAL(PARSE_DQUOTED_IDENT_INVALID,
             parser.get_parse_result());
     _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
             PARSE_DQUOTED_IDENT_INVALID_STR, "1ab");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
 
     // 2nd argument not valid identifier
     queryStr = "assign a; Select a with \"pkb\"  = \"#tyh\"";
     os = new ostringstream;
     parser.parse(os, queryStr, true, false);
+    qinfo = parser.get_queryinfo();
     out = os->str();
     CPPUNIT_ASSERT_EQUAL(PARSE_DQUOTED_IDENT_INVALID,
             parser.get_parse_result());
     _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
             PARSE_DQUOTED_IDENT_INVALID_STR, "#tyh");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
 
     // 1st argument of 3rd with clause is an invalid identifier
     queryStr = "while w; procedure p;";
@@ -337,12 +342,14 @@ void Test_20_PQLParser_With::test_err_parse_dquoted_ident_invalid()
     queryStr += " w.stmt# \n\t = \t\t13 and \"#gff\" = \"bcd\"";
     os = new ostringstream;
     parser.parse(os, queryStr, true, false);
+    qinfo = parser.get_queryinfo();
     out = os->str();
     CPPUNIT_ASSERT_EQUAL(PARSE_DQUOTED_IDENT_INVALID,
             parser.get_parse_result());
     _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
             PARSE_DQUOTED_IDENT_INVALID_STR, "#gff");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
 
     // 2nd argument of 4th with clause is an invalid identifier
     queryStr = "procedure p; assign a1, a2; variable v; ";
@@ -351,12 +358,14 @@ void Test_20_PQLParser_With::test_err_parse_dquoted_ident_invalid()
     queryStr += " 2 = 2 and a1.stmt# = a2.stmt# and \"brave\" = \",s1\"";
     os = new ostringstream;
     parser.parse(os, queryStr, true, false);
+    qinfo = parser.get_queryinfo();
     out = os->str();
     CPPUNIT_ASSERT_EQUAL(PARSE_DQUOTED_IDENT_INVALID,
             parser.get_parse_result());
     _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
             PARSE_DQUOTED_IDENT_INVALID_STR, ",s1");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
 }
 
 void Test_20_PQLParser_With::
@@ -365,11 +374,13 @@ void Test_20_PQLParser_With::
     string queryStr, out;
     ostringstream *os;
     PQLParser parser;
+    QueryInfo *qinfo;
 
     // LHS of 1st with clause missing close quote
     queryStr = " call c; Select c with \"ableh = \"b\"";
     os = new ostringstream;
     parser.parse(os, queryStr, true, false);
+    qinfo = parser.get_queryinfo();
     out = os->str();
     CPPUNIT_ASSERT_EQUAL(PARSE_DQUOTED_IDENT_MISSING_CLOSE_QUOTE,
             parser.get_parse_result());
@@ -377,6 +388,7 @@ void Test_20_PQLParser_With::
             PARSE_DQUOTED_IDENT_MISSING_CLOSE_QUOTE_STR,
             "ableh");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
 
     // RHS of 2nd with clause missing close quote
     queryStr = " assign aS1; variable VaR; while w1; ";
@@ -384,6 +396,7 @@ void Test_20_PQLParser_With::
     queryStr += " \"bomb\" = \"tim and 35 = 35";
     os = new ostringstream;
     parser.parse(os, queryStr, true, false);
+    qinfo = parser.get_queryinfo();
     out = os->str();
     CPPUNIT_ASSERT_EQUAL(PARSE_DQUOTED_IDENT_MISSING_CLOSE_QUOTE,
             parser.get_parse_result());
@@ -391,6 +404,7 @@ void Test_20_PQLParser_With::
             PARSE_DQUOTED_IDENT_MISSING_CLOSE_QUOTE_STR,
             "tim");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
 
     // LHS of 4th with clause missing close quote
     queryStr = "assign a1, a2; variable v; call c1; procedure p1; ";
@@ -402,6 +416,7 @@ void Test_20_PQLParser_With::
     queryStr += " 6775 = 6775";
     os = new ostringstream;
     parser.parse(os, queryStr, true, false);
+    qinfo = parser.get_queryinfo();
     out = os->str();
     CPPUNIT_ASSERT_EQUAL(PARSE_DQUOTED_IDENT_MISSING_CLOSE_QUOTE,
             parser.get_parse_result());
@@ -409,6 +424,7 @@ void Test_20_PQLParser_With::
             PARSE_DQUOTED_IDENT_MISSING_CLOSE_QUOTE_STR,
             "haha");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
 }
 
 void Test_20_PQLParser_With::test_err_parse_ref_integer_error_str()
@@ -423,6 +439,7 @@ void Test_20_PQLParser_With::test_err_parse_ref_integer_error_str()
     queryStr = " assign a; Select a with 57 = 12345678901";
     os = new ostringstream;
     parser.parse(os, queryStr, true, false);
+    qinfo = parser.get_queryinfo();
     out = os->str();
     CPPUNIT_ASSERT_EQUAL(PARSE_REF_INTEGER_ERROR,
             parser.get_parse_result());
@@ -433,11 +450,13 @@ void Test_20_PQLParser_With::test_err_parse_ref_integer_error_str()
             PARSE_REF_INTEGER_ERROR_STR,
             "12345678901", warningStr.c_str());
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
     // string is too long for RHS of 3rd WithClause
     queryStr = "assign a; procedure procN; Select <procN, a> with ";
     queryStr += " 65 = 65 and 1=1 and 99=75562484845445";
     os = new ostringstream;
     parser.parse(os, queryStr, true, false);
+    qinfo = parser.get_queryinfo();
     out = os->str();
     CPPUNIT_ASSERT_EQUAL(PARSE_REF_INTEGER_ERROR,
             parser.get_parse_result());
@@ -448,6 +467,7 @@ void Test_20_PQLParser_With::test_err_parse_ref_integer_error_str()
             PARSE_REF_INTEGER_ERROR_STR,
             "75562484845445", warningStr.c_str());
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
     // Relations + WithClause
     // string is too long for RHS of 5th WithClause
     queryStr = " assign as1, as2; procedure proc1, proc2; call c1, c2; ";
@@ -461,6 +481,7 @@ void Test_20_PQLParser_With::test_err_parse_ref_integer_error_str()
     queryStr += " Uses(proc2,var2) and Follows(if1, c2) with 18=18";
     os = new ostringstream;
     parser.parse(os, queryStr, true, false);
+    qinfo = parser.get_queryinfo();
     out = os->str();
     CPPUNIT_ASSERT_EQUAL(PARSE_REF_INTEGER_ERROR,
             parser.get_parse_result());
@@ -471,6 +492,7 @@ void Test_20_PQLParser_With::test_err_parse_ref_integer_error_str()
             PARSE_REF_INTEGER_ERROR_STR,
             "887967845652", warningStr.c_str());
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
     // above query is correct without 5th WithClause
     queryStr = " assign as1, as2; procedure proc1, proc2; call c1, c2; ";
     queryStr += " while w1, w2; if if1, if2; variable var1, var2; ";
@@ -494,11 +516,13 @@ void Test_20_PQLParser_With::test_err_parse_ref_integer_error_str()
     out += "Uses(if2,var2)\nModifies(c1,var1)\nUses(proc2,var2)\n";
     out += "Follows(if1,c2)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+    CPPUNIT_ASSERT_EQUAL(true, qinfo->is_alive());
 
     // overflow by 1
     queryStr = " assign a; Select a with 15636 = 2147483648";
     os = new ostringstream;
     parser.parse(os, queryStr, true, false);
+    qinfo = parser.get_queryinfo();
     out = os->str();
     CPPUNIT_ASSERT_EQUAL(PARSE_REF_INTEGER_ERROR,
             parser.get_parse_result());
@@ -510,11 +534,13 @@ void Test_20_PQLParser_With::test_err_parse_ref_integer_error_str()
             PARSE_REF_INTEGER_ERROR_STR,
             "2147483648", warningStr.c_str());
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
     // overflow by 1 in 4th WithClause
     queryStr = "Select BOOLEAN with 17=17 and 236=236 and ";
     queryStr += " 775 = 2147483648";
     os = new ostringstream;
     parser.parse(os, queryStr, true, false);
+    qinfo = parser.get_queryinfo();
     out = os->str();
     CPPUNIT_ASSERT_EQUAL(PARSE_REF_INTEGER_ERROR,
             parser.get_parse_result());
@@ -526,6 +552,7 @@ void Test_20_PQLParser_With::test_err_parse_ref_integer_error_str()
             PARSE_REF_INTEGER_ERROR_STR,
             "2147483648", warningStr.c_str());
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
     // Relations + WithClause. overflow by 1 in 8th WithClause
     queryStr = "assign a1, a2; while w1, w2; procedure p1, p2; ";
     queryStr += " stmt s1, s2; call c1, c2; variable v1, v2; ";
@@ -538,6 +565,7 @@ void Test_20_PQLParser_With::test_err_parse_ref_integer_error_str()
     queryStr += " such that Modifies(s2, v2)";
     os = new ostringstream;
     parser.parse(os, queryStr, true, false);
+    qinfo = parser.get_queryinfo();
     out = os->str();
     CPPUNIT_ASSERT_EQUAL(PARSE_REF_INTEGER_ERROR,
             parser.get_parse_result());
@@ -549,6 +577,7 @@ void Test_20_PQLParser_With::test_err_parse_ref_integer_error_str()
             PARSE_REF_INTEGER_ERROR_STR,
             "2147483648", warningStr.c_str());
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
     // above query corrected
     queryStr = "assign a1, a2; while w1, w2; procedure p1, p2; ";
     queryStr += " stmt s1, s2; call c1, c2; variable v1, v2; ";
@@ -569,11 +598,13 @@ void Test_20_PQLParser_With::test_err_parse_ref_integer_error_str()
     out += "Modifies(a2,v1)\nUses(p2,v1)\nParent*(s2,w2)\n";
     out += "Calls*(p2,p1)\nNext(a2,c2)\nModifies(s2,v2)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+    CPPUNIT_ASSERT_EQUAL(true, qinfo->is_alive());
 
     // overflow by a lot
     queryStr = "Select BOOLEAN with 33 = 3234567890";
     os = new ostringstream;
     parser.parse(os, queryStr, true, false);
+    qinfo = parser.get_queryinfo();
     out = os->str();
     CPPUNIT_ASSERT_EQUAL(PARSE_REF_INTEGER_ERROR,
             parser.get_parse_result());
@@ -585,12 +616,14 @@ void Test_20_PQLParser_With::test_err_parse_ref_integer_error_str()
             PARSE_REF_INTEGER_ERROR_STR,
             "3234567890", warningStr.c_str());
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
     // overflow by a lot in 4th WithClause
     queryStr = " while whg; procedure Bsd; Select <whg, Bsd> with ";
     queryStr += " 1245 = 1245 and 77 = 77 and 7457 = 7457 and ";
     queryStr += " 27568 = 5634567890";
     os = new ostringstream;
     parser.parse(os, queryStr, true, false);
+    qinfo = parser.get_queryinfo();
     out = os->str();
     CPPUNIT_ASSERT_EQUAL(PARSE_REF_INTEGER_ERROR,
             parser.get_parse_result());
@@ -601,6 +634,7 @@ void Test_20_PQLParser_With::test_err_parse_ref_integer_error_str()
     _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
             PARSE_REF_INTEGER_ERROR_STR,
             "5634567890", warningStr.c_str());
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
     // Relations + WithClause. overflow by a lot in 6th WithClause
     queryStr = " procedure pr1, pr2; variable v1, v2; assign a2, a1; ";
     queryStr += " call c2, c1; while w1, w2; prog_line pl1, pl2; ";
@@ -612,6 +646,7 @@ void Test_20_PQLParser_With::test_err_parse_ref_integer_error_str()
     queryStr += " Calls*(pr2,pr1) and Follows(pl2, c1)";
     os = new ostringstream;
     parser.parse(os, queryStr, true, false);
+    qinfo = parser.get_queryinfo();
     out = os->str();
     CPPUNIT_ASSERT_EQUAL(PARSE_REF_INTEGER_ERROR,
             parser.get_parse_result());
@@ -622,6 +657,7 @@ void Test_20_PQLParser_With::test_err_parse_ref_integer_error_str()
     _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
             PARSE_REF_INTEGER_ERROR_STR,
             "7684567890", warningStr.c_str());
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
     // above query corrected
     queryStr = " procedure pr1, pr2; variable v1, v2; assign a2, a1; ";
     queryStr += " call c2, c1; while w1, w2; prog_line pl1, pl2; ";
@@ -643,4 +679,5 @@ void Test_20_PQLParser_With::test_err_parse_ref_integer_error_str()
     out += "Follows(w1,pl2)\nUses(a2,v2)\nParent(w1,a1)\n";
     out += "Calls*(pr2,pr1)\nFollows(pl2,c1)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+    CPPUNIT_ASSERT_EQUAL(true, qinfo->is_alive());
 }
