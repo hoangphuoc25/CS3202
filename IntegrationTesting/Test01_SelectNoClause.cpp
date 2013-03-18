@@ -169,25 +169,23 @@ void Test01_SelectNoClause::test_select_one_syn_attr()
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(3, "5", "8", "19"));
     // stmt.stmt#
-    queryStr = "stmt hafd1; Select hafd1";
+    queryStr = "stmt hafd1; Select hafd1.stmt#";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(stringSet,
             SetWrapper<string>(26, "1", "2", "3", "4", "5", "6", "7", "8",
                     "9", "10", "11", "12", "13", "14", "15", "16", "17",
                     "18", "19", "20", "21", "22", "23", "24", "25", "26"));
-    // TODO: Check if progline.stmt# is allowed
-    // progline.stmt#
-    queryStr = " prog_line ghsh1; Select ghsh1.stmt#";
+    // progline.prog_line#
+    queryStr = " prog_line ghsh1; Select ghsh1.prog_line#";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(26, "1", "2", "3",
             "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14",
             "15", "16", "17", "18", "19", "20", "21", "22", "23", "24",
             "25", "26"));
-    // TODO: Check if stmtLst.stmt# is allowed
     // stmtLst.stmt#
-    queryStr = " stmtLst sbt12; Select sbt12";
+    queryStr = " stmtLst sbt12; Select sbt12.stmt#";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(12, "1", "4", "6",
@@ -365,7 +363,7 @@ void Test01_SelectNoClause::test_select_syn_syn_attr()
             "18,18", "19,19", "20,20", "21,21", "22,22", "23,23", "24,24",
             "25,25", "26,26"));
     // progline
-    queryStr = " prog_line xe1#; Select  <xe1#  , xe1#.stmt#>";
+    queryStr = " prog_line xe1#; Select  <xe1#  , xe1#.prog_line#>";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(26, "1,1", "2,2",
@@ -565,7 +563,7 @@ void Test01_SelectNoClause::test_select_X_Y_Xattr()
             "16,13,16", "17,4,17", "17,13,17", "18,4,18", "18,13,18",
             "19,4,19", "19,13,19", "20,4,20", "20,13,20"));
     // progline, if, progline.stmt#
-    queryStr = " prog_line pla1; if i; Select <pla1, i, pla1.stmt#>";
+    queryStr = " prog_line pla1; if i; Select <pla1, i, pla1.prog_line#>";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(40, "1,4,1",

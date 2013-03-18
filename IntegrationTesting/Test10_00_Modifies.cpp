@@ -314,7 +314,8 @@ void Test10_00_Modifies::test_modifies_progline_var()
             "25", "26", "27", "28", "29", "30", "31", "32", "33", "34",
             "35", "36"));
     // Modifies(prog_line, var); Select prog_line.stmt#
-    queryStr = "prog_line hga4; variable tas; Select hga4.stmt# such that ";
+    queryStr = "prog_line hga4; variable tas; ";
+    queryStr += " Select hga4.prog_line# such that ";
     queryStr += " Modifies(hga4, tas)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
