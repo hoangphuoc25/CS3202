@@ -836,12 +836,12 @@ void Test_20_PQLParser::test_select_attrRef()
     output += "SELECT TUPLE\n  constant dfb1 value\n";
     CPPUNIT_ASSERT_EQUAL(output, qinfo->dump_to_string());
 
-    queryStr = "prog_line pofd1; Select pofd1.stmt#";
+    queryStr = "prog_line pofd1; Select pofd1.prog_line#";
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
     output = "ALIVE\nDECLARATIONS\n  prog_line pofd1\n";
-    output += "SELECT TUPLE\n  prog_line pofd1 stmt#\n";
+    output += "SELECT TUPLE\n  prog_line pofd1 prog_line#\n";
     CPPUNIT_ASSERT_EQUAL(output, qinfo->dump_to_string());
 
     queryStr = "procedure proc1, proc2; stmtLst ST1, ST2;";
@@ -851,7 +851,8 @@ void Test_20_PQLParser::test_select_attrRef()
     queryStr += "constant const1, const2, const3; prog_line pl1, pl2, pl3;";
     queryStr += " Select <ST1, ST2.stmt#, s1.stmt#, s1, ST2, a1.stmt#, c2, ";
     queryStr += " c3.procName, w1.stmt#, w1, w3, i1, i3.stmt#, v1, ";
-    queryStr += " v1.varName, const1, const1.value, pl2.stmt#, pl2, pl3 >";
+    queryStr += " v1.varName, const1, const1.value, pl2.prog_line#, ";
+    queryStr += " pl2, pl3 >";
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
@@ -869,7 +870,7 @@ void Test_20_PQLParser::test_select_attrRef()
     output += "  call c2\n  call c3 procName\n  while w1 stmt#\n  while w1\n";
     output += "  while w3\n  if i1\n  if i3 stmt#\n  variable v1\n";
     output += "  variable v1 varName\n  constant const1\n";
-    output += "  constant const1 value\n  prog_line pl2 stmt#\n";
+    output += "  constant const1 value\n  prog_line pl2 prog_line#\n";
     output += "  prog_line pl2\n  prog_line pl3\n";
     CPPUNIT_ASSERT_EQUAL(output, qinfo->dump_to_string());
 }
@@ -1332,6 +1333,7 @@ void Test_20_PQLParser::test_err_select_undeclared_attrRef()
 
 void Test_20_PQLParser::test_err_select_attrRef_syn_attrName_type_error()
 {
+    // assign.varName
     string queryStr = "assign a; Select a.varName";
     string out;
     PQLParser parser;
@@ -1344,6 +1346,509 @@ void Test_20_PQLParser::test_err_select_attrRef_syn_attrName_type_error()
         PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
         AttrRef("a", ENT_ASSIGN, ATTR_VARNAME).toPeriodString().c_str(),
         "varName", ENT_ASSIGN_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // assign.procName
+    queryStr = "assign bdb; Select bdb.procName";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("bdb", ENT_ASSIGN, ATTR_PROCNAME).toPeriodString()
+                    .c_str(),
+            ATTR_PROCNAME_STR, ENT_ASSIGN_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // assign.prog_line#
+    queryStr = "assign hmjhmAS; Select hmjhmAS.prog_line#";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("hmjhmAS", ENT_ASSIGN, ATTR_PROGLINE).toPeriodString()
+                    .c_str(),
+            ATTR_PROGLINE_STR, ENT_ASSIGN_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // assign.value
+    queryStr = "assign xKcd; Select xKcd.value";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("xKcd", ENT_ASSIGN, ATTR_VALUE).toPeriodString()
+                    .c_str(),
+            ATTR_VALUE_STR, ENT_ASSIGN_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // call.varName
+    queryStr = "call bAd; Select bAd.varName";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("bAd", ENT_CALL, ATTR_VARNAME).toPeriodString()
+                    .c_str(),
+            ATTR_VARNAME_STR, ENT_CALL_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // call.prog_line#
+    queryStr = "call Tefb1; Select Tefb1.prog_line#";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("Tefb1", ENT_CALL, ATTR_PROGLINE).toPeriodString()
+                    .c_str(),
+            ATTR_PROGLINE_STR, ENT_CALL_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // call.value
+    queryStr = "call md1#; Select md1#.value";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("md1#", ENT_CALL, ATTR_VALUE).toPeriodString()
+                    .c_str(),
+            ATTR_VALUE_STR, ENT_CALL_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // if.varName
+    queryStr = "if kM1; Select kM1.varName";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("kM1", ENT_IF, ATTR_VARNAME).toPeriodString()
+                    .c_str(),
+            ATTR_VARNAME_STR, ENT_IF_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // if.procName
+    queryStr = "if Mms6; Select Mms6.procName";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("Mms6", ENT_IF, ATTR_PROCNAME).toPeriodString()
+                    .c_str(),
+            ATTR_PROCNAME_STR, ENT_IF_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // if.prog_line#
+    queryStr = "if yjfjha; Select yjfjha.prog_line#";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("yjfjha", ENT_IF, ATTR_PROGLINE).toPeriodString()
+                    .c_str(),
+            ATTR_PROGLINE_STR, ENT_IF_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // if.value
+    queryStr = "if bb; Select bb.value";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("bb", ENT_IF, ATTR_VALUE).toPeriodString()
+                    .c_str(),
+            ATTR_VALUE_STR, ENT_IF_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // while.varName
+    queryStr = "while dbn; Select dbn.varName";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("dbn", ENT_WHILE, ATTR_VARNAME).toPeriodString()
+                    .c_str(),
+            ATTR_VARNAME_STR, ENT_WHILE_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // while.procName
+    queryStr = "while sxb; Select sxb.procName";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("sxb", ENT_WHILE, ATTR_PROCNAME).toPeriodString()
+                    .c_str(),
+            ATTR_PROCNAME_STR, ENT_WHILE_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // while.prog_line#
+    queryStr = "while Aa; Select Aa.prog_line#";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("Aa", ENT_WHILE, ATTR_PROGLINE).toPeriodString()
+                    .c_str(),
+            ATTR_PROGLINE_STR, ENT_WHILE_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // while.value
+    queryStr = "while N; Select N.value";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("N", ENT_WHILE, ATTR_VALUE).toPeriodString()
+                    .c_str(),
+            ATTR_VALUE_STR, ENT_WHILE_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // stmt.varName
+    queryStr = "stmt hmm; Select hmm.varName";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("hmm", ENT_STMT, ATTR_VARNAME).toPeriodString()
+                    .c_str(),
+            ATTR_VARNAME_STR, ENT_STMT_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // stmt.procName
+    queryStr = "stmt xb; Select xb.procName";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("xb", ENT_STMT, ATTR_PROCNAME).toPeriodString()
+                    .c_str(),
+            ATTR_PROCNAME_STR, ENT_STMT_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // stmt.prog_line#
+    queryStr = "stmt Tmb; Select Tmb.prog_line#";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("Tmb", ENT_STMT, ATTR_PROGLINE).toPeriodString()
+                    .c_str(),
+            ATTR_PROGLINE_STR, ENT_STMT_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // stmt.value
+    queryStr = "stmt mgm; Select mgm.value";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("mgm", ENT_STMT, ATTR_VALUE).toPeriodString()
+                    .c_str(),
+            ATTR_VALUE_STR, ENT_STMT_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // prog_line.varName
+    queryStr = "prog_line bn; Select bn.varName";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("bn", ENT_PROGLINE, ATTR_VARNAME).toPeriodString()
+                    .c_str(),
+            ATTR_VARNAME_STR, ENT_PROGLINE_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // prog_line.procName
+    queryStr = "prog_line nmmn; Select nmmn.procName";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("nmmn", ENT_PROGLINE, ATTR_PROCNAME).toPeriodString()
+                    .c_str(),
+            ATTR_PROCNAME_STR, ENT_PROGLINE_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // prog_line.stmt#
+    queryStr = "prog_line gBa; Select gBa.stmt#";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("gBa", ENT_PROGLINE, ATTR_STMTNO).toPeriodString()
+                    .c_str(),
+            ATTR_STMTNO_STR, ENT_PROGLINE_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // prog_line.value
+    queryStr = "prog_line yuu; Select yuu.value";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("yuu", ENT_PROGLINE, ATTR_VALUE).toPeriodString()
+                    .c_str(),
+            ATTR_VALUE_STR, ENT_PROGLINE_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // constant.varName
+    queryStr = "constant c1; Select c1.varName";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("c1", ENT_CONST, ATTR_VARNAME).toPeriodString()
+                    .c_str(),
+            ATTR_VARNAME_STR, ENT_CONST_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // constant.procName
+    queryStr = "constant jhm; Select jhm.procName";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("jhm", ENT_CONST, ATTR_PROCNAME).toPeriodString()
+                    .c_str(),
+            ATTR_PROCNAME_STR, ENT_CONST_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // constant.stmt#
+    queryStr = "constant bn#h; Select bn#h.stmt#";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("bn#h", ENT_CONST, ATTR_STMTNO).toPeriodString()
+                    .c_str(),
+            ATTR_STMTNO_STR, ENT_CONST_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // constant.prog_line#
+    queryStr = "constant ksd; Select ksd.prog_line#";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("ksd", ENT_CONST, ATTR_PROGLINE).toPeriodString()
+                    .c_str(),
+            ATTR_PROGLINE_STR, ENT_CONST_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // stmtLst.varName
+    queryStr = "stmtLst sl1; Select sl1.varName";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("sl1", ENT_STMTLST, ATTR_VARNAME).toPeriodString()
+                    .c_str(),
+            ATTR_VARNAME_STR, ENT_STMTLST_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // stmtLst.procName
+    queryStr = "stmtLst hh; Select hh.procName";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("hh", ENT_STMTLST, ATTR_PROCNAME).toPeriodString()
+                    .c_str(),
+            ATTR_PROCNAME_STR, ENT_STMTLST_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // stmtLst.prog_line#
+    queryStr = "stmtLst gmma; Select gmma.prog_line#";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("gmma", ENT_STMTLST, ATTR_PROGLINE).toPeriodString()
+                    .c_str(),
+            ATTR_PROGLINE_STR, ENT_STMTLST_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // stmtLst.value
+    queryStr = "stmtLst tmna; Select tmna.value";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("tmna", ENT_STMTLST, ATTR_VALUE).toPeriodString()
+                    .c_str(),
+            ATTR_VALUE_STR, ENT_STMTLST_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // procedure.varName
+    queryStr = "procedure p1; Select p1.varName";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("p1", ENT_PROC, ATTR_VARNAME).toPeriodString()
+                    .c_str(),
+            ATTR_VARNAME_STR, ENT_PROC_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // procedure.stmt#
+    queryStr = "procedure proc; Select proc.stmt#";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("proc", ENT_PROC, ATTR_STMTNO).toPeriodString()
+                    .c_str(),
+            ATTR_STMTNO_STR, ENT_PROC_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // procedure.prog_line#
+    queryStr = "procedure pBH; Select pBH.prog_line#";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("pBH", ENT_PROC, ATTR_PROGLINE).toPeriodString()
+                    .c_str(),
+            ATTR_PROGLINE_STR, ENT_PROC_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // procedure.value
+    queryStr = "procedure pnka; Select pnka.value";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("pnka", ENT_PROC, ATTR_VALUE).toPeriodString()
+                    .c_str(),
+            ATTR_VALUE_STR, ENT_PROC_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // variable.procName
+    queryStr = "variable v1; Select v1.procName";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("v1", ENT_VAR, ATTR_PROCNAME).toPeriodString()
+                    .c_str(),
+            ATTR_PROCNAME_STR, ENT_VAR_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // variable.stmt#
+    queryStr = "variable var; Select var.stmt#";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("var", ENT_VAR, ATTR_STMTNO).toPeriodString()
+                    .c_str(),
+            ATTR_STMTNO_STR, ENT_VAR_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // variable.prog_line#
+    queryStr = "variable voo; Select voo.prog_line#";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("voo", ENT_VAR, ATTR_PROGLINE).toPeriodString()
+                    .c_str(),
+            ATTR_PROGLINE_STR, ENT_VAR_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // variable.value
+    queryStr = "variable voodoo; Select voodoo.value";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_ATTRREF_SYN_ATTRNAME_TYPE_ERROR_STR,
+            AttrRef("voodoo", ENT_VAR, ATTR_VALUE).toPeriodString()
+                    .c_str(),
+            ATTR_VALUE_STR, ENT_VAR_STR);
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
 

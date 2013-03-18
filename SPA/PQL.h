@@ -46,6 +46,7 @@
 #define ATTR_VARNAME_STR  "varName"
 #define ATTR_VALUE_STR    "value"
 #define ATTR_STMTNO_STR   "stmt#"
+#define ATTR_PROGLINE_STR "prog_line#"
 #define ATTR_DEFAULT_STR  "default"
 #define ATTR_INVALID_STR  "invalid"
 
@@ -287,6 +288,7 @@ enum AttrType {
     ATTR_VARNAME,  ///< .varName, for variable
     ATTR_VALUE,    ///< .value, for constant
     ATTR_STMTNO,   ///< .stmt#, for statement types
+    ATTR_PROGLINE, ///< .prog_line#, for prog_line
     ATTR_INVALID,  ///< Invalid type, indicates an error
     ATTR_DEFAULT   ///< same type as synonym
 };

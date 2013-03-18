@@ -119,6 +119,7 @@ PQLParser::PQLParser():
     strToAttrType[ATTR_VARNAME_STR] = ATTR_VARNAME;
     strToAttrType[ATTR_VALUE_STR] = ATTR_VALUE;
     strToAttrType[ATTR_STMTNO_STR] = ATTR_STMTNO;
+    strToAttrType[ATTR_PROGLINE_STR] = ATTR_PROGLINE;
     qinfo = new QueryInfo();
 }
 
@@ -481,6 +482,11 @@ bool is_alpha_underscore(char ch)
     return (isalpha(ch) || ch == '_');
 }
 
+bool is_alpha_underscore_sharp(char ch)
+{
+    return (isalpha(ch) || '_' == ch || '#' == ch);
+}
+
 bool is_ident(char ch)
 {
     return (isalnum(ch) || ch == '#');
@@ -745,18 +751,21 @@ bool PQLParser::eat_synonym(StringBuffer &sb)
 bool PQLParser::eat_attrName(StringBuffer &sb)
 {
     int saveIdx = this->bufIdx;
-    return ((this->eat_ident_string(sb, ATTR_PROCNAME_STR))
-            ||
-            (this->bufIdx = saveIdx,
-             this->eat_ident_string(sb, ATTR_VARNAME_STR))
-            ||
-            (this->bufIdx = saveIdx,
-             this->eat_ident_string(sb, ATTR_VALUE_STR))
-            ||
-            (this->bufIdx = saveIdx,
-             this->eat_ident_string(sb, ATTR_STMTNO_STR))
-            ||
-            (this->bufIdx = saveIdx, false));
+    if (this->bufIdx < this->bufLen &&
+            islower(this->buf[this->bufIdx])) {
+        sb.append(this->buf[this->bufIdx++]);
+    } else {
+        RESTORE_AND_RET(false, saveIdx);
+    }
+    this->eat_while<is_alpha_underscore_sharp>(sb);
+    if (!sb.strcmp(ATTR_PROCNAME_STR) ||
+            !sb.strcmp(ATTR_VARNAME_STR) ||
+            !sb.strcmp(ATTR_VALUE_STR) ||
+            !sb.strcmp(ATTR_STMTNO_STR) ||
+            !sb.strcmp(ATTR_PROGLINE_STR)) {
+        return true;
+    }
+    RESTORE_AND_RET(false, saveIdx);
 }
 
 AttrRef PQLParser::eat_attrRef(StringBuffer &sb)
@@ -801,8 +810,10 @@ AttrRef PQLParser::eat_attrRef(StringBuffer &sb)
         case ATTR_STMTNO:
             ok = (entType == ENT_STMT || entType == ENT_STMTLST ||
                     entType == ENT_ASSIGN || entType == ENT_CALL |
-                    entType == ENT_WHILE || entType == ENT_IF ||
-                    entType == ENT_PROGLINE);
+                    entType == ENT_WHILE || entType == ENT_IF);
+            break;
+        case ATTR_PROGLINE:
+            ok = (ENT_PROGLINE == entType);
             break;
         }
         if (ok) {

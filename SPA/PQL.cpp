@@ -237,6 +237,9 @@ const char *attrType_to_string(AttrType attrType)
         return ATTR_VALUE_STR;
     case ATTR_STMTNO:
         return ATTR_STMTNO_STR;
+    case ATTR_PROGLINE:
+        return ATTR_PROGLINE_STR;
+        break;
     case ATTR_DEFAULT:
         return ATTR_DEFAULT_STR;
     default:
@@ -344,7 +347,7 @@ RefSynType attrRef_to_RefSynType(const AttrRef& attrRef)
         break;
     case ENT_PROGLINE:
         if (ATTR_DEFAULT == attrRef.attr ||
-                ATTR_STMTNO == attrRef.attr) {
+                ATTR_PROGLINE == attrRef.attr) {
             return REFSYN_PROGLINE;
         }
         break;

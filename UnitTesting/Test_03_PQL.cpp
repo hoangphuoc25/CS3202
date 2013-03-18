@@ -232,8 +232,8 @@ void Test_03_PQL::test_attrRef_to_RefSynType()
     attrRef.attr = ATTR_DEFAULT;
     CPPUNIT_ASSERT_EQUAL(REFSYN_PROGLINE,
             attrRef_to_RefSynType(attrRef));
-    // prog_line.stmt#
-    attrRef.attr = ATTR_STMTNO;
+    // prog_line.prog_line#
+    attrRef.attr = ATTR_PROGLINE;
     CPPUNIT_ASSERT_EQUAL(REFSYN_PROGLINE,
             attrRef_to_RefSynType(attrRef));
     // invalid, assign.varName
