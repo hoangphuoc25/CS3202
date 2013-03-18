@@ -3,10 +3,17 @@
 
 const string PKB::EMPTY_STRING = "";
 
-PKB::PKB() {}
+PKB::PKB()
+        : hasAnyFollowsComputed_(false), hasAnyFollowsVal_(false),
+          hasAnyNextComputed_(false), hasAnyNextVal_(false),
+          hasAnyAffectsComputed_(false), hasAnyAffectsVal_(false)
+{}
 
 PKB::PKB(Node *root, ProcTable *pt, VarTable *vt, StmtBank *sb,
         vector<CFGNode*> *cfg)
+        : hasAnyFollowsComputed_(false), hasAnyFollowsVal_(false),
+          hasAnyNextComputed_(false), hasAnyNextVal_(false),
+          hasAnyAffectsComputed_(false), hasAnyAffectsVal_(false)
 {
     progRoot = root;
     procTable = pt;
@@ -1446,6 +1453,60 @@ bool PKB::has_any_ent(DesignEnt entType) const
 bool PKB::has_any_call() const
 {
     return this->stmtBank->has_any_call();
+}
+
+bool PKB::has_any_follows()
+{
+    if (hasAnyFollowsComputed_) {
+        return hasAnyFollowsVal_;
+    } else {
+        const set<int> allStmt = this->get_all_stmt();
+        for (set<int>::const_iterator it = allStmt.begin();
+                it != allStmt.end(); it++) {
+            if (this->follows_X_Y_int_X_smth(ENT_STMT, *it)) {
+                hasAnyFollowsVal_ = true;
+                break;
+            }
+        }
+        hasAnyFollowsComputed_ = true;
+        return hasAnyFollowsVal_;
+    }
+}
+
+bool PKB::has_any_next()
+{
+    if (hasAnyNextComputed_) {
+        return hasAnyNextVal_;
+    } else {
+        const set<int> allStmt = this->get_all_stmt();
+        for (set<int>::const_iterator it = allStmt.begin();
+                it != allStmt.end(); it++) {
+            if (this->next_X_Y_int_X_smth(ENT_STMT, *it)) {
+                hasAnyNextVal_ = true;
+                break;
+            }
+        }
+        hasAnyNextComputed_ = true;
+        return hasAnyNextVal_;
+    }
+}
+
+bool PKB::has_any_affects()
+{
+    if (hasAnyAffectsComputed_) {
+        return hasAnyAffectsVal_;
+    } else {
+        const set<int> allAssign = this->get_all_assign();
+        for (set<int>::const_iterator it = allAssign.begin();
+                it != allAssign.end(); it++) {
+            if (this->affects_X_Y_int_X_smth(ENT_ASSIGN, *it)) {
+                hasAnyAffectsVal_ = true;
+                break;
+            }
+        }
+        hasAnyAffectsComputed_ = true;
+        return hasAnyAffectsVal_;
+    }
 }
 
 string PKB::get_call_procName(int callStmt) const

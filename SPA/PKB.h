@@ -736,6 +736,21 @@ public:
     /// @return true if there is at least one call statement
     ///         inside the PKB, false otherwise
     bool has_any_call() const;
+    /// Checks if Follows(_,_) / Follows*(_,_) is true
+    /// NOTE: This is NOT thread-safe
+    /// @return true if Follows(_,_) is true
+    ///         [which implies Follows*(_,_) is true]
+    bool has_any_follows();
+    /// Checks if Next(_,_) / Next*(_,_) is true
+    /// NOTE: This is NOT thread-safe
+    /// @return true if Next(_,_) is true
+    ///         [which implies Next*(_,_) is true]
+    bool has_any_next();
+    /// Checks if Affects(_,_) / Affects*(_,_) is true
+    /// NOTE: This is NOT thread-safe
+    /// @return true if Affects(_,_) is true
+    ///         [which implies Affects*(_,_) is true]
+    bool has_any_affects();
 
     //////////////////////////////////////////////////////////////////
     // For pattern clause
@@ -893,6 +908,13 @@ private:
     static const std::string EMPTY_STRING;
     const set<string> EMPTY_STRINGSET;
     const set<int> EMPTY_INTSET;
+
+    bool hasAnyFollowsComputed_;
+    bool hasAnyFollowsVal_;
+    bool hasAnyNextComputed_;
+    bool hasAnyNextVal_;
+    bool hasAnyAffectsComputed_;
+    bool hasAnyAffectsVal_;
 };
 
 #endif

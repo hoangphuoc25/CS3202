@@ -569,28 +569,36 @@ bool QueryEvaluator::ev_isolated_relation_int_int(
 {
     switch (relRef->relType) {
     case REL_PARENT:
-        // TODO: Implement
+        return this->pkb->parent_query_int_X_int_Y(ENT_STMT,
+                       relRef->argOneInt, ENT_STMT, relRef->argTwoInt);
         break;
     case REL_PARENT_STAR:
-        // TODO: Implement
+        return this->pkb->parentStar_query_int_X_int_Y(ENT_STMT,
+                       relRef->argOneInt, ENT_STMT, relRef->argTwoInt);
         break;
     case REL_FOLLOWS:
-        // TODO: Implement
+        return this->pkb->follows_query_int_X_int_Y(ENT_STMT,
+                       relRef->argOneInt, ENT_STMT, relRef->argTwoInt);
         break;
     case REL_FOLLOWS_STAR:
-        // TODO: Implement
+        return this->pkb->followsStar_query_int_X_int_Y(ENT_STMT,
+                       relRef->argOneInt, ENT_STMT, relRef->argTwoInt);
         break;
     case REL_NEXT:
-        // TODO: Implement
+        return this->pkb->next_query_int_X_int_Y(ENT_STMT,
+                       relRef->argOneInt, ENT_STMT, relRef->argTwoInt);
         break;
     case REL_NEXT_STAR:
-        // TODO: Implement
+        return this->pkb->nextStar_query_int_X_int_Y(ENT_STMT,
+                       relRef->argOneInt, ENT_STMT, relRef->argTwoInt);
         break;
     case REL_AFFECTS:
-        // TODO: Implement
+        return this->pkb->affects_query_int_X_int_Y(ENT_ASSIGN,
+                       relRef->argOneInt, ENT_ASSIGN, relRef->argTwoInt);
         break;
     case REL_AFFECTS_STAR:
-        // TODO: Implement
+        return this->pkb->affectsStar_query_int_X_int_Y(ENT_ASSIGN,
+                       relRef->argOneInt, ENT_ASSIGN, relRef->argTwoInt);
         break;
     }
     assert(false);
@@ -610,28 +618,36 @@ bool QueryEvaluator::ev_isolated_relation_int_wild(
                        relRef->argOneInt);
         break;
     case REL_PARENT:
-        // TODO: Implement
+        return this->pkb->parent_X_Y_int_X_smth(ENT_STMT,
+                       relRef->argOneInt);
         break;
     case REL_PARENT_STAR:
-        // TODO: Implement
+        return this->pkb->parentStar_X_Y_int_X_smth(ENT_STMT,
+                       relRef->argOneInt);
         break;
     case REL_FOLLOWS:
-        // TODO: Implement
+        return this->pkb->follows_X_Y_int_X_smth(ENT_STMT,
+                       relRef->argOneInt);
         break;
     case REL_FOLLOWS_STAR:
-        // TODO: Implement
+        return this->pkb->followsStar_X_Y_int_X_smth(ENT_STMT,
+                       relRef->argOneInt);
         break;
     case REL_NEXT:
-        // TODO: Implement
+        return this->pkb->next_X_Y_int_X_smth(ENT_STMT,
+                       relRef->argOneInt);
         break;
     case REL_NEXT_STAR:
-        // TODO: Implement
+        return this->pkb->nextStar_X_Y_int_X_smth(ENT_STMT,
+                       relRef->argOneInt);
         break;
     case REL_AFFECTS:
-        // TODO: Implement
+        return this->pkb->affects_X_Y_int_X_smth(ENT_ASSIGN,
+                       relRef->argOneInt);
         break;
     case REL_AFFECTS_STAR:
-        // TODO: Implement
+        return this->pkb->affectsStar_X_Y_int_X_smth(ENT_ASSIGN,
+                       relRef->argOneInt);
         break;
     }
     assert(false);
@@ -668,28 +684,28 @@ bool QueryEvaluator::ev_isolated_relation_wild_int(
 {
     switch (relRef->relType) {
     case REL_PARENT:
-        // TODO: Implement
+        this->pkb->parent_X_Y_smth_int_Y(ENT_STMT, relRef->argTwoInt);
         break;
     case REL_PARENT_STAR:
-        // TODO: Implement
+        this->pkb->parentStar_X_Y_smth_int_Y(ENT_STMT, relRef->argTwoInt);
         break;
     case REL_FOLLOWS:
-        // TODO: Implement
+        this->pkb->follows_X_Y_smth_int_Y(ENT_STMT, relRef->argTwoInt);
         break;
     case REL_FOLLOWS_STAR:
-        // TODO: Implement
+        this->pkb->followsStar_X_Y_smth_int_Y(ENT_STMT, relRef->argTwoInt);
         break;
     case REL_NEXT:
-        // TODO: Implement
+        this->pkb->next_X_Y_smth_int_Y(ENT_STMT, relRef->argTwoInt);
         break;
     case REL_NEXT_STAR:
-        // TODO: Implement
+        this->pkb->nextStar_X_Y_smth_int_Y(ENT_STMT, relRef->argTwoInt);
         break;
     case REL_AFFECTS:
-        // TODO: Implement
+        this->pkb->affects_X_Y_smth_int_Y(ENT_ASSIGN, relRef->argTwoInt);
         break;
     case REL_AFFECTS_STAR:
-        // TODO: Implement
+        this->pkb->affectsStar_X_Y_smth_int_Y(ENT_ASSIGN, relRef->argTwoInt);
         break;
     }
     assert(false);
@@ -711,28 +727,24 @@ bool QueryEvaluator::ev_isolated_relation_wild_wild(
         return this->pkb->has_any_call();
         break;
     case REL_PARENT:
-        // TODO: Implement
+        return this->pkb->has_any_ent(ENT_WHILE) ||
+                this->pkb->has_any_ent(ENT_IF);
         break;
     case REL_PARENT_STAR:
-        // TODO: Implement
+        return this->pkb->has_any_ent(ENT_WHILE) ||
+                this->pkb->has_any_ent(ENT_IF);
         break;
     case REL_FOLLOWS:
-        // TODO: Implement
-        break;
     case REL_FOLLOWS_STAR:
-        // TODO: Implement
+        return this->pkb->has_any_follows();
         break;
     case REL_NEXT:
-        // TODO: Implement
-        break;
     case REL_NEXT_STAR:
-        // TODO: Implement
+        return this->pkb->has_any_next();
         break;
     case REL_AFFECTS:
-        // TODO: Implement
-        break;
     case REL_AFFECTS_STAR:
-        // TODO: Implement
+        return this->pkb->has_any_affects();
         break;
     }
     assert(false);
