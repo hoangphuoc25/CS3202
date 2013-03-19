@@ -101,8 +101,8 @@ void Test10_11_Parent::test_parent_while_assign()
     // Parent(w1, a1)
     // w1 | v1 | a1
     // 4,dont,5 6,freak,7 11,bad,12 11,useless1,13 31,useless10,32
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5, "4,dont,5",
-            "6,freak,7", "11,bad,12", "11,useless1,13",
-            "31,useless10,32"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5, "4 dont 5",
+            "6 freak 7", "11 bad 12", "11 useless1 13",
+            "31 useless10 32"),
             stringSet);
 }

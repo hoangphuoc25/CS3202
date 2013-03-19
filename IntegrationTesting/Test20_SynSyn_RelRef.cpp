@@ -57,8 +57,8 @@ void Test20_SynSyn_RelRef::test_variables_both_modified_and_used()
     // assignment that uses them:
     //   apple [12], x5 [6, 9], ab [2, 12], this [15]
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "12,apple", "6,x5",
-            "9,x5", "2,ab", "12,ab", "15,this"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "12 apple", "6 x5",
+            "9 x5", "2 ab", "12 ab", "15 this"),
             stringSet);
 }
 
@@ -93,9 +93,9 @@ void Test20_SynSyn_RelRef::test_ev_rr_ss_string_string_00_from_argOne()
     queryStr += " Modifies(psa,jsa)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(9, "evRRss,a", "evRRss,iOne",
-            "evRRss,mm", "evRRss,no", "evRRss,thats", "evRRss,be",
-            "evRRss,my", "twoProc,yes", "twoProc,obey"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(9, "evRRss a", "evRRss iOne",
+            "evRRss mm", "evRRss no", "evRRss thats", "evRRss be",
+            "evRRss my", "twoProc yes", "twoProc obey"),
             stringSet);
 }
 
@@ -141,8 +141,8 @@ void Test20_SynSyn_RelRef::test_ev_rr_ss_string_string_01()
     evaluator.parseSimple(simpleProg);
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "me,secProc",
-            "static,firstProc", "static,secProc"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "me secProc",
+            "static firstProc", "static secProc"),
             stringSet);
 }
 
@@ -255,8 +255,8 @@ void Test20_SynSyn_RelRef::test_ev_rr_ss_string_string_11()
     queryStr += " such that Modifies(pavaA1, GJA) and Uses(pavaA1, GJA)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "Aone,today", "Aone,i",
-            "Aone,help", "storyCont,you"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "Aone today", "Aone i",
+            "Aone help", "storyCont you"),
             stringSet);
 }
 
@@ -372,39 +372,39 @@ void Test20_SynSyn_RelRef::test_ev_rr_ss_string_string_22()
     // procTwo,no,16,no procTwo,whos,16,no
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(73,
             // 17
-            "pOne,abc,9,sun", "pOne,come,9,sun", "pOne,dawn,9,sun",
-            "pOne,dont,9,sun", "pOne,great,9,sun", "pOne,heck,9,sun",
-            "pOne,hell,9,sun", "pOne,man,9,sun", "pOne,my,9,sun",
-            "pOne,no,9,sun", "pOne,nobodyUses,9,sun", "pOne,pipe,9,sun",
-            "pOne,px,9,sun", "pOne,snake,9,sun", "pOne,someVar,9,sun",
-            "pOne,sun,9,sun", "pOne,whos,9,sun",
+            "pOne abc 9 sun", "pOne come 9 sun", "pOne dawn 9 sun",
+            "pOne dont 9 sun", "pOne great 9 sun", "pOne heck 9 sun",
+            "pOne hell 9 sun", "pOne man 9 sun", "pOne my 9 sun",
+            "pOne no 9 sun", "pOne nobodyUses 9 sun", "pOne pipe 9 sun",
+            "pOne px 9 sun", "pOne snake 9 sun", "pOne someVar 9 sun",
+            "pOne sun 9 sun", "pOne whos 9 sun",
             // 17
-            "pOne,abc,16,no", "pOne,come,16,no", "pOne,dawn,16,no",
-            "pOne,dont,16,no", "pOne,great,16,no", "pOne,heck,16,no",
-            "pOne,hell,16,no", "pOne,man,16,no", "pOne,my,16,no",
-            "pOne,no,16,no", "pOne,nobodyUses,16,no", "pOne,pipe,16,no",
-            "pOne,px,16,no", "pOne,snake,16,no", "pOne,someVar,16,no",
-            "pOne,sun,16,no", "pOne,whos,16,no",
+            "pOne abc 16 no", "pOne come 16 no", "pOne dawn 16 no",
+            "pOne dont 16 no", "pOne great 16 no", "pOne heck 16 no",
+            "pOne hell 16 no", "pOne man 16 no", "pOne my 16 no",
+            "pOne no 16 no", "pOne nobodyUses 16 no", "pOne pipe 16 no",
+            "pOne px 16 no", "pOne snake 16 no", "pOne someVar 16 no",
+            "pOne sun 16 no", "pOne whos 16 no",
             // 17
-            "pOne,abc,16,sun", "pOne,come,16,sun", "pOne,dawn,16,sun",
-            "pOne,dont,16,sun", "pOne,great,16,sun", "pOne,heck,16,sun",
-            "pOne,hell,16,sun", "pOne,man,16,sun", "pOne,my,16,sun",
-            "pOne,no,16,sun", "pOne,nobodyUses,16,sun",
-            "pOne,pipe,16,sun",
-            "pOne,px,16,sun", "pOne,snake,16,sun", "pOne,someVar,16,sun",
-            "pOne,sun,16,sun", "pOne,whos,16,sun",
+            "pOne abc 16 sun", "pOne come 16 sun", "pOne dawn 16 sun",
+            "pOne dont 16 sun", "pOne great 16 sun", "pOne heck 16 sun",
+            "pOne hell 16 sun", "pOne man 16 sun", "pOne my 16 sun",
+            "pOne no 16 sun", "pOne nobodyUses 16 sun",
+            "pOne pipe 16 sun",
+            "pOne px 16 sun", "pOne snake 16 sun", "pOne someVar 16 sun",
+            "pOne sun 16 sun", "pOne whos 16 sun",
             // 17
-            "pOne,abc,22,heck", "pOne,come,22,heck", "pOne,dawn,22,heck",
-            "pOne,dont,22,heck", "pOne,great,22,heck", "pOne,heck,22,heck",
-            "pOne,hell,22,heck", "pOne,man,22,heck", "pOne,my,22,heck",
-            "pOne,no,22,heck", "pOne,nobodyUses,22,heck",
-            "pOne,pipe,22,heck",
-            "pOne,px,22,heck", "pOne,snake,22,heck",
-            "pOne,someVar,22,heck",
-            "pOne,sun,22,heck", "pOne,whos,22,heck",
+            "pOne abc 22 heck", "pOne come 22 heck", "pOne dawn 22 heck",
+            "pOne dont 22 heck", "pOne great 22 heck", "pOne heck 22 heck",
+            "pOne hell 22 heck", "pOne man 22 heck", "pOne my 22 heck",
+            "pOne no 22 heck", "pOne nobodyUses 22 heck",
+            "pOne pipe 22 heck",
+            "pOne px 22 heck", "pOne snake 22 heck",
+            "pOne someVar 22 heck",
+            "pOne sun 22 heck", "pOne whos 22 heck",
             // 5
-            "procTwo,dont,16,no", "procTwo,hell,16,no",
-            "procTwo,man,16,no", "procTwo,no,16,no", "procTwo,whos,16,no"),
+            "procTwo dont 16 no", "procTwo hell 16 no",
+            "procTwo man 16 no", "procTwo no 16 no", "procTwo whos 16 no"),
             stringSet);
 }
 
@@ -434,8 +434,8 @@ void Test20_SynSyn_RelRef::test_ev_rr_ss_int_string_00_from_argOne()
     queryStr += " such that Modifies(a12, Tgs)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "1,term", "3,version",
-            "4,numb", "5,numb", "6,monotonic", "7,complete"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "1 term", "3 version",
+            "4 numb", "5 numb", "6 monotonic", "7 complete"),
             stringSet);
 }
 
@@ -477,7 +477,7 @@ void Test20_SynSyn_RelRef::test_ev_rr_ss_int_string_01()
     // ---
     // aeEx [assign] | pib#1 [var] | axc [assign]
     // (1,test,3), (1,test,5), (1,test,10), (2,white,12)
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "1,test", "2,white"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "1 test", "2 white"),
             stringSet);
     // select all the tuples
     evaluator.parseSimple(simpleProg);
@@ -486,8 +486,8 @@ void Test20_SynSyn_RelRef::test_ev_rr_ss_int_string_01()
     queryStr += " Modifies(aeEx,pib#1) and Uses(axc, pib#1)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "1,test,3", "1,test,5",
-            "1,test,10", "2,white,12"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "1 test 3", "1 test 5",
+            "1 test 10", "2 white 12"),
             stringSet);
 }
 
@@ -534,9 +534,9 @@ void Test20_SynSyn_RelRef::test_ev_rr_ss_int_string_10()
     // (7,efficient,way), (8,limited,time), (9,different,techniques),
     // (10,exhaustive,testing), (11,combination,test)
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(11,
-            "this,1", "is,1", "a,2", "test,2", "stuff,4",
-            "test,5", "way,7", "time,8", "techniques,9", "testing,10",
-            "test,11"),
+            "this 1", "is 1", "a 2", "test 2", "stuff 4",
+            "test 5", "way 7", "time 8", "techniques 9", "testing 10",
+            "test 11"),
             stringSet);
     // Select all the tuples, duplicated "2,just,test" is eliminated
     queryStr = " assign gga; variable vy, v443; ";
@@ -544,11 +544,11 @@ void Test20_SynSyn_RelRef::test_ev_rr_ss_int_string_10()
     queryStr += " such that Modifies(gga, vy) and Uses(gga,v443)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(11, "1,well,this",
-            "1,well,is", "2,just,a", "2,just,test", "4,prioritize,stuff",
-            "5,easy,test", "7,efficient,way", "8,limited,time",
-            "9,different,techniques", "10,exhaustive,testing",
-            "11,combination,test"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(11, "1 well this",
+            "1 well is", "2 just a", "2 just test", "4 prioritize stuff",
+            "5 easy test", "7 efficient way", "8 limited time",
+            "9 different techniques", "10 exhaustive testing",
+            "11 combination test"),
             stringSet);
 }
 
@@ -601,8 +601,8 @@ void Test20_SynSyn_RelRef::test_ev_rr_ss_int_string_11()
     queryStr += " Modifies(abc,vtya) and Uses(abc,vtya)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "3,well", "5,point",
-            "14,too", "18,too", "19,ter", "22,date"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "3 well", "5 point",
+            "14 too", "18 too", "19 ter", "22 date"),
             stringSet);
 }
 
@@ -668,8 +668,8 @@ void Test20_SynSyn_RelRef::test_ev_rr_ss_int_string_22()
     // Uses(w1,v1)
     // w1 | a1 | a2 | v1
     // 10,11,1,ax 10,12,1,ax 14,15,13,mutiny 6,7,21,date
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "10,11,1,ax",
-            "10,12,1,ax", "14,15,13,mutiny", "6,7,21,date"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "10 11 1 ax",
+            "10 12 1 ax", "14 15 13 mutiny", "6 7 21 date"),
             stringSet);
 }
 
@@ -755,9 +755,9 @@ void Test20_SynSyn_RelRef::test_ev_rr_ss_int_int_01()
     // a1 | v1 | if1
     // 16,useless2,15 18,useless4,17 20,useless5,19 21,useless6,19
     // 22,useless2,15 27,useless8,25 33,abc,30
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(7, "16,useless2,15",
-            "18,useless4,17", "20,useless5,19", "21,useless6,19",
-            "22,useless2,15", "27,useless8,25", "33,abc,30"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(7, "16 useless2 15",
+            "18 useless4 17", "20 useless5 19", "21 useless6 19",
+            "22 useless2 15", "27 useless8 25", "33 abc 30"),
             stringSet);
 }
 
@@ -833,8 +833,8 @@ void Test20_SynSyn_RelRef::test_ev_rr_ss_int_int_10()
     queryStr += " Modifies(w1, v1) and Parent(w1, c1)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "6,date,8",
-            "6,freak,8"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "6 date 8",
+            "6 freak 8"),
             stringSet);
 }
 
@@ -923,9 +923,9 @@ void Test20_SynSyn_RelRef::test_ev_rr_ss_int_int_11()
     // Parent(w1, a1)
     // w1 | v1 | a1
     // 4,dont,5 6,freak,7 11,bad,12 11,useless1,13 31,useless10,32
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5, "4,dont,5",
-            "6,freak,7", "11,bad,12", "11,useless1,13",
-            "31,useless10,32"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5, "4 dont 5",
+            "6 freak 7", "11 bad 12", "11 useless1 13",
+            "31 useless10 32"),
             stringSet);
 }
 
@@ -1002,6 +1002,6 @@ void Test20_SynSyn_RelRef::test_ev_rr_ss_int_int_22()
     queryStr += " Parent(w1, a1)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "7,freak,6,8"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "7 freak 6 8"),
             stringSet);
 }

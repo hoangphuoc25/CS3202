@@ -93,9 +93,9 @@ void Test60_Evil::test_select_a_a()
     queryStr = "assign a; Select <a,a>";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(13, "1,1", "4,4", "5,5",
-            "6,6", "7,7", "8,8", "11,11", "12,12", "13,13", "14,14",
-            "16,16", "17,17", "18,18"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(13, "1 1", "4 4", "5 5",
+            "6 6", "7 7", "8 8", "11 11", "12 12", "13 13", "14 14",
+            "16 16", "17 17", "18 18"),
             stringSet);
 }
 
@@ -111,10 +111,10 @@ void Test60_Evil::test_select_a1_a2()
     queryStr = "assign a1, a2; Select <a1,a2>";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(25, "1,1", "1,2", "1,4",
-            "1,5", "1,6", "2,1", "2,2", "2,4", "2,5", "2,6", "4,1",
-            "4,2", "4,4", "4,5", "4,6", "5,1", "5,2", "5,4", "5,5",
-            "5,6", "6,1", "6,2", "6,4", "6,5", "6,6"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(25, "1 1", "1 2", "1 4",
+            "1 5", "1 6", "2 1", "2 2", "2 4", "2 5", "2 6", "4 1",
+            "4 2", "4 4", "4 5", "4 6", "5 1", "5 2", "5 4", "5 5",
+            "5 6", "6 1", "6 2", "6 4", "6 5", "6 6"),
             stringSet);
 }
 

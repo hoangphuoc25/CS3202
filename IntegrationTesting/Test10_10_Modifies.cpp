@@ -94,12 +94,12 @@ void Test10_10_Modifies::test_modifies_assign_var_10()
     // (13,nobodyUses,nobodyUses), (14,my,my), (16,sun,sun),
     // (17,great,great), (18,come,come), (20,hell,hell), (22,dont,dont)
     // (23,no,no), (25,man,man), (26,whos,whos), (27,hell,hell)
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(19, "1,px,px", "2,abc,abc",
-            "4,sun,sun", "6,heck,heck", "7,pipe,pipe", "8,dawn,dawn",
-            "10,snake,snake", "12,nobodyUses,nobodyUses",
-            "13,nobodyUses,nobodyUses", "14,my,my", "16,sun,sun",
-            "17,great,great", "18,come,come", "20,hell,hell",
-            "22,dont,dont", "23,no,no", "25,man,man", "26,whos,whos",
-            "27,hell,hell"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(19, "1 px px", "2 abc abc",
+            "4 sun sun", "6 heck heck", "7 pipe pipe", "8 dawn dawn",
+            "10 snake snake", "12 nobodyUses nobodyUses",
+            "13 nobodyUses nobodyUses", "14 my my", "16 sun sun",
+            "17 great great", "18 come come", "20 hell hell",
+            "22 dont dont", "23 no no", "25 man man", "26 whos whos",
+            "27 hell hell"),
             stringSet);
 }

@@ -98,11 +98,11 @@ void Test11_SelectDisjointTables::test_select_disjoint_tables()
     // -- Table 3 after Uses(a4,v4)
     // (Test11,you,24), (Test11,a,1), (Test11,a,18), (Test11,continue,9),
     // (grepNFA,continue,9)
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(12, "4,you,Test11",
-            "4,you,grepNFA", "4,a,Test11", "4,a,grepNFA",
-            "4,continue,Test11", "4,continue,grepNFA",
-            "5,you,Test11",
-            "5,you,grepNFA", "5,a,Test11", "5,a,grepNFA",
-            "5,continue,Test11", "5,continue,grepNFA"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(12, "4 you Test11",
+            "4 you grepNFA", "4 a Test11", "4 a grepNFA",
+            "4 continue Test11", "4 continue grepNFA",
+            "5 you Test11",
+            "5 you grepNFA", "5 a Test11", "5 a grepNFA",
+            "5 continue Test11", "5 continue grepNFA"),
             stringSet);
 }

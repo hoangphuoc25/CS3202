@@ -76,8 +76,8 @@ void Test60_ParseFromFile::test_parse_from_file()
     queryStr += " Select <w2,c1> such that Parent(w1,c1)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "5,15", "8,15", "19,15",
-            "5,7", "8,7", "19,7"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "5 15", "8 15", "19 15",
+            "5 7", "8 7", "19 7"),
             stringSet);
     remove("tmp.txt");
 }

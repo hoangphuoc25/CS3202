@@ -88,7 +88,7 @@ void Test10_10_Parent::test_parent_while_call()
     queryStr += " Modifies(w1, v1) and Parent(w1, c1)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "6,date,8",
-            "6,freak,8"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "6 date 8",
+            "6 freak 8"),
             stringSet);
 }

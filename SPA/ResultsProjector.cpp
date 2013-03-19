@@ -203,7 +203,7 @@ void ResultsProjector::recursive_generate(int n,
         this->sb.clear();
         for (int i = 0; i < this->nrSelect; i++) {
             if (i > 0) {
-                this->sb.append(',');
+                this->sb.append(' ');
             }
             const AttrRef& attrRef = selectTuple[i];
             const pair<int, int>& tableColPair =

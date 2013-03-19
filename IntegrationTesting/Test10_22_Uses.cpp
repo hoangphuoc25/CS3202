@@ -77,7 +77,7 @@ void Test10_22_Uses::test_uses_while_var()
     // Uses(w1,v1)
     // w1 | a1 | a2 | v1
     // 10,11,1,ax 10,12,1,ax 14,15,13,mutiny 6,7,21,date
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "10,11,1,ax",
-            "10,12,1,ax", "14,15,13,mutiny", "6,7,21,date"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "10 11 1 ax",
+            "10 12 1 ax", "14 15 13 mutiny", "6 7 21 date"),
             stringSet);
 }

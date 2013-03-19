@@ -89,9 +89,9 @@ void Test30_PatCl_If::test_if_var_syn_11()
     // if1 | v2
     // 4,itsTrue 8,strong 13,itsTrue 18,notTrue 20,useless3
     // 22,mutiny 28,bad
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(7, "4,itsTrue",
-            "8,strong", "13,itsTrue", "18,notTrue", "20,useless3",
-            "22,mutiny", "28,bad"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(7, "4 itsTrue",
+            "8 strong", "13 itsTrue", "18 notTrue", "20 useless3",
+            "22 mutiny", "28 bad"),
             stringSet);
 
     queryStr = " if if1; assign a1; variable v2; ";
@@ -112,8 +112,8 @@ void Test30_PatCl_If::test_if_var_syn_11()
     // pattern if1(v2,_,_)
     // if1 | a1 | v2
     // 4,6,itsTrue 28,30,bad
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "4,6,itsTrue",
-            "28,30,bad"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "4 6 itsTrue",
+            "28 30 bad"),
             stringSet);
 }
 
@@ -192,8 +192,8 @@ void Test30_PatCl_If::test_if_var_syn_22()
     // pattern if1(v2,_,_)
     // w | if1 | a1 | v2
     // 2,4,6,itsTrue 2,8,31,strong
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "2,4,6,itsTrue",
-            "2,8,31,strong"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "2 4 6 itsTrue",
+            "2 8 31 strong"),
             stringSet);
 
     queryStr = " stmt s2; if if1 ; while w; variable v2; ";
@@ -220,9 +220,9 @@ void Test30_PatCl_If::test_if_var_syn_22()
     // 2,4,2,itsTrue 2,4,4,itsTrue 2,4,6,itsTrue 2,4,13,itsTrue
     // 2,8,2,strong 2,8,3,strong 2,8,8,strong 2,8,10,strong
     // 2,8,31,strong
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(9, "2,4,2,itsTrue",
-            "2,4,4,itsTrue", "2,4,6,itsTrue", "2,4,13,itsTrue",
-            "2,8,2,strong", "2,8,3,strong", "2,8,8,strong",
-            "2,8,10,strong", "2,8,31,strong"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(9, "2 4 2 itsTrue",
+            "2 4 4 itsTrue", "2 4 6 itsTrue", "2 4 13 itsTrue",
+            "2 8 2 strong", "2 8 3 strong", "2 8 8 strong",
+            "2 8 10 strong", "2 8 31 strong"),
             stringSet);
 }

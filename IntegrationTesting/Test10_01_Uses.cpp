@@ -159,8 +159,8 @@ void Test10_01_Uses::test_uses_assign_var()
     // Uses(a2,v1)
     // a1 | a2 | v1
     // (2,axe,4), (2,axe,19), (14,style,5), (14,style,7), (17,time,12)
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5, "2,axe,4", "2,axe,19",
-            "14,style,5", "14,style,7", "17,time,12"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5, "2 axe 4", "2 axe 19",
+            "14 style 5", "14 style 7", "17 time 12"),
             stringSet);
 }
 
@@ -219,10 +219,10 @@ void Test10_01_Uses::test_uses_procedure_var()
     // (2,axe,Fone), (2,axe,forkBomb), (9,true,Fone)
     // (9,true,forkBomb), (14,style,Fone)
     // (17,time,Fone), (20,many,Fone), (21,not,Fone)
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(8, "2,axe,Fone",
-            "2,axe,forkBomb", "9,true,Fone", "9,true,forkBomb",
-            "14,style,Fone", "17,time,Fone", "20,manny,Fone",
-            "21,not,Fone"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(8, "2 axe Fone",
+            "2 axe forkBomb", "9 true Fone", "9 true forkBomb",
+            "14 style Fone", "17 time Fone", "20 manny Fone",
+            "21 not Fone"),
             stringSet);
 }
 
@@ -255,8 +255,8 @@ void Test10_01_Uses::test_uses_call_var()
     // a1 | v1 | callbbA
     // (7,destruct,24), (20,google,24), (20,google,31), (25,this,24)
     // (25,this,31)
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5, "7,destruct,24",
-            "20,google,24", "20,google,31", "25,this,24", "25,this,31"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5, "7 destruct 24",
+            "20 google 24", "20 google 31", "25 this 24", "25 this 31"),
             stringSet);
 }
 
@@ -289,9 +289,9 @@ void Test10_01_Uses::test_uses_if_var()
     // a1 | v1 | ib1
     // (20,google,34), (20,google,48), (20,google,51), (22,aaa,6)
     // (22,aaa,9),  (25,this,17), (25,this,34), (25,this,48)
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(8, "20,google,34",
-            "20,google,48", "20,google,51", "22,aaa,6", "22,aaa,9",
-            "25,this,17", "25,this,34", "25,this,48"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(8, "20 google 34",
+            "20 google 48", "20 google 51", "22 aaa 6", "22 aaa 9",
+            "25 this 17", "25 this 34", "25 this 48"),
             stringSet);
 }
 
@@ -324,9 +324,9 @@ void Test10_01_Uses::test_uses_while_var()
     // a1 | v1 | w56
     // (7,destruct,29), (20,google,46), (22,aaa,4), (25,this,19)
     // (25,this,35), (25,this,36), (25,this,46)
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(7, "7,destruct,29",
-            "20,google,46", "22,aaa,4", "25,this,19", "25,this,35",
-            "25,this,36", "25,this,46"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(7, "7 destruct 29",
+            "20 google 46", "22 aaa 4", "25 this 19", "25 this 35",
+            "25 this 36", "25 this 46"),
             stringSet);
 }
 
@@ -371,17 +371,17 @@ void Test10_01_Uses::test_uses_stmt_var()
     // (25,this,35), (25,this,36), (25,this,46)
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(26,
             // assign
-            "7,destruct,30", "20,google,53", "25,this,20",
-            "25,this,28", "25,this,37", "25,this,49",
+            "7 destruct 30", "20 google 53", "25 this 20",
+            "25 this 28", "25 this 37", "25 this 49",
             // call
-            "7,destruct,24", "20,google,24", "20,google,31",
-            "25,this,24", "25,this,31",
+            "7 destruct 24", "20 google 24", "20 google 31",
+            "25 this 24", "25 this 31",
             // if
-            "20,google,34", "20,google,48", "20,google,51", "22,aaa,6",
-            "22,aaa,9", "25,this,17", "25,this,34", "25,this,48",
+            "20 google 34", "20 google 48", "20 google 51", "22 aaa 6",
+            "22 aaa 9", "25 this 17", "25 this 34", "25 this 48",
             // while
-            "7,destruct,29", "20,google,46", "22,aaa,4", "25,this,19",
-            "25,this,35", "25,this,36", "25,this,46"),
+            "7 destruct 29", "20 google 46", "22 aaa 4", "25 this 19",
+            "25 this 35", "25 this 36", "25 this 46"),
             stringSet);
 }
 
@@ -426,16 +426,16 @@ void Test10_01_Uses::test_uses_progline_var()
     // (25,this,35), (25,this,36), (25,this,46)
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(26,
             // assign
-            "7,destruct,30", "20,google,53", "25,this,20",
-            "25,this,28", "25,this,37", "25,this,49",
+            "7 destruct 30", "20 google 53", "25 this 20",
+            "25 this 28", "25 this 37", "25 this 49",
             // call
-            "7,destruct,24", "20,google,24", "20,google,31",
-            "25,this,24", "25,this,31",
+            "7 destruct 24", "20 google 24", "20 google 31",
+            "25 this 24", "25 this 31",
             // if
-            "20,google,34", "20,google,48", "20,google,51", "22,aaa,6",
-            "22,aaa,9", "25,this,17", "25,this,34", "25,this,48",
+            "20 google 34", "20 google 48", "20 google 51", "22 aaa 6",
+            "22 aaa 9", "25 this 17", "25 this 34", "25 this 48",
             // while
-            "7,destruct,29", "20,google,46", "22,aaa,4", "25,this,19",
-            "25,this,35", "25,this,36", "25,this,46"),
+            "7 destruct 29", "20 google 46", "22 aaa 4", "25 this 19",
+            "25 this 35", "25 this 36", "25 this 46"),
             stringSet);
 }

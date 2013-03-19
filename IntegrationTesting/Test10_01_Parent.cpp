@@ -98,8 +98,8 @@ void Test10_01_Parent::test_parent_if_assign()
     // a1 | v1 | if1
     // 16,useless2,15 18,useless4,17 20,useless5,19 21,useless6,19
     // 22,useless2,15 27,useless8,25 33,abc,30
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(7, "16,useless2,15",
-            "18,useless4,17", "20,useless5,19", "21,useless6,19",
-            "22,useless2,15", "27,useless8,25", "33,abc,30"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(7, "16 useless2 15",
+            "18 useless4 17", "20 useless5 19", "21 useless6 19",
+            "22 useless2 15", "27 useless8 25", "33 abc 30"),
             stringSet);
 }
