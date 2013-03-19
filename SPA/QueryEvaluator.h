@@ -79,10 +79,14 @@ struct EvalPKBDispatch {
              DesignEnt argTwoType, const std::string&) const;
     bool (PKB::*f_string_argOne_int_argTwo)(DesignEnt argOneType,
              const std::string&, DesignEnt argTwType, int) const;
+    bool (PKB::*f_string_argOne_smth)(DesignEnt argOneType,
+            const std::string&) const;
     bool (PKB::*f_int_argOne_string_argTwo)(DesignEnt argOneType,
              int, DesignEnt argTwoType, const std::string&) const;
     bool (PKB::*f_int_argOne_int_argTwo)(DesignEnt argOneType,
              int, DesignEnt argTwoType, int) const;
+    bool (PKB::*f_int_argOne_smth)(DesignEnt argOneType,
+            int argOneVal) const;
 
     // Generic QueryEvaluator evaluation function
     void (QueryEvaluator::*relRef_eval)
@@ -325,6 +329,19 @@ private:
 
     // evaluate relRef, one of the arguments is a synonym
     void ev_relRef_syn_X(int rTableIdx, const RelRef *relRef);
+    void ev_rr_syn_X_string_string_1(int rTableIdx,
+            const RelRef *relRef, const EvalPKBDispatch& disp,
+            DesignEnt xType, const std::string& xVal);
+    void ev_rr_syn_X_string_wild_1(int rTableIdx,
+            const RelRef *relRef, const EvalPKBDispatch& disp);
+    void ev_rr_syn_X_int_string_1(int rTableIdx,
+            const RelRef *relRef, const EvalPKBDispatch& disp,
+            DesignEnt xType, const std::string& xVal);
+    void ev_rr_syn_X_int_int_1(int rTableIdx,
+            const RelRef *relRef, const EvalPKBDispatch& disp,
+            DesignEnt xType, int xVal);
+    void ev_rr_syn_X_int_wild_1(int rTableIdx,
+            const RelRef *relRef, const EvalPKBDispatch& disp);
     void ev_relRef_X_syn(int rTableIdx, const RelRef *relRef);
     // evaluate relRef, none of the arguments is a synonym
     void ev_relRef_X_X(int rTableIdx, const RelRef *relRef);

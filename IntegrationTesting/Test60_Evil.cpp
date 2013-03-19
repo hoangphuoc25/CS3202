@@ -166,3 +166,62 @@ void Test60_Evil::test_select_assign_while_true_query__no_while()
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
             stringSet);
 }
+
+void Test60_Evil::test_sx()
+{
+    string simpleProg, queryStr;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+
+    simpleProg = "procedure Aproc { x = 1; b = 2; } ";
+    simpleProg += " procedure Bproc { uy = 2; y = a + b; } ";
+    evaluator.parseSimple(simpleProg);
+    queryStr = " procedure p; variable v; ";
+    queryStr += " Select p such that Modifies(p,v) and ";
+    queryStr += " Modifies(p, \"x\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "Aproc"),
+            stringSet);
+    simpleProg = "procedure bab { x = 1; }";
+    simpleProg += " procedure Bproc { call bab; } ";
+    evaluator.parseSimple(simpleProg);
+    queryStr = " procedure p; variable v; ";
+    queryStr += " Select p such that Modifies(p,v) and ";
+    queryStr += " Modifies(p, _)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "bab", "Bproc"),
+            stringSet);
+    simpleProg = "procedure A { first = 2; second = 3; } ";
+    simpleProg += " procedure B { x = y; first = gd; } ";
+    evaluator.parseSimple(simpleProg);
+    queryStr = " assign a; variable v; ";
+    queryStr += " Select a such that Modifies(a,v) and ";
+    queryStr += " Modifies(a,\"first\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "1", "4"),
+            stringSet);
+    simpleProg = "procedure A { first = 2; second = 3; } ";
+    simpleProg += " procedure B { x = y; first = gd; call A; } ";
+    evaluator.parseSimple(simpleProg);
+    queryStr = " assign a; variable v; ";
+    queryStr += " Select a such that Modifies(a,v) and ";
+    queryStr += " Modifies(a, _)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "1", "2", "3", "4"),
+            stringSet);
+    simpleProg = "procedure A { x = 1; while p { g = y; } } ";
+    simpleProg += " procedure B { while xx { g = 17; } } ";
+    evaluator.parseSimple(simpleProg);
+    queryStr = " while w; variable v; ";
+    queryStr += " Select w such that Modifies(w,v) and ";
+    queryStr += " Parent(w, 3)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "2"),
+            stringSet);
+}
