@@ -2161,7 +2161,454 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
             break;
         }
     } else {
+        // have not seen syn
+        switch (relRef->relType) {
+        case REL_MODIFIES:
+            if (ENT_PROC == relRef->argOneSyn) {
+                if (RELARG_STRING == relRef->argTwoType) {
+                    pkbDispatch.get_string_set_argOne_from_string_argTwo =
+                            &PKB::modifies_X_Y_get_string_X_from_string_Y;
+                    this->ev_rr_syn_X_string_string_0(rTableIdx, relRef,
+                            pkbDispatch, ENT_VAR, relRef->argTwoString);
+                } else if (RELARG_WILDCARD == relRef->argTwoType) {
+                    // TODO: Can we actually retrieve _all_ procedures
+                    //       here? Since they must modify smth
+                    pkbDispatch.get_all_string_argOne =
+                            &PKB::get_all_procs;
+                    pkbDispatch.f_string_argOne_smth =
+                            &PKB::modifies_X_Y_string_X_smth;
+                    this->ev_rr_syn_X_string_wild_0(rTableIdx, relRef,
+                            pkbDispatch);
+                } else {
+                    assert(false);
+                }
+            } else {
+                // stmt type
+                if (RELARG_STRING == relRef->argTwoType) {
+                    pkbDispatch.get_int_set_argOne_from_string_argTwo =
+                            &PKB::modifies_X_Y_get_int_X_from_string_Y;
+                    this->ev_rr_syn_X_int_string_0(rTableIdx, relRef,
+                            pkbDispatch, ENT_VAR, relRef->argTwoString);
+                } else if (RELARG_WILDCARD == relRef->argTwoType) {
+                    switch (relRef->argOneSyn) {
+                    case ENT_ASSIGN:
+                        pkbDispatch.get_all_int_argOne =
+                                &PKB::get_all_assign;
+                        break;
+                    case ENT_CALL:
+                        pkbDispatch.get_all_int_argOne =
+                                &PKB::get_all_call;
+                        break;
+                    case ENT_IF:
+                        pkbDispatch.get_all_int_argOne =
+                                &PKB::get_all_if;
+                        break;
+                    case ENT_WHILE:
+                        pkbDispatch.get_all_int_argOne =
+                                &PKB::get_all_while;
+                        break;
+                    case ENT_STMT:
+                    case ENT_PROGLINE:
+                        pkbDispatch.get_all_int_argOne =
+                                &PKB::get_all_stmt;
+                        break;
+                    default:
+                        assert(false);
+                    }
+                    pkbDispatch.f_int_argOne_smth =
+                            &PKB::modifies_X_Y_int_X_smth;
+                    this->ev_rr_syn_X_int_wild_0(rTableIdx, relRef,
+                            pkbDispatch);
+                } else {
+                    assert(false);
+                }
+            }
+            break;
+        case REL_USES:
+            if (ENT_PROC == relRef->argOneSyn) {
+                if (RELARG_STRING == relRef->argTwoType) {
+                    pkbDispatch.get_string_set_argOne_from_string_argTwo =
+                            &PKB::uses_X_Y_get_string_X_from_string_Y;
+                    this->ev_rr_syn_X_string_string_0(rTableIdx, relRef,
+                            pkbDispatch, ENT_VAR, relRef->argTwoString);
+                } else if (RELARG_WILDCARD == relRef->argTwoType) {
+                    pkbDispatch.get_all_string_argOne =
+                            &PKB::get_all_procs;
+                    pkbDispatch.f_string_argOne_smth =
+                            &PKB::uses_X_Y_string_X_smth;
+                    this->ev_rr_syn_X_string_wild_0(rTableIdx, relRef,
+                            pkbDispatch);
+                } else {
+                    assert(false);
+                }
+            } else {
+                // arg one is stmt type
+                if (RELARG_STRING == relRef->argTwoType) {
+                    pkbDispatch.get_int_set_argOne_from_string_argTwo =
+                            &PKB::uses_X_Y_get_int_X_from_string_Y;
+                    this->ev_rr_syn_X_int_string_0(rTableIdx, relRef,
+                            pkbDispatch, ENT_VAR, relRef->argTwoString);
+                } else if (RELARG_WILDCARD == relRef->argTwoType) {
+                    switch (relRef->argOneSyn) {
+                    case ENT_ASSIGN:
+                        pkbDispatch.get_all_int_argOne =
+                                &PKB::get_all_assign;
+                        break;
+                    case ENT_CALL:
+                        pkbDispatch.get_all_int_argOne =
+                                &PKB::get_all_call;
+                        break;
+                    case ENT_IF:
+                        pkbDispatch.get_all_int_argOne =
+                                &PKB::get_all_if;
+                        break;
+                    case ENT_WHILE:
+                        pkbDispatch.get_all_int_argOne =
+                                &PKB::get_all_while;
+                        break;
+                    case ENT_STMT:
+                    case ENT_PROGLINE:
+                        pkbDispatch.get_all_int_argOne =
+                                &PKB::get_all_stmt;
+                        break;
+                    default:
+                        assert(false);
+                    }
+                    pkbDispatch.f_int_argOne_smth =
+                            &PKB::uses_X_Y_int_X_smth;
+                    this->ev_rr_syn_X_int_wild_0(rTableIdx, relRef,
+                            pkbDispatch);
+                } else {
+                    assert(false);
+                }
+            }
+            break;
+        case REL_CALLS:
+            // syn one can only be procedure
+            if (RELARG_STRING == relRef->argTwoType) {
+                pkbDispatch.get_string_set_argOne_from_string_argTwo =
+                        &PKB::calls_X_Y_get_string_X_from_string_Y;
+                this->ev_rr_syn_X_string_string_0(rTableIdx, relRef,
+                        pkbDispatch, ENT_PROC, relRef->argTwoString);
+            } else if (RELARG_WILDCARD == relRef->argTwoType) {
+                pkbDispatch.get_all_string_argOne =
+                        &PKB::get_all_procs;
+                pkbDispatch.f_string_argOne_smth =
+                        &PKB::calls_X_Y_string_X_smth;
+                this->ev_rr_syn_X_string_wild_0(rTableIdx, relRef,
+                        pkbDispatch);
+            } else {
+                assert(false);
+            }
+            break;
+        case REL_CALLS_STAR:
+            // syn one can only be procedure
+            if (RELARG_STRING == relRef->argTwoType) {
+                pkbDispatch.get_string_set_argOne_from_string_argTwo =
+                        &PKB::callsStar_X_Y_get_string_X_from_string_Y;
+                this->ev_rr_syn_X_string_string_0(rTableIdx, relRef,
+                        pkbDispatch, ENT_PROC, relRef->argTwoString);
+            } else if (RELARG_WILDCARD == relRef->argTwoType) {
+                pkbDispatch.get_all_string_argOne =
+                        &PKB::get_all_procs;
+                pkbDispatch.f_string_argOne_smth =
+                        &PKB::callsStar_X_Y_string_X_smth;
+                this->ev_rr_syn_X_string_wild_0(rTableIdx, relRef,
+                        pkbDispatch);
+            } else {
+                assert(false);
+            }
+            break;
+        case REL_PARENT:
+            // syn one is stmt type
+            if (RELARG_INT == relRef->argTwoType) {
+                pkbDispatch.get_int_set_argOne_from_int_argTwo =
+                        &PKB::parent_X_Y_get_int_X_from_int_Y;
+                this->ev_rr_syn_X_int_int_0(rTableIdx, relRef,
+                        pkbDispatch, ENT_STMT, relRef->argTwoInt);
+            } else if (RELARG_WILDCARD == relRef->argTwoType) {
+                switch (relRef->argOneSyn) {
+                case ENT_IF:
+                    pkbDispatch.get_all_int_argOne =
+                            &PKB::get_all_if;
+                    break;
+                case ENT_WHILE:
+                    pkbDispatch.get_all_int_argOne =
+                            &PKB::get_all_while;
+                    break;
+                case ENT_STMT:
+                case ENT_PROGLINE:
+                    pkbDispatch.get_all_int_argOne =
+                            &PKB::get_all_stmt;
+                    break;
+                default:
+                    assert(false);
+                }
+                pkbDispatch.f_int_argOne_smth =
+                        &PKB::parent_X_Y_int_X_smth;
+                this->ev_rr_syn_X_int_wild_0(rTableIdx, relRef,
+                        pkbDispatch);
+            } else {
+                assert(false);
+            }
+            break;
+        case REL_PARENT_STAR:
+            // syn one is stmt type
+            if (RELARG_INT == relRef->argTwoType) {
+                pkbDispatch.get_int_set_argOne_from_int_argTwo =
+                        &PKB::parentStar_X_Y_get_int_X_from_int_Y;
+                this->ev_rr_syn_X_int_int_0(rTableIdx, relRef,
+                        pkbDispatch, ENT_STMT, relRef->argTwoInt);
+            } else if (RELARG_WILDCARD == relRef->argTwoType) {
+                switch (relRef->argOneSyn) {
+                case ENT_IF:
+                    pkbDispatch.get_all_int_argOne =
+                            &PKB::get_all_if;
+                    break;
+                case ENT_WHILE:
+                    pkbDispatch.get_all_int_argOne =
+                            &PKB::get_all_while;
+                    break;
+                case ENT_STMT:
+                case ENT_PROGLINE:
+                    pkbDispatch.get_all_int_argOne =
+                            &PKB::get_all_stmt;
+                    break;
+                default:
+                    assert(false);
+                }
+                pkbDispatch.f_int_argOne_smth =
+                        &PKB::parentStar_X_Y_int_X_smth;
+                this->ev_rr_syn_X_int_wild_0(rTableIdx, relRef,
+                        pkbDispatch);
+            } else {
+                assert(false);
+            }
+            break;
+        case REL_FOLLOWS:
+            // syn one is stmt type
+            if (RELARG_INT == relRef->argTwoType) {
+                pkbDispatch.get_int_set_argOne_from_int_argTwo =
+                        &PKB::follows_X_Y_get_int_X_from_int_Y;
+                this->ev_rr_syn_X_int_int_0(rTableIdx, relRef,
+                        pkbDispatch, ENT_STMT, relRef->argTwoInt);
+            } else if (RELARG_WILDCARD == relRef->argTwoType) {
+                switch (relRef->argOneSyn) {
+                case ENT_ASSIGN:
+                    pkbDispatch.get_all_int_argOne =
+                            &PKB::get_all_assign;
+                    break;
+                case ENT_CALL:
+                    pkbDispatch.get_all_int_argOne =
+                            &PKB::get_all_call;
+                    break;
+                case ENT_IF:
+                    pkbDispatch.get_all_int_argOne =
+                            &PKB::get_all_if;
+                    break;
+                case ENT_WHILE:
+                    pkbDispatch.get_all_int_argOne =
+                            &PKB::get_all_while;
+                    break;
+                case ENT_STMT:
+                case ENT_PROGLINE:
+                    pkbDispatch.get_all_int_argOne =
+                            &PKB::get_all_stmt;
+                    break;
+                default:
+                    assert(false);
+                }
+                pkbDispatch.f_int_argOne_smth =
+                        &PKB::follows_X_Y_int_X_smth;
+                this->ev_rr_syn_X_int_wild_0(rTableIdx, relRef,
+                        pkbDispatch);
+            } else {
+                assert(false);
+            }
+            break;
+        case REL_FOLLOWS_STAR:
+            // syn one is stmt type
+            if (RELARG_INT == relRef->argTwoType) {
+                pkbDispatch.get_int_set_argOne_from_int_argTwo =
+                        &PKB::followsStar_X_Y_get_int_X_from_int_Y;
+                this->ev_rr_syn_X_int_int_0(rTableIdx, relRef,
+                        pkbDispatch, ENT_STMT, relRef->argTwoInt);
+            } else if (RELARG_WILDCARD == relRef->argTwoType) {
+                switch (relRef->argOneSyn) {
+                case ENT_ASSIGN:
+                    pkbDispatch.get_all_int_argOne =
+                            &PKB::get_all_assign;
+                    break;
+                case ENT_CALL:
+                    pkbDispatch.get_all_int_argOne =
+                            &PKB::get_all_call;
+                    break;
+                case ENT_IF:
+                    pkbDispatch.get_all_int_argOne =
+                            &PKB::get_all_if;
+                    break;
+                case ENT_WHILE:
+                    pkbDispatch.get_all_int_argOne =
+                            &PKB::get_all_while;
+                    break;
+                case ENT_STMT:
+                case ENT_PROGLINE:
+                    pkbDispatch.get_all_int_argOne =
+                            &PKB::get_all_stmt;
+                    break;
+                default:
+                    assert(false);
+                }
+                pkbDispatch.f_int_argOne_smth =
+                        &PKB::followsStar_X_Y_int_X_smth;
+                this->ev_rr_syn_X_int_wild_0(rTableIdx, relRef,
+                        pkbDispatch);
+            } else {
+                assert(false);
+            }
+            break;
+        case REL_AFFECTS:
+            // syn one is assign
+            if (RELARG_INT == relRef->argTwoType) {
+                pkbDispatch.get_int_set_argOne_from_int_argTwo =
+                        &PKB::affects_X_Y_get_int_X_from_int_Y;
+                this->ev_rr_syn_X_int_int_0(rTableIdx, relRef,
+                        pkbDispatch, ENT_ASSIGN, relRef->argTwoInt);
+            } else if (RELARG_WILDCARD == relRef->argTwoType) {
+                switch (relRef->argOneSyn) {
+                case ENT_ASSIGN:
+                    pkbDispatch.get_all_int_argOne =
+                            &PKB::get_all_assign;
+                    break;
+                default:
+                    assert(false);
+                }
+                pkbDispatch.f_int_argOne_smth =
+                        &PKB::affects_X_Y_int_X_smth;
+                this->ev_rr_syn_X_int_wild_0(rTableIdx, relRef,
+                        pkbDispatch);
+            } else {
+                assert(false);
+            }
+            break;
+        case REL_AFFECTS_STAR:
+            // syn one is assign
+            if (RELARG_INT == relRef->argTwoType) {
+                pkbDispatch.get_int_set_argOne_from_int_argTwo =
+                        &PKB::affectsStar_X_Y_get_int_X_from_int_Y;
+                this->ev_rr_syn_X_int_int_0(rTableIdx, relRef,
+                        pkbDispatch, ENT_ASSIGN, relRef->argTwoInt);
+            } else if (RELARG_WILDCARD == relRef->argTwoType) {
+                switch (relRef->argOneSyn) {
+                case ENT_ASSIGN:
+                    pkbDispatch.get_all_int_argOne =
+                            &PKB::get_all_assign;
+                    break;
+                default:
+                    assert(false);
+                }
+                pkbDispatch.f_int_argOne_smth =
+                        &PKB::affectsStar_X_Y_int_X_smth;
+                this->ev_rr_syn_X_int_wild_0(rTableIdx, relRef,
+                        pkbDispatch);
+            } else {
+                assert(false);
+            }
+            break;
+        }
     }
+}
+
+void QueryEvaluator::ev_rr_syn_X_string_string_0(int rTableIdx,
+        const RelRef *relRef, const EvalPKBDispatch& disp,
+        DesignEnt xType, const string& xVal)
+{
+    assert(NULL != disp.get_string_set_argOne_from_string_argTwo);
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    rTable.syn_0_transaction_begin(relRef->argOneString, RV_STRING);
+    const set<string>& synSet =
+            (this->pkb->*(disp.get_string_set_argOne_from_string_argTwo))
+                    (relRef->argOneSyn, xType, xVal);
+    for (set<string>::const_iterator it = synSet.begin();
+            it != synSet.end(); it++) {
+        rTable.syn_0_add_row(*it);
+    }
+    rTable.syn_0_transaction_end();
+}
+
+void QueryEvaluator::ev_rr_syn_X_string_wild_0(int rTableIdx,
+        const RelRef *relRef, const EvalPKBDispatch& disp)
+{
+    assert(NULL != disp.get_all_string_argOne);
+    assert(NULL != disp.f_string_argOne_smth);
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    rTable.syn_0_transaction_begin(relRef->argOneString, RV_STRING);
+    const set<string>& synSet =
+            (this->pkb->*(disp.get_all_string_argOne))();
+    DesignEnt synEntType = relRef->argOneSyn;
+    for (set<string>::const_iterator synIt = synSet.begin();
+            synIt != synSet.end(); synIt++) {
+        const string& synVal = *synIt;
+        if ((this->pkb->*(disp.f_string_argOne_smth))
+                (synEntType, synVal)) {
+            rTable.syn_0_add_row(synVal);
+        }
+    }
+    rTable.syn_0_transaction_end();
+}
+
+void QueryEvaluator::ev_rr_syn_X_int_string_0(int rTableIdx,
+        const RelRef *relRef, const EvalPKBDispatch& disp,
+        DesignEnt xType, const string& xVal)
+{
+    assert(NULL != disp.get_int_set_argOne_from_string_argTwo);
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    rTable.syn_0_transaction_begin(relRef->argOneString, RV_INT);
+    const set<int>& synSet =
+            (this->pkb->*(disp.get_int_set_argOne_from_string_argTwo))
+                    (relRef->argOneSyn, xType, xVal);
+    for (set<int>::const_iterator synIt = synSet.begin();
+            synIt != synSet.end(); synIt++) {
+        rTable.syn_0_add_row(*synIt);
+    }
+    rTable.syn_0_transaction_end();
+}
+
+void QueryEvaluator::ev_rr_syn_X_int_int_0(int rTableIdx,
+        const RelRef *relRef, const EvalPKBDispatch& disp,
+        DesignEnt xType, int xVal)
+{
+    assert(NULL != disp.get_int_set_argOne_from_int_argTwo);
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    rTable.syn_0_transaction_begin(relRef->argOneString, RV_INT);
+    const set<int>& synSet =
+            (this->pkb->*(disp.get_int_set_argOne_from_int_argTwo))
+                    (relRef->argOneSyn, xType, xVal);
+    for (set<int>::const_iterator synIt = synSet.begin();
+            synIt != synSet.end(); synIt++ ) {
+        rTable.syn_0_add_row(*synIt);
+    }
+    rTable.syn_0_transaction_end();
+}
+
+void QueryEvaluator::ev_rr_syn_X_int_wild_0(int rTableIdx,
+        const RelRef *relRef, const EvalPKBDispatch& disp)
+{
+    assert(NULL != disp.get_all_int_argOne);
+    assert(NULL != disp.f_int_argOne_smth);
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    rTable.syn_0_transaction_begin(relRef->argOneString, RV_INT);
+    const set<int>& synSet = (this->pkb->*(disp.get_all_int_argOne))();
+    DesignEnt synEntType = relRef->argOneSyn;
+    for (set<int>::const_iterator synIt = synSet.begin();
+            synIt != synSet.end(); synIt++) {
+        int synVal = *synIt;
+        if ((this->pkb->*(disp.f_int_argOne_smth))
+                (synEntType, synVal)) {
+            rTable.syn_0_add_row(synVal);
+        }
+    }
+    rTable.syn_0_transaction_end();
 }
 
 void QueryEvaluator::ev_rr_syn_X_string_string_1(int rTableIdx,

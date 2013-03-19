@@ -224,4 +224,54 @@ void Test60_Evil::test_sx()
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "2"),
             stringSet);
+    // syn_X (string,string) 0
+    simpleProg = "procedure uik { jut = 3; a = 1; } ";
+    simpleProg += " procedure B { suck = it; } ";
+    evaluator.parseSimple(simpleProg);
+    queryStr = " procedure p; ";
+    queryStr += " Select p such that Modifies(p, \"jut\")  ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "uik"),
+            stringSet);
+    // syn_X (string,_) 0
+    simpleProg = "procedure xkb { jut = 3; a = bad; } ";
+    simpleProg += "procedure Y { sgag = 33 - 45; } ";
+    evaluator.parseSimple(simpleProg);
+    queryStr = " procedure p; ";
+    queryStr += " Select p such that Uses(p, _)  ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "xkb"),
+            stringSet);
+    // syn_X (int,string) 0
+    simpleProg = "procedure p1 { just = pl; hell = no; } ";
+    simpleProg += "procedure p2 { a = 55; just = now; } ";
+    evaluator.parseSimple(simpleProg);
+    queryStr = " assign a; ";
+    queryStr += " Select a such that Modifies(a, \"just\")  ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "1", "4"),
+            stringSet);
+    // syn_X (int,_) 0
+    simpleProg = "procedure p1 { a = 1; while x { a = sy ; } ";
+    simpleProg += " while true { while x { a = b; } } a = 2; }";
+    evaluator.parseSimple(simpleProg);
+    queryStr = " assign a; ";
+    queryStr += " Select a such that Uses(a, _)  ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "3", "6"),
+            stringSet);
+    // syn_X (int,int) 0
+    simpleProg = "procedure p1 { a = b; while x { a = 3; b = 4; } } ";
+    simpleProg += " procedure p2 { x = y; while p { as = sgg; } } ";
+    evaluator.parseSimple(simpleProg);
+    queryStr = " while w; ";
+    queryStr += " Select w such that Parent(w, 4)  ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "2"),
+            stringSet);
 }

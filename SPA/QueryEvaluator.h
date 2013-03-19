@@ -329,6 +329,19 @@ private:
 
     // evaluate relRef, one of the arguments is a synonym
     void ev_relRef_syn_X(int rTableIdx, const RelRef *relRef);
+    void ev_rr_syn_X_string_string_0(int rTableIdx,
+            const RelRef *relRef, const EvalPKBDispatch& disp,
+            DesignEnt xType, const std::string& xVal);
+    void ev_rr_syn_X_string_wild_0(int rTableIdx,
+            const RelRef *relRef, const EvalPKBDispatch& disp);
+    void ev_rr_syn_X_int_string_0(int rTableIdx,
+            const RelRef *relRef, const EvalPKBDispatch& disp,
+            DesignEnt xType, const std::string& xVal);
+    void ev_rr_syn_X_int_int_0(int rTableIdx,
+            const RelRef *relRef, const EvalPKBDispatch& disp,
+            DesignEnt xType, int xVal);
+    void ev_rr_syn_X_int_wild_0(int rTableIdx,
+            const RelRef *relRef, const EvalPKBDispatch& disp);
     void ev_rr_syn_X_string_string_1(int rTableIdx,
             const RelRef *relRef, const EvalPKBDispatch& disp,
             DesignEnt xType, const std::string& xVal);
