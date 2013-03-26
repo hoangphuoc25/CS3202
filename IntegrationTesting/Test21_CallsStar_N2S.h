@@ -14,6 +14,7 @@ CPPUNIT_TEST(test_callsStar_string_string);
 CPPUNIT_TEST(test_callsStar_string_wild);
 CPPUNIT_TEST(test_callsStar_wild_string);
 CPPUNIT_TEST(test_callsStar_wild_wild);
+CPPUNIT_TEST(test_callsStar_X_syn);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -24,6 +25,7 @@ private:
     void test_callsStar_string_wild();
     void test_callsStar_wild_string();
     void test_callsStar_wild_wild();
+    void test_callsStar_X_syn();
 };
 
 #endif

@@ -215,3 +215,56 @@ void Test21_Calls_N2S::test_calls_wild_wild()
                                  ResultsProjector::FALSE_STR.c_str()),
             stringSet);
 }
+
+void Test21_Calls_N2S::test_calls_X_syn()
+{
+    string queryStr, simpleProg;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+
+    simpleProg =
+        "procedure A { \
+           call B; \
+           call C; \
+         } \
+         procedure B { \
+           a = x; \
+           } \
+         procedure C { \
+           call D; \
+         } \
+         procedure D { \
+           call B; \
+         } \
+         procedure E { \
+           gg = gg; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    // Calls(string,syn) 0
+    queryStr = "procedure p; Select p such that Calls(\"A\", p)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "B", "C"),
+            stringSet);
+    // Calls(string,syn) 1
+    queryStr = "procedure p; variable v; ";
+    queryStr += " Select p such that Uses(p,v) and Calls(\"C\",p)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "D"),
+            stringSet);
+    // Calls(_,syn) 0
+    queryStr = "procedure p; Select p such that Calls(_,p)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "B", "C", "D"),
+            stringSet);
+    // Calls(_,syn) 1
+    queryStr = "procedure p; variable v; ";
+    queryStr += " Select p such that Uses(p,v) and Calls(_,p)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "B", "C", "D"),
+            stringSet);
+}

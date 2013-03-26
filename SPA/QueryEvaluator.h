@@ -376,6 +376,22 @@ private:
     /// @param rTableIdx ResultsTable index
     /// @param relRef info on this Relation clause
     void ev_relRef_X_syn_1_uses(int rTableIdx, const RelRef *relRef);
+    /// Evaluates Calls(X,syn) where syn has not been seen
+    /// @param rTableIdx ResultsTable index
+    /// @param relRef info on this Relation clause
+    void ev_relRef_X_syn_0_calls(int rTableIdx, const RelRef *relRef);
+    /// Evaluates Calls(X,syn) where syn has been seen.
+    /// @param rTableIdx ResultsTable index
+    /// @param relRef info on this Relation clause
+    void ev_relRef_X_syn_1_calls(int rTableIdx, const RelRef *relRef);
+    /// Evaluates Calls*(X,syn) where syn has not been seen
+    /// @param rTableIdx ResultsTable index
+    /// @param relRef info on this Relation clause
+    void ev_relRef_X_syn_0_callsStar(int rTableIdx, const RelRef *relRef);
+    /// Evaluates Calls*(X,syn) where syn has been seen.
+    /// @param rTableIdx ResultsTable index
+    /// @param relRef info on this Relation clause
+    void ev_relRef_X_syn_1_callsStar(int rTableIdx, const RelRef *relRef);
     /// Evaluates Rel(X,syn), where both arguments are strings and syn
     /// has not been seen.
     /// @param rTableIdx ResultsTable index

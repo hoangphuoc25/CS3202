@@ -2742,8 +2742,10 @@ void QueryEvaluator::ev_relRef_X_syn(int rTableIdx,
             this->ev_relRef_X_syn_1_uses(rTableIdx, relRef);
             break;
         case REL_CALLS:
+            this->ev_relRef_X_syn_1_calls(rTableIdx, relRef);
             break;
         case REL_CALLS_STAR:
+            this->ev_relRef_X_syn_1_callsStar(rTableIdx, relRef);
             break;
         case REL_PARENT:
             break;
@@ -2767,8 +2769,10 @@ void QueryEvaluator::ev_relRef_X_syn(int rTableIdx,
             this->ev_relRef_X_syn_0_uses(rTableIdx, relRef);
             break;
         case REL_CALLS:
+            this->ev_relRef_X_syn_0_calls(rTableIdx, relRef);
             break;
         case REL_CALLS_STAR:
+            this->ev_relRef_X_syn_0_callsStar(rTableIdx, relRef);
             break;
         case REL_PARENT:
             break;
@@ -2894,6 +2898,98 @@ void QueryEvaluator::ev_relRef_X_syn_1_uses(int rTableIdx,
     case RELARG_WILDCARD:
         pkbDispatch.f_smth_string_argTwo =
                 &PKB::uses_X_Y_smth_string_Y;
+        this->ev_relRef_X_syn_wild_string_1(rTableIdx, relRef,
+                pkbDispatch);
+        break;
+    default:
+        assert(false);
+    }
+}
+
+void QueryEvaluator::ev_relRef_X_syn_0_calls(int rTableIdx,
+        const RelRef *relRef)
+{
+    EvalPKBDispatch pkbDispatch;
+    switch (relRef->argOneType) {
+    case RELARG_STRING:
+        pkbDispatch.get_string_set_argTwo_from_string_argOne =
+                &PKB::calls_X_Y_get_string_Y_from_string_X;
+        this->ev_relRef_X_syn_string_string_0(rTableIdx, relRef,
+                pkbDispatch, ENT_PROC, relRef->argOneString);
+        break;
+    case RELARG_WILDCARD:
+        pkbDispatch.get_all_string_argTwo =
+                &PKB::get_all_procs;
+        pkbDispatch.f_smth_string_argTwo =
+                &PKB::calls_X_Y_smth_string_Y;
+        this->ev_relRef_X_syn_wild_string_0(rTableIdx, relRef,
+                pkbDispatch);
+        break;
+    default:
+        assert(false);
+    }
+}
+
+void QueryEvaluator::ev_relRef_X_syn_1_calls(int rTableIdx,
+        const RelRef *relRef)
+{
+    EvalPKBDispatch pkbDispatch;
+    switch (relRef->argOneType) {
+    case RELARG_STRING:
+        pkbDispatch.f_string_argOne_string_argTwo =
+                &PKB::calls_query_string_X_string_Y;
+        this->ev_relRef_X_syn_string_string_1(rTableIdx, relRef,
+                pkbDispatch, ENT_PROC, relRef->argOneString);
+        break;
+    case RELARG_WILDCARD:
+        pkbDispatch.f_smth_string_argTwo =
+                &PKB::calls_X_Y_smth_string_Y;
+        this->ev_relRef_X_syn_wild_string_1(rTableIdx, relRef,
+                pkbDispatch);
+        break;
+    default:
+        assert(false);
+    }
+}
+
+void QueryEvaluator::ev_relRef_X_syn_0_callsStar(int rTableIdx,
+        const RelRef *relRef)
+{
+    EvalPKBDispatch pkbDispatch;
+    switch (relRef->argOneType) {
+    case RELARG_STRING:
+        pkbDispatch.get_string_set_argTwo_from_string_argOne =
+                &PKB::callsStar_X_Y_get_string_Y_from_string_X;
+        this->ev_relRef_X_syn_string_string_0(rTableIdx, relRef,
+                pkbDispatch, ENT_PROC, relRef->argOneString);
+        break;
+    case RELARG_WILDCARD:
+        pkbDispatch.get_all_string_argTwo =
+                &PKB::get_all_procs;
+        pkbDispatch.f_smth_string_argTwo =
+                &PKB::callsStar_X_Y_smth_string_Y;
+        this->ev_relRef_X_syn_wild_string_0(rTableIdx, relRef,
+                pkbDispatch);
+        break;
+    default:
+        assert(false);
+    }
+}
+
+void QueryEvaluator::ev_relRef_X_syn_1_callsStar(int rTableIdx,
+        const RelRef *relRef)
+{
+    EvalPKBDispatch pkbDispatch;
+    switch (relRef->argOneType) {
+    case RELARG_STRING:
+        pkbDispatch.f_string_argOne_string_argTwo =
+                &PKB::callsStar_query_string_X_string_Y;
+        this->ev_relRef_X_syn_string_string_1(rTableIdx, relRef,
+                pkbDispatch, ENT_PROC, relRef->argOneString);
+        break;
+    case RELARG_WILDCARD:
+        pkbDispatch.f_smth_string_argTwo =
+                &PKB::callsStar_X_Y_smth_string_Y;
         this->ev_relRef_X_syn_wild_string_1(rTableIdx, relRef,
                 pkbDispatch);
         break;
