@@ -99,8 +99,8 @@ void Test10_01_AffectsStar::test_affects_star_stmt_01()
     queryStr += " Select a2 such that Next*(w,a2) and Affects*(a1,a2)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(8,"5","8","12","6","9","13","16","15"),
-            stringSet);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(8,"5","8","12","6",
+        "9","13","16","15"), stringSet);
 
     queryStr = "assign a;";
     queryStr += " Select a such that Next*(a,a) and Affects*(a,a)";
@@ -113,7 +113,6 @@ void Test10_01_AffectsStar::test_affects_star_stmt_01()
     queryStr += " Select a3 such that Affects*(a2,a3) and Affects*(a1,a2)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(8,"5","8","12","6","9","13","16","15"),
-            stringSet);
-
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(8,"5","8","12","6",
+        "9","13","16","15"), stringSet);
 }

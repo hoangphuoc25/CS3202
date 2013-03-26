@@ -55,19 +55,24 @@ void Test_30_PKB_Next::test_next()
     parser.init();
     auto_ptr<PKB> pkb(parser.get_pkb());
 
-    //CPPUNIT_ASSERT_EQUAL(true,pkb->next_query_int_X_int_Y(ENT_WHILE,13,ENT_ASSIGN,14));
-    CPPUNIT_ASSERT_EQUAL(false,pkb->next_query_int_X_int_Y(ENT_ASSIGN,14,ENT_ASSIGN,18));
+    //CPPUNIT_ASSERT_EQUAL(true,pkb->next_query_int_X_int_Y
+        //(ENT_WHILE,13,ENT_ASSIGN,14));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->next_query_int_X_int_Y
+        (ENT_ASSIGN,14,ENT_ASSIGN,18));
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next(14,13));
-    CPPUNIT_ASSERT_EQUAL(true,pkb->nextStar_query_int_X_int_Y(ENT_ASSIGN,14,ENT_ASSIGN,18));
- CPPUNIT_ASSERT_EQUAL(true,pkb->nextStar_query_int_X_int_Y(ENT_IF,3,ENT_WHILE,2));
-  CPPUNIT_ASSERT_EQUAL(true,pkb->nextStar_query_int_X_int_Y(ENT_CALL,4,ENT_ASSIGN,8));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextStar_query_int_X_int_Y
+        (ENT_ASSIGN,14,ENT_ASSIGN,18));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextStar_query_int_X_int_Y
+        (ENT_IF,3,ENT_WHILE,2));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextStar_query_int_X_int_Y
+        (ENT_CALL,4,ENT_ASSIGN,8));
     //pkb->is_next(13,14);
-        CPPUNIT_ASSERT_EQUAL(true,pkb->is_next(13,14));
-        CPPUNIT_ASSERT_EQUAL(false,pkb->is_next_star(10,20));
-        CPPUNIT_ASSERT_EQUAL(false,pkb->nextStar_query_int_X_int_Y(ENT_WHILE,10,
-        ENT_ASSIGN,20));
-        CPPUNIT_ASSERT_EQUAL(true,pkb->is_valid_stmtNo(14));
-         CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star(2,2));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next(13,14));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->is_next_star(10,20));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->nextStar_query_int_X_int_Y(ENT_WHILE,10,
+    ENT_ASSIGN,20));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_valid_stmtNo(14));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star(2,2));
     stringSet = pkb->get_before_star(2);
    // CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "14","18"),stringSet);
 
