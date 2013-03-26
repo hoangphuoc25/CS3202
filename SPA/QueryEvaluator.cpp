@@ -2129,6 +2129,12 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
                         pkbDispatch);
             }
             break;
+        case REL_NEXT:
+            this->ev_relRef_syn_X_1_nextAndStar(rTableIdx, relRef);
+            break;
+        case REL_NEXT_STAR:
+            this->ev_relRef_syn_X_1_nextAndStar(rTableIdx, relRef);
+            break;
         case REL_AFFECTS:
             // arg one is all stmt type
             if (RELARG_INT == relRef->argTwoType) {
@@ -2467,6 +2473,12 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
                 assert(false);
             }
             break;
+        case REL_NEXT:
+            this->ev_relRef_syn_X_0_nextAndStar(rTableIdx, relRef);
+            break;
+        case REL_NEXT_STAR:
+            this->ev_relRef_syn_X_0_nextAndStar(rTableIdx, relRef);
+            break;
         case REL_AFFECTS:
             // syn one is assign
             if (RELARG_INT == relRef->argTwoType) {
@@ -2516,6 +2528,101 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
             }
             break;
         }
+    }
+}
+
+void QueryEvaluator::ev_relRef_syn_X_0_nextAndStar(int rTableIdx,
+        const RelRef *relRef)
+{
+    EvalPKBDispatch pkbDispatch;
+    switch (relRef->argTwoType) {
+    case RELARG_INT:
+        if (REL_NEXT == relRef->relType) {
+            pkbDispatch.get_int_set_argOne_from_int_argTwo =
+                    &PKB::next_X_Y_get_int_X_from_int_Y;
+        } else if (REL_NEXT_STAR == relRef->relType) {
+            pkbDispatch.get_int_set_argOne_from_int_argTwo =
+                    &PKB::nextStar_X_Y_get_int_X_from_int_Y;
+        } else {
+            assert(false);
+        }
+        this->ev_rr_syn_X_int_int_0(rTableIdx, relRef, pkbDispatch,
+                ENT_STMT, relRef->argTwoInt);
+        break;
+    case RELARG_WILDCARD:
+        switch (relRef->argOneSyn) {
+        case ENT_ASSIGN:
+            pkbDispatch.get_all_int_argOne =
+                    &PKB::get_all_assign;
+            break;
+        case ENT_CALL:
+            pkbDispatch.get_all_int_argOne =
+                    &PKB::get_all_call;
+            break;
+        case ENT_IF:
+            pkbDispatch.get_all_int_argOne =
+                    &PKB::get_all_if;
+            break;
+        case ENT_WHILE:
+            pkbDispatch.get_all_int_argOne =
+                    &PKB::get_all_while;
+            break;
+        case ENT_STMT:
+        case ENT_PROGLINE:
+            pkbDispatch.get_all_int_argOne =
+                    &PKB::get_all_stmt;
+            break;
+        default:
+            assert(false);
+        }
+        if (REL_NEXT == relRef->relType) {
+            pkbDispatch.f_int_argOne_smth =
+                    &PKB::next_X_Y_int_X_smth;
+        } else if (REL_NEXT_STAR == relRef->relType) {
+            pkbDispatch.f_int_argOne_smth =
+                    &PKB::nextStar_X_Y_int_X_smth;
+        } else {
+            assert(false);
+        }
+        this->ev_rr_syn_X_int_wild_0(rTableIdx, relRef, pkbDispatch);
+        break;
+    default:
+        assert(false);
+    }
+}
+
+void QueryEvaluator::ev_relRef_syn_X_1_nextAndStar(int rTableIdx,
+        const RelRef *relRef)
+{
+    EvalPKBDispatch pkbDispatch;
+    switch (relRef->argTwoType) {
+    case RELARG_INT:
+        if (REL_NEXT == relRef->relType) {
+            pkbDispatch.f_int_argOne_int_argTwo =
+                    &PKB::next_query_int_X_int_Y;
+        } else if (REL_NEXT_STAR == relRef->relType) {
+            pkbDispatch.f_int_argOne_int_argTwo =
+                    &PKB::nextStar_query_int_X_int_Y;
+        } else {
+            assert(false);
+        }
+        this->ev_rr_syn_X_int_int_1(rTableIdx, relRef, pkbDispatch,
+                ENT_STMT, relRef->argTwoInt);
+        break;
+    case RELARG_WILDCARD:
+        if (REL_NEXT == relRef->relType) {
+            pkbDispatch.f_int_argOne_smth =
+                    &PKB::next_X_Y_int_X_smth;
+        } else if (REL_NEXT_STAR == relRef->relType) {
+            pkbDispatch.f_int_argOne_smth =
+                    &PKB::nextStar_X_Y_int_X_smth;
+        } else {
+            assert(false);
+        }
+        this->ev_rr_syn_X_int_wild_1(rTableIdx, relRef, pkbDispatch);
+        break;
+    default:
+        assert(false);
     }
 }
 

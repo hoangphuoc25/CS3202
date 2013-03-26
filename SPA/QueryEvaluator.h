@@ -333,6 +333,15 @@ private:
 
     // evaluate relRef, one of the arguments is a synonym
     void ev_relRef_syn_X(int rTableIdx, const RelRef *relRef);
+    /// Evaluates Next(X,syn) and Next*(X,syn), where syn has not
+    /// been seen.
+    /// @param rTableIdx index of the ResultsTable
+    /// @param relRef info on this Relation clause
+    void ev_relRef_syn_X_0_nextAndStar(int rTableIdx, const RelRef *relRef);
+    /// Evaluates Next(X,syn) and Next*(X,syn), where syn has not been seen.
+    /// @param rTableIdx index of the ResultsTable
+    /// @param relRef info on this Relation clause
+    void ev_relRef_syn_X_1_nextAndStar(int rTableIdx, const RelRef *relRef);
     void ev_rr_syn_X_string_string_0(int rTableIdx,
             const RelRef *relRef, const EvalPKBDispatch& disp,
             DesignEnt xType, const std::string& xVal);
