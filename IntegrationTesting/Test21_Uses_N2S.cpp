@@ -1056,3 +1056,85 @@ void Test21_Uses_N2S::test_uses_wild_wild()
                                  ResultsProjector::TRUE_STR.c_str()),
             stringSet);
 }
+
+void Test21_Uses_N2S::test_uses_X_syn()
+{
+    string queryStr, simpleProg;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+
+    simpleProg =
+        "procedure yayProc { \
+           avar = c; \
+           x = y; \
+           if useIf then { \
+             wow = x; \
+             this = is + cool; \
+           } else { \
+             darn = it; \
+           } \
+           oh = crap; \
+           while useWhile { \
+             mm = mm; \
+             thats = true; \
+           } \
+           haha = go; \
+           hmm = 5; \
+           call calledProc; \
+         } \
+         procedure secProc { \
+           darn = it - useWhile; \
+           it = is + true; \
+           useIf = 73; \
+         } \
+         procedure calledProc { \
+           abba = daba; \
+           yabba = daba + doo; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    // Uses(string,syn) 0
+    queryStr = "variable v; Select v such that Uses(\"secProc\", v)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "is", "it", "true",
+            "useWhile"),
+            stringSet);
+    // Uses(string,syn) 1
+    queryStr = " while w; variable v; ";
+    queryStr += " Select v such that Uses(w,v) and ";
+    queryStr += " Uses(\"secProc\", v)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "true", "useWhile"),
+            stringSet);
+    // Uses(int,syn) 0
+    queryStr = " variable v; Select v such that Uses(13, v)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "daba", "doo"),
+            stringSet);
+    // Uses(int,syn) 1
+    queryStr = " while w; variable v; ";
+    queryStr += " Select v such that Modifies(w,v) and Uses(9,v)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "mm"),
+            stringSet);
+    // Uses(_,syn) 0
+    queryStr = " variable v; Select v such that Uses(_,v)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(14, "c", "cool", "crap",
+            "daba", "doo", "go", "is", "it", "mm", "true", "useIf",
+            "useWhile", "x", "y"),
+            stringSet);
+    // Uses(_,syn) 1
+    queryStr = " if if1; variable v; ";
+    queryStr += " Select v such that Uses(if1,v) and Uses(_,v)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5, "cool", "is", "it",
+            "useIf", "x"),
+            stringSet);
+}

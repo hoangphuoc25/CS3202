@@ -2739,6 +2739,7 @@ void QueryEvaluator::ev_relRef_X_syn(int rTableIdx,
             this->ev_relRef_X_syn_1_modifies(rTableIdx, relRef);
             break;
         case REL_USES:
+            this->ev_relRef_X_syn_1_uses(rTableIdx, relRef);
             break;
         case REL_CALLS:
             break;
@@ -2763,6 +2764,7 @@ void QueryEvaluator::ev_relRef_X_syn(int rTableIdx,
             this->ev_relRef_X_syn_0_modifies(rTableIdx, relRef);
             break;
         case REL_USES:
+            this->ev_relRef_X_syn_0_uses(rTableIdx, relRef);
             break;
         case REL_CALLS:
             break;
@@ -2834,6 +2836,64 @@ void QueryEvaluator::ev_relRef_X_syn_1_modifies(int rTableIdx,
     case RELARG_WILDCARD:
         pkbDispatch.f_smth_string_argTwo =
                 &PKB::modifies_X_Y_smth_string_Y;
+        this->ev_relRef_X_syn_wild_string_1(rTableIdx, relRef,
+                pkbDispatch);
+        break;
+    default:
+        assert(false);
+    }
+}
+
+void QueryEvaluator::ev_relRef_X_syn_0_uses(int rTableIdx,
+        const RelRef *relRef)
+{
+    EvalPKBDispatch pkbDispatch;
+    switch (relRef->argOneType) {
+    case RELARG_STRING:
+        pkbDispatch.get_string_set_argTwo_from_string_argOne =
+                &PKB::uses_X_Y_get_string_Y_from_string_X;
+        this->ev_relRef_X_syn_string_string_0(rTableIdx, relRef,
+                pkbDispatch, ENT_PROC, relRef->argOneString);
+        break;
+    case RELARG_INT:
+        pkbDispatch.get_string_set_argTwo_from_int_argOne =
+                &PKB::uses_X_Y_get_string_Y_from_int_X;
+        this->ev_relRef_X_syn_int_string_0(rTableIdx, relRef,
+                pkbDispatch, ENT_STMT, relRef->argOneInt);
+        break;
+    case RELARG_WILDCARD:
+        pkbDispatch.get_all_string_argTwo =
+                &PKB::get_all_vars;
+        pkbDispatch.f_smth_string_argTwo =
+                &PKB::uses_X_Y_smth_string_Y;
+        this->ev_relRef_X_syn_wild_string_0(rTableIdx, relRef,
+                pkbDispatch);
+        break;
+    default:
+        assert(false);
+    }
+}
+
+void QueryEvaluator::ev_relRef_X_syn_1_uses(int rTableIdx,
+        const RelRef *relRef)
+{
+    EvalPKBDispatch pkbDispatch;
+    switch (relRef->argOneType) {
+    case RELARG_STRING:
+        pkbDispatch.f_string_argOne_string_argTwo =
+                &PKB::uses_query_string_X_string_Y;
+        this->ev_relRef_X_syn_string_string_1(rTableIdx, relRef,
+                pkbDispatch, ENT_PROC, relRef->argOneString);
+        break;
+    case RELARG_INT:
+        pkbDispatch.f_int_argOne_string_argTwo =
+                &PKB::uses_query_int_X_string_Y;
+        this->ev_relRef_X_syn_int_string_1(rTableIdx, relRef,
+                pkbDispatch, ENT_STMT, relRef->argOneInt);
+        break;
+    case RELARG_WILDCARD:
+        pkbDispatch.f_smth_string_argTwo =
+                &PKB::uses_X_Y_smth_string_Y;
         this->ev_relRef_X_syn_wild_string_1(rTableIdx, relRef,
                 pkbDispatch);
         break;
