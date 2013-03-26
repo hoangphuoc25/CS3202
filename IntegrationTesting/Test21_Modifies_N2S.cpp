@@ -435,3 +435,45 @@ void Test21_Modifies_N2S::test_modifies_wild_wild()
                                  ResultsProjector::TRUE_STR.c_str()),
             stringSet);
 }
+
+void Test21_Modifies_N2S::test_modifies_string_syn()
+{
+    string queryStr, simpleProg;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+
+    simpleProg =
+        "procedure Aone { \
+           a = b; \
+           if true then { \
+             var = x; \
+           } else { \
+             truth = false; \
+           } \
+           x = abc; \
+           while it { \
+             no = way; \
+           } \
+           ya = lor; \
+         } \
+         procedure procTwo { \
+           gj = good + luck; \
+           x = y; \
+           good = day; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    queryStr = " variable v; Select v such that Modifies(\"Aone\",v)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "a", "var", "truth",
+                "x", "no", "ya"),
+                stringSet);
+    queryStr = "assign a; variable v; ";
+    queryStr += " Select v such that Uses(a,v) and ";
+    queryStr += " Modifies(\"procTwo\", v)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "x", "good"),
+            stringSet);
+}

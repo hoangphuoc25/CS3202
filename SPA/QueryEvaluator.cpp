@@ -2732,6 +2732,138 @@ void QueryEvaluator::ev_rr_syn_X_int_wild_1(int rTableIdx,
 void QueryEvaluator::ev_relRef_X_syn(int rTableIdx,
         const RelRef *relRef)
 {
+    const ResultsTable& rTable = this->resultsTable[rTableIdx];
+    if (rTable.has_synonym(relRef->argTwoString)) {
+        switch (relRef->relType) {
+        case REL_MODIFIES:
+            this->ev_relRef_X_syn_1_modifies(rTableIdx, relRef);
+            break;
+        case REL_USES:
+            break;
+        case REL_CALLS:
+            break;
+        case REL_CALLS_STAR:
+            break;
+        case REL_PARENT:
+            break;
+        case REL_PARENT_STAR:
+            break;
+        case REL_NEXT:
+            break;
+        case REL_NEXT_STAR:
+            break;
+        case REL_AFFECTS:
+            break;
+        case REL_AFFECTS_STAR:
+            break;
+        }
+    } else {
+        switch (relRef->relType) {
+        case REL_MODIFIES:
+            this->ev_relRef_X_syn_0_modifies(rTableIdx, relRef);
+            break;
+        case REL_USES:
+            break;
+        case REL_CALLS:
+            break;
+        case REL_CALLS_STAR:
+            break;
+        case REL_PARENT:
+            break;
+        case REL_PARENT_STAR:
+            break;
+        case REL_NEXT:
+            break;
+        case REL_NEXT_STAR:
+            break;
+        case REL_AFFECTS:
+            break;
+        case REL_AFFECTS_STAR:
+            break;
+        }
+    }
+}
+
+void QueryEvaluator::ev_relRef_X_syn_0_modifies(int rTableIdx,
+        const RelRef *relRef)
+{
+    EvalPKBDispatch pkbDispatch;
+    switch (relRef->argOneType) {
+    case RELARG_STRING:
+        pkbDispatch.get_string_set_argTwo_from_string_argOne =
+                &PKB::modifies_X_Y_get_string_Y_from_string_X;
+        this->ev_relRef_X_syn_string_string_0(rTableIdx, relRef,
+                pkbDispatch, ENT_PROC, relRef->argOneString);
+        break;
+    case RELARG_INT:
+        break;
+    case RELARG_WILDCARD:
+        break;
+    default:
+        assert(false);
+    }
+}
+
+void QueryEvaluator::ev_relRef_X_syn_1_modifies(int rTableIdx,
+        const RelRef *relRef)
+{
+    EvalPKBDispatch pkbDispatch;
+    switch (relRef->argOneType) {
+    case RELARG_STRING:
+        pkbDispatch.f_string_argOne_string_argTwo =
+                &PKB::modifies_query_string_X_string_Y;
+        this->ev_relRef_X_syn_string_string_1(rTableIdx, relRef,
+                pkbDispatch, ENT_PROC, relRef->argOneString);
+        break;
+    case RELARG_INT:
+        break;
+    case RELARG_WILDCARD:
+        break;
+    default:
+        assert(false);
+    }
+}
+
+void QueryEvaluator::ev_relRef_X_syn_string_string_0(int rTableIdx,
+        const RelRef *relRef, const EvalPKBDispatch& disp,
+        DesignEnt xType, const string& xVal)
+{
+    assert(NULL != disp.get_string_set_argTwo_from_string_argOne);
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    rTable.syn_0_transaction_begin(relRef->argTwoString, RV_STRING);
+    const set<string> synSet =
+            (this->pkb->*(disp.get_string_set_argTwo_from_string_argOne))
+                    (xType, relRef->argTwoSyn, xVal);
+    for (set<string>::const_iterator synIt = synSet.begin();
+            synIt != synSet.end(); synIt++) {
+        const string& synVal = *synIt;
+        rTable.syn_0_add_row(synVal);
+    }
+    rTable.syn_0_transaction_end();
+}
+
+void QueryEvaluator::ev_relRef_X_syn_string_string_1(int rTableIdx,
+        const RelRef *relRef, const EvalPKBDispatch& disp,
+        DesignEnt xType, const string& xVal)
+{
+    assert(NULL != disp.f_string_argOne_string_argTwo);
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    pair<const vector<Record> *, int> viPair =
+            rTable.syn_1_transaction_begin(relRef->argTwoString);
+    const vector<Record>& records = *(viPair.first);
+    int nrRecords = records.size();
+    int colIdx = viPair.second;
+    DesignEnt synEntType = relRef->argTwoSyn;
+    for (int i = 0; i < nrRecords; i++) {
+        const Record& record = records[i];
+        const pair<string, int> siPair = record.get_column(colIdx);
+        const string& synVal = siPair.first;
+        if ((this->pkb->*(disp.f_string_argOne_string_argTwo))
+                (xType, xVal, synEntType, synVal)) {
+            rTable.syn_1_mark_row_ok(i);
+        }
+    }
+    rTable.syn_1_transaction_end();
 }
 
 void QueryEvaluator::ev_relRef_X_X(int rTableIdx,
