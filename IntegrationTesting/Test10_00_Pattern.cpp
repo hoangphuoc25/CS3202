@@ -199,8 +199,38 @@ void Test10_00_Pattern::test_2() {
 	//printf("%s",queryStr);
 	evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-
 	CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(1, "4"));
+
+	//a(_, _)
+	queryStr = "assign a;";
+	queryStr += "Select a pattern a(_, _)";
+	evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "1", "2", "3", "5", "6", "7", "9", 
+		"10", "13", "15", "17", "19", "21", "22", "24", "25", "27", "29"), stringSet);
+
+	//a(v, _)
+	queryStr = "assign a; variable v;";
+	queryStr += "Select a pattern a(v, _)";
+	evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "1", "2", "3", "5", "6", "7", "9", 
+		"10", "13", "15", "17", "19", "21", "22", "24", "25", "27", "29"), stringSet);
+
+	//a("x", _)
+	queryStr = "assign a; variable v;";
+	queryStr += "Select a pattern a(v, _)";
+	evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "1", "2", "3", "5", "6", "7", "9", 
+		"10", "13", "15", "17", "19", "21", "22", "24", "25", "27", "29"), stringSet);
+
+	//a(_, "b")
+	queryStr = "assign a;";
+	queryStr += "Select a pattern a(_, \"captain\")";
+	evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+	CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "3"), stringSet);
 }
 
 void Test10_00_Pattern::test_3()

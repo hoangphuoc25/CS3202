@@ -4896,11 +4896,13 @@ void QueryEvaluator::evaluate_patCl_assign_string_expr(int rTableIdx,
 	//queryStr = "while w; assign a; variable v;";
 	//queryStr += "Select a such that Parent(w, a) and pattern a(v, _)";
 	//a = syn, v = varRefType, _ = exprType
+	//queryStr = "while w; assign a;";
+	//queryStr += "Select a pattern a(w, _)";
 
     if (hasAssgnSyn && hasVarSyn) {
         if (rTable.syn_in_same_table(patCl->syn, patCl->varRefString)) {
 			//11 case
-            //this->evaluate_patCl_assign_syn_var_11(rTable, patCl);
+			//this->evaluate_patCl_assign_syn_var_11(rTable, patCl);
         } else {
 			//22 case
             //this->evaluate_patCl_assign_syn_var_22(rTable, patCl);
@@ -4909,6 +4911,22 @@ void QueryEvaluator::evaluate_patCl_assign_string_expr(int rTableIdx,
 		// pattern assign(var, expr)
 		// assign seen, var not seen
 		// 10 case
+		pair<const vector<Record>*, int> viPair = rTable.syn_10_transaction_begin();
+		int synCol = viPair.second;
+		const vector<Record>& records = *(viPair.first);
+		int recordsSize = records.size();
+		for (int i=0; i<recordsSize; i++) {
+			const Record& rec = records[i];
+			pair<string, int> assignPair = rec.get_column(synCol);
+			int assignStmt = assignPair.second;
+			Node* assignStmtNode = this->pkb->get_stmtBank()->get_node(assignStmt);
+			const set<string>& modifies_set = assignStmtNode->get_modifies();
+			//get modified variable and check
+			for (set<string>::iterator k=modifies_set.begin(); k!=modifies_set.end(); k++) {
+				string modifies_variable = *k;
+				rTable.syn_10_augment_new_row(i, 
+			}
+		}
     } else if (hasVarSyn) {
 		// pattern assign(var, expr)
 		// assign not seen, var seen
@@ -4917,34 +4935,157 @@ void QueryEvaluator::evaluate_patCl_assign_string_expr(int rTableIdx,
 		// both not seen
 		// 00 case
 		// what to do?
+		rTable.syn_00_transaction_begin();
+
     }
 }
 void QueryEvaluator::evaluate_patCl_assign_string_exprwild(int rTableIdx,
         const PatCl *patCl)
 {
+	ResultsTable &rTable = this->resultsTable[rTableIdx];
+	bool hasAsgnSyn = rTable.has_synonym(patCl->syn);
+	if (hasAsgnSyn) {
+	} else {
+	}
 }
 
 void QueryEvaluator::evaluate_patCl_assign_string_wildcard(int rTableIdx,
         const PatCl *patCl)
 {
-	//ResultsTable& rTable = this->resultsTable[rTableIdx];
-	//bool hasAgnSyn = rTable.has_synonym(patCl->syn);
-	//if (hasAgnSyn) {
-	//	//10, or 1
-	//	rTable.
-	//} else {
+	ResultsTable& rTable = this->resultsTable[rTableIdx];
+	bool hasAgnSyn = rTable.has_synonym(patCl->syn);
+	if (hasAgnSyn) {
+		//or 1
+		pair<const vector<Record>*, int> viPair = rTable.syn_1_transaction_begin();
+		int synCol = viPair.second;
+		const vector<Record>& records = *(viPair.first);
+		int recordsSize = records.size();
+		for (int i=0; i<recordsSize; i++) {
+			const Record& rec = records[i];
+			pair<string, int> assignPair = rec.get_column(synCol);
+			int assignStmt = assignPair.second;
+			//set<int> modifies_variable = this->pkb->get_
+			Node* assignStmtNode = this->pkb->get_stmtBank()->get_node(assignStmt);
+			const set<string>& modifies_set = assignStmtNode->get_modifies();
+			//get modified variable and check
+			for (set<string>::iterator k=modifies_set.begin(); k!=modifies_set.end(); k++) {
+				string modifies_variable = *k;
+				if (modifies_variable == patCl->varRefString) {
+					rTable.syn_1_mark_row_ok(i);
+				}
+			}
+			//set<Node*> assignNodeChild = assignStmtNode.get_child();
+		}
+		rTable.syn_1_transaction_end();
+	} else {
+		//0
+		rTable.syn_0_transaction_begin();
+		set<int> allAssignStmts = this->pkb->get_all_assign();
+		for (set<int>::iterator i = allAssignStmts.begin(); i != allAssignStmts.end(); i++) {
+			int assignStmt = *i;
+			Node* assignStmtNode = this->pkb->get_stmtBank()->get_node(assignStmt);
+			const set<string>& modifies_set = assignStmtNode->get_modifies();
+			for (set<string>::iterator k=modifies_set.begin(); k!=modifies_set.end(); k++) {
+				string modifies_variable = *k;
+				if (modifies_variable == patCl->varRefString) {
+					rTable.syn_0_add_row(assignStmt);
+				}
+			}
+		}
+		rTable.syn_0_transaction_end();
+	}
+}
 
-	//}
+bool is_operation(const string& operation) {
+	return (operation!="+" && operation!="-" && operation!="/" && operation!="*");
+}
+
+bool QueryEvaluator::evaluate_matching_tree(Node* ASTNode, Node* assignNode) {
+	bool result = true;
+	if (ASTNode->get_name() != assignNode->get_name()) {
+		return false;
+	}
+	vector<Node*> astLeaves = ASTNode->get_leaves();
+	vector<Node*> assignLeaves = assignNode->get_leaves();
+	if (assignLeaves.size() != assignLeaves.size() || astLeaves.size() == 0 || assignLeaves.size() == 0) {
+		return false;
+	}
+	for (int i=0; i<astLeaves.size(); i++) {
+		Node* astChild = astLeaves[i];
+		Node* assignChild = assignLeaves[i];
+		if (astChild->get_name() != assignChild->get_name())  {
+			return false;
+		} else {
+			if (is_operation(astChild->get_name())) {
+				result = this->evaluate_matching_tree(astChild, assignChild);
+				if (result == false) {
+					return false;
+				}
+			}
+		}
+	}
+	return result;
 }
 
 void QueryEvaluator::evaluate_patCl_assign_syn_expr(int rTableIdx,
         const PatCl *patCl)
 {
+	ResultsTable& rTable = this->resultsTable[rTableIdx];
+	bool hasAssignSyn = rTable.has_synonym(patCl->syn);
+	if (hasAssignSyn) {
+		//assignment synonym has been seen
+		//syn_1 transaction
+		pair<const vector<Record>*, int> viPair = rTable.syn_1_transaction_begin(patCl->syn);
+		int assignCol = viPair.second;
+		const vector<Record>& records = *(viPair.first);
+		int recordSize = records.size();
+		for (int i=0; i<recordSize; i++) {
+			const Record& rec = records[i];
+			pair<string, int> assignPair = rec.get_column(assignCol);
+			int assignStmt = assignPair.second;
+			Parser assignParser = Parser(patCl->varRefString, FROMSTRING);
+			Node* assignStmtNode = this->pkb->get_stmtBank()->get_node(assignStmt);
+			vector<Node*> assignStmtChildren = assignStmtNode->get_children();
+			Node* assignStmtMatch = assignStmtChildren[1];
+			//Node* yard = assignStmtMatch->yard();
+			Node* yard = assignParser.yard();
+			if (yard != NULL) {
+				rTable.syn_1_mark_row_ok(assignStmt);
+			}
+		}
+		rTable.syn_1_transaction_end();
+	} else {
+		//syn_0 transaction
+		rTable.syn_0_transaction_begin(patCl->syn, RV_INT);
+		set<int> allAssignStmts = this->pkb->get_all_assign();
+		for (set<int>::iterator i=allAssignStmts.begin(); i!=allAssignStmts.end(); i++) {
+			int assignStmt = *i;
+			if () {
+				rTable.syn_0_add_row(assignStmt);
+			}
+		}
+		rTable.syn_0_transaction_end();
+	}
 }
 
 void QueryEvaluator::evaluate_patCl_assign_syn_exprwild(int rTableIdx,
         const PatCl *patCl)
 {
+	ResultsTable &rTable = this->resultsTable[rTableIdx];
+	bool hasAsgnSyn = rTable.has_synonym(patCl->syn);
+	bool hasVarSyn = rTable.has_synonym(patCl->varRefString);
+
+	if (hasAsgnSyn && hasVarSyn) {
+	} else if (hasAsgnSyn) {
+	} else if (hasVarSyn) {
+	} else {
+		rTable.syn_00_transaction_begin();
+		set<int> allAssignStmts = this->pkb->get_all_assign();
+		for (set<int>::iterator i=allAssignStmts.begin(); i!=allAssignStmts.end(); i++) {
+			int assignStmt = *i;
+
+		}
+	}
 }
 
 void QueryEvaluator::evaluate_patCl_assign_syn_wildcard(int rTableIdx,
@@ -5026,12 +5167,45 @@ void QueryEvaluator::evaluate_patCl_assign_syn_wildcard(int rTableIdx,
 void QueryEvaluator::evaluate_patCl_assign_wildcard_expr(int rTableIdx,
         const PatCl *patCl)
 {
-
+	ResultsTable& rTable = this->resultsTable[rTableIdx];
+	bool hasAssignSyn = rTable.has_synonym(patCl->syn);
+	Node* rootExprTree = Parser(patCl->varRefString, FROMSTRING).yard();
+	if (hasAssignSyn) {
+		pair<const vector<Record>*, int> viPair = rTable.syn_1_transaction_begin();
+		int assignCol = viPair.second;
+		const vector<Record>& records = *(viPair.first);
+		int recordsNo = records.size();
+		for (int i=0; i<recordsNo; i++) {
+			const Record& rec = records[i];
+			pair<string, int> assignPair = rec.get_column(assignCol);
+			int assignStmt = assignPair.second;
+			Node* assignNode = this->pkb->get_stmtBank()->get_node(assignStmt);
+			if (this->evaluate_matching_tree(assignNode, rootExprTree)) {
+				rTable.syn_1_mark_row_ok(assignStmt);
+			}
+		}
+		rTable.syn_1_transaction_end();
+	} else {
+		rTable.syn_0_transaction_begin();
+		set<int> allAssignStmts = this->pkb->get_all_assign();
+		for (set<int>::iterator i=allAssignStmts.begin(); i!=allAssignStmts.end(); i++) {
+			int assignStmt = *i;
+			Node* assignNode = this->pkb->get_stmtBank()->get_node(assignStmt);
+			if (this->evaluate_matching_tree(assignNode, rootExprTree)) {
+				rTable.syn_0_add_row(assignStmt);
+			}
+		}
+		rTable.syn_0_transaction_end();
+	}
+	
 }
 
 void QueryEvaluator::evaluate_patCl_assign_wildcard_exprwild(int rTableIdx,
         const PatCl *patCl)
 {
+	ResultsTable& rTable = this->resultsTable[rTableIdx];
+	bool hasAssignSyn = rTable.has_synonym(patCl->syn);
+	Node* rootExprTree = Parser(patCl->varRefString, FROMSTRING).yard();
 }
 
 void QueryEvaluator::evaluate_patCl_assign_wildcard_wildcard(int rTableIdx,
