@@ -463,17 +463,32 @@ void Test21_Modifies_N2S::test_modifies_string_syn()
            good = day; \
          }";
     evaluator.parseSimple(simpleProg);
+    // Modifies(string,syn) 0
     queryStr = " variable v; Select v such that Modifies(\"Aone\",v)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "a", "var", "truth",
                 "x", "no", "ya"),
                 stringSet);
+    // Modifies(string,syn) 1
     queryStr = "assign a; variable v; ";
     queryStr += " Select v such that Uses(a,v) and ";
     queryStr += " Modifies(\"procTwo\", v)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "x", "good"),
+            stringSet);
+    // Modifies(int,syn) 0
+    queryStr = " variable v; Select v such that Modifies(2, v)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "var", "truth"),
+            stringSet);
+    // Modifies(int,syn) 1
+    queryStr = " if if1; variable v; ";
+    queryStr += " Select v such that Uses(if1,v) and Modifies(5,v)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "x"),
             stringSet);
 }

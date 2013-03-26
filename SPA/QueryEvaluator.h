@@ -384,6 +384,26 @@ private:
     void ev_relRef_X_syn_string_string_1(int rTableIdx,
             const RelRef *relRef, const EvalPKBDispatch& disp,
             DesignEnt xType, const string& xVal);
+    /// Evaluates Rel(X,syn), where arguments are (int,string) and syn
+    /// has not been seen.
+    /// @param rTableIdx ResultsTable index
+    /// @param relRef info on this Relation clause
+    /// @param disp PKB dispatch table
+    /// @param xType design entity type of X
+    /// @param xVal value of X
+    void ev_relRef_X_syn_int_string_0(int rTableIdx,
+            const RelRef *relRef, const EvalPKBDispatch& disp,
+            DesignEnt xType, int xVal);
+    /// Evaluates Rel(X,syn), where arguments are (int,string) and syn
+    /// has been seen.
+    /// @param rTableIdx ResultsTable index
+    /// @param relRef info on this Relation clause
+    /// @param disp PKB dispatch table
+    /// @param xType design entity type of X
+    /// @param xVal value of X
+    void ev_relRef_X_syn_int_string_1(int rTableIdx,
+            const RelRef *relRef, const EvalPKBDispatch& disp,
+            DesignEnt xType, int xVal);
     // evaluate relRef, none of the arguments is a synonym
     void ev_relRef_X_X(int rTableIdx, const RelRef *relRef);
 
