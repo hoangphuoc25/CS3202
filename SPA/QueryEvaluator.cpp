@@ -2751,6 +2751,10 @@ void QueryEvaluator::ev_relRef_X_syn(int rTableIdx,
             break;
         case REL_PARENT_STAR:
             break;
+        case REL_FOLLOWS:
+            break;
+        case REL_FOLLOWS_STAR:
+            break;
         case REL_NEXT:
             break;
         case REL_NEXT_STAR:
@@ -2777,6 +2781,10 @@ void QueryEvaluator::ev_relRef_X_syn(int rTableIdx,
         case REL_PARENT:
             break;
         case REL_PARENT_STAR:
+            break;
+        case REL_FOLLOWS:
+            break;
+        case REL_FOLLOWS_STAR:
             break;
         case REL_NEXT:
             break;
