@@ -392,6 +392,22 @@ private:
     /// @param rTableIdx ResultsTable index
     /// @param relRef info on this Relation clause
     void ev_relRef_X_syn_1_callsStar(int rTableIdx, const RelRef *relRef);
+    /// Evaluates Parent(X,syn) where syn has not been seen.
+    /// @param rTableIdx ResultsTable index
+    /// @param relRef info on this Relation clause
+    void ev_relRef_X_syn_0_parent(int rTableIdx, const RelRef *relRef);
+    /// Evaluates Parent(X,syn) where syn has been seen.
+    /// @param rTableIdx ResultsTable index
+    /// @param relRef info on this Relation clause
+    void ev_relRef_X_syn_1_parent(int rTableIdx, const RelRef *relRef);
+    /// Evaluates Parent*(X,syn) where syn has not been seen.
+    /// @param rTableIdx ResultsTable index
+    /// @param relRef info on this Relation clause
+    void ev_relRef_X_syn_0_parentStar(int rTableIdx, const RelRef *relRef);
+    /// Evaluates Parent*(X,syn) where syn has been seen.
+    /// @param rTableIdx ResultsTable index
+    /// @param relRef info on this Relation clause
+    void ev_relRef_X_syn_1_parentStar(int rTableIdx, const RelRef *relRef);
     /// Evaluates Rel(X,syn), where both arguments are strings and syn
     /// has not been seen.
     /// @param rTableIdx ResultsTable index
@@ -446,7 +462,36 @@ private:
     /// @param disp PKB dispatch table
     void ev_relRef_X_syn_wild_string_1(int rTableIdx,
             const RelRef *relRef, const EvalPKBDispatch& disp);
-
+    /// Evaluates Rel(X,syn), where arguments are (int,int) and syn
+    /// has not been seen.
+    /// @param rTableIdx ResultsTable index
+    /// @param relRef info on this Relation clause
+    /// @param disp PKB dispatch table
+    void ev_relRef_X_syn_int_int_0(int rTableIdx,
+            const RelRef *relRef, const EvalPKBDispatch& disp,
+            DesignEnt xType, int xVal);
+    /// Evaluates Rel(X,syn), where arguments are (int,int) and syn
+    /// has been seen.
+    /// @param rTableIdx ResultsTable index
+    /// @param relRef info on this Relation clause
+    /// @param disp PKB dispatch table
+    void ev_relRef_X_syn_int_int_1(int rTableIdx,
+            const RelRef *relRef, const EvalPKBDispatch& disp,
+            DesignEnt xType, int xVal);
+    /// Evaluates Rel(X,syn), where arguments are (_,int) and syn
+    /// has not been seen.
+    /// @param rTableIdx ResultsTable index
+    /// @param relRef info on this Relation clause
+    /// @param disp PKB dispatch table
+    void ev_relRef_X_syn_wild_int_0(int rTableIdx,
+            const RelRef *relRef, const EvalPKBDispatch& disp);
+    /// Evaluates Rel(X,syn), where arguments are (_,int) and syn
+    /// has been seen.
+    /// @param rTableIdx ResultsTable index
+    /// @param relRef info on this Relation clause
+    /// @param disp PKB dispatch table
+    void ev_relRef_X_syn_wild_int_1(int rTableIdx,
+            const RelRef *relRef, const EvalPKBDispatch& disp);
     // evaluate relRef, none of the arguments is a synonym
     void ev_relRef_X_X(int rTableIdx, const RelRef *relRef);
 

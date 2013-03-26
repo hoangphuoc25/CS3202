@@ -2748,8 +2748,10 @@ void QueryEvaluator::ev_relRef_X_syn(int rTableIdx,
             this->ev_relRef_X_syn_1_callsStar(rTableIdx, relRef);
             break;
         case REL_PARENT:
+            this->ev_relRef_X_syn_1_parent(rTableIdx, relRef);
             break;
         case REL_PARENT_STAR:
+            this->ev_relRef_X_syn_1_parentStar(rTableIdx, relRef);
             break;
         case REL_FOLLOWS:
             break;
@@ -2779,8 +2781,10 @@ void QueryEvaluator::ev_relRef_X_syn(int rTableIdx,
             this->ev_relRef_X_syn_0_callsStar(rTableIdx, relRef);
             break;
         case REL_PARENT:
+            this->ev_relRef_X_syn_0_parent(rTableIdx, relRef);
             break;
         case REL_PARENT_STAR:
+            this->ev_relRef_X_syn_0_parentStar(rTableIdx, relRef);
             break;
         case REL_FOLLOWS:
             break;
@@ -3006,6 +3010,144 @@ void QueryEvaluator::ev_relRef_X_syn_1_callsStar(int rTableIdx,
     }
 }
 
+void QueryEvaluator::ev_relRef_X_syn_0_parent(int rTableIdx,
+        const RelRef *relRef)
+{
+    EvalPKBDispatch pkbDispatch;
+    switch (relRef->argOneType) {
+    case RELARG_INT:
+        pkbDispatch.get_int_set_argTwo_from_int_argOne =
+                &PKB::parent_X_Y_get_int_Y_from_int_X;
+        this->ev_relRef_X_syn_int_int_0(rTableIdx, relRef,
+                pkbDispatch, ENT_STMT, relRef->argOneInt);
+        break;
+    case RELARG_WILDCARD:
+        switch (relRef->argTwoSyn) {
+        case ENT_ASSIGN:
+            pkbDispatch.get_all_int_argTwo =
+                    &PKB::get_all_assign;
+            break;
+        case ENT_CALL:
+            pkbDispatch.get_all_int_argTwo =
+                    &PKB::get_all_call;
+            break;
+        case ENT_IF:
+            pkbDispatch.get_all_int_argTwo =
+                    &PKB::get_all_if;
+            break;
+        case ENT_WHILE:
+            pkbDispatch.get_all_int_argTwo =
+                    &PKB::get_all_while;
+            break;
+        case ENT_STMT:
+        case ENT_PROGLINE:
+            pkbDispatch.get_all_int_argTwo =
+                    &PKB::get_all_stmt;
+            break;
+        default:
+            assert(false);
+        }
+        pkbDispatch.f_smth_int_argTwo =
+                &PKB::parent_X_Y_smth_int_Y;
+        this->ev_relRef_X_syn_wild_int_0(rTableIdx, relRef,
+                pkbDispatch);
+        break;
+    default:
+        assert(false);
+    }
+}
+
+void QueryEvaluator::ev_relRef_X_syn_1_parent(int rTableIdx,
+        const RelRef *relRef)
+{
+    EvalPKBDispatch pkbDispatch;
+    switch (relRef->argOneType) {
+    case RELARG_INT:
+        pkbDispatch.f_int_argOne_int_argTwo =
+                &PKB::parent_query_int_X_int_Y;
+        this->ev_relRef_X_syn_int_int_1(rTableIdx, relRef,
+                pkbDispatch, ENT_STMT, relRef->argOneInt);
+        break;
+    case RELARG_WILDCARD:
+        pkbDispatch.f_smth_int_argTwo =
+                &PKB::parent_X_Y_smth_int_Y;
+        this->ev_relRef_X_syn_wild_int_1(rTableIdx, relRef,
+                pkbDispatch);
+        break;
+    default:
+        assert(false);
+    }
+}
+
+void QueryEvaluator::ev_relRef_X_syn_0_parentStar(int rTableIdx,
+        const RelRef *relRef)
+{
+    EvalPKBDispatch pkbDispatch;
+    switch (relRef->argOneType) {
+    case RELARG_INT:
+        pkbDispatch.get_int_set_argTwo_from_int_argOne =
+                &PKB::parentStar_X_Y_get_int_Y_from_int_X;
+        this->ev_relRef_X_syn_int_int_0(rTableIdx, relRef,
+                pkbDispatch, ENT_STMT, relRef->argOneInt);
+        break;
+    case RELARG_WILDCARD:
+        switch (relRef->argTwoSyn) {
+        case ENT_ASSIGN:
+            pkbDispatch.get_all_int_argTwo =
+                    &PKB::get_all_assign;
+            break;
+        case ENT_CALL:
+            pkbDispatch.get_all_int_argTwo =
+                    &PKB::get_all_call;
+            break;
+        case ENT_IF:
+            pkbDispatch.get_all_int_argTwo =
+                    &PKB::get_all_if;
+            break;
+        case ENT_WHILE:
+            pkbDispatch.get_all_int_argTwo =
+                    &PKB::get_all_while;
+            break;
+        case ENT_STMT:
+        case ENT_PROGLINE:
+            pkbDispatch.get_all_int_argTwo =
+                    &PKB::get_all_stmt;
+            break;
+        default:
+            assert(false);
+        }
+        pkbDispatch.f_smth_int_argTwo =
+                &PKB::parentStar_X_Y_smth_int_Y;
+        this->ev_relRef_X_syn_wild_int_0(rTableIdx, relRef,
+                pkbDispatch);
+        break;
+    default:
+        assert(false);
+    }
+}
+
+void QueryEvaluator::ev_relRef_X_syn_1_parentStar(int rTableIdx,
+        const RelRef *relRef)
+{
+    EvalPKBDispatch pkbDispatch;
+    switch (relRef->argOneType) {
+    case RELARG_INT:
+        pkbDispatch.f_int_argOne_int_argTwo =
+                &PKB::parentStar_query_int_X_int_Y;
+        this->ev_relRef_X_syn_int_int_1(rTableIdx, relRef,
+                pkbDispatch, ENT_STMT, relRef->argOneInt);
+        break;
+    case RELARG_WILDCARD:
+        pkbDispatch.f_smth_int_argTwo =
+                &PKB::parentStar_X_Y_smth_int_Y;
+        this->ev_relRef_X_syn_wild_int_1(rTableIdx, relRef,
+                pkbDispatch);
+        break;
+    default:
+        assert(false);
+    }
+}
+
 void QueryEvaluator::ev_relRef_X_syn_string_string_0(int rTableIdx,
         const RelRef *relRef, const EvalPKBDispatch& disp,
         DesignEnt xType, const string& xVal)
@@ -3128,6 +3270,91 @@ void QueryEvaluator::ev_relRef_X_syn_wild_string_1(int rTableIdx,
                 record.get_column(colIdx);
         const string& synVal = siPair.first;
         if ((this->pkb->*(disp.f_smth_string_argTwo))
+                (synEntType, synVal)) {
+            rTable.syn_1_mark_row_ok(i);
+        }
+    }
+    rTable.syn_1_transaction_end();
+}
+
+void QueryEvaluator::ev_relRef_X_syn_int_int_0(int rTableIdx,
+        const RelRef *relRef, const EvalPKBDispatch& disp,
+        DesignEnt xType, int xVal)
+{
+    assert(NULL != disp.get_int_set_argTwo_from_int_argOne);
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    rTable.syn_0_transaction_begin(relRef->argTwoString, RV_INT);
+    const set<int>& synSet =
+            (this->pkb->*(disp.get_int_set_argTwo_from_int_argOne))
+                    (xType, relRef->argTwoSyn, xVal);
+    for (set<int>::const_iterator synIt = synSet.begin();
+            synIt != synSet.end(); synIt++) {
+        rTable.syn_0_add_row(*synIt);
+    }
+    rTable.syn_0_transaction_end();
+}
+
+void QueryEvaluator::ev_relRef_X_syn_int_int_1(int rTableIdx,
+        const RelRef *relRef, const EvalPKBDispatch& disp,
+        DesignEnt xType, int xVal)
+{
+    assert(NULL != disp.f_int_argOne_int_argTwo);
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    pair<const vector<Record> *, int> viPair =
+            rTable.syn_1_transaction_begin(relRef->argTwoString);
+    const vector<Record>& records = *(viPair.first);
+    int nrRecords = records.size();
+    int colIdx = viPair.second;
+    DesignEnt synEntType = relRef->argTwoSyn;
+    for (int i = 0; i < nrRecords; i++) {
+        const Record& record = records[i];
+        const pair<string, int>& siPair = record.get_column(colIdx);
+        int synVal = siPair.second;
+        if ((this->pkb->*(disp.f_int_argOne_int_argTwo))
+                (xType, xVal, synEntType, synVal)) {
+            rTable.syn_1_mark_row_ok(i);
+        }
+    }
+    rTable.syn_1_transaction_end();
+}
+
+void QueryEvaluator::ev_relRef_X_syn_wild_int_0(int rTableIdx,
+        const RelRef *relRef, const EvalPKBDispatch& disp)
+{
+    assert(NULL != disp.get_all_int_argTwo);
+    assert(NULL != disp.f_smth_int_argTwo);
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    rTable.syn_0_transaction_begin(relRef->argTwoString, RV_INT);
+    const set<int>& synSet =
+            (this->pkb->*(disp.get_all_int_argTwo))();
+    DesignEnt synEntType = relRef->argTwoSyn;
+    for (set<int>::const_iterator synIt = synSet.begin();
+            synIt != synSet.end(); synIt++) {
+        int synVal = *synIt;
+        if ((this->pkb->*(disp.f_smth_int_argTwo))
+                (synEntType, synVal)) {
+            rTable.syn_0_add_row(synVal);
+        }
+    }
+    rTable.syn_0_transaction_end();
+}
+
+void QueryEvaluator::ev_relRef_X_syn_wild_int_1(int rTableIdx,
+        const RelRef *relRef, const EvalPKBDispatch& disp)
+{
+    assert(NULL != disp.f_smth_int_argTwo);
+    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    pair<const vector<Record> *, int> viPair =
+            rTable.syn_1_transaction_begin(relRef->argTwoString);
+    const vector<Record>& records = *(viPair.first);
+    int nrRecords = records.size();
+    int colIdx = viPair.second;
+    DesignEnt synEntType = relRef->argTwoSyn;
+    for (int i = 0; i < nrRecords; i++) {
+        const Record& record = records[i];
+        const pair<string, int>& siPair = record.get_column(colIdx);
+        int synVal = siPair.second;
+        if ((this->pkb->*(disp.f_smth_int_argTwo))
                 (synEntType, synVal)) {
             rTable.syn_1_mark_row_ok(i);
         }

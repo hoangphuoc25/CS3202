@@ -135,6 +135,7 @@
     <ClCompile Include="Test21_CallsStar_N2S.cpp" />
     <ClCompile Include="Test21_Calls_N2S.cpp" />
     <ClCompile Include="Test21_Modifies_N2S.cpp" />
+    <ClCompile Include="Test21_ParentAndStar_N2S.cpp" />
     <ClCompile Include="Test21_Uses_N2S.cpp" />
     <ClCompile Include="Test30_PatCl_If.cpp" />
     <ClCompile Include="Test60_Evil.cpp" />
@@ -208,6 +209,7 @@
     <ClInclude Include="Test21_CallsStar_N2S.h" />
     <ClInclude Include="Test21_Calls_N2S.h" />
     <ClInclude Include="Test21_Modifies_N2S.h" />
+    <ClInclude Include="Test21_ParentAndStar_N2S.h" />
     <ClInclude Include="Test21_Uses_N2S.h" />
     <ClInclude Include="Test30_PatCl_If.h" />
     <ClInclude Include="Test60_Evil.h" />
