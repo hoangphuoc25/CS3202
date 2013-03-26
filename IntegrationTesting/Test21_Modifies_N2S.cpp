@@ -461,6 +461,7 @@ void Test21_Modifies_N2S::test_modifies_string_syn()
            gj = good + luck; \
            x = y; \
            good = day; \
+           it = 57; \
          }";
     evaluator.parseSimple(simpleProg);
     // Modifies(string,syn) 0
@@ -490,5 +491,19 @@ void Test21_Modifies_N2S::test_modifies_string_syn()
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "x"),
+            stringSet);
+    // Modifies(_,syn) 0
+    queryStr = " variable v; Select v such that Modifies(_,v)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(9, "a", "gj", "good",
+            "it", "no", "truth", "var", "x", "ya"),
+            stringSet);
+    // Modifies(_,syn) 1
+    queryStr = " stmt s; variable v; ";
+    queryStr += " Select v such that Uses(s,v) and  Modifies(_,v)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "it", "good", "x"),
             stringSet);
 }

@@ -87,6 +87,10 @@ struct EvalPKBDispatch {
              int, DesignEnt argTwoType, int) const;
     bool (PKB::*f_int_argOne_smth)(DesignEnt argOneType,
             int argOneVal) const;
+    bool (PKB::*f_smth_string_argTwo)(DesignEnt argTwoType,
+            const std::string& argTwoVal) const;
+    bool (PKB::*f_smth_int_argTwo)(DesignEnt argTwoType, int argTwoVal)
+            const;
 
     // Generic QueryEvaluator evaluation function
     void (QueryEvaluator::*relRef_eval)
@@ -404,6 +408,21 @@ private:
     void ev_relRef_X_syn_int_string_1(int rTableIdx,
             const RelRef *relRef, const EvalPKBDispatch& disp,
             DesignEnt xType, int xVal);
+    /// Evaluates Rel(X,syn), where arguments are (_,string) and syn
+    /// has not been seen.
+    /// @param rTableIdx ResultsTable index
+    /// @param relRef info on this Relation clause
+    /// @param disp PKB dispatch table
+    void ev_relRef_X_syn_wild_string_0(int rTableIdx,
+            const RelRef *relRef, const EvalPKBDispatch& disp);
+    /// Evaluates Rel(X,syn), where arguments are (_,string) and syn
+    /// has been seen.
+    /// @param rTableIdx ResultsTable index
+    /// @param relRef info on this Relation clause
+    /// @param disp PKB dispatch table
+    void ev_relRef_X_syn_wild_string_1(int rTableIdx,
+            const RelRef *relRef, const EvalPKBDispatch& disp);
+
     // evaluate relRef, none of the arguments is a synonym
     void ev_relRef_X_X(int rTableIdx, const RelRef *relRef);
 
