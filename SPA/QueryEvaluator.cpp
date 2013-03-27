@@ -66,8 +66,12 @@ EvalPKBDispatch::EvalPKBDispatch()
       get_all_int_argTwo(NULL),
       f_string_argOne_string_argTwo(NULL),
       f_string_argOne_int_argTwo(NULL),
+      f_string_argOne_smth(NULL),
       f_int_argOne_string_argTwo(NULL),
       f_int_argOne_int_argTwo(NULL),
+      f_int_argOne_smth(NULL),
+      f_smth_string_argTwo(NULL),
+      f_smth_int_argTwo(NULL),
       relRef_eval(NULL) {}
 
 void EvalPKBDispatch::reset()
@@ -86,8 +90,12 @@ void EvalPKBDispatch::reset()
     this->get_all_int_argTwo = NULL;
     this->f_string_argOne_string_argTwo = NULL;
     this->f_string_argOne_int_argTwo = NULL;
+    this->f_string_argOne_smth = NULL;
     this->f_int_argOne_string_argTwo = NULL;
     this->f_int_argOne_int_argTwo = NULL;
+    this->f_int_argOne_smth = NULL;
+    this->f_smth_string_argTwo = NULL;
+    this->f_smth_int_argTwo = NULL;
     this->relRef_eval = NULL;
 }
 //////////////////////////////////////////////////////////////////////
