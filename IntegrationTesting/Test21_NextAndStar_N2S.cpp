@@ -145,3 +145,88 @@ void Test21_NextAndStar_N2S::test_nextStar_syn_X()
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "5", "7", "20"),
             stringSet);
 }
+
+void Test21_NextAndStar_N2S::test_next_X_syn()
+{
+    string queryStr;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+
+    evaluator.parseSimple(this->SIMPLE_PROG);
+    // Next(int,syn) 0
+    queryStr = " while w; Select w such that Next(4,w)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "5"),
+            stringSet);
+    queryStr = " assign a; Select a such that Next(4,a)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
+            stringSet);
+    // Next(int,syn) 1
+    queryStr = " while w; variable v; ";
+    queryStr += " Select w such that Modifies(w,v) and ";
+    queryStr += " Next(21,w)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "20"),
+            stringSet);
+    // Next(_,syn) 0
+    queryStr = " call c; Select c such that Next(_,c)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "4", "18"),
+            stringSet);
+    // Next(_,syn) 1
+    queryStr = " while w; variable v; ";
+    queryStr += " Select w such that Modifies(w,v) and Next(_,w)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "5", "7", "20"),
+            stringSet);
+}
+
+void Test21_NextAndStar_N2S::test_nextStar_X_syn()
+{
+    string queryStr;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+
+    evaluator.parseSimple(this->SIMPLE_PROG);
+    // Next*(int,syn) 0
+    queryStr = " while w; Select w such that Next*(4,w)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "5", "7"),
+            stringSet);
+    queryStr = " assign a; Select a such that Next*(4,a)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(9, "6", "8", "10", "11",
+            "12", "13", "15", "16", "19"),
+            stringSet);
+    // Next*(int,syn) 1
+    queryStr = " while w; variable v; ";
+    queryStr += " Select w such that Modifies(w,v) and ";
+    queryStr += " Next*(21,w)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "20"),
+            stringSet);
+    // Next*(_,syn) 0
+    queryStr = " call c; Select c such that Next*(_,c)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "4", "18"),
+            stringSet);
+    // Next*(_,syn) 1
+    queryStr = " if if1; variable v; ";
+    queryStr += " Select if1 such that Modifies(if1,v) and Next*(_,if1)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "2", "9", "14", "23"),
+            stringSet);
+}

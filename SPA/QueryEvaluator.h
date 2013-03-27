@@ -429,6 +429,18 @@ private:
     /// @param relRef info on this Relation clause
     void ev_relRef_X_syn_1_followsAndStar(int rTableIdx,
             const RelRef *relRef);
+    /// Evaluates Next(X,syn) and Next*(X,syn) where syn
+    /// has not been seen.
+    /// @param rTableIdx ResultsTable index
+    /// @param relRef info on this Relation clause
+    void ev_relRef_X_syn_0_nextAndStar(int rTableIdx,
+            const RelRef *relRef);
+    /// Evaluates Next(X,syn) and Next*(X,syn) where syn
+    /// has been seen.
+    /// @param rTableIdx ResultsTable index
+    /// @param relRef info on this Relation clause
+    void ev_relRef_X_syn_1_nextAndStar(int rTableIdx,
+            const RelRef *relRef);
     /// Evaluates Rel(X,syn), where both arguments are strings and syn
     /// has not been seen.
     /// @param rTableIdx ResultsTable index

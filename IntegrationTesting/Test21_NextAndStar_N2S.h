@@ -12,6 +12,8 @@ class Test21_NextAndStar_N2S: public CPPUNIT_NS::TestFixture {
 CPPUNIT_TEST_SUITE(Test21_NextAndStar_N2S);
 CPPUNIT_TEST(test_next_syn_X);
 CPPUNIT_TEST(test_nextStar_syn_X);
+CPPUNIT_TEST(test_next_X_syn);
+CPPUNIT_TEST(test_nextStar_X_syn);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -22,6 +24,8 @@ private:
 
     void test_next_syn_X();
     void test_nextStar_syn_X();
+    void test_next_X_syn();
+    void test_nextStar_X_syn();
 };
 
 #endif
