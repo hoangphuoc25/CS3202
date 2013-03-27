@@ -134,6 +134,7 @@
     <ClCompile Include="Test20_SynSyn_RelRef.cpp" />
     <ClCompile Include="Test21_CallsStar_N2S.cpp" />
     <ClCompile Include="Test21_Calls_N2S.cpp" />
+    <ClCompile Include="Test21_FollowsAndStar_N2S.cpp" />
     <ClCompile Include="Test21_Modifies_N2S.cpp" />
     <ClCompile Include="Test21_NextAndStar_N2S.cpp" />
     <ClCompile Include="Test21_ParentAndStar_N2S.cpp" />
@@ -209,6 +210,7 @@
     <ClInclude Include="Test20_SynSyn_RelRef.h" />
     <ClInclude Include="Test21_CallsStar_N2S.h" />
     <ClInclude Include="Test21_Calls_N2S.h" />
+    <ClInclude Include="Test21_FollowsAndStar_N2S.h" />
     <ClInclude Include="Test21_Modifies_N2S.h" />
     <ClInclude Include="Test21_NextAndStar_N2S.h" />
     <ClInclude Include="Test21_ParentAndStar_N2S.h" />
