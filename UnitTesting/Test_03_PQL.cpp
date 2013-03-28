@@ -160,23 +160,20 @@ void Test_03_PQL::test_attrRef_to_RefSynType()
     attrRef.syn = "asyn";
     attrRef.entType = ENT_ASSIGN;
     attrRef.attr = ATTR_DEFAULT;
-    // assign
-    CPPUNIT_ASSERT_EQUAL(REFSYN_ASSIGN,
-            attrRef_to_RefSynType(attrRef));
     // assign.stmt#
     attrRef.attr = ATTR_STMTNO;
     CPPUNIT_ASSERT_EQUAL(REFSYN_ASSIGN,
+            attrRef_to_RefSynType(attrRef));
+    // invalid: assign without attrName
+    attrRef.attr = ATTR_DEFAULT;
+    CPPUNIT_ASSERT_EQUAL(REFSYN_INVALID,
             attrRef_to_RefSynType(attrRef));
     // invalid, assign.varName
     attrRef.attr = ATTR_VARNAME;
     CPPUNIT_ASSERT_EQUAL(REFSYN_INVALID,
             attrRef_to_RefSynType(attrRef));
-    // call
-    attrRef.entType = ENT_CALL;
-    attrRef.attr = ATTR_DEFAULT;
-    CPPUNIT_ASSERT_EQUAL(REFSYN_CALL,
-            attrRef_to_RefSynType(attrRef));
     // call.stmt#
+    attrRef.entType = ENT_CALL;
     attrRef.attr = ATTR_STMTNO;
     CPPUNIT_ASSERT_EQUAL(REFSYN_CALL,
             attrRef_to_RefSynType(attrRef));
@@ -184,44 +181,48 @@ void Test_03_PQL::test_attrRef_to_RefSynType()
     attrRef.attr = ATTR_PROCNAME;
     CPPUNIT_ASSERT_EQUAL(REFSYN_CALL_PROCNAME,
             attrRef_to_RefSynType(attrRef));
+    // invalid: call without any attrName
+    attrRef.attr = ATTR_DEFAULT;
+    CPPUNIT_ASSERT_EQUAL(REFSYN_INVALID,
+            attrRef_to_RefSynType(attrRef));
     // invalid, call.value
     attrRef.attr = ATTR_VALUE;
     CPPUNIT_ASSERT_EQUAL(REFSYN_INVALID,
             attrRef_to_RefSynType(attrRef));
-    // if
-    attrRef.entType = ENT_IF;
-    attrRef.attr = ATTR_DEFAULT;
-    CPPUNIT_ASSERT_EQUAL(REFSYN_IF,
-            attrRef_to_RefSynType(attrRef));
     // if.stmt#
+    attrRef.entType = ENT_IF;
     attrRef.attr = ATTR_STMTNO;
     CPPUNIT_ASSERT_EQUAL(REFSYN_IF,
+            attrRef_to_RefSynType(attrRef));
+    // invalid: if without attrName
+    attrRef.attr = ATTR_DEFAULT;
+    CPPUNIT_ASSERT_EQUAL(REFSYN_INVALID,
             attrRef_to_RefSynType(attrRef));
     // invalid, if.varName
     attrRef.attr = ATTR_VARNAME;
     CPPUNIT_ASSERT_EQUAL(REFSYN_INVALID,
             attrRef_to_RefSynType(attrRef));
-    // while
-    attrRef.entType = ENT_WHILE;
-    attrRef.attr = ATTR_DEFAULT;
-    CPPUNIT_ASSERT_EQUAL(REFSYN_WHILE,
-            attrRef_to_RefSynType(attrRef));
     // while.stmt#
+    attrRef.entType = ENT_WHILE;
     attrRef.attr = ATTR_STMTNO;
     CPPUNIT_ASSERT_EQUAL(REFSYN_WHILE,
+            attrRef_to_RefSynType(attrRef));
+    // invalid: while without attrname
+    attrRef.attr = ATTR_DEFAULT;
+    CPPUNIT_ASSERT_EQUAL(REFSYN_INVALID,
             attrRef_to_RefSynType(attrRef));
     // invalid, while.procName
     attrRef.attr = ATTR_PROCNAME;
     CPPUNIT_ASSERT_EQUAL(REFSYN_INVALID,
             attrRef_to_RefSynType(attrRef));
-    // stmt
-    attrRef.entType = ENT_STMT;
-    attrRef.attr = ATTR_DEFAULT;
-    CPPUNIT_ASSERT_EQUAL(REFSYN_STMT,
-            attrRef_to_RefSynType(attrRef));
     // stmt.stmt#
+    attrRef.entType = ENT_STMT;
     attrRef.attr = ATTR_STMTNO;
     CPPUNIT_ASSERT_EQUAL(REFSYN_STMT,
+            attrRef_to_RefSynType(attrRef));
+    // invalid: stmt without attrName
+    attrRef.attr = ATTR_DEFAULT;
+    CPPUNIT_ASSERT_EQUAL(REFSYN_INVALID,
             attrRef_to_RefSynType(attrRef));
     // invalid, stmt.value
     attrRef.attr = ATTR_VALUE;
@@ -234,59 +235,59 @@ void Test_03_PQL::test_attrRef_to_RefSynType()
             attrRef_to_RefSynType(attrRef));
     // prog_line.prog_line#
     attrRef.attr = ATTR_PROGLINE;
-    CPPUNIT_ASSERT_EQUAL(REFSYN_PROGLINE,
+    CPPUNIT_ASSERT_EQUAL(REFSYN_PROGLINE_PROGLINE_NO,
             attrRef_to_RefSynType(attrRef));
     // invalid, assign.varName
     attrRef.attr = ATTR_VARNAME;
     CPPUNIT_ASSERT_EQUAL(REFSYN_INVALID,
             attrRef_to_RefSynType(attrRef));
-    // stmtLst
-    attrRef.entType = ENT_STMTLST;
-    attrRef.attr = ATTR_DEFAULT;
-    CPPUNIT_ASSERT_EQUAL(REFSYN_STMTLST,
-            attrRef_to_RefSynType(attrRef));
     // stmtLst.stmt#
+    attrRef.entType = ENT_STMTLST;
     attrRef.attr = ATTR_STMTNO;
     CPPUNIT_ASSERT_EQUAL(REFSYN_STMTLST,
+            attrRef_to_RefSynType(attrRef));
+    // invalid: stmtLst without attrName
+    attrRef.attr = ATTR_DEFAULT;
+    CPPUNIT_ASSERT_EQUAL(REFSYN_INVALID,
             attrRef_to_RefSynType(attrRef));
     // invalid, stmtLst.procName
     attrRef.attr = ATTR_PROCNAME;
     CPPUNIT_ASSERT_EQUAL(REFSYN_INVALID,
             attrRef_to_RefSynType(attrRef));
-    // const
-    attrRef.entType = ENT_CONST;
-    attrRef.attr = ATTR_DEFAULT;
-    CPPUNIT_ASSERT_EQUAL(REFSYN_CONST,
-            attrRef_to_RefSynType(attrRef));
     // const.value
+    attrRef.entType = ENT_CONST;
     attrRef.attr = ATTR_VALUE;
     CPPUNIT_ASSERT_EQUAL(REFSYN_CONST,
+            attrRef_to_RefSynType(attrRef));
+    // invalid: const without attrName
+    attrRef.attr = ATTR_DEFAULT;
+    CPPUNIT_ASSERT_EQUAL(REFSYN_INVALID,
             attrRef_to_RefSynType(attrRef));
     // invalid, const.stmt#
     attrRef.attr = ATTR_STMTNO;
     CPPUNIT_ASSERT_EQUAL(REFSYN_INVALID,
             attrRef_to_RefSynType(attrRef));
-    // proc
-    attrRef.entType = ENT_PROC;
-    attrRef.attr = ATTR_DEFAULT;
-    CPPUNIT_ASSERT_EQUAL(REFSYN_PROC,
-            attrRef_to_RefSynType(attrRef));
     // proc.procName
+    attrRef.entType = ENT_PROC;
     attrRef.attr = ATTR_PROCNAME;
     CPPUNIT_ASSERT_EQUAL(REFSYN_PROC,
             attrRef_to_RefSynType(attrRef));
-    // invalid, assign.value
+    // invalid: procedure without attrName
+    attrRef.attr = ATTR_DEFAULT;
+    CPPUNIT_ASSERT_EQUAL(REFSYN_INVALID,
+            attrRef_to_RefSynType(attrRef));
+    // invalid, procedure.value
     attrRef.attr = ATTR_VALUE;
     CPPUNIT_ASSERT_EQUAL(REFSYN_INVALID,
             attrRef_to_RefSynType(attrRef));
-    // var
-    attrRef.entType = ENT_VAR;
-    attrRef.attr = ATTR_DEFAULT;
-    CPPUNIT_ASSERT_EQUAL(REFSYN_VAR,
-            attrRef_to_RefSynType(attrRef));
     // var.varName
+    attrRef.entType = ENT_VAR;
     attrRef.attr = ATTR_VARNAME;
     CPPUNIT_ASSERT_EQUAL(REFSYN_VAR,
+            attrRef_to_RefSynType(attrRef));
+    // invalid: variable without attrName
+    attrRef.attr = ATTR_DEFAULT;
+    CPPUNIT_ASSERT_EQUAL(REFSYN_INVALID,
             attrRef_to_RefSynType(attrRef));
     // invalid, var.stmt#
     attrRef.attr = ATTR_STMTNO;

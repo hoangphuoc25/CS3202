@@ -314,64 +314,56 @@ RefSynType attrRef_to_RefSynType(const AttrRef& attrRef)
 {
     switch (attrRef.entType) {
     case ENT_ASSIGN:
-        if (ATTR_DEFAULT == attrRef.attr ||
-                ATTR_STMTNO == attrRef.attr) {
+        if (ATTR_STMTNO == attrRef.attr) {
             return REFSYN_ASSIGN;
         }
         break;
     case ENT_CALL:
-        if (ATTR_DEFAULT == attrRef.attr ||
-                ATTR_STMTNO == attrRef.attr) {
+        if (ATTR_STMTNO == attrRef.attr) {
             return REFSYN_CALL;
         } else if (ATTR_PROCNAME == attrRef.attr) {
             return REFSYN_CALL_PROCNAME;
         }
         break;
     case ENT_IF:
-        if (ATTR_DEFAULT == attrRef.attr ||
-                ATTR_STMTNO == attrRef.attr) {
+        if (ATTR_STMTNO == attrRef.attr) {
             return REFSYN_IF;
         }
         break;
     case ENT_WHILE:
-        if (ATTR_DEFAULT == attrRef.attr ||
-                ATTR_STMTNO == attrRef.attr) {
+        if (ATTR_STMTNO == attrRef.attr) {
             return REFSYN_WHILE;
         }
         break;
     case ENT_STMT:
-        if (ATTR_DEFAULT == attrRef.attr ||
-                ATTR_STMTNO == attrRef.attr) {
+        if (ATTR_STMTNO == attrRef.attr) {
             return REFSYN_STMT;
         }
         break;
     case ENT_PROGLINE:
-        if (ATTR_DEFAULT == attrRef.attr ||
-                ATTR_PROGLINE == attrRef.attr) {
+        if (ATTR_DEFAULT == attrRef.attr) {
             return REFSYN_PROGLINE;
+        } else if (ATTR_PROGLINE == attrRef.attr) {
+            return REFSYN_PROGLINE_PROGLINE_NO;
         }
         break;
     case ENT_STMTLST:
-        if (ATTR_DEFAULT == attrRef.attr ||
-                ATTR_STMTNO == attrRef.attr) {
+        if (ATTR_STMTNO == attrRef.attr) {
             return REFSYN_STMTLST;
         }
         break;
     case ENT_CONST:
-        if (ATTR_DEFAULT == attrRef.attr ||
-                ATTR_VALUE == attrRef.attr) {
+        if (ATTR_VALUE == attrRef.attr) {
             return REFSYN_CONST;
         }
         break;
     case ENT_PROC:
-        if (ATTR_DEFAULT == attrRef.attr ||
-                ATTR_PROCNAME == attrRef.attr) {
+        if (ATTR_PROCNAME == attrRef.attr) {
             return REFSYN_PROC;
         }
         break;
     case ENT_VAR:
-        if (ATTR_DEFAULT == attrRef.attr ||
-                ATTR_VARNAME == attrRef.attr) {
+        if (ATTR_VARNAME == attrRef.attr) {
             return REFSYN_VAR;
         }
         break;

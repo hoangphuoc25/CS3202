@@ -268,18 +268,19 @@ enum RefType {
 
 /// Representation of a 'ref' which is a synonym
 enum RefSynType {
-    REFSYN_PROC,          ///< procedure
-    REFSYN_STMTLST,       ///< stmtLst
-    REFSYN_STMT,          ///< stmt
-    REFSYN_ASSIGN,        ///< assign
-    REFSYN_CALL,          ///< call.stmt#
-    REFSYN_CALL_PROCNAME, ///< call.procName
-    REFSYN_WHILE,         ///< while
-    REFSYN_IF,            ///< if
-    REFSYN_VAR,           ///< variable
-    REFSYN_CONST,         ///< constant
-    REFSYN_PROGLINE,      ///< prog_line
-    REFSYN_INVALID        ///< invalid type
+    REFSYN_PROC,                 ///< procedure.procName
+    REFSYN_STMTLST,              ///< stmtLst.stmt#
+    REFSYN_STMT,                 ///< stmt.stmt#
+    REFSYN_ASSIGN,               ///< assign.stmt#
+    REFSYN_CALL,                 ///< call.stmt#
+    REFSYN_CALL_PROCNAME,        ///< call.procName
+    REFSYN_WHILE,                ///< while.stmt#
+    REFSYN_IF,                   ///< if.stmt#
+    REFSYN_VAR,                  ///< variable.varName
+    REFSYN_CONST,                ///< constant.value
+    REFSYN_PROGLINE,             ///< prog_line
+    REFSYN_PROGLINE_PROGLINE_NO, ///< prog_line.prog_line#
+    REFSYN_INVALID               ///< invalid type
 };
 
 /// Type of an attrName in the PQL grammar
