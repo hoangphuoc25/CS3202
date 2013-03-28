@@ -872,18 +872,28 @@ string Ref::toString() const
             case REFSYN_IF:
             case REFSYN_WHILE:
             case REFSYN_STMT:
-            case REFSYN_PROGLINE:
             case REFSYN_STMTLST:
+                sb.append('.');
                 sb.append(ATTR_STMTNO_STR);
+                break;
+            case REFSYN_PROGLINE:
+                // nothing
+                break;
+            case REFSYN_PROGLINE_PROGLINE_NO:
+                sb.append('.');
+                sb.append(ATTR_PROGLINE_STR);
                 break;
             case REFSYN_PROC:
             case REFSYN_CALL_PROCNAME:
+                sb.append('.');
                 sb.append(ATTR_PROCNAME_STR);
                 break;
             case REFSYN_VAR:
+                sb.append('.');
                 sb.append(ATTR_VARNAME_STR);
                 break;
             case REFSYN_CONST:
+                sb.append('.');
                 sb.append(ATTR_VALUE_STR);
                 break;
             }
@@ -1460,9 +1470,9 @@ ParseError QueryInfo::add_withClause(const WithClause& withClause,
                 // else int = int, tautology
                 break;
             case REF_ATTRREF:
-                if (withClause.leftRef.refSynType !=
-                        withClause.rightRef.refSynType) {
-                    // different AttrRef, insert
+                if (0 != withClause.leftRef.refStringVal.compare(
+                        withClause.rightRef.refStringVal)) {
+                    // different synonym in AttrRef, insert
                     this->insertOrder.push_back(
                             make_pair(WITH_CLAUSE,
                                     this->withClauseVec.size()));
@@ -1470,7 +1480,7 @@ ParseError QueryInfo::add_withClause(const WithClause& withClause,
                     this->withClauseVec.push_back(withClause);
                     this->clauses.push_back(new WithClause(withClause));
                 }
-                // else AttrRef = AttrRef, tautology
+                // else same synonym, tautology
                 break;
             default:
                 assert(false);

@@ -837,3 +837,127 @@ void Test_20_PQLParser_With::
     out += "Follows*(pl2,a2)\nNext(s1,pl1)\nParent(s2,pl1)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 }
+
+void Test_20_PQLParser_With::
+test_err_parse_withclause_ref_synonym_not_progline()
+{
+    string queryStr, out;
+    ostringstream *os;
+    PQLParser parser;
+    QueryInfo *qinfo;
+    // LHS of 1st WithClause has missing attr
+    queryStr = " assign a; stmt s; Select a with a = s.stmt#";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_REF_SYNONYM_NOT_PROGLINE,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_REF_SYNONYM_NOT_PROGLINE_STR,
+            "a", entity_type_to_string(ENT_ASSIGN));
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // Above Corrected
+    queryStr = "assign a; stmt s; Select a with a.stmt# = s.stmt#";
+    parser.parse(queryStr);
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    qinfo = parser.get_queryinfo();
+    out = "ALIVE\nDECLARATIONS\n  assign a\n  stmt s\nSELECT TUPLE\n";
+    out += "  assign a\na.stmt# = s.stmt#\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // LHS of 3rd with clause missing attr
+    queryStr = "while w; if if1; variable v1, v2; assign a1, a2; ";
+    queryStr += " Select <w,if1, a1.stmt#> such that Parent(w,if1) and ";
+    queryStr += " Parent(w,a1) with a1.stmt# = w.stmt# and ";
+    queryStr += " a1.stmt# = a2.stmt# such that Modifies(a2,v2) and ";
+    queryStr += " Affects(a2,a1) with w = if1.stmt#";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_REF_SYNONYM_NOT_PROGLINE,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_REF_SYNONYM_NOT_PROGLINE_STR,
+            "w", entity_type_to_string(ENT_WHILE));
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // Above corrected
+    queryStr = "while w; if if1; variable v1, v2; assign a1, a2; ";
+    queryStr += " Select <w,if1, a1.stmt#> such that Parent(w,if1) and ";
+    queryStr += " Parent(w,a1) with a1.stmt# = w.stmt# and ";
+    queryStr += " a1.stmt# = a2.stmt# such that Modifies(a2,v2) and ";
+    queryStr += " Affects(a2,a1) with w.stmt# = if1.stmt#";
+    parser.parse(queryStr);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "ALIVE\nDECLARATIONS\n  while w\n  if if1\n  variable v1\n";
+    out += "  variable v2\n  assign a1\n  assign a2\nSELECT TUPLE\n";
+    out += "  while w\n  if if1\n  assign a1 stmt#\n";
+    out += "Parent(w,if1)\nParent(w,a1)\na1.stmt# = w.stmt#\n";
+    out += "a1.stmt# = a2.stmt#\nModifies(a2,v2)\nAffects(a2,a1)\n";
+    out += "w.stmt# = if1.stmt#\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // RHS of 1st with clause missing attr
+    queryStr = " procedure someP; variable ynna; ";
+    queryStr += " Select ynna with someP.procName = ynna";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_REF_SYNONYM_NOT_PROGLINE,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_REF_SYNONYM_NOT_PROGLINE_STR,
+            "ynna", entity_type_to_string(ENT_VAR));
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // Above corrected
+    queryStr = " procedure someP; variable ynna; ";
+    queryStr += " Select ynna with someP.procName = ynna.varName ";
+    parser.parse(queryStr);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "ALIVE\nDECLARATIONS\n  procedure someP\n  variable ynna\n";
+    out += "SELECT TUPLE\n  variable ynna\nsomeP.procName = ynna.varName\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // RHS of 4th with clause missing attr
+    queryStr = "procedure p1, p2; assign a1, a2; while w1, w2; ";
+    queryStr += " call c1, c2; constant const1, const2; variable v1, v2; ";
+    queryStr += " Select <c1.procName, const1.value, w1, a2, ";
+    queryStr += " p2.procName> with p1.procName = v1.varName such that ";
+    queryStr += " Modifies(p1, v1) and Uses(w1, v1) with ";
+    queryStr += " const1.value = w1.stmt# such that Affects(a1,a2) and ";
+    queryStr += " Parent(w1,a2) with a2.stmt# = const2.value and ";
+    queryStr += " c1 = v2.varName such that Modifies(c1,v1)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_REF_SYNONYM_NOT_PROGLINE,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_REF_SYNONYM_NOT_PROGLINE_STR,
+            "c1", entity_type_to_string(ENT_CALL));
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // Above corrected
+    queryStr = "procedure p1, p2; assign a1, a2; while w1, w2; ";
+    queryStr += " call c1, c2; constant const1, const2; variable v1, v2; ";
+    queryStr += " Select <c1.procName, const1.value, w1, a2, ";
+    queryStr += " p2.procName> with p1.procName = v1.varName such that ";
+    queryStr += " Modifies(p1, v1) and Uses(w1, v1) with ";
+    queryStr += " const1.value = w1.stmt# such that Affects(a1,a2) and ";
+    queryStr += " Parent(w1,a2) with a2.stmt# = const2.value and ";
+    queryStr += " c1.procName = v2.varName such that Modifies(c1,v1)";
+    parser.parse(queryStr);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "ALIVE\nDECLARATIONS\n  procedure p1\n  procedure p2\n";
+    out += "  assign a1\n  assign a2\n  while w1\n  while w2\n  call c1\n";
+    out += "  call c2\n  constant const1\n  constant const2\n";
+    out += "  variable v1\n  variable v2\nSELECT TUPLE\n";
+    out += "  call c1 procName\n  constant const1 value\n  while w1\n";
+    out += "  assign a2\n  procedure p2 procName\n";
+    out += "p1.procName = v1.varName\nModifies(p1,v1)\nUses(w1,v1)\n";
+    out += "const1.value = w1.stmt#\nAffects(a1,a2)\nParent(w1,a2)\n";
+    out += "a2.stmt# = const2.value\nc1.procName = v2.varName\n";
+    out += "Modifies(c1,v1)\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+}

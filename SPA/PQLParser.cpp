@@ -356,6 +356,9 @@ void PQLParser::print_error(va_list ap)
     case PARSE_WITHCLAUSE_REF_SYNONYM_UNDECLARED:
         sb.vsprintf(PARSE_WITHCLAUSE_REF_SYNONYM_UNDECLARED_STR, ap);
         break;
+    case PARSE_WITHCLAUSE_REF_SYNONYM_NOT_PROGLINE:
+        sb.vsprintf(PARSE_WITHCLAUSE_REF_SYNONYM_NOT_PROGLINE_STR, ap);
+        break;
     case PARSE_WITHCLAUSE_REFS_INVALID:
         sb.vsprintf(PARSE_WITHCLAUSE_REFS_INVALID_STR, ap);
         break;
