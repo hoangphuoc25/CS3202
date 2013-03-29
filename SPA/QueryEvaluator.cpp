@@ -418,13 +418,16 @@ bool QueryEvaluator::ev_isolated_clause(const QueryInfo *qinfo,
     assert(INVALID_CLAUSE != clauseType);
     // pattern clause can NEVER be isolated
     assert(PATTERN_CLAUSE != clauseType);
+    // with clause can NEVER be isolated
+    // with clause with 2 concrete args is either tautology or will
+    // cause query to be false, handled in QueryInfo::add_withClause
+    assert(WITH_CLAUSE != clauseType);
     switch (clauseType) {
     case SUCHTHAT_CLAUSE:
         return this->ev_isolated_relation_clause(genericRef);
         break;
-    case WITH_CLAUSE:
-        return this->ev_isolated_with_clause(genericRef);
-        break;
+    default:
+        assert(false);
     }
 }
 
@@ -756,13 +759,6 @@ bool QueryEvaluator::ev_isolated_relation_wild_wild(
         break;
     }
     assert(false);
-    return false;
-}
-
-bool QueryEvaluator::ev_isolated_with_clause(const GenericRef *genRef)
-        const
-{
-    // TODO: Implement
     return false;
 }
 

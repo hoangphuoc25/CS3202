@@ -182,12 +182,6 @@ private:
     /// @return true if the Relation clause evaluates to true, false
     ///         otherwise
     bool ev_isolated_relation_wild_wild(const RelRef *relRef) const;
-    /// Evaluates an isolated with clause and returns the
-    /// evaluation result
-    /// @param genRef the with clause
-    /// @return true if the with clause evaluates to true, false
-    ///         otherwise
-    bool ev_isolated_with_clause(const GenericRef *genRef) const;
     bool relRef_arg_use_string(DesignEnt entType) const;
     void evaluate_relRef(int rTableIdx, const GenericRef *genRef);
     void ev_relRef_syn_syn(int rTableIdx, const RelRef *relRef);
