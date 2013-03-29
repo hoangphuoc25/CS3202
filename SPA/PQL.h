@@ -882,6 +882,9 @@ struct WithClause: public GenericRef {
     void normalize();
     /// dummy method
     void dummy();
+    /// Checks if a WithClause can never evaluate to true
+    /// @return true if a WithClause is a contradiction, false otherwise
+    bool is_contradiction() const;
     /// Swaps two WithClause
     /// @param x the first WithClause
     /// @param y the second WithClause

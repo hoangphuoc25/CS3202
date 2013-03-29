@@ -1018,6 +1018,119 @@ void WithClause::normalize()
 
 void WithClause::dummy() {}
 
+bool WithClause::is_contradiction() const
+{
+    if (REF_INVALID == this->leftRef.refType ||
+            REF_INVALID == this->rightRef.refType) {
+        return true;
+    }
+
+    if (REF_ATTRREF == this->leftRef.refType &&
+            REF_ATTRREF == this->rightRef.refType) {
+        BaseType leftBaseType =
+                refSynType_to_BaseType(this->leftRef.refSynType);
+        BaseType rightBaseType =
+                refSynType_to_BaseType(this->rightRef.refSynType);
+        if (BASETYPE_INVALID == leftBaseType ||
+                BASETYPE_INVALID == rightBaseType) {
+            return true;
+        } else if (leftBaseType != rightBaseType) {
+            return true;
+        }
+        // more intensive checks
+        if (BASETYPE_INT == leftBaseType) {
+            if (leftRef.refSynType == rightRef.refSynType) {
+                // same RefSynType, possibly may be equal
+                return false;
+            }
+            // Now, we have these few types remaining
+            // - assign, call, if, while
+            // - stmt, prog_line, prog_line.prog_line#, const, stmtLst
+            // And we know that, assign, call, if, while can NEVER
+            // occupy the same line.
+            // So as long as one of the 2 RefSynType is:
+            // - stmt, prog_line, prog_line.prog_line#, const, stmtLst
+            // Then the 2 sides may possibly be equal.
+            //
+            // Otherwise, the 2 sides are of different RefSynType and
+            // none of them is stmt, prog_line, prog_line.prog_line#,
+            // const, stmtLst.
+            // This means a contradiction.
+            if (REFSYN_STMT == leftRef.refSynType ||
+                    REFSYN_PROGLINE == leftRef.refSynType ||
+                    REFSYN_PROGLINE_PROGLINE_NO == leftRef.refSynType ||
+                    REFSYN_CONST == leftRef.refSynType ||
+                    REFSYN_STMTLST == leftRef.refSynType ||
+
+                    REFSYN_STMT == rightRef.refSynType ||
+                    REFSYN_PROGLINE == rightRef.refSynType ||
+                    REFSYN_PROGLINE_PROGLINE_NO == rightRef.refSynType ||
+                    REFSYN_CONST == rightRef.refSynType ||
+                    REFSYN_STMTLST == rightRef.refSynType) {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            // both sides are some string type
+            // this limits us to:
+            // 1. procedure.procName
+            // 2. call.procName
+            // 3. variable.varName
+            // And it is entirely possible that these may be equal
+            // Hence, not definite contradiction
+            return false;
+        }
+    } else if (REF_ATTRREF == this->leftRef.refType) {
+        BaseType leftBaseType =
+                refSynType_to_BaseType(this->leftRef.refSynType);
+        switch (leftBaseType) {
+        case BASETYPE_INT:
+            return REF_INT != this->rightRef.refType;
+            break;
+        case BASETYPE_STRING:
+            return REF_STRING != this->rightRef.refType;
+            break;
+        default:
+            return true;
+            break;
+        }
+    } else if (REF_ATTRREF == this->rightRef.refType) {
+        BaseType rightBaseType =
+                refSynType_to_BaseType(this->rightRef.refSynType);
+        switch (rightBaseType) {
+        case BASETYPE_INT:
+            return REF_INT != this->leftRef.refType;
+            break;
+        case BASETYPE_STRING:
+            return REF_STRING != this->leftRef.refType;
+            break;
+        default:
+            return true;
+            break;
+        }
+    } else if (REF_INT == this->leftRef.refType) {
+        if (REF_INT != this->rightRef.refType) {
+            return true;
+        } else {
+            return this->leftRef.refIntVal != this->rightRef.refIntVal;
+        }
+    } else if (REF_STRING == this->leftRef.refType) {
+        if (REF_STRING != this->rightRef.refType) {
+            return true;
+        } else {
+            if (0 != this->leftRef.refStringVal.compare(
+                             this->rightRef.refStringVal)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    } else {
+        assert(false);
+    }
+}
+
 bool WithClause::valid_refs(const WithClause& withClause)
 {
     return Ref::valid(withClause.leftRef) &&

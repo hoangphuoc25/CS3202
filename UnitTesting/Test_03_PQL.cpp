@@ -377,3 +377,197 @@ void Test_03_PQL::test_withClause_normalize()
     CPPUNIT_ASSERT_EQUAL(string("joke.stmt# = maker.stmt#"),
             withCl.toString());
 }
+
+void Test_03_PQL::test_withClause_is_contradiction()
+{
+    using std::swap;
+    WithClause withCl;
+    // type mismatch (int,string) and hence contradiction
+    withCl.leftRef.refType = REF_INT;
+    withCl.leftRef.refIntVal = 35;
+    withCl.rightRef.refType = REF_STRING;
+    withCl.rightRef.refStringVal = "abc";
+    CPPUNIT_ASSERT_EQUAL(string("35 = \"abc\""), withCl.toString());
+    CPPUNIT_ASSERT_EQUAL(true, withCl.is_contradiction());
+    // type mismatch (string,int) and hence contradiction
+    swap(withCl.leftRef, withCl.rightRef);
+    CPPUNIT_ASSERT_EQUAL(string("\"abc\" = 35"), withCl.toString());
+    CPPUNIT_ASSERT_EQUAL(true, withCl.is_contradiction());
+    // same type (string,string) but different value, contradiction
+    withCl.leftRef.refType = REF_STRING;
+    withCl.leftRef.refStringVal = "zack";
+    withCl.rightRef.refType = REF_STRING;
+    withCl.rightRef.refStringVal = "dan";
+    CPPUNIT_ASSERT_EQUAL(string("\"zack\" = \"dan\""),
+            withCl.toString());
+    CPPUNIT_ASSERT_EQUAL(true, withCl.is_contradiction());
+    // same type (string,string) and same value, no contradiction
+    withCl.rightRef.refStringVal = "zack";
+    CPPUNIT_ASSERT_EQUAL(string("\"zack\" = \"zack\""),
+            withCl.toString());
+    CPPUNIT_ASSERT_EQUAL(false, withCl.is_contradiction());
+    // same type (int,int) but different value, contradiction
+    withCl.leftRef.refType = REF_INT;
+    withCl.leftRef.refIntVal = 756;
+    withCl.rightRef.refType = REF_INT;
+    withCl.rightRef.refIntVal = 3288;
+    CPPUNIT_ASSERT_EQUAL(string("756 = 3288"), withCl.toString());
+    CPPUNIT_ASSERT_EQUAL(true, withCl.is_contradiction());
+    // same type (int,int) and same value, no contradiction
+    withCl.rightRef.refIntVal = 756;
+    CPPUNIT_ASSERT_EQUAL(string("756 = 756"), withCl.toString());
+    CPPUNIT_ASSERT_EQUAL(false, withCl.is_contradiction());
+    // different type (string syn, int), hence contradiction
+    withCl.leftRef.refType = REF_ATTRREF;
+    withCl.leftRef.refStringVal = "agh";
+    withCl.leftRef.refSynType = REFSYN_PROC;
+    withCl.rightRef.refType = REF_INT;
+    withCl.rightRef.refIntVal = 32;
+    CPPUNIT_ASSERT_EQUAL(string("agh.procName = 32"), withCl.toString());
+    CPPUNIT_ASSERT_EQUAL(true, withCl.is_contradiction());
+    // different type (int, string syn), hence contradiction
+    swap(withCl.leftRef, withCl.rightRef);
+    CPPUNIT_ASSERT_EQUAL(string("32 = agh.procName"), withCl.toString());
+    CPPUNIT_ASSERT_EQUAL(true, withCl.is_contradiction());
+    // same type (string syn, string), no contradiction
+    withCl.leftRef.refType = REF_ATTRREF;
+    withCl.leftRef.refStringVal = "yodawg";
+    withCl.leftRef.refSynType = REFSYN_CALL_PROCNAME;
+    withCl.rightRef.refType = REF_STRING;
+    withCl.rightRef.refStringVal = "who";
+    CPPUNIT_ASSERT_EQUAL(string("yodawg.procName = \"who\""),
+            withCl.toString());
+    CPPUNIT_ASSERT_EQUAL(false, withCl.is_contradiction());
+    // same type (string, string syn), no contradiction
+    swap(withCl.leftRef, withCl.rightRef);
+    withCl.rightRef.refStringVal = "vvv";
+    withCl.rightRef.refSynType = REFSYN_VAR;
+    CPPUNIT_ASSERT_EQUAL(string("\"who\" = vvv.varName"),
+            withCl.toString());
+    CPPUNIT_ASSERT_EQUAL(false, withCl.is_contradiction());
+    // different type (int syn, string), hence contradiction
+    withCl.leftRef.refType = REF_ATTRREF;
+    withCl.leftRef.refStringVal = "nn";
+    withCl.leftRef.refSynType = REFSYN_PROGLINE;
+    withCl.rightRef.refType = REF_STRING;
+    withCl.rightRef.refStringVal = "bob";
+    CPPUNIT_ASSERT_EQUAL(string("nn = \"bob\""), withCl.toString());
+    CPPUNIT_ASSERT_EQUAL(true, withCl.is_contradiction());
+    // different type (string, int syn), hence contradiction
+    withCl.leftRef.refType = REF_STRING;
+    withCl.leftRef.refStringVal = "haha";
+    withCl.rightRef.refType = REF_ATTRREF;
+    withCl.rightRef.refStringVal = "bonfire";
+    withCl.rightRef.refSynType = REFSYN_WHILE;
+    CPPUNIT_ASSERT_EQUAL(string("\"haha\" = bonfire.stmt#"),
+            withCl.toString());
+    CPPUNIT_ASSERT_EQUAL(true, withCl.is_contradiction());
+    // 2 ref of same RefSynType, no contradiction
+    set<RefSynType> intRefs;
+    intRefs.insert(REFSYN_STMTLST); intRefs.insert(REFSYN_STMT);
+    intRefs.insert(REFSYN_ASSIGN); intRefs.insert(REFSYN_CALL);
+    intRefs.insert(REFSYN_WHILE); intRefs.insert(REFSYN_IF);
+    intRefs.insert(REFSYN_CONST); intRefs.insert(REFSYN_PROGLINE);
+    intRefs.insert(REFSYN_PROGLINE_PROGLINE_NO);
+    set<RefSynType> stringRefs;
+    stringRefs.insert(REFSYN_PROC);
+    stringRefs.insert(REFSYN_CALL_PROCNAME);
+    stringRefs.insert(REFSYN_VAR);
+    withCl.leftRef.refType = REF_ATTRREF;
+    withCl.leftRef.refStringVal = "refOne";
+    withCl.rightRef.refType = REF_ATTRREF;
+    withCl.rightRef.refStringVal = "refTwo";
+    for (set<RefSynType>::const_iterator it = intRefs.begin();
+            it != intRefs.end(); it++) {
+        RefSynType refSynType = *it;
+        withCl.leftRef.refSynType = refSynType;
+        withCl.rightRef.refSynType = refSynType;
+        CPPUNIT_ASSERT_EQUAL(false, withCl.is_contradiction());
+    }
+
+    // 2 different RefSynType, one string, one int, contradiction
+    withCl.leftRef.refType = REF_ATTRREF;
+    withCl.leftRef.refStringVal = "refOne";
+    withCl.rightRef.refType = REF_ATTRREF;
+    withCl.rightRef.refStringVal = "refTwo";
+    for (set<RefSynType>::const_iterator intRefIt = intRefs.begin();
+            intRefIt != intRefs.end(); intRefIt++) {
+        withCl.leftRef.refSynType = *intRefIt;
+        for (set<RefSynType>::const_iterator stringRefIt =
+                stringRefs.begin(); stringRefIt != stringRefs.end();
+                stringRefIt++) {
+            withCl.rightRef.refSynType = *stringRefIt;
+            CPPUNIT_ASSERT_EQUAL(true, withCl.is_contradiction());
+        }
+    }
+    for (set<RefSynType>::const_iterator stringRefIt =
+                stringRefs.begin(); stringRefIt != stringRefs.end();
+                stringRefIt++) {
+        withCl.leftRef.refSynType = *stringRefIt;
+        for (set<RefSynType>::const_iterator intRefIt = intRefs.begin();
+            intRefIt != intRefs.end(); intRefIt++) {
+            withCl.rightRef.refSynType = *intRefIt;
+            CPPUNIT_ASSERT_EQUAL(true, withCl.is_contradiction());
+        }
+    }
+
+    // 2 different int RefSynType, but left ref is one of
+    // stmt, prog_line, prog_line.prog_line#, const.value, stmtLst.stmt#
+    // so no contradiction
+    set<RefSynType> okRefSynSet;
+    okRefSynSet.insert(REFSYN_STMT); okRefSynSet.insert(REFSYN_PROGLINE);
+    okRefSynSet.insert(REFSYN_PROGLINE_PROGLINE_NO);
+    okRefSynSet.insert(REFSYN_CONST); okRefSynSet.insert(REFSYN_STMTLST);
+    withCl.leftRef.refType = REF_ATTRREF;
+    withCl.leftRef.refStringVal = "refOne";
+    withCl.rightRef.refType = REF_ATTRREF;
+    withCl.rightRef.refStringVal = "refTwo";
+    for (set<RefSynType>::const_iterator okIt = okRefSynSet.begin();
+            okIt != okRefSynSet.end(); okIt++) {
+        withCl.leftRef.refSynType = *okIt;
+        for (set<RefSynType>::const_iterator intRefIt = intRefs.begin();
+                intRefIt != intRefs.end(); intRefIt++) {
+            withCl.rightRef.refSynType = *intRefIt;
+            CPPUNIT_ASSERT_EQUAL(false, withCl.is_contradiction());
+        }
+    }
+    // 2 different int RefSynType, but right ref is one of
+    // stmt, prog_line, prog_line.prog_line#, const.value, stmtLst.stmt#
+    // so no contradiction
+    withCl.leftRef.refType = REF_ATTRREF;
+    withCl.leftRef.refStringVal = "refOne";
+    withCl.rightRef.refType = REF_ATTRREF;
+    withCl.rightRef.refStringVal = "refTwo";
+    for (set<RefSynType>::const_iterator intRefIt = intRefs.begin();
+                intRefIt != intRefs.end(); intRefIt++) {
+        withCl.leftRef.refSynType = *intRefIt;
+        for (set<RefSynType>::const_iterator okIt = okRefSynSet.begin();
+            okIt != okRefSynSet.end(); okIt++) {
+            withCl.rightRef.refSynType = *okIt;
+            CPPUNIT_ASSERT_EQUAL(false, withCl.is_contradiction());
+        }
+    }
+
+
+    // 2 different int RefSynType, and none of them is
+    // stmt, prog_line, prog_line.prog_line#, const.value, stmtLst.stmt#
+    // hence contradiction
+    set<RefSynType> notOkIntRefs;
+    notOkIntRefs.insert(REFSYN_ASSIGN); notOkIntRefs.insert(REFSYN_CALL);
+    notOkIntRefs.insert(REFSYN_WHILE); notOkIntRefs.insert(REFSYN_IF);
+    withCl.leftRef.refType = REF_ATTRREF;
+    withCl.leftRef.refStringVal = "refOne";
+    withCl.rightRef.refType = REF_ATTRREF;
+    withCl.rightRef.refStringVal = "refTwo";
+    for (set<RefSynType>::const_iterator it = notOkIntRefs.begin();
+            it != notOkIntRefs.end(); it++) {
+        withCl.leftRef.refSynType = *it;
+        for (set<RefSynType>::const_iterator kt = notOkIntRefs.begin();
+                kt != notOkIntRefs.end(); kt++) {
+            if (*it != *kt) {
+                withCl.rightRef.refSynType = *kt;
+                CPPUNIT_ASSERT_EQUAL(true, withCl.is_contradiction());
+            }
+        }
+    }
+}
