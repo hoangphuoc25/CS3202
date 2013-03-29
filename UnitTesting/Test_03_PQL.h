@@ -14,6 +14,7 @@ CPPUNIT_TEST(test_designEnt_to_relRefArgType);
 CPPUNIT_TEST(test_refSynType_to_BaseType);
 CPPUNIT_TEST(test_baseType_to_string);
 CPPUNIT_TEST(test_attrRef_to_RefSynType);
+CPPUNIT_TEST(test_withClause_normalize);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -28,6 +29,7 @@ private:
     void test_refSynType_to_BaseType();
     void test_baseType_to_string();
     void test_attrRef_to_RefSynType();
+    void test_withClause_normalize();
 };
 
 #endif

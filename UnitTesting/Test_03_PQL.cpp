@@ -301,3 +301,79 @@ void Test_03_PQL::test_attrRef_to_RefSynType()
     CPPUNIT_ASSERT_EQUAL(REFSYN_INVALID,
             attrRef_to_RefSynType(attrRef));
 }
+
+void Test_03_PQL::test_withClause_normalize()
+{
+    using std::swap;
+    WithClause withCl;
+
+    // concrete arguments do not get swapped
+    withCl.leftRef.refType = REF_INT;
+    withCl.leftRef.refIntVal = 367;
+    withCl.rightRef.refType = REF_INT;
+    withCl.rightRef.refIntVal = 1;
+    withCl.normalize();
+    CPPUNIT_ASSERT_EQUAL(string("367 = 1"), withCl.toString());
+    withCl.leftRef.refType = REF_STRING;
+    withCl.leftRef.refStringVal = "zvg";
+    withCl.normalize();
+    CPPUNIT_ASSERT_EQUAL(string("\"zvg\" = 1"), withCl.toString());
+    withCl.rightRef.refType = REF_STRING;
+    withCl.rightRef.refStringVal = "ab";
+    withCl.normalize();
+    CPPUNIT_ASSERT_EQUAL(string("\"zvg\" = \"ab\""), withCl.toString());
+
+    // 1 synonym, 1 concrete argument
+    withCl.leftRef.refType = REF_ATTRREF;
+    withCl.leftRef.refStringVal = "a";
+    withCl.leftRef.refSynType = REFSYN_ASSIGN;
+    withCl.rightRef.refType = REF_INT;
+    withCl.rightRef.refIntVal = 35;
+    withCl.normalize();
+    CPPUNIT_ASSERT_EQUAL(string("a.stmt# = 35"), withCl.toString());
+    swap(withCl.leftRef, withCl.rightRef);
+    CPPUNIT_ASSERT_EQUAL(string("35 = a.stmt#"), withCl.toString());
+    withCl.normalize();
+    CPPUNIT_ASSERT_EQUAL(string("a.stmt# = 35"), withCl.toString());
+    withCl.rightRef.refType = REF_STRING;
+    withCl.rightRef.refStringVal = "jax";
+    withCl.normalize();
+    CPPUNIT_ASSERT_EQUAL(string("a.stmt# = \"jax\""), withCl.toString());
+    swap(withCl.leftRef, withCl.rightRef);
+    CPPUNIT_ASSERT_EQUAL(string("\"jax\" = a.stmt#"), withCl.toString());
+    withCl.normalize();
+    CPPUNIT_ASSERT_EQUAL(string("a.stmt# = \"jax\""), withCl.toString());
+
+    // 2 synonym of different type
+    withCl.leftRef.refType = REF_ATTRREF;
+    withCl.leftRef.refStringVal = "hja";
+    withCl.leftRef.refSynType = REFSYN_STMT;
+    withCl.rightRef.refType = REF_ATTRREF;
+    withCl.rightRef.refStringVal = "bad";
+    withCl.rightRef.refSynType = REFSYN_VAR;
+    withCl.normalize();
+    CPPUNIT_ASSERT_EQUAL(string("hja.stmt# = bad.varName"),
+            withCl.toString());
+    swap(withCl.leftRef, withCl.rightRef);
+    CPPUNIT_ASSERT_EQUAL(string("bad.varName = hja.stmt#"),
+            withCl.toString());
+    withCl.normalize();
+    CPPUNIT_ASSERT_EQUAL(string("hja.stmt# = bad.varName"),
+            withCl.toString());
+    // 2 synonym of same type
+    withCl.leftRef.refType = REF_ATTRREF;
+    withCl.leftRef.refStringVal = "joke";
+    withCl.leftRef.refSynType = REFSYN_WHILE;
+    withCl.rightRef.refType = REF_ATTRREF;
+    withCl.rightRef.refStringVal = "maker";
+    withCl.rightRef.refSynType = REFSYN_WHILE;
+    withCl.normalize();
+    CPPUNIT_ASSERT_EQUAL(string("joke.stmt# = maker.stmt#"),
+            withCl.toString());
+    swap(withCl.leftRef, withCl.rightRef);
+    CPPUNIT_ASSERT_EQUAL(string("maker.stmt# = joke.stmt#"),
+            withCl.toString());
+    withCl.normalize();
+    CPPUNIT_ASSERT_EQUAL(string("joke.stmt# = maker.stmt#"),
+            withCl.toString());
+}

@@ -990,6 +990,32 @@ string WithClause::toString() const
     return sb.toString();
 }
 
+void WithClause::normalize()
+{
+    using std::swap;
+    if (REF_ATTRREF == this->leftRef.refType &&
+            REF_ATTRREF == this->rightRef.refType) {
+        if (this->leftRef.refSynType == this->rightRef.refSynType) {
+            // compare synonym strings and order lexicographically
+            int cmp = this->leftRef.refStringVal.compare(
+                              this->rightRef.refStringVal);
+            if (cmp > 0) {
+                swap(this->leftRef, this->rightRef);
+            }
+            // else cmp <= 0, do nothing
+        } else if (this->leftRef.refSynType > this->rightRef.refSynType) {
+            // swap left and right ref
+            swap(this->leftRef, this->rightRef);
+        }
+        // else properly ordered
+    } else if (REF_ATTRREF == this->rightRef.refType) {
+        // swap left ref and right ref
+        swap(this->leftRef, this->rightRef);
+    }
+    // else (a) left Ref is attrRef, rightRef is concrete and we're done
+    // OR   (b) both side are concrete values, and we're done
+}
+
 void WithClause::dummy() {}
 
 bool WithClause::valid_refs(const WithClause& withClause)

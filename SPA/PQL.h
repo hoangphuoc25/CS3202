@@ -866,6 +866,20 @@ struct WithClause: public GenericRef {
     /// Converts the WithClause to a string
     /// @return a string representation of the WithClause
     std::string toString() const;
+    /// Normalizes the representation of a WithClause.
+    /// WithClause with both arguments being concrete values
+    /// will not be affected.
+    ///
+    /// For WithClause with 1 concrete argument and 1 synonym
+    /// argument, the synonym argument will always be on the LHS.
+    ///
+    /// For WithClause with 2 synonym arguments, we reorder
+    /// according to the following criteria:
+    /// If the 2 Refs are of the same RefSynType, we order them
+    /// according to their synonyms (lexicographical ordering).
+    /// Otherwise, we order according to their appearance
+    /// in the RefSynType enum definition.
+    void normalize();
     /// dummy method
     void dummy();
     /// Swaps two WithClause
