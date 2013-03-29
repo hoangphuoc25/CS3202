@@ -140,6 +140,8 @@ void Test_03_PQL::test_refSynType_to_BaseType()
             refSynType_to_BaseType(REFSYN_CONST));
     CPPUNIT_ASSERT_EQUAL(BASETYPE_INT,
             refSynType_to_BaseType(REFSYN_PROGLINE));
+    CPPUNIT_ASSERT_EQUAL(BASETYPE_INT,
+            refSynType_to_BaseType(REFSYN_PROGLINE_PROGLINE_NO));
     CPPUNIT_ASSERT_EQUAL(BASETYPE_INVALID,
             refSynType_to_BaseType(REFSYN_INVALID));
 }

@@ -286,6 +286,7 @@ BaseType refSynType_to_BaseType(RefSynType refSynType)
     case REFSYN_IF:
     case REFSYN_CONST:
     case REFSYN_PROGLINE:
+    case REFSYN_PROGLINE_PROGLINE_NO:
         return BASETYPE_INT;
         break;
     case REFSYN_INVALID:

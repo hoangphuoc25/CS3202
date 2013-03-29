@@ -400,7 +400,12 @@ enum ParseError {
     /// Triggered when a ref in with clause is a synonym
     /// but not a prog_line
     PARSE_WITHCLAUSE_REF_SYNONYM_NOT_PROGLINE,
-    PARSE_WITHCLAUSE_REFS_INVALID, PARSE_WITHCLAUSE_TYPE_MISMATCH,
+    PARSE_WITHCLAUSE_REFS_INVALID,
+    /// Triggered when ref on both sides of a with clause have differing
+    /// BaseType, eg.
+    /// 3 = "somestring"
+    /// call1.procName = a1.stmt#
+    PARSE_WITHCLAUSE_TYPE_MISMATCH,
     /// Triggered for concrete with clause whose values dont match
     /// eg. "astring" = "bstring", 35 = 1024
     /// This should not be handled by PQLParser::error

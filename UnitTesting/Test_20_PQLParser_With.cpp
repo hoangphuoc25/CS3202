@@ -961,3 +961,265 @@ test_err_parse_withclause_ref_synonym_not_progline()
     out += "Modifies(c1,v1)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 }
+
+void Test_20_PQLParser_With::test_err_parse_withclause_type_mismatch()
+{
+    string queryStr, out;
+    ostringstream *os;
+    PQLParser parser;
+    QueryInfo *qinfo;
+    WithClause withCl;
+
+    // 1st with clause, int vs. string
+    queryStr = "Select BOOLEAN with 3 = \"string\"";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_TYPE_MISMATCH,
+            parser.get_parse_result());
+    withCl.leftRef.refType = REF_INT;
+    withCl.leftRef.refIntVal = 3;
+    withCl.rightRef.refType = REF_STRING;
+    withCl.rightRef.refStringVal = "string";
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_TYPE_MISMATCH_STR,
+            withCl.toString().c_str(), BASETYPE_INT_STR,
+            BASETYPE_STRING_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // same as above but for 3rd With Clause
+    queryStr = "assign a1, a2; variable v1, v2; procedure p1, p2; ";
+    queryStr += " while w1, w2; ";
+    queryStr += " Select <a1, v1, p2.procName, w2> such that ";
+    queryStr += " Modifies(a1,v2) and Parent*(w2,a1) with ";
+    queryStr += " a1.stmt# = 57 and v2.varName = p2.procName such that ";
+    queryStr += " Affects(a2, a1) and Uses(a2,v2) with 661 = \"bbah\" ";
+    queryStr += " and 677 = 677 ";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_TYPE_MISMATCH,
+            parser.get_parse_result());
+    withCl.leftRef.refType = REF_INT;
+    withCl.leftRef.refIntVal = 661;
+    withCl.rightRef.refType = REF_STRING;
+    withCl.rightRef.refStringVal = "bbah";
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_TYPE_MISMATCH_STR,
+            withCl.toString().c_str(), BASETYPE_INT_STR,
+            BASETYPE_STRING_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // 1st with clause, string vs. int
+    queryStr = " assign a; Select a with \"top\" = -875";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_TYPE_MISMATCH,
+            parser.get_parse_result());
+    withCl.leftRef.refType = REF_STRING;
+    withCl.leftRef.refStringVal = "top";
+    withCl.rightRef.refType = REF_INT;
+    withCl.rightRef.refIntVal = -875;
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_TYPE_MISMATCH_STR,
+            withCl.toString().c_str(), BASETYPE_STRING_STR,
+            BASETYPE_INT_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // same as above but for 4th with clause
+    queryStr = " call call1, call2; procedure proc1, proc2; ";
+    queryStr += " assign as1, as2; if if1, if2; variable var1, var2; ";
+    queryStr += " constant const1, const2; ";
+    queryStr += " Select <call1, proc2, as1.stmt#, const2.value>  ";
+    queryStr += " such that Parent(if1, as2) and ";
+    queryStr += " Modifies(as2, var2) with call2.procName = \"abcd\" ";
+    queryStr += " and const1.value = 57 such that Calls(proc1,proc2) ";
+    queryStr += " and Uses(call1, var2) with call2.stmt# = const1.value ";
+    queryStr += " and \"sheep\" = 86992 such that Next(call2, call1) ";
+    queryStr += " and Uses(call2, var1)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_TYPE_MISMATCH,
+            parser.get_parse_result());
+    withCl.leftRef.refType = REF_STRING;
+    withCl.leftRef.refStringVal = "sheep";
+    withCl.rightRef.refType = REF_INT;
+    withCl.rightRef.refIntVal = 86992;
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_TYPE_MISMATCH_STR,
+            withCl.toString().c_str(), BASETYPE_STRING_STR,
+            BASETYPE_INT_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // 1st with clause, int syn vs. string
+    queryStr = "assign a; Select a with a.stmt# = \"faker\"";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_TYPE_MISMATCH,
+            parser.get_parse_result());
+    withCl.leftRef.refType = REF_ATTRREF;
+    withCl.leftRef.refStringVal = "a";
+    withCl.leftRef.refSynType = REFSYN_ASSIGN;
+    withCl.rightRef.refType = REF_STRING;
+    withCl.rightRef.refStringVal = "faker";
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_TYPE_MISMATCH_STR,
+            withCl.toString().c_str(), BASETYPE_INT_STR,
+            BASETYPE_STRING_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // same as above, but for 4th with clause
+    queryStr = " prog_line pl1, pl2; assign a1, a2; variable v1, v2;";
+    queryStr += " procedure proc1, proc2; while w1, w2; ";
+    queryStr += " constant c1, c2; ";
+    queryStr += " Select <pl1, a2.stmt#, v2, pl2.prog_line#> such that ";
+    queryStr += " Modifies(pl1, v2) and Parent(56, a1) with ";
+    queryStr += " pl1 = 577 and a1.stmt# = c1.value such that ";
+    queryStr += " Affects(a1,a2) and Modifies(a2, \"someVar\") with ";
+    queryStr += " \"al1\" = v2.varName and c1.value = \"ikk\" ";
+    queryStr += " such that  Parent*(w1, pl1) and Next(w1, 896)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_TYPE_MISMATCH,
+            parser.get_parse_result());
+    withCl.leftRef.refType = REF_ATTRREF;
+    withCl.leftRef.refStringVal = "c1";
+    withCl.leftRef.refSynType = REFSYN_CONST;
+    withCl.rightRef.refType = REF_STRING;
+    withCl.rightRef.refStringVal = "ikk";
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_TYPE_MISMATCH_STR,
+            withCl.toString().c_str(), BASETYPE_INT_STR,
+            BASETYPE_STRING_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // 1st with clause, string syn. vs. int
+    queryStr = " call ca1; Select ca1 with ca1.procName = 7";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_TYPE_MISMATCH,
+            parser.get_parse_result());
+    withCl.leftRef.refType = REF_ATTRREF;
+    withCl.leftRef.refStringVal = "ca1";
+    withCl.leftRef.refSynType = REFSYN_CALL_PROCNAME;
+    withCl.rightRef.refType = REF_INT;
+    withCl.rightRef.refIntVal = 7;
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_TYPE_MISMATCH_STR,
+            withCl.toString().c_str(), BASETYPE_STRING_STR,
+            BASETYPE_INT_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // same as above, but at 3rd with clause
+    queryStr = " procedure p1, p2; while w1, w2; assign a1, a2; ";
+    queryStr += " call call1, call2; variable v1, v2; ";
+    queryStr += " Select <call1, v1.varName, w1, a1.stmt#> with ";
+    queryStr += " a1.stmt# = 57 and \"abcd\" = v1.varName such that ";
+    queryStr += " Modifies(a1, v1) and Uses(call1, v1) and ";
+    queryStr += " Modifies(p1,v1) with p1.procName = 36787";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_TYPE_MISMATCH,
+            parser.get_parse_result());
+    withCl.leftRef.refType = REF_ATTRREF;
+    withCl.leftRef.refStringVal = "p1";
+    withCl.leftRef.refSynType = REFSYN_PROC;
+    withCl.rightRef.refType = REF_INT;
+    withCl.rightRef.refIntVal = 36787;
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_TYPE_MISMATCH_STR,
+            withCl.toString().c_str(), BASETYPE_STRING_STR,
+            BASETYPE_INT_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // 1st with clause, int syn vs. string syn
+    queryStr = " variable v1; assign a; ";
+    queryStr += " Select <a,v1> with a.stmt# = v1.varName";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_TYPE_MISMATCH,
+            parser.get_parse_result());
+    withCl.leftRef.refType = REF_ATTRREF;
+    withCl.leftRef.refStringVal = "a";
+    withCl.leftRef.refSynType = REFSYN_ASSIGN;
+    withCl.rightRef.refType = REF_ATTRREF;
+    withCl.rightRef.refStringVal = "v1";
+    withCl.rightRef.refSynType = REFSYN_VAR;
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_TYPE_MISMATCH_STR,
+            withCl.toString().c_str(), BASETYPE_INT_STR,
+            BASETYPE_STRING_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // same as above, but for 4th with clause
+    queryStr = " if if1, if2; variable v1, v2; prog_line pl1, pl2; ";
+    queryStr += " call c1, c2; ";
+    queryStr += " Select <c1, v2.varName, if1.stmt#, pl1> with ";
+    queryStr += " v1.varName = \"someVar\" such that ";
+    queryStr += " Parent(if1, c1) and Modifies(c1, v1) and ";
+    queryStr += " Next(c1, pl1) with pl1.prog_line# = 421 such that ";
+    queryStr += " Uses(c1, v2) with if1.stmt# = c1.stmt# and ";
+    queryStr += " if1.stmt# = c1.procName and ";
+    queryStr += " c1.procName = \"someProc\"";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_TYPE_MISMATCH,
+            parser.get_parse_result());
+    withCl.leftRef.refType = REF_ATTRREF;
+    withCl.leftRef.refStringVal = "if1";
+    withCl.leftRef.refSynType = REFSYN_IF;
+    withCl.rightRef.refType = REF_ATTRREF;
+    withCl.rightRef.refStringVal = "c1";
+    withCl.rightRef.refSynType = REFSYN_CALL_PROCNAME;
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_TYPE_MISMATCH_STR,
+            withCl.toString().c_str(), BASETYPE_INT_STR,
+            BASETYPE_STRING_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // 1st with clause, string syn vs. int syn
+    queryStr = " prog_line pl1; call c1; ";
+    queryStr += " Select <c1,pl1> with c1.procName = pl1";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_TYPE_MISMATCH,
+            parser.get_parse_result());
+    withCl.leftRef.refType = REF_ATTRREF;
+    withCl.leftRef.refStringVal = "c1";
+    withCl.leftRef.refSynType = REFSYN_CALL_PROCNAME;
+    withCl.rightRef.refType = REF_ATTRREF;
+    withCl.rightRef.refStringVal = "pl1";
+    withCl.rightRef.refSynType = REFSYN_PROGLINE;
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_TYPE_MISMATCH_STR,
+            withCl.toString().c_str(), BASETYPE_STRING_STR,
+            BASETYPE_INT_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // same as above, but in 5th with clause
+    queryStr = "assign a1, a2; prog_line pl1, pl2; variable v1, v2; ";
+    queryStr += " Select BOOLEAN with pl1 = 588 such that Uses(a1,v1) ";
+    queryStr += " and Modifies(a1,\"v\") with \"uis\" = v1.varName and ";
+    queryStr += " 125 = pl2.prog_line# such that Next(a1,pl2) and ";
+    queryStr += " Parent(pl1, a1) with a1.stmt# = 336 and ";
+    queryStr += " v1.varName = pl2.prog_line#";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_TYPE_MISMATCH,
+            parser.get_parse_result());
+    withCl.leftRef.refType = REF_ATTRREF;
+    withCl.leftRef.refStringVal = "v1";
+    withCl.leftRef.refSynType = REFSYN_VAR;
+    withCl.rightRef.refType = REF_ATTRREF;
+    withCl.rightRef.refStringVal = "pl2";
+    withCl.rightRef.refSynType = REFSYN_PROGLINE_PROGLINE_NO;
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_TYPE_MISMATCH_STR,
+            withCl.toString().c_str(), BASETYPE_STRING_STR,
+            BASETYPE_INT_STR);
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}

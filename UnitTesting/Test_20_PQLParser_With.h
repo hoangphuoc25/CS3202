@@ -16,6 +16,7 @@ CPPUNIT_TEST(test_err_parse_dquoted_ident_missing_close_quote);
 CPPUNIT_TEST(test_err_parse_ref_integer_error_str);
 CPPUNIT_TEST(test_err_parse_withclause_ref_synonym_undeclared);
 CPPUNIT_TEST(test_err_parse_withclause_ref_synonym_not_progline);
+CPPUNIT_TEST(test_err_parse_withclause_type_mismatch);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -36,6 +37,7 @@ private:
     void test_err_parse_ref_integer_error_str();
     void test_err_parse_withclause_ref_synonym_undeclared();
     void test_err_parse_withclause_ref_synonym_not_progline();
+    void test_err_parse_withclause_type_mismatch();
 };
 
 #endif
