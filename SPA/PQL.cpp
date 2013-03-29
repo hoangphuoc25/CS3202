@@ -1454,20 +1454,14 @@ ParseError QueryInfo::add_patCl(const PatCl &p, char **errorMsg)
 ParseError QueryInfo::add_withClause(const WithClause& withClause,
         char **errorMsg)
 {
-    // at this point, WithClause::valid_refs(withClause) == true
-    // and WithClause::valid_type(withClause) == true
-
-    // For withClause with one concrete ref and one synonym ref,
-    // we will reorder it such that it is of the form:
-    // synonym ref = concrete ref
-    using std::swap;
+    bool insertClause = false;
     ParseError ret = PARSE_OK;
-    WithClause swappedWithClause(withClause);
-    swap(swappedWithClause.leftRef, swappedWithClause.rightRef);
+    WithClause newWithClause(withClause);
+    newWithClause.normalize();
     if ((this->withClauseSet.end() !=
             this->withClauseSet.find(withClause)) ||
             (this->withClauseSet.end() !=
-                this->withClauseSet.find(swappedWithClause))) {
+                this->withClauseSet.find(newWithClause))) {
         if (errorMsg) {
             StringBuffer sb;
             sb.append("QueryInfo::add_withClause - repeated clause: ");
@@ -1497,37 +1491,36 @@ ParseError QueryInfo::add_withClause(const WithClause& withClause,
                 // else int = int, tautology
                 break;
             case REF_ATTRREF:
-                if (0 != withClause.leftRef.refStringVal.compare(
-                        withClause.rightRef.refStringVal)) {
-                    // different synonym in AttrRef, insert
-                    this->insertOrder.push_back(
-                            make_pair(WITH_CLAUSE,
-                                    this->withClauseVec.size()));
-                    this->withClauseSet.insert(withClause);
-                    this->withClauseVec.push_back(withClause);
-                    this->clauses.push_back(new WithClause(withClause));
+                if (withClause.leftRef.refSynType ==
+                        withClause.rightRef.refSynType) {
+                    if (0 != withClause.leftRef.refStringVal.compare(
+                            withClause.rightRef.refStringVal)) {
+                        // different synonym of same RefSynType, insert
+                        // TODO: Simplify this step by rewriting and equating
+                        //       the two synonyms through all clauses
+                        insertClause = true;
+                    }
+                    // else same synonym, tautology
+                } else {
+                    // TODO: shortcircuit query evaluation whenever
+                    //       it is impossible for with clause to be true
+                    insertClause = true;
                 }
-                // else same synonym, tautology
                 break;
             default:
                 assert(false);
             }
-        } else if (REF_ATTRREF == withClause.rightRef.refType) {
-            // concrete = syn
-            // insert swappedWithClause (which has form "syn = concrete")
-            this->insertOrder.push_back(
-                    make_pair(WITH_CLAUSE, this->withClauseVec.size()));
-            this->withClauseSet.insert(swappedWithClause);
-            this->withClauseVec.push_back(swappedWithClause);
-            this->clauses.push_back(new WithClause(swappedWithClause));
         } else {
             // insert withClause
-            this->insertOrder.push_back(
-                    make_pair(WITH_CLAUSE, this->withClauseVec.size()));
-            this->withClauseSet.insert(withClause);
-            this->withClauseVec.push_back(withClause);
-            this->clauses.push_back(new WithClause(withClause));
+            insertClause = true;
         }
+    }
+    if (insertClause) {
+        this->insertOrder.push_back(
+                make_pair(WITH_CLAUSE, this->withClauseVec.size()));
+        this->withClauseSet.insert(newWithClause);
+        this->withClauseVec.push_back(newWithClause);
+        this->clauses.push_back(new WithClause(newWithClause));
     }
     return ret;
 }

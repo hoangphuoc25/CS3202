@@ -303,6 +303,40 @@ void Test_20_PQLParser_With::test_with_int_int_different_halt()
     CPPUNIT_ASSERT_EQUAL(true, qinfo->is_alive());
 }
 
+void Test_20_PQLParser_With::test_with_normalize()
+{
+    string queryStr, out;
+    ostringstream *os;
+    PQLParser parser;
+    QueryInfo *qinfo;
+
+    // normalize insertion
+    queryStr = " assign a; Select a with 3 = a.stmt#";
+    parser.parse(queryStr);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "ALIVE\nDECLARATIONS\n  assign a\nSELECT TUPLE\n";
+    out += "  assign a\na.stmt# = 3\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+
+    // duplicated with clause but different LHS and RHS ordering
+    queryStr = " assign a; prog_line pl; call c; procedure p; ";
+    queryStr += " Select <a,pl.prog_line#> such that Modifies(a,\"v\") ";
+    queryStr += " and Uses(c,\"someVar\") with a.stmt# = 33 and ";
+    queryStr += " pl = 56 such that Next*(a,pl) with ";
+    queryStr += " p.procName = c.procName and c.procName = p.procName ";
+    queryStr += " and c.procName = \"someProc\"";
+    parser.parse(queryStr, true, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    out = "ALIVE\nDECLARATIONS\n  assign a\n  prog_line pl\n  call c\n";
+    out += "  procedure p\nSELECT TUPLE\n  assign a\n";
+    out += "  prog_line pl prog_line#\nModifies(a,\"v\")\n";
+    out += "Uses(c,\"someVar\")\na.stmt# = 33\npl = 56\nNext*(a,pl)\n";
+    out += "p.procName = c.procName\nc.procName = \"someProc\"\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+}
+
 void Test_20_PQLParser_With::test_err_parse_dquoted_ident_invalid()
 {
     string queryStr, out;
@@ -862,7 +896,7 @@ test_err_parse_withclause_ref_synonym_not_progline()
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
     qinfo = parser.get_queryinfo();
     out = "ALIVE\nDECLARATIONS\n  assign a\n  stmt s\nSELECT TUPLE\n";
-    out += "  assign a\na.stmt# = s.stmt#\n";
+    out += "  assign a\ns.stmt# = a.stmt#\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
     // LHS of 3rd with clause missing attr
@@ -956,7 +990,7 @@ test_err_parse_withclause_ref_synonym_not_progline()
     out += "  call c1 procName\n  constant const1 value\n  while w1\n";
     out += "  assign a2\n  procedure p2 procName\n";
     out += "p1.procName = v1.varName\nModifies(p1,v1)\nUses(w1,v1)\n";
-    out += "const1.value = w1.stmt#\nAffects(a1,a2)\nParent(w1,a2)\n";
+    out += "w1.stmt# = const1.value\nAffects(a1,a2)\nParent(w1,a2)\n";
     out += "a2.stmt# = const2.value\nc1.procName = v2.varName\n";
     out += "Modifies(c1,v1)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
