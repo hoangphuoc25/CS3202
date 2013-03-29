@@ -414,6 +414,9 @@ enum ParseError {
     /// Triggered when we have parsed leftRef and '=' but right hand
     /// side of '=' is not a valid Ref
     PARSE_WITHCLAUSE_EXPECT_REF_ON_RHS,
+    /// In a consecutive chain of with clause, this is triggered when
+    /// we have ate the 'and' token, but failed to parse leftRef or
+    /// failed to parse '='
     PARSE_WITHCLAUSE_EXPECT_WITH,
     PARSE_REF_INTEGER_ERROR, PARSE_REF_ATTRREF_ERROR,
     PARSE_DQUOTED_IDENT_INVALID,

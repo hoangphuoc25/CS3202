@@ -1287,3 +1287,93 @@ void Test_20_PQLParser_With::test_err_parse_withclause_expect_ref_on_rhs()
             leftRef.toString().c_str(), "!^7347");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
+
+void Test_20_PQLParser_With::test_err_parse_withclause_expect_with()
+{
+    string queryStr, out;
+    ostringstream *os;
+    PQLParser parser;
+    QueryInfo *qinfo;
+    WithClause prevWithCl;
+
+    queryStr = "assign a; stmt s; Select a with a.stmt# = 123 and ";
+    queryStr += " !@#$6 fhh";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_EXPECT_WITH,
+            parser.get_parse_result());
+    prevWithCl.leftRef.refType = REF_ATTRREF;
+    prevWithCl.leftRef.refStringVal = "a";
+    prevWithCl.leftRef.refSynType = REFSYN_ASSIGN;
+    prevWithCl.rightRef.refType = REF_INT;
+    prevWithCl.rightRef.refIntVal = 123;
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_EXPECT_WITH_STR,
+            "!@#$6 fhh", prevWithCl.toString().c_str());
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // same as above, but for 4th with clause
+    queryStr = "assign a; if if1; prog_line pl; variable v; ";
+    queryStr += " Select <a,pl,v.varName> such that Uses(a,\"someV\") ";
+    queryStr += " and Parent*(if1,a) with 67 = a.stmt# and ";
+    queryStr += " \"a\" = v.varName such that Next*(a,pl) and ";
+    queryStr += " Modifies(a,v) with 777 = pl and $Q#$#@4 = 68789 ";
+    queryStr += " such that Affects(a,_)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_EXPECT_WITH,
+            parser.get_parse_result());
+    prevWithCl.leftRef.refType = REF_INT;
+    prevWithCl.leftRef.refIntVal = 777;
+    prevWithCl.rightRef.refType = REF_ATTRREF;
+    prevWithCl.rightRef.refStringVal = "pl";
+    prevWithCl.rightRef.refSynType = REFSYN_PROGLINE;
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_EXPECT_WITH_STR,
+            "$Q#$#@4 = 68789  such that Affects(a,_)",
+            prevWithCl.toString().c_str());
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+
+    // failed to parse '='
+    queryStr = " assign a; prog_line pl; variable v; ";
+    queryStr += " Select <a,v.varName> with a.stmt# = pl and ";
+    queryStr += " v.varName sdf";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_EXPECT_WITH,
+            parser.get_parse_result());
+    prevWithCl.leftRef.refType = REF_ATTRREF;
+    prevWithCl.leftRef.refStringVal = "a";
+    prevWithCl.leftRef.refSynType = REFSYN_ASSIGN;
+    prevWithCl.rightRef.refType = REF_ATTRREF;
+    prevWithCl.rightRef.refStringVal = "pl";
+    prevWithCl.rightRef.refSynType = REFSYN_PROGLINE;
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_EXPECT_WITH_STR,
+            "v.varName sdf", prevWithCl.toString().c_str());
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // same as above, but in 5th with clause
+    queryStr = " call c; procedure proc; variable v; assign a; if if1;";
+    queryStr += " Select <c.procName, v, a.stmt#, if1> such that ";
+    queryStr += " Modifies(if1,v) with v.varName = \"bn\" such that ";
+    queryStr += " Uses(c,v) and Parent(if1,c) with 125 = c.stmt# ";
+    queryStr += " such that Modifies(proc,\"avar\") with ";
+    queryStr += " \"pOne\" = proc.procName and 66 = if1.stmt# and ";
+    queryStr += " c.stmt# 78 ";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_EXPECT_WITH,
+            parser.get_parse_result());
+    prevWithCl.leftRef.refType = REF_INT;
+    prevWithCl.leftRef.refIntVal = 66;
+    prevWithCl.rightRef.refType = REF_ATTRREF;
+    prevWithCl.rightRef.refStringVal = "if1";
+    prevWithCl.rightRef.refSynType = REFSYN_IF;
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_EXPECT_WITH_STR,
+            "c.stmt# 78 ", prevWithCl.toString().c_str());
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
