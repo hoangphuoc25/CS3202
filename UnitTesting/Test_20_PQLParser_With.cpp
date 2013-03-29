@@ -1223,3 +1223,25 @@ void Test_20_PQLParser_With::test_err_parse_withclause_type_mismatch()
             BASETYPE_INT_STR);
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
+
+void Test_20_PQLParser_With::test_err_parse_withclause_and_nosep()
+{
+    string queryStr, out;
+    ostringstream *os;
+    PQLParser parser;
+    QueryInfo *qinfo;
+    WithClause withCl;
+
+    queryStr = " assign a; prog_line pl; variable v; ";
+    queryStr += " Select <a,pl.prog_line#, v> such that Uses(a,v) ";
+    queryStr += " with a.stmt# = 13  and##% v.varName = \"bbb\"";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_AND_NOSEP,
+            parser.get_parse_result());
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_AND_NOSEP_STR,
+            "##%");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
