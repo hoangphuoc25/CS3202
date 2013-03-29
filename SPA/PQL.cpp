@@ -1571,10 +1571,8 @@ ParseError QueryInfo::add_withClause(const WithClause& withClause,
     ParseError ret = PARSE_OK;
     WithClause newWithClause(withClause);
     newWithClause.normalize();
-    if ((this->withClauseSet.end() !=
-            this->withClauseSet.find(withClause)) ||
-            (this->withClauseSet.end() !=
-                this->withClauseSet.find(newWithClause))) {
+    if (this->withClauseSet.end() !=
+            this->withClauseSet.find(newWithClause)) {
         if (errorMsg) {
             StringBuffer sb;
             sb.append("QueryInfo::add_withClause - repeated clause: ");
@@ -1582,14 +1580,14 @@ ParseError QueryInfo::add_withClause(const WithClause& withClause,
             *errorMsg = strdup(sb.c_str());
         }
     } else {
-        if (withClause.leftRef.refType ==
-                withClause.rightRef.refType) {
-            switch (withClause.leftRef.refType) {
+        if (newWithClause.leftRef.refType ==
+                newWithClause.rightRef.refType) {
+            switch (newWithClause.leftRef.refType) {
             case REF_STRING:
                 // the two strings are different
                 // this query should just fail
-                if (0 != withClause.leftRef.refStringVal.compare(
-                                 withClause.rightRef.refStringVal)) {
+                if (0 != newWithClause.leftRef.refStringVal.compare(
+                                 newWithClause.rightRef.refStringVal)) {
                     ret = PARSE_WITHCLAUSE_VALUE_MISMATCH;
                 }
                 // else string = string, tautology
@@ -1597,17 +1595,17 @@ ParseError QueryInfo::add_withClause(const WithClause& withClause,
             case REF_INT:
                 // the two int are different
                 // this query should just fail
-                if (withClause.leftRef.refIntVal !=
-                        withClause.rightRef.refIntVal) {
+                if (newWithClause.leftRef.refIntVal !=
+                        newWithClause.rightRef.refIntVal) {
                     ret = PARSE_WITHCLAUSE_VALUE_MISMATCH;
                 }
                 // else int = int, tautology
                 break;
             case REF_ATTRREF:
-                if (withClause.leftRef.refSynType ==
-                        withClause.rightRef.refSynType) {
-                    if (0 != withClause.leftRef.refStringVal.compare(
-                            withClause.rightRef.refStringVal)) {
+                if (newWithClause.leftRef.refSynType ==
+                        newWithClause.rightRef.refSynType) {
+                    if (0 != newWithClause.leftRef.refStringVal.compare(
+                            newWithClause.rightRef.refStringVal)) {
                         // different synonym of same RefSynType, insert
                         // TODO: Simplify this step by rewriting and equating
                         //       the two synonyms through all clauses
