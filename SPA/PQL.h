@@ -199,7 +199,7 @@
 //       PQLParser::eat_while<not_space>(sb) --> sb.c_str()
 #define PARSE_WITHCLAUSE_EXPECT_REF_ON_RHS_STR \
     "WithClause: expect ref on right hand side of \"%s = \", " \
-    "got \"%s\"]"
+    "got \"%s\""
 // args: PQLParser::eat_till_end(sb) --> sb._str(),
 //       prevWithClause.toString().c_str()
 #define PARSE_WITHCLAUSE_EXPECT_WITH_STR \
@@ -411,7 +411,10 @@ enum ParseError {
     /// This should not be handled by PQLParser::error
     PARSE_WITHCLAUSE_VALUE_MISMATCH,
     PARSE_WITHCLAUSE_AND_NOSEP,
-    PARSE_WITHCLAUSE_EXPECT_REF_ON_RHS, PARSE_WITHCLAUSE_EXPECT_WITH,
+    /// Triggered when we have parsed leftRef and '=' but right hand
+    /// side of '=' is not a valid Ref
+    PARSE_WITHCLAUSE_EXPECT_REF_ON_RHS,
+    PARSE_WITHCLAUSE_EXPECT_WITH,
     PARSE_REF_INTEGER_ERROR, PARSE_REF_ATTRREF_ERROR,
     PARSE_DQUOTED_IDENT_INVALID,
     PARSE_DQUOTED_IDENT_MISSING_CLOSE_QUOTE,

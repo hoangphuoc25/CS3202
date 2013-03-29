@@ -18,6 +18,7 @@ CPPUNIT_TEST(test_err_parse_withclause_ref_synonym_undeclared);
 CPPUNIT_TEST(test_err_parse_withclause_ref_synonym_not_progline);
 CPPUNIT_TEST(test_err_parse_withclause_type_mismatch);
 CPPUNIT_TEST(test_err_parse_withclause_and_nosep);
+CPPUNIT_TEST(test_err_parse_withclause_expect_ref_on_rhs);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -40,6 +41,7 @@ private:
     void test_err_parse_withclause_ref_synonym_not_progline();
     void test_err_parse_withclause_type_mismatch();
     void test_err_parse_withclause_and_nosep();
+    void test_err_parse_withclause_expect_ref_on_rhs();
 };
 
 #endif

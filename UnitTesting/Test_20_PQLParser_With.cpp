@@ -1245,3 +1245,45 @@ void Test_20_PQLParser_With::test_err_parse_withclause_and_nosep()
             "##%");
     CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
 }
+
+void Test_20_PQLParser_With::test_err_parse_withclause_expect_ref_on_rhs()
+{
+    string queryStr, out;
+    ostringstream *os;
+    PQLParser parser;
+    QueryInfo *qinfo;
+    Ref leftRef;
+
+    queryStr = "assign a; Select a with a.stmt# = ^&523";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_EXPECT_REF_ON_RHS,
+            parser.get_parse_result());
+    leftRef.refType = REF_ATTRREF;
+    leftRef.refStringVal = "a";
+    leftRef.refSynType = REFSYN_ASSIGN;
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_EXPECT_REF_ON_RHS_STR,
+            leftRef.toString().c_str(), "^&523");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+    // same as above, but in 4th with clause
+    queryStr = "assign a; prog_line pl; variable v; call c; ";
+    queryStr += " Select <a.stmt#, pl, c.procName, v> such that ";
+    queryStr += " Modifies(a,\"var1\") and Uses(a,v) with a.stmt# = 57 ";
+    queryStr += " and v.varName = \"var2\" such that Next*(a,pl) ";
+    queryStr += " with 52 = pl.prog_line# and c.procName = !^7347 and ";
+    queryStr += " c.stmt# = 788 such that Modifies(c,v)";
+    os = new ostringstream;
+    parser.parse(os, queryStr, true, false);
+    out = os->str();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_EXPECT_REF_ON_RHS,
+            parser.get_parse_result());
+    leftRef.refType = REF_ATTRREF;
+    leftRef.refStringVal = "c";
+    leftRef.refSynType = REFSYN_CALL_PROCNAME;
+    _snprintf_s(this->buf, this->BUFLEN, this->BUFLEN,
+            PARSE_WITHCLAUSE_EXPECT_REF_ON_RHS_STR,
+            leftRef.toString().c_str(), "!^7347");
+    CPPUNIT_ASSERT_EQUAL(string(this->buf), out);
+}
