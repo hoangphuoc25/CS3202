@@ -418,6 +418,11 @@ enum ParseError {
     /// we have ate the 'and' token, but failed to parse leftRef or
     /// failed to parse '='
     PARSE_WITHCLAUSE_EXPECT_WITH,
+    /// Triggered when a syntactically and semantically valid
+    /// with clause can NEVER be true.
+    /// This is meant to skip query evaluation if triggered and
+    /// should not be handled by PQLParser::error
+    PARSE_WITHCLAUSE_CONTRADICTION,
     PARSE_REF_INTEGER_ERROR, PARSE_REF_ATTRREF_ERROR,
     PARSE_DQUOTED_IDENT_INVALID,
     PARSE_DQUOTED_IDENT_MISSING_CLOSE_QUOTE,

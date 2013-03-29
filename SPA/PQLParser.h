@@ -179,7 +179,7 @@ private:
     bool eat_ref(StringBuffer &sb, Ref& refOut, bool triggerError,
             Ref *lhsRef);
     bool eat_withClause_one(StringBuffer &sb, WithClause& WithClause,
-            ParseError *parseError);
+            ParseError *qinfoAddError);
     bool eat_withClause(StringBuffer& sb) throw(ParseError);
     void eat_select_stwithpat(StringBuffer &sb);
     bool insert_syn(DesignEnt ent, const std::string &s) throw(ParseError);

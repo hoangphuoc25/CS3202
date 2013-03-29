@@ -1613,16 +1613,20 @@ ParseError QueryInfo::add_withClause(const WithClause& withClause,
                     }
                     // else same synonym, tautology
                 } else {
-                    // TODO: shortcircuit query evaluation whenever
-                    //       it is impossible for with clause to be true
-                    insertClause = true;
+                    // shortcircuit query evaluation if contradiction
+                    if (newWithClause.is_contradiction()) {
+                        ret = PARSE_WITHCLAUSE_CONTRADICTION;
+                    } else {
+                        insertClause = true;
+                    }
                 }
                 break;
             default:
                 assert(false);
             }
         } else {
-            // insert withClause
+            // different RefType
+            assert(!newWithClause.is_contradiction());
             insertClause = true;
         }
     }

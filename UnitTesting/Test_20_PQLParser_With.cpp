@@ -337,6 +337,55 @@ void Test_20_PQLParser_With::test_with_normalize()
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 }
 
+void Test_20_PQLParser_With::test_with_contradiction()
+{
+    string queryStr, out;
+    PQLParser parser;
+    QueryInfo *qinfo;
+
+    // value mismatch
+    queryStr = "assign a; Select a with 1 = 267";
+    parser.parse(queryStr, true, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_VALUE_MISMATCH,
+            parser.get_parse_result());
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
+    queryStr = " call c1; Select c1 with \"abc\" = \"def\"";
+    parser.parse(queryStr, true, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_VALUE_MISMATCH,
+            parser.get_parse_result());
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
+
+    // 2 synonym contradiction
+    queryStr = " assign a; prog_line pl; variable v; while w; ";
+    queryStr += " Select <a,pl,v.varName> such that Modifies(a,\"v\")";
+    queryStr += " and Parent(w,a) with pl = 56 and v.varName = \"x\" ";
+    queryStr += " such that Uses(w,v) with w.stmt# = a.stmt# and ";
+    queryStr += " w.stmt# = 89";
+    parser.parse(queryStr, true, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_WITHCLAUSE_CONTRADICTION,
+            parser.get_parse_result());
+    CPPUNIT_ASSERT_EQUAL(false, qinfo->is_alive());
+    // above corrected
+    queryStr = " assign a; prog_line pl; variable v; while w; ";
+    queryStr += " Select <a,pl,v.varName> such that Modifies(a,\"v\")";
+    queryStr += " and Parent(w,a) with pl = 56 and v.varName = \"x\" ";
+    queryStr += " such that Uses(w,v) with 123 = a.stmt# and ";
+    queryStr += " w.stmt# = 89";
+    parser.parse(queryStr, true, false);
+    qinfo = parser.get_queryinfo();
+    CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
+    CPPUNIT_ASSERT_EQUAL(true, qinfo->is_alive());
+    out = "ALIVE\nDECLARATIONS\n  assign a\n  prog_line pl\n";
+    out += "  variable v\n  while w\nSELECT TUPLE\n  assign a\n";
+    out += "  prog_line pl\n  variable v varName\nModifies(a,\"v\")\n";
+    out += "Parent(w,a)\npl = 56\nv.varName = \"x\"\nUses(w,v)\n";
+    out += "a.stmt# = 123\nw.stmt# = 89\n";
+    CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
+}
+
 void Test_20_PQLParser_With::test_err_parse_dquoted_ident_invalid()
 {
     string queryStr, out;
@@ -902,9 +951,9 @@ test_err_parse_withclause_ref_synonym_not_progline()
     // LHS of 3rd with clause missing attr
     queryStr = "while w; if if1; variable v1, v2; assign a1, a2; ";
     queryStr += " Select <w,if1, a1.stmt#> such that Parent(w,if1) and ";
-    queryStr += " Parent(w,a1) with a1.stmt# = w.stmt# and ";
+    queryStr += " Parent(w,a1) with a1.stmt# = 15 and ";
     queryStr += " a1.stmt# = a2.stmt# such that Modifies(a2,v2) and ";
-    queryStr += " Affects(a2,a1) with w = if1.stmt#";
+    queryStr += " Affects(a2,a1) with w = 23";
     os = new ostringstream;
     parser.parse(os, queryStr, true, false);
     out = os->str();
@@ -917,18 +966,18 @@ test_err_parse_withclause_ref_synonym_not_progline()
     // Above corrected
     queryStr = "while w; if if1; variable v1, v2; assign a1, a2; ";
     queryStr += " Select <w,if1, a1.stmt#> such that Parent(w,if1) and ";
-    queryStr += " Parent(w,a1) with a1.stmt# = w.stmt# and ";
+    queryStr += " Parent(w,a1) with a1.stmt# = 15 and ";
     queryStr += " a1.stmt# = a2.stmt# such that Modifies(a2,v2) and ";
-    queryStr += " Affects(a2,a1) with w.stmt# = if1.stmt#";
+    queryStr += " Affects(a2,a1) with w.stmt# = 23";
     parser.parse(queryStr);
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
     out = "ALIVE\nDECLARATIONS\n  while w\n  if if1\n  variable v1\n";
     out += "  variable v2\n  assign a1\n  assign a2\nSELECT TUPLE\n";
     out += "  while w\n  if if1\n  assign a1 stmt#\n";
-    out += "Parent(w,if1)\nParent(w,a1)\na1.stmt# = w.stmt#\n";
+    out += "Parent(w,if1)\nParent(w,a1)\na1.stmt# = 15\n";
     out += "a1.stmt# = a2.stmt#\nModifies(a2,v2)\nAffects(a2,a1)\n";
-    out += "w.stmt# = if1.stmt#\n";
+    out += "w.stmt# = 23\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
     // RHS of 1st with clause missing attr

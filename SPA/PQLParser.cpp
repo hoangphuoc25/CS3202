@@ -142,6 +142,10 @@ map<string, DesignEnt> PQLParser::get_ent_table() const
 
 QueryInfo *PQLParser::get_queryinfo() const
 {
+    // kill queryinfo if PARSE_OK != parseErr
+    if (PARSE_OK != this->parseErr) {
+        this->qinfo->kill();
+    }
     return this->qinfo;
 }
 
@@ -1850,9 +1854,9 @@ bool PQLParser::eat_ref(StringBuffer& sb, Ref& refOut,
 }
 
 bool PQLParser::eat_withClause_one(StringBuffer &sb,
-        WithClause& withClause, ParseError *parseError)
+        WithClause& withClause, ParseError *qinfoAddError)
 {
-    assert(NULL != parseError);
+    assert(NULL != qinfoAddError);
     int saveIdx = this->bufIdx;
     char *errorMsg = NULL;
     Ref leftRef, rightRef;
@@ -1893,7 +1897,7 @@ bool PQLParser::eat_withClause_one(StringBuffer &sb,
                 baseType_to_string(leftRefType),
                 baseType_to_string(rightRefType));
     }
-    *parseError = this->qinfo->add_withClause(withClause, &errorMsg);
+    *qinfoAddError = this->qinfo->add_withClause(withClause, &errorMsg);
     if (errorMsg) {
         this->warning(errorMsg);
         free(errorMsg);
@@ -1905,17 +1909,19 @@ bool PQLParser::eat_withClause(StringBuffer& sb) throw(ParseError)
 {
     int saveIdx = this->bufIdx;
     WithClause withClause, prevWithClause;
-    ParseError parseError;
+    ParseError qinfoAddError;
     char *errorMsg;
     if (this->eat_space() <= 0) {
         RESTORE_AND_RET(false, saveIdx);
     }
-    if (!this->eat_withClause_one(sb, withClause, &parseError)) {
+    if (!this->eat_withClause_one(sb, withClause, &qinfoAddError)) {
         RESTORE_AND_RET(false, saveIdx);
     }
-    if (PARSE_OK != parseError) {
-        throw parseError;
+    if (PARSE_OK != qinfoAddError) {
+        this->parseErr = qinfoAddError;
     }
+    // carry on passing despite the query being false to help
+    // the user catch more errors
     while (1) {
         saveIdx = this->bufIdx;
         if (this->eat_space() <= 0) {
@@ -1932,15 +1938,17 @@ bool PQLParser::eat_withClause(StringBuffer& sb) throw(ParseError)
         }
         prevWithClause = withClause;
         withClause = WithClause();
-        if (!this->eat_withClause_one(sb, withClause, &parseError)) {
+        if (!this->eat_withClause_one(sb, withClause, &qinfoAddError)) {
             // Read 'and', so we naturally expect a with clause
             this->eat_till_end(sb);
             this->error(PARSE_WITHCLAUSE_EXPECT_WITH, sb.c_str(),
                     prevWithClause.toString().c_str());
         }
-        if (PARSE_OK != parseError) {
-            throw parseError;
+        if (PARSE_OK != qinfoAddError) {
+            this->parseErr = qinfoAddError;
         }
+        // carry on passing despite the query being false to help
+        // the user catch more errors
     }
     return true;
 }
