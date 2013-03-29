@@ -537,8 +537,6 @@ private:
     /// @param disp PKB dispatch table
     void ev_relRef_X_syn_wild_int_1(int rTableIdx,
             const RelRef *relRef, const EvalPKBDispatch& disp);
-    // evaluate relRef, none of the arguments is a synonym
-    void ev_relRef_X_X(int rTableIdx, const RelRef *relRef);
 
     void evaluate_patCl(int rTableIdx, const GenericRef *genRef);
     void evaluate_patCl_if(int rTableIdx, const PatCl *patCl);

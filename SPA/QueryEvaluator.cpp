@@ -780,7 +780,8 @@ void QueryEvaluator::evaluate_relRef(int rTableIdx,
     } else if (relRef->argTwoType == RELARG_SYN) {
         this->ev_relRef_X_syn(rTableIdx, relRef);
     } else {
-        this->ev_relRef_X_X(rTableIdx, relRef);
+        // isolated clauses should no longer be evaluated here
+        assert(false);
     }
 }
 
@@ -3741,11 +3742,6 @@ void QueryEvaluator::ev_relRef_X_syn_wild_int_1(int rTableIdx,
         }
     }
     rTable.syn_1_transaction_end();
-}
-
-void QueryEvaluator::ev_relRef_X_X(int rTableIdx,
-        const RelRef *relRef)
-{
 }
 
 void QueryEvaluator::evaluate_patCl(int rTableIdx,
