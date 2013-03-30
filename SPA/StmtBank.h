@@ -57,6 +57,11 @@ public:
     // query methods
     bool has_stmtLst(int stmt) const;
     bool has_const(int n) const;
+    /// Checks if any call statement calls a given procedure
+    /// @procName the procedure to check for
+    /// @return true if a call statement calls the given procedure,
+    ///         false otherwise
+    bool has_call_procName(const std::string& procName) const;
 
     /*
      * Returns the procedure called by the call stmt, or an
@@ -90,6 +95,7 @@ private:
     map<int, Node*> assignBank;
     std::set<int> constBank;
     std::set<int> stmtLstSet;
+    std::set<std::string> callProcNameSet;
     const std::set<std::string> EMPTY_STRINGSET;
 };
 

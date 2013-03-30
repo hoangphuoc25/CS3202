@@ -1394,6 +1394,11 @@ bool PKB::has_call(int callStmt) const
     return stmtBank->is_stmtType(callStmt, ENT_CALL);
 }
 
+bool PKB::has_call_procName(const string& procName) const
+{
+    return this->stmtBank->has_call_procName(procName);
+}
+
 bool PKB::has_if (int ifStmt) const
 {
     return stmtBank->is_stmtType(ifStmt, ENT_IF);

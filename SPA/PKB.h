@@ -716,6 +716,11 @@ public:
 
     bool has_assign(int assign) const;
     bool has_call(int callStmt) const;
+    /// Checks if any call statement calls a given procedure
+    /// @procName the procedure to check for
+    /// @return true if a call statement calls the given procedure,
+    ///         false otherwise
+    bool has_call_procName(const std::string& procName) const;
     bool has_if (int ifStmt) const;
     bool has_while(int whileStmt) const;
     bool has_stmt(int stmtNo) const;

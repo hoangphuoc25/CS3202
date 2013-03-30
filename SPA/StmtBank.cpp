@@ -19,6 +19,8 @@ void StmtBank::add_node_entry(int stmtNo, DesignEnt type, Node* node)
     switch(type) {
     case ENT_CALL:
         callBank[stmtNo] = node;
+        // add the name of the procedure being called
+        this->callProcNameSet.insert(node->get_name());
         break;
     case ENT_WHILE:
         whileBank[stmtNo] = node;
@@ -260,6 +262,12 @@ bool StmtBank::has_stmtLst(int stmt) const
 bool StmtBank::has_const(int n) const
 {
     return this->constBank.find(n) != this->constBank.end();
+}
+
+bool StmtBank::has_call_procName(const string& procName) const
+{
+    return this->callProcNameSet.end() !=
+            this->callProcNameSet.find(procName);
 }
 
 string StmtBank::get_call_procName(int callStmt) const
