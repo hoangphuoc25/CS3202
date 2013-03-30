@@ -1179,8 +1179,16 @@ private:
             const PatCl *patCl);
     void evaluate_patCl_assign_syn_expr(int rTableIdx,
             const PatCl *patCl);
+    void evaluate_patCl_assign_syn_expr_11(ResultsTable& rTable, 
+            const PatCl* patCl);
+    void evaluate_patCl_assign_syn_expr_22(ResultsTable& rTable, 
+            const PatCl* patCl);
     void evaluate_patCl_assign_syn_exprwild(int rTableIdx,
             const PatCl *patCl);
+    void evaluate_patCl_assign_syn_exprwild_11(ResultsTable& rTable, 
+            const PatCl* patCl);
+    void evaluate_patCl_assign_syn_exprwild_22(ResultsTable& rTable, 
+            const PatCl* patCl);
     void evaluate_patCl_assign_syn_wildcard(int rTableIdx,
             const PatCl *patCl);
     void evaluate_patCl_assign_syn_wildcard_11(ResultsTable& rTable, 
