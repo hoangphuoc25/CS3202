@@ -3836,7 +3836,7 @@ void Test_20_PQLParser::test_err_follows_and_star_argtypes()
     }
 }
 
-void Test_20_PQLParser::test_next_and_star()
+void Test_20_PQLParser::test_next_and_star_and_bip()
 {
     StringBuffer sb;
     string queryStr, out;
@@ -3846,6 +3846,8 @@ void Test_20_PQLParser::test_next_and_star()
     set<const char *> RS;
     RS.insert(NEXT_STR);
     RS.insert(NEXT_STAR_STR);
+    RS.insert(NEXTBIP_STR);
+    RS.insert(NEXTBIP_STAR_STR);
     // ok arg one synonym types
     set<pair<const char *, const char *> > ESONE;
     ESONE.insert(pair<const char *, const char *>(ENT_STMT_STR, "st"));
@@ -4078,7 +4080,7 @@ void Test_20_PQLParser::test_next_and_star()
     }
 }
 
-void Test_20_PQLParser::test_err_next_and_star_argtypes()
+void Test_20_PQLParser::test_err_next_and_star_and_bip_argtypes()
 {
     StringBuffer sb;
     string queryStr, out;
@@ -4090,6 +4092,10 @@ void Test_20_PQLParser::test_err_next_and_star_argtypes()
                 (NEXT_STR, TYPE_ERROR_NEXT));
     RS.insert(pair<const char *, const char **>
                 (NEXT_STAR_STR, TYPE_ERROR_NEXT_STAR));
+    RS.insert(pair<const char *, const char **>
+                (NEXTBIP_STR, TYPE_ERROR_NEXTBIP));
+    RS.insert(pair<const char *, const char **>
+                (NEXTBIP_STAR_STR, TYPE_ERROR_NEXTBIP_STAR));
     // invalid types for arg one
     set<pair<const char *, const char *> > ESONE;
     ESONE.insert(pair<const char *, const char *>(ENT_PROC_STR, "p"));
@@ -4169,7 +4175,7 @@ void Test_20_PQLParser::test_err_next_and_star_argtypes()
     }
 }
 
-void Test_20_PQLParser::test_affects_and_star()
+void Test_20_PQLParser::test_affects_and_star_and_bip()
 {
     StringBuffer sb;
     string queryStr, out;
@@ -4179,6 +4185,8 @@ void Test_20_PQLParser::test_affects_and_star()
     set<const char *> RS;
     RS.insert(AFFECTS_STR);
     RS.insert(AFFECTS_STAR_STR);
+    RS.insert(AFFECTSBIP_STR);
+    RS.insert(AFFECTSBIP_STAR_STR);
 
     // valid types for arg one synonym
     set<pair<const char *, const char *> > ESONE;
@@ -4348,7 +4356,7 @@ void Test_20_PQLParser::test_affects_and_star()
     }
 }
 
-void Test_20_PQLParser::test_err_affects_and_star_argtypes()
+void Test_20_PQLParser::test_err_affects_and_star_and_bip_argtypes()
 {
     StringBuffer sb;
     string queryStr, out;
@@ -4360,6 +4368,10 @@ void Test_20_PQLParser::test_err_affects_and_star_argtypes()
                 (AFFECTS_STR, TYPE_ERROR_AFFECTS));
     RS.insert(pair<const char *, const char **>
                 (AFFECTS_STAR_STR, TYPE_ERROR_AFFECTS_STAR));
+    RS.insert(pair<const char *, const char **>
+                (AFFECTSBIP_STR, TYPE_ERROR_AFFECTSBIP));
+    RS.insert(pair<const char *, const char **>
+                (AFFECTSBIP_STAR_STR, TYPE_ERROR_AFFECTSBIP_STAR));
 
     // invalid types for arg one synonym
     set<pair<const char *, const char *> > ESONE;

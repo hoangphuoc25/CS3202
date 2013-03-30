@@ -106,6 +106,22 @@ private:
     bool eat_next_star(StringBuffer &sb);
     bool eat_affects(StringBuffer &sb);
     bool eat_affects_star(StringBuffer &sb);
+    /// Parses a "NextBip" string
+    /// @return true if "NextBip" was successfully parsed,
+    ///         false otherwise
+    bool eat_nextBip(StringBuffer &sb);
+    /// Parses a "NextBip*" string
+    /// @return true if "NextBip*" was successfully parsed,
+    ///         false otherwise
+    bool eat_nextBip_star(StringBuffer &sb);
+    /// Parses a "AffectsBip" string
+    /// @return true if "AffectsBip" was successfully parsed,
+    ///         false otherwise
+    bool eat_affectsBip(StringBuffer &sb);
+    /// Parses a "AffectsBip*" string
+    /// @return true if "AffectsBip*" was successfully parsed,
+    ///         false otherwise
+    bool eat_affectsBip_star(StringBuffer &sb);
     RelRefArgType eat_entRef(StringBuffer &sb);
     RelRefArgType eat_stmtRef(StringBuffer &sb);
     RelRefArgType eat_lineRef(StringBuffer &sb);
@@ -146,6 +162,34 @@ private:
     bool eat_relRef_next_star(RelRef &relRef, StringBuffer &sb);
     bool eat_relRef_affects(RelRef &relRef, StringBuffer &sb);
     bool eat_relRef_affects_star(RelRef &relRef, StringBuffer &sb);
+    /// Parses a NextBip relation
+    /// @param relRef the Relation clause which will be modified upon
+    ///               successful parse
+    /// @param sb StringBuffer to be used for parsing. This may be
+    ///           modified
+    /// @return true if a NextBip relation was parsed, false otherwise
+    bool eat_relRef_nextBip(RelRef& relRef, StringBuffer& sb);
+    /// Parses a NextBip* relation
+    /// @param relRef the Relation clause which will be modified upon
+    ///               successful parse
+    /// @param sb StringBuffer to be used for parsing. This may be
+    ///           modified
+    /// @return true if a NextBip* relation was parsed, false otherwise
+    bool eat_relRef_nextBip_star(RelRef& relRef, StringBuffer& sb);
+    /// Parses a AffectsBip relation
+    /// @param relRef the Relation clause which will be modified upon
+    ///               successful parse
+    /// @param sb StringBuffer to be used for parsing. This may be
+    ///           modified
+    /// @return true if a AffectsBip relation was parsed, false otherwise
+    bool eat_relRef_affectsBip(RelRef& relRef, StringBuffer& sb);
+    /// Parses a AffectsBip* relation
+    /// @param relRef the Relation clause which will be modified upon
+    ///               successful parse
+    /// @param sb StringBuffer to be used for parsing. This may be
+    ///           modified
+    /// @return true if a AffectsBip* relation was parsed, false otherwise
+    bool eat_relRef_affectsBip_star(RelRef& relRef, StringBuffer& sb);
     RelRef eat_relRef(StringBuffer &sb);
     bool eat_relCond(StringBuffer &sb) throw(ParseError);
     PatCl eat_patternClause(StringBuffer &sb) throw(ParseError);

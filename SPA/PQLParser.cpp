@@ -1074,6 +1074,26 @@ bool PQLParser::eat_affects_star(StringBuffer &sb)
     return this->eat_alpha_star_string(sb, AFFECTS_STAR_STR);
 }
 
+bool PQLParser::eat_nextBip(StringBuffer &sb)
+{
+    return this->eat_alpha_string(sb, NEXTBIP_STR);
+}
+
+bool PQLParser::eat_nextBip_star(StringBuffer &sb)
+{
+    return this->eat_alpha_star_string(sb, NEXTBIP_STAR_STR);
+}
+
+bool PQLParser::eat_affectsBip(StringBuffer &sb)
+{
+    return this->eat_alpha_string(sb, AFFECTSBIP_STR);
+}
+
+bool PQLParser::eat_affectsBip_star(StringBuffer &sb)
+{
+    return this->eat_alpha_star_string(sb, AFFECTSBIP_STAR_STR);
+}
+
 RelRefArgType PQLParser::eat_entRef(StringBuffer &sb)
 {
     int saveIdx = this->bufIdx;
@@ -1308,6 +1328,18 @@ void PQLParser::error_add_relRef(ParseError parseErr_, const RelRef &relRef,
     case REL_AFFECTS_STAR:
         typeErrorArray = TYPE_ERROR_AFFECTS_STAR;
         break;
+    case REL_NEXTBIP:
+        typeErrorArray = TYPE_ERROR_NEXTBIP;
+        break;
+    case REL_NEXTBIP_STAR:
+        typeErrorArray = TYPE_ERROR_NEXTBIP_STAR;
+        break;
+    case REL_AFFECTSBIP:
+        typeErrorArray = TYPE_ERROR_AFFECTSBIP;
+        break;
+    case REL_AFFECTSBIP_STAR:
+        typeErrorArray = TYPE_ERROR_AFFECTSBIP_STAR;
+        break;
     }
     switch (parseErr_) {
     case PARSE_REL_ARGONE_UNDECLARED:
@@ -1397,6 +1429,36 @@ bool PQLParser::eat_relRef_affects_star(RelRef &relRef, StringBuffer &sb)
                    REL_AFFECTS_STAR, &PQLParser::eat_stmtRef_stmtRef);
 }
 
+bool PQLParser::eat_relRef_nextBip(RelRef &relRef, StringBuffer &sb)
+{
+    return this->eat_relRef_generic(relRef, sb,
+                   &PQLParser::eat_nextBip,
+                   REL_NEXTBIP, &PQLParser::eat_lineRef_lineRef);
+}
+
+bool PQLParser::eat_relRef_nextBip_star(RelRef &relRef,
+        StringBuffer &sb)
+{
+    return this->eat_relRef_generic(relRef, sb,
+                   &PQLParser::eat_nextBip_star,
+                   REL_NEXTBIP_STAR, &PQLParser::eat_lineRef_lineRef);
+}
+
+bool PQLParser::eat_relRef_affectsBip(RelRef &relRef, StringBuffer &sb)
+{
+    return this->eat_relRef_generic(relRef, sb,
+                   &PQLParser::eat_affectsBip,
+                   REL_AFFECTSBIP, &PQLParser::eat_stmtRef_stmtRef);
+}
+
+bool PQLParser::eat_relRef_affectsBip_star(RelRef &relRef,
+        StringBuffer &sb)
+{
+    return this->eat_relRef_generic(relRef, sb,
+                   &PQLParser::eat_affectsBip_star,
+                   REL_AFFECTSBIP_STAR, &PQLParser::eat_stmtRef_stmtRef);
+}
+
 RelRef PQLParser::eat_relRef(StringBuffer &sb)
 {
     RelRef relRef;
@@ -1423,6 +1485,14 @@ RelRef PQLParser::eat_relRef(StringBuffer &sb)
     } else if (this->eat_relRef_affects_star(relRef, sb)) {
         return relRef;
     } else if (this->eat_relRef_affects(relRef, sb)) {
+        return relRef;
+    } else if (this->eat_relRef_nextBip_star(relRef, sb)) {
+        return relRef;
+    } else if (this->eat_relRef_nextBip(relRef, sb)) {
+        return relRef;
+    } else if (this->eat_relRef_affectsBip_star(relRef, sb)) {
+        return relRef;
+    } else if (this->eat_relRef_affectsBip(relRef, sb)) {
         return relRef;
     } else {
         return RelRef();

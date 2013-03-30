@@ -21,26 +21,30 @@
 #define ENT_PROGLINE_STR "prog_line"
 #define ENT_INVALID_STR  "invalid"
 
-#define BOOLEAN_STR "BOOLEAN"
-#define WITH_STR    "with"
-#define PATTERN_STR "pattern"
-#define AND_STR     "and"
-#define SELECT_STR  "Select"
-#define SUCH_STR    "such"
-#define THAT_STR    "that"
-#define INVALID_STR "invalid"
-#define MODIFIES_STR     "Modifies"
-#define USES_STR         "Uses"
-#define CALLS_STAR_STR   "Calls*"
-#define CALLS_STR        "Calls"
-#define PARENT_STR       "Parent"
-#define PARENT_STAR_STR  "Parent*"
-#define FOLLOWS_STR      "Follows"
-#define FOLLOWS_STAR_STR "Follows*"
-#define NEXT_STR         "Next"
-#define NEXT_STAR_STR    "Next*"
-#define AFFECTS_STR      "Affects"
-#define AFFECTS_STAR_STR "Affects*"
+#define BOOLEAN_STR         "BOOLEAN"
+#define WITH_STR            "with"
+#define PATTERN_STR         "pattern"
+#define AND_STR             "and"
+#define SELECT_STR          "Select"
+#define SUCH_STR            "such"
+#define THAT_STR            "that"
+#define INVALID_STR         "invalid"
+#define MODIFIES_STR        "Modifies"
+#define USES_STR            "Uses"
+#define CALLS_STAR_STR      "Calls*"
+#define CALLS_STR           "Calls"
+#define PARENT_STR          "Parent"
+#define PARENT_STAR_STR     "Parent*"
+#define FOLLOWS_STR         "Follows"
+#define FOLLOWS_STAR_STR    "Follows*"
+#define NEXT_STR            "Next"
+#define NEXT_STAR_STR       "Next*"
+#define AFFECTS_STR         "Affects"
+#define AFFECTS_STAR_STR    "Affects*"
+#define NEXTBIP_STR         "NextBip"
+#define NEXTBIP_STAR_STR    "NextBip*"
+#define AFFECTSBIP_STR      "AffectsBip"
+#define AFFECTSBIP_STAR_STR "AffectsBip*"
 
 #define ATTR_PROCNAME_STR "procName"
 #define ATTR_VARNAME_STR  "varName"
@@ -236,6 +240,10 @@ extern const char *TYPE_ERROR_NEXT[TYPE_ERROR_ARRAY_SZ];
 extern const char *TYPE_ERROR_NEXT_STAR[TYPE_ERROR_ARRAY_SZ];
 extern const char *TYPE_ERROR_AFFECTS[TYPE_ERROR_ARRAY_SZ];
 extern const char *TYPE_ERROR_AFFECTS_STAR[TYPE_ERROR_ARRAY_SZ];
+extern const char *TYPE_ERROR_NEXTBIP[TYPE_ERROR_ARRAY_SZ];
+extern const char *TYPE_ERROR_NEXTBIP_STAR[TYPE_ERROR_ARRAY_SZ];
+extern const char *TYPE_ERROR_AFFECTSBIP[TYPE_ERROR_ARRAY_SZ];
+extern const char *TYPE_ERROR_AFFECTSBIP_STAR[TYPE_ERROR_ARRAY_SZ];
 
 /// Used to represent the various design entities in PQL
 enum DesignEnt {
@@ -296,19 +304,23 @@ enum AttrType {
 
 /// Type of Relation, eg. Modifies, Calls, Parent
 enum RelRefType {
-    REL_MODIFIES,     ///< Modifies
-    REL_USES,         ///< Uses
-    REL_CALLS,        ///< Calls
-    REL_CALLS_STAR,   ///< Calls*
-    REL_PARENT,       ///< Parent
-    REL_PARENT_STAR,  ///< Parent*
-    REL_FOLLOWS,      ///< Follows
-    REL_FOLLOWS_STAR, ///< Follows*
-    REL_NEXT,         ///< Next
-    REL_NEXT_STAR,    ///< Next*
-    REL_AFFECTS,      ///< Affects
-    REL_AFFECTS_STAR, ///< Affects*
-    REL_INVALID       ///< Invalid Relation, indicates an error
+    REL_MODIFIES,        ///< Modifies
+    REL_USES,            ///< Uses
+    REL_CALLS,           ///< Calls
+    REL_CALLS_STAR,      ///< Calls*
+    REL_PARENT,          ///< Parent
+    REL_PARENT_STAR,     ///< Parent*
+    REL_FOLLOWS,         ///< Follows
+    REL_FOLLOWS_STAR,    ///< Follows*
+    REL_NEXT,            ///< Next
+    REL_NEXT_STAR,       ///< Next*
+    REL_AFFECTS,         ///< Affects
+    REL_AFFECTS_STAR,    ///< Affects*
+    REL_NEXTBIP,         ///< NextBip
+    REL_NEXTBIP_STAR,    ///< NextBip*
+    REL_AFFECTSBIP,      ///< AffectsBip
+    REL_AFFECTSBIP_STAR, ///< AffectsBip*
+    REL_INVALID          ///< Invalid Relation, indicates an error
 };
 
 /// Type of a clause in PQL query, eg. Relation, Pattern, With

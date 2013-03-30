@@ -44,6 +44,14 @@ void Test_03_PQL::test_relRefType_to_string()
             string(relRefType_to_string(REL_AFFECTS)));
     CPPUNIT_ASSERT_EQUAL(string(AFFECTS_STAR_STR),
             string(relRefType_to_string(REL_AFFECTS_STAR)));
+    CPPUNIT_ASSERT_EQUAL(string(NEXTBIP_STR),
+            string(relRefType_to_string(REL_NEXTBIP)));
+    CPPUNIT_ASSERT_EQUAL(string(NEXTBIP_STAR_STR),
+            string(relRefType_to_string(REL_NEXTBIP_STAR)));
+    CPPUNIT_ASSERT_EQUAL(string(AFFECTSBIP_STR),
+            string(relRefType_to_string(REL_AFFECTSBIP)));
+    CPPUNIT_ASSERT_EQUAL(string(AFFECTSBIP_STAR_STR),
+            string(relRefType_to_string(REL_AFFECTSBIP_STAR)));
     CPPUNIT_ASSERT_EQUAL(string(INVALID_STR),
             string(relRefType_to_string(REL_INVALID)));
 }

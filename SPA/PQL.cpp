@@ -166,6 +166,54 @@ const char *TYPE_ERROR_AFFECTS_STAR[TYPE_ERROR_ARRAY_SZ] = {
     " or an underscore"
 };
 
+const char *TYPE_ERROR_NEXTBIP[TYPE_ERROR_ARRAY_SZ] = {
+    "NextBip: arg one must be a synonym of type" \
+    " stmt, assign, call, while, if, prog_line;" \
+    " or an integer;" \
+    " or an underscore",
+
+    "NextBip: arg two must be a synonym of type" \
+    " stmt, assign, call, while, if, prog_line;" \
+    " or an integer;" \
+    " or an underscore",
+};
+
+const char *TYPE_ERROR_NEXTBIP_STAR[TYPE_ERROR_ARRAY_SZ] = {
+    "NextBip*: arg one must be a synonym of type" \
+    " stmt, assign, call, while, if, prog_line;" \
+    " or an integer;" \
+    " or an underscore",
+
+    "NextBip*: arg two must be a synonym of type" \
+    " stmt, assign, call, while, if, prog_line;" \
+    " or an integer;" \
+    " or an underscore",
+};
+
+const char *TYPE_ERROR_AFFECTSBIP[TYPE_ERROR_ARRAY_SZ] = {
+    "AffectsBip: arg one must be a synonym of type" \
+    " assign;" \
+    " or an integer;" \
+    " or an underscore",
+
+    "AffectsBip: arg two must be a synonym of type" \
+    " assign;" \
+    " or an integer;" \
+    " or an underscore"
+};
+
+const char *TYPE_ERROR_AFFECTSBIP_STAR[TYPE_ERROR_ARRAY_SZ] = {
+    "AffectsBip*: arg one must be a synonym of type" \
+    " assign;" \
+    " or an integer;" \
+    " or an underscore",
+
+    "AffectsBip*: arg two must be a synonym of type" \
+    " assign;" \
+    " or an integer;" \
+    " or an underscore"
+};
+
 const char *relRefType_to_string(RelRefType relType)
 {
     switch (relType) {
@@ -193,6 +241,14 @@ const char *relRefType_to_string(RelRefType relType)
         return AFFECTS_STR;
     case REL_AFFECTS_STAR:
         return AFFECTS_STAR_STR;
+    case REL_NEXTBIP:
+        return NEXTBIP_STR;
+    case REL_NEXTBIP_STAR:
+        return NEXTBIP_STAR_STR;
+    case REL_AFFECTSBIP:
+        return AFFECTSBIP_STR;
+    case REL_AFFECTSBIP_STAR:
+        return AFFECTSBIP_STAR_STR;
     default:
         return INVALID_STR;
     }
@@ -1302,11 +1358,19 @@ bool QueryInfo::is_valid_argOne_syn_type(RelRefType relType,
         return (QueryInfo::FOLLOWS_ARGONE_TYPES.find(entType) !=
                 QueryInfo::FOLLOWS_ARGONE_TYPES.end());
         break;
-    case REL_NEXT: case REL_NEXT_STAR:
+    case REL_NEXT:
+    case REL_NEXT_STAR:
+    // NextBip and NextBip* have same arg 1 types as Next
+    case REL_NEXTBIP:
+    case REL_NEXTBIP_STAR:
         return (QueryInfo::NEXT_ARGONE_TYPES.find(entType) !=
                 QueryInfo::NEXT_ARGONE_TYPES.end());
         break;
-    case REL_AFFECTS: case REL_AFFECTS_STAR:
+    case REL_AFFECTS:
+    case REL_AFFECTS_STAR:
+    // AffectsBip and AffectsBip* have same arg 1 types as Affects
+    case REL_AFFECTSBIP:
+    case REL_AFFECTSBIP_STAR:
         return (QueryInfo::AFFECTS_ARGONE_TYPES.find(entType) !=
                 QueryInfo::AFFECTS_ARGONE_TYPES.end());
         break;
@@ -1338,11 +1402,19 @@ bool QueryInfo::is_valid_argTwo_syn_type(RelRefType relType,
         return (QueryInfo::FOLLOWS_ARGTWO_TYPES.find(entType) !=
                 QueryInfo::FOLLOWS_ARGTWO_TYPES.end());
         break;
-    case REL_NEXT: case REL_NEXT_STAR:
+    case REL_NEXT:
+    case REL_NEXT_STAR:
+    // NextBip and NextBip* have same arg 2 types as Next
+    case REL_NEXTBIP:
+    case REL_NEXTBIP_STAR:
         return (QueryInfo::NEXT_ARGTWO_TYPES.find(entType) !=
                 QueryInfo::NEXT_ARGTWO_TYPES.end());
         break;
-    case REL_AFFECTS: case REL_AFFECTS_STAR:
+    case REL_AFFECTS:
+    case REL_AFFECTS_STAR:
+    // AffectsBip and AffectsBip* have same arg 2 types as Affects
+    case REL_AFFECTSBIP:
+    case REL_AFFECTSBIP_STAR:
         return (QueryInfo::AFFECTS_ARGTWO_TYPES.find(entType) !=
                 QueryInfo::AFFECTS_ARGTWO_TYPES.end());
         break;
@@ -1529,9 +1601,15 @@ ParseError QueryInfo::add_relRef(RelRef &relRef, char **errorMsg)
         return this->add_follows_relRef(relRef, errorMsg);
     case REL_NEXT:
     case REL_NEXT_STAR:
+    // NextBip and NextBip* have same type of args as Next
+    case REL_NEXTBIP:
+    case REL_NEXTBIP_STAR:
         return this->add_next_relRef(relRef, errorMsg);
     case REL_AFFECTS:
     case REL_AFFECTS_STAR:
+    // AffectsBip and AffectsBip* have same type of args as Affects
+    case REL_AFFECTSBIP:
+    case REL_AFFECTSBIP_STAR:
         return this->add_affects_relRef(relRef, errorMsg);
     default:
         if (errorMsg) {
