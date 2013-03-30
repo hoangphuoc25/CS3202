@@ -11,6 +11,19 @@ CPPUNIT_TEST(test_ii_01);
 CPPUNIT_TEST(test_ii_10);
 CPPUNIT_TEST(test_ii_11);
 CPPUNIT_TEST(test_ii_22);
+CPPUNIT_TEST(test_ss_cpn_cpn_00);
+CPPUNIT_TEST(test_ss_cpn_X_00);
+CPPUNIT_TEST(test_ss_00);
+CPPUNIT_TEST(test_ss_cpn_cpn_01);
+CPPUNIT_TEST(test_ss_cpn_X_01);
+CPPUNIT_TEST(test_ss_cpn_X_10);
+CPPUNIT_TEST(test_ss_01);
+CPPUNIT_TEST(test_ss_cpn_cpn_11);
+CPPUNIT_TEST(test_ss_cpn_X_11);
+CPPUNIT_TEST(test_ss_11);
+CPPUNIT_TEST(test_ss_cpn_cpn_22);
+CPPUNIT_TEST(test_ss_cpn_X_22);
+CPPUNIT_TEST(test_ss_22);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -18,6 +31,8 @@ public:
     void tearDown();
 private:
     std::string IIProc;
+    std::string CALL_PROC;
+
     /// Test with clause with both arguments being AttrRef int
     /// and not seen
     void test_ii_00();
@@ -33,6 +48,47 @@ private:
     /// Test with clause with both arguments being AttrRef int
     /// and both args were seen but in different Table
     void test_ii_22();
+    /// Test with clause with both arguments being call.procName
+    /// and not seen
+    void test_ss_cpn_cpn_00();
+    /// Test with clause with arg 1 being call.procName and
+    /// arg 2 a string RefSynType (not call.procName), both unseen
+    void test_ss_cpn_X_00();
+    /// Test with clause with both args being string RefSynType
+    /// (not call.procName), both unseen
+    void test_ss_00();
+    /// Test with clause with both arguments being call.procName
+    /// and arg 2 is seen
+    void test_ss_cpn_cpn_01();
+    /// Test with clause with arg 1 being call.procName and
+    /// arg 2 a string RefSynType (not call.procName), arg 2 seen
+    void test_ss_cpn_X_01();
+    /// Test with clause with arg 1 being call.procName and
+    /// arg 2 a string RefSynType (not call.procName), arg 1 seen
+    void test_ss_cpn_X_10();
+    /// Test with clause with both args being string RefSynType
+    /// (not call.procName), arg 2 seen
+    void test_ss_01();
+    /// Test with clause with both arguments being call.procName
+    /// and seen in same Table
+    void test_ss_cpn_cpn_11();
+    /// Test with clause with arg 1 being call.procName and
+    /// arg 2 a string RefSynType (not call.procName), both seen
+    /// in same Table
+    void test_ss_cpn_X_11();
+    /// Test with clause with both args being string RefSynType
+    /// (not call.procName), both seen in same Table
+    void test_ss_11();
+    /// Test with clause with both arguments being call.procName
+    /// and seen in different Table
+    void test_ss_cpn_cpn_22();
+    /// Test with clause with arg 1 being call.procName and
+    /// arg 2 a string RefSynType (not call.procName), both seen
+    /// but in different Table
+    void test_ss_cpn_X_22();
+    /// Test with clause with both args being string RefSynType
+    /// (not call.procName), both seen in but in different Table
+    void test_ss_22();
 };
 
 #endif

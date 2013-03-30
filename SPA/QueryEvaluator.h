@@ -669,6 +669,21 @@ private:
     /// @param disp the PKB Dispatch Table
     void ev_withClause_ss_00(int rTableIdx,
             const WithClause& withClause, const EvalPKBDispatch& disp);
+    /// Evaluates a WithClause where both arguments are call.procName
+    /// and have not been seen
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    void ev_withClause_ss_cpn_cpn_00(int rTableIdx,
+            const WithClause& withClause);
+    /// Evaluates a WithClause where arg 1 is call.procName,
+    /// arg 2 is a string RefSynType (other than call.procName)
+    /// and both args have not been seen
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    /// @param disp PKB Dispatch Table
+    void ev_withClause_ss_cpn_X_00(int rTableIdx,
+            const WithClause& withClause,
+            const EvalPKBDispatch& disp);
     /// Evaluates a WithClause where both arguments are AttrRef of
     /// type string and arg 2 has been seen
     /// @param rTableIdx ResultsTable index
@@ -676,24 +691,65 @@ private:
     /// @param disp the PKB Dispatch Table
     void ev_withClause_ss_01(int rTableIdx,
             const WithClause& withClause, const EvalPKBDispatch& disp);
-    /// Evaluates a WithClause where both arguments are AttrRef of
-    /// type string and arg 1 has been seen
+    /// Evaluates a WithClause where both arguments are call.procName
+    /// and arg 2 has been seen
     /// @param rTableIdx ResultsTable index
     /// @param withClause the WithClause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_withClause_ss_10(int rTableIdx,
-            const WithClause& withClause, const EvalPKBDispatch& disp);
+    void ev_withClause_ss_cpn_cpn_01(int rTableIdx,
+            const WithClause& withClause);
+    /// Evaluates a WithClause where arg 1 is call.procName,
+    /// arg 2 is a string RefSynType (not call.procName) and
+    /// arg 2 has been seen
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    void ev_withClause_ss_cpn_X_01(int rTableIdx,
+            const WithClause& withClause);
+    /// Evaluates a WithClause where arg 1 is a string RefSynType
+    /// (not call.procName), arg 2 is call.procName, and arg 2
+    /// has been seen
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    /// @param disp PKB Dispatch Table
+    void ev_withClause_ss_cpn_X_10(int rTableIdx,
+            const WithClause& withClause,
+            const EvalPKBDispatch& disp);
     /// Evaluates a WithClause where both arguments are AttrRef of
     /// type string and arg 1 has been seen
     /// @param rTableIdx ResultsTable index
     /// @param withClause the WithClause to evaluate
     void ev_withClause_ss_11(int rTableIdx,
             const WithClause& withClause);
+    /// Evaluates a WithClause where both args are call.procName
+    /// and have been seen in the same Table
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    void ev_withClause_ss_cpn_cpn_11(int rTableIdx,
+            const WithClause& withClause);
+    /// Evaluates a WithClause where arg 1 is call.procName,
+    /// arg 2 is a string RefSynType (not call.procName) and both args
+    /// have been seen in the same Table
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    void ev_withClause_ss_cpn_X_11(int rTableIdx,
+            const WithClause& withClause);
     /// Evaluates a WithClause where both arguments are AttrRef of
     /// type string and have been seen, but in same Table
     /// @param rTableIdx ResultsTable index
     /// @param withClause the WithClause to evaluate
     void ev_withClause_ss_22(int rTableIdx,
+            const WithClause& withClause);
+    /// Evaluates a WithClause where both args are call.procName
+    /// and have been seen but in different Table
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    void ev_withClause_ss_cpn_cpn_22(int rTableIdx,
+            const WithClause& withClause);
+    /// Evaluates a WithClause where arg 1 is call.procName,
+    /// arg 2 is a string RefSynType (not call.procName) and both args
+    /// have been seen but in different Table
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    void ev_withClause_ss_cpn_X_22(int rTableIdx,
             const WithClause& withClause);
     /// Evaluates a WithClause where the LHS is an AttrRef and
     /// the RHS is a concrete value
