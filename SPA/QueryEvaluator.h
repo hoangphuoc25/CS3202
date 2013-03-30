@@ -91,6 +91,8 @@ struct EvalPKBDispatch {
             const std::string& argTwoVal) const;
     bool (PKB::*f_smth_int_argTwo)(DesignEnt argTwoType, int argTwoVal)
             const;
+    bool (PKB::*has_any_int)(int synVal) const;
+    bool (PKB::*has_any_string)(const std::string& synVal) const;
 
     // Generic QueryEvaluator evaluation function
     void (QueryEvaluator::*relRef_eval)
@@ -112,10 +114,50 @@ public:
     // Results are returned in resultsSet
     void evaluate(const std::string& queryStr,
             std::list<std::string>& resultSet);
+
+    typedef std::set<std::string> (PKB::*pkbGetAllStringFn) () const;
+    typedef std::set<int> (PKB::*pkbGetAllIntFn) () const;
+    /// Retrieves the appropriate PKB method for retrieving all
+    /// synonym based on a given RefSynType of BASETYPE_INT
+    /// @param refSynType the RefSynType of the synonym
+    /// @return the PKB retrieval function to retrieve all synonyms
+    ///         of that RefSynType
+    static pkbGetAllIntFn
+        get_all_int_pkb_method_from_RefSynType(
+            RefSynType refSynType);
+    /// Retrieves the appropriate PKB method for retrieving all
+    /// synonym based on a given RefSynType of BASETYPE_STRING
+    /// @param refSynType the RefSynType of the synonym
+    /// @return the PKB retrieval function to retrieve all synonyms
+    ///         of that RefSynType
+    static pkbGetAllStringFn
+        get_all_string_pkb_method_from_RefSynType(
+            RefSynType refSynType);
+
+    typedef bool (PKB::*pkbHasAnyIntFn)(int) const;
+    typedef bool (PKB::*pkbHasAnyStringFn)(const std::string&) const;
+    /// Retrieves the PKB method for has_any_X based on the RefSynType
+    /// of X, where X is of BASETYPE_INT
+    /// @param refSynType the RefSynType of the synonym X
+    /// @return the appropriate PKB method for has_any_X
+    static pkbHasAnyIntFn
+        get_hasAnyInt_pkb_method_from_RefSynType(
+            RefSynType refSynType);
+    /// Retrieves the PKB method for has_any_X based on the RefSynType
+    /// of X, where X is of BASETYPE_STRING
+    /// @param refSynType the RefSynType of the synonym X
+    /// @return the appropriate PKB method for has_any_X
+    static pkbHasAnyStringFn
+        get_hasAnyString_pkb_method_from_RefSynType(
+            RefSynType refSynType);
 private:
     void reset();
     void partition_evaluation(const QueryInfo *qinfo);
     void partition_process_relRef(int idx, const GenericRef *genRef);
+    /// Adds vertices/edges from synonym(s) in a WithClause
+    /// @param idx the index of the WithClause
+    /// @param genRef the WithClause
+    void partition_process_withClause(int idx, const GenericRef *genRef);
     void partition_process_patCl(int idx, const GenericRef *genRef);
     int partition_add_vertex(int idx, const std::string& syn);
     void partition_add_edge(int idx, const std::string& synOne,
@@ -197,8 +239,6 @@ private:
             const RelRef *relRef) const;
     void ev_relRef_syn_syn_11_22_setup(SynInGraph sig,
             EvalPKBDispatch& pkbDispatch, const RelRef *relRef) const;
-    typedef std::set<std::string> (PKB::*pkbGetAllStringFn) () const;
-    typedef std::set<int> (PKB::*pkbGetAllIntFn) () const;
     typedef std::set<std::string> (PKB::*pkbGet_1SS_From_2SS)
                     (DesignEnt, DesignEnt, const std::string&) const;
     typedef std::set<std::string> (PKB::*pkbGet_1SS_From_2IS)
@@ -531,6 +571,137 @@ private:
     /// @param disp PKB dispatch table
     void ev_relRef_X_syn_wild_int_1(int rTableIdx,
             const RelRef *relRef, const EvalPKBDispatch& disp);
+
+    /// Evaluates a WithClause
+    /// @param rTableIdx ResultsTable index
+    /// @param genRef the GenericRef representing the WithClause
+    void evaluate_withClause(int rTableIdx, const GenericRef *genRef);
+    /// Evaluates a WithClause where both arguments are AttrRef
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    void ev_withClause_attrRef_attrRef(int rTableIdx,
+            const WithClause& withClause);
+    /// Setup the pkbDispatch for WithClause where both arguments
+    /// are AttrRef int and not seen
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause information on the WithClause
+    /// @param pkbDispatch the PKB Dispatch Table to fill up
+    void ev_withClause_attrRef_attrRef_ii_00_setup(int rTableIdx,
+            const WithClause& withClause, EvalPKBDispatch& pkbDispatch)
+                const;
+    /// Setup the pkbDispatch for WithClause where both arguments
+    /// are AttrRef int and arg 2 has been seen
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause information on the WithClause
+    /// @param pkbDispatch the PKB Dispatch Table to fill up
+    void ev_withClause_attrRef_attrRef_ii_01_setup(int rTableIdx,
+            const WithClause& withClause, EvalPKBDispatch& pkbDispatch)
+                const;
+    /// Setup the pkbDispatch for WithClause where both arguments
+    /// are AttrRef int and arg 1 has been seen
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause information on the WithClause
+    /// @param pkbDispatch the PKB Dispatch Table to fill up
+    void ev_withClause_attrRef_attrRef_ii_10_setup(int rTableIdx,
+            const WithClause& withClause, EvalPKBDispatch& pkbDispatch)
+                const;
+    /// Setup the pkbDispatch for WithClause where both arguments
+    /// are AttrRef string and not seen
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause information on the WithClause
+    /// @param pkbDispatch the PKB Dispatch Table to fill up
+    void ev_withClause_attrRef_attrRef_ss_00_setup(int rTableIdx,
+            const WithClause& withClause, EvalPKBDispatch& pkbDispatch)
+                const;
+    /// Setup the pkbDispatch for WithClause where both arguments
+    /// are AttrRef string and arg 2 has been seen
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause information on the WithClause
+    /// @param pkbDispatch the PKB Dispatch Table to fill up
+    void ev_withClause_attrRef_attrRef_ss_01_setup(int rTableIdx,
+            const WithClause& withClause, EvalPKBDispatch& pkbDispatch)
+                const;
+    /// Setup the pkbDispatch for WithClause where both arguments
+    /// are AttrRef string and arg 1 has been seen
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause information on the WithClause
+    /// @param pkbDispatch the PKB Dispatch Table to fill up
+    void ev_withClause_attrRef_attrRef_ss_10_setup(int rTableIdx,
+            const WithClause& withClause, EvalPKBDispatch& pkbDispatch)
+                const;
+    /// Evaluates a WithClause where both arguments are AttrRef of
+    /// type int and none of them have been seen
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    /// @param disp the PKB Dispatch Table
+    void ev_withClause_ii_00(int rTableIdx,
+            const WithClause& withClause, const EvalPKBDispatch& disp);
+    /// Evaluates a WithClause where both arguments are AttrRef of
+    /// type int and arg 2 has  been seen
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    /// @param disp the PKB Dispatch Table
+    void ev_withClause_ii_01(int rTableIdx,
+            const WithClause& withClause, const EvalPKBDispatch& disp);
+    /// Evaluates a WithClause where both arguments are AttrRef of
+    /// type int and arg 1 has been seen
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    /// @param disp the PKB Dispatch Table
+    void ev_withClause_ii_10(int rTableIdx,
+            const WithClause& withClause, const EvalPKBDispatch& disp);
+    /// Evaluates a WithClause where both arguments are AttrRef of
+    /// type int and have been seen in same Table
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    void ev_withClause_ii_11(int rTableIdx,
+            const WithClause& withClause);
+    /// Evaluates a WithClause where both arguments are AttrRef of
+    /// type int and have been seen, but in same Table
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    void ev_withClause_ii_22(int rTableIdx,
+            const WithClause& withClause);
+    /// Evaluates a WithClause where both arguments are AttrRef of
+    /// type string and none of them have been seen
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    /// @param disp the PKB Dispatch Table
+    void ev_withClause_ss_00(int rTableIdx,
+            const WithClause& withClause, const EvalPKBDispatch& disp);
+    /// Evaluates a WithClause where both arguments are AttrRef of
+    /// type string and arg 2 has been seen
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    /// @param disp the PKB Dispatch Table
+    void ev_withClause_ss_01(int rTableIdx,
+            const WithClause& withClause, const EvalPKBDispatch& disp);
+    /// Evaluates a WithClause where both arguments are AttrRef of
+    /// type string and arg 1 has been seen
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    /// @param disp the PKB Dispatch Table
+    void ev_withClause_ss_10(int rTableIdx,
+            const WithClause& withClause, const EvalPKBDispatch& disp);
+    /// Evaluates a WithClause where both arguments are AttrRef of
+    /// type string and arg 1 has been seen
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    void ev_withClause_ss_11(int rTableIdx,
+            const WithClause& withClause);
+    /// Evaluates a WithClause where both arguments are AttrRef of
+    /// type string and have been seen, but in same Table
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    void ev_withClause_ss_22(int rTableIdx,
+            const WithClause& withClause);
+    /// Evaluates a WithClause where the LHS is an AttrRef and
+    /// the RHS is a concrete value
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    void ev_withClause_attrRef_X(int rTableIdx,
+            const WithClause& withClause);
+
 
     void evaluate_patCl(int rTableIdx, const GenericRef *genRef);
     void evaluate_patCl_if(int rTableIdx, const PatCl *patCl);
