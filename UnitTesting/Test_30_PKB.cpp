@@ -4774,6 +4774,67 @@ void Test_30_PKB::test_followsStar()
 
 }
 
+void Test_30_PKB::test_get_call_stmt_calling()
+{
+    string simpleProg;
+    simpleProg =
+        "procedure A { \
+           call B; \
+           call C; \
+         } \
+         procedure B { \
+           call F; \
+         } \
+         procedure C { \
+           a = b; \
+         } \
+         procedure F { \
+           x = y; \
+         } \
+         procedure G { \
+           call H; \
+           call C; \
+         } \
+         procedure H { \
+           lo = behold; \
+         } \
+         procedure alone { \
+           is = alone; \
+         }";
+    Parser parser(simpleProg, FROMSTRING);
+    parser.init();
+    auto_ptr<PKB> pkb(parser.get_pkb());
+    set<int> intSet;
+    // existing procedures that have been called
+    intSet = pkb->get_call_stmt_calling(string("B"));
+    CPPUNIT_ASSERT_EQUAL(1, (int)intSet.size());
+    CPPUNIT_ASSERT(intSet.end() != intSet.find(1));
+    intSet = pkb->get_call_stmt_calling(string("C"));
+    CPPUNIT_ASSERT_EQUAL(2, (int)intSet.size());
+    CPPUNIT_ASSERT(intSet.end() != intSet.find(2));
+    CPPUNIT_ASSERT(intSet.end() != intSet.find(7));
+    intSet = pkb->get_call_stmt_calling(string("F"));
+    CPPUNIT_ASSERT_EQUAL(1, (int)intSet.size());
+    CPPUNIT_ASSERT(intSet.end() != intSet.find(3));
+    intSet = pkb->get_call_stmt_calling(string("H"));
+    CPPUNIT_ASSERT_EQUAL(1, (int)intSet.size());
+    CPPUNIT_ASSERT(intSet.end() != intSet.find(6));
+    // existing procedures that are not being called
+    intSet = pkb->get_call_stmt_calling(string("A"));
+    CPPUNIT_ASSERT_EQUAL(0, (int)intSet.size());
+    intSet = pkb->get_call_stmt_calling(string("G"));
+    CPPUNIT_ASSERT_EQUAL(0, (int)intSet.size());
+    intSet = pkb->get_call_stmt_calling(string("alone"));
+    CPPUNIT_ASSERT_EQUAL(0, (int)intSet.size());
+    // non-existent procedures
+    intSet = pkb->get_call_stmt_calling(string("tjaj"));
+    CPPUNIT_ASSERT_EQUAL(0, (int)intSet.size());
+    intSet = pkb->get_call_stmt_calling(string("HHSd"));
+    CPPUNIT_ASSERT_EQUAL(0, (int)intSet.size());
+    intSet = pkb->get_call_stmt_calling(string("opsfs"));
+    CPPUNIT_ASSERT_EQUAL(0, (int)intSet.size());
+}
+
 void Test_30_PKB::test_modifies_query_string_X_string_Y()
 {
     const string& simpleProg = this->TEST_MODIFIES_SIMPLE_PROG;

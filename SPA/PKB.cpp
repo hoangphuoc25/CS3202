@@ -1528,9 +1528,7 @@ string PKB::get_call_procName(int callStmt) const
 
 set<int> PKB::get_call_stmt_calling(const string& proc) const
 {
-    // TODO Please implement
-
-    return set<int>();
+    return this->stmtBank->get_call_stmt_calling(proc);
 }
 
 const string& PKB::get_control_variable(DesignEnt entType, int stmtNo)

@@ -18,9 +18,7 @@ void StmtBank::add_node_entry(int stmtNo, DesignEnt type, Node* node)
     directory[stmtNo] = type;
     switch(type) {
     case ENT_CALL:
-        callBank[stmtNo] = node;
-        // add the name of the procedure being called
-        this->callProcNameSet.insert(node->get_name());
+        this->add_call_node_entry(stmtNo, node);
         break;
     case ENT_WHILE:
         whileBank[stmtNo] = node;
@@ -31,6 +29,23 @@ void StmtBank::add_node_entry(int stmtNo, DesignEnt type, Node* node)
     case ENT_ASSIGN:
         assignBank[stmtNo] = node;
         break;
+    }
+}
+
+void StmtBank::add_call_node_entry(int stmtNo, Node *node)
+{
+    this->callBank[stmtNo] = node;
+    const string& procCalled = node->get_name();
+    // add the name of the procedure being called
+    this->callProcNameSet.insert(procCalled);
+    // record down the call stmts calling this procedure
+    if (this->procNameToCallStmtSet.end() ==
+            this->procNameToCallStmtSet.find(procCalled)) {
+        set<int> tmpSet;
+        tmpSet.insert(stmtNo);
+        this->procNameToCallStmtSet[procCalled] = tmpSet;
+    } else {
+        this->procNameToCallStmtSet[procCalled].insert(stmtNo);
     }
 }
 
@@ -278,6 +293,17 @@ string StmtBank::get_call_procName(int callStmt) const
     } else {
         Node *n = it->second;
         return n->get_name();
+    }
+}
+
+const set<int>& StmtBank::get_call_stmt_calling(const string& proc) const
+{
+    map<string, set<int> >::const_iterator it =
+            this->procNameToCallStmtSet.find(proc);
+    if (this->procNameToCallStmtSet.end() == it) {
+        return this->EMPTY_INTSET;
+    } else {
+        return it->second;
     }
 }
 

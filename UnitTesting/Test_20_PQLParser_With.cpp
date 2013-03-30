@@ -333,7 +333,7 @@ void Test_20_PQLParser_With::test_with_normalize()
     out += "  procedure p\nSELECT TUPLE\n  assign a\n";
     out += "  prog_line pl prog_line#\nModifies(a,\"v\")\n";
     out += "Uses(c,\"someVar\")\na.stmt# = 33\npl = 56\nNext*(a,pl)\n";
-    out += "p.procName = c.procName\nc.procName = \"someProc\"\n";
+    out += "c.procName = p.procName\nc.procName = \"someProc\"\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 }
 
@@ -945,7 +945,7 @@ test_err_parse_withclause_ref_synonym_not_progline()
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
     qinfo = parser.get_queryinfo();
     out = "ALIVE\nDECLARATIONS\n  assign a\n  stmt s\nSELECT TUPLE\n";
-    out += "  assign a\ns.stmt# = a.stmt#\n";
+    out += "  assign a\na.stmt# = s.stmt#\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());
 
     // LHS of 3rd with clause missing attr
@@ -1039,7 +1039,7 @@ test_err_parse_withclause_ref_synonym_not_progline()
     out += "  call c1 procName\n  constant const1 value\n  while w1\n";
     out += "  assign a2\n  procedure p2 procName\n";
     out += "p1.procName = v1.varName\nModifies(p1,v1)\nUses(w1,v1)\n";
-    out += "w1.stmt# = const1.value\nAffects(a1,a2)\nParent(w1,a2)\n";
+    out += "const1.value = w1.stmt#\nAffects(a1,a2)\nParent(w1,a2)\n";
     out += "a2.stmt# = const2.value\nc1.procName = v2.varName\n";
     out += "Modifies(c1,v1)\n";
     CPPUNIT_ASSERT_EQUAL(out, qinfo->dump_to_string());

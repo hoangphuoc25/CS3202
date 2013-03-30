@@ -69,6 +69,12 @@ public:
      * a call statement.
      */
     std::string get_call_procName(int callStmt) const;
+    /// Returns all call stmts that call a certain procedure.
+    /// @param proc name of procedure being called
+    /// @return set of integers of all the call statements calling
+    ///         procedure proc
+    const std::set<int>& get_call_stmt_calling(
+            const std::string& proc) const;
 
     // Banks
     map<int, DesignEnt> get_directory();
@@ -88,6 +94,11 @@ public:
     Node *get_node(int stmtNo) const;
 
 private:
+    /// Adds a call statement node to the StmtBank
+    /// @param call statement number
+    /// @param node the Node representing the call stmt
+    void add_call_node_entry(int stmtNo, Node *node);
+
     map<int, DesignEnt> directory;
     map<int, Node*> callBank;
     map<int, Node*> whileBank;
@@ -96,7 +107,9 @@ private:
     std::set<int> constBank;
     std::set<int> stmtLstSet;
     std::set<std::string> callProcNameSet;
+    map<string, set<int> > procNameToCallStmtSet;
     const std::set<std::string> EMPTY_STRINGSET;
+    const std::set<int> EMPTY_INTSET;
 };
 
 #endif

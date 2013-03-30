@@ -29,6 +29,7 @@ CPPUNIT_TEST(test_uses_stmt_var);
 CPPUNIT_TEST(test_uses_progline_var);
 CPPUNIT_TEST(test_follows);
 CPPUNIT_TEST(test_followsStar);
+CPPUNIT_TEST(test_get_call_stmt_calling);
 CPPUNIT_TEST(test_modifies_query_string_X_string_Y);
 //CPPUNIT_TEST(test_two);
 //CPPUNIT_TEST(test_three);
@@ -300,6 +301,7 @@ private:
 
     void test_follows();
     void test_followsStar();
+    void test_get_call_stmt_calling();
     void test_two();
     void test_three();
 
