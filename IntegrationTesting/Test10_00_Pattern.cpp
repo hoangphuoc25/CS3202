@@ -250,40 +250,84 @@ void Test10_00_Pattern::test_2() {
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(1, "6"));
 
-	//a("x", "b+c")
-	queryStr = "assign a; variable v;";
+    //a("x", "b+c")
+    queryStr = "assign a; variable v;";
     queryStr += "Select a pattern a(\"life\", \"life - 1\")";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(1, "6"));
 
-	queryStr = "assign a; variable v;";
+    queryStr = "assign a; variable v;";
     queryStr += "Select a pattern a(\"life\", \"life\")";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(0));
 
-	queryStr = "assign a; variable v;";
+    queryStr = "assign a; variable v;";
     queryStr += "Select a pattern a(\"abc\", \"1\")";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(2, "18", "20"));
 
-	queryStr = "assign a; variable v;";
+    queryStr = "assign a; variable v;";
     queryStr += "Select a pattern a(\"true\", \"false\")";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(1, "15"));
 
-	//a("x", _"b+c"_)
-	queryStr = "assign a; variable v;";
+    //a("x", _"b+c"_)
+    queryStr = "assign a; variable v;";
     queryStr += "Select a pattern a(\"true\", _\"false\"_)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(1, "15"));
 
-	queryStr = "assign a; variable v;";
+    queryStr = "assign a; variable v;";
     queryStr += "Select a pattern a(\"number\", _\"1+hp\"_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(0));
+
+	queryStr = "assign a; variable v;";
+    queryStr += "Select a pattern a(\"number\", _\"hp+life\"_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(0));
+
+	queryStr = "assign a; variable v;";
+    queryStr += "Select a pattern a(\"number\", _\"number + 1\"_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(1, "13"));
+
+	//a(v, "b+c")
+	queryStr = "assign a; variable v;";
+    queryStr += "Select <a, v> pattern a(v, \"number + 1\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(0));
+
+	queryStr = "assign a; variable v;";
+    queryStr += "Select <a, v> pattern a(v, \"life - 1\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(1, "6,life"));
+
+	queryStr = "assign a; variable v;";
+    queryStr += "Select <a, v> pattern a(v, \"number + 1 + hp+ life\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(1, "13,number"));
+
+	//a(v, _"b+c"_)
+	queryStr = "assign a; variable v;";
+    queryStr += "Select <a, v> pattern a(v, _\"number + 1\"_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(1, "13,number"));
+
+	queryStr = "assign a; variable v;";
+    queryStr += "Select <a, v> pattern a(v, _\"1 + hp\"_)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(stringSet, SetWrapper<string>(0));

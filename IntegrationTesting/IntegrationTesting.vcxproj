@@ -140,6 +140,7 @@
     <ClCompile Include="Test21_NextAndStar_N2S.cpp" />
     <ClCompile Include="Test21_ParentAndStar_N2S.cpp" />
     <ClCompile Include="Test21_Uses_N2S.cpp" />
+    <ClCompile Include="Test30_10_Pattern.cpp" />
     <ClCompile Include="Test30_PatCl_If.cpp" />
     <ClCompile Include="Test40_With.cpp" />
     <ClCompile Include="Test60_Evil.cpp" />
@@ -218,6 +219,7 @@
     <ClInclude Include="Test21_NextAndStar_N2S.h" />
     <ClInclude Include="Test21_ParentAndStar_N2S.h" />
     <ClInclude Include="Test21_Uses_N2S.h" />
+    <ClInclude Include="Test30_10_Pattern.h" />
     <ClInclude Include="Test30_PatCl_If.h" />
     <ClInclude Include="Test40_With.h" />
     <ClInclude Include="Test60_Evil.h" />
