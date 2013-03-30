@@ -21,7 +21,7 @@ void Test40_With::setUp()
              while false { \
                one = two; \
              } \
-             mes = si; \
+             mes = si + 6; \
            } else { \
              des = cartes; \
            } \
@@ -72,6 +72,13 @@ void Test40_With::test_ii_01()
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "2", "5"),
+            stringSet);
+    queryStr = " while w; constant const; ";
+    queryStr += " Select w such that Parent(w,_) ";
+    queryStr += " with const.value = w.stmt#";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "6"),
             stringSet);
 }
 

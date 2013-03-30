@@ -276,18 +276,18 @@ enum RefType {
 
 /// Representation of a 'ref' which is a synonym
 enum RefSynType {
-    REFSYN_PROC,                 ///< procedure.procName
-    REFSYN_STMTLST,              ///< stmtLst.stmt#
-    REFSYN_STMT,                 ///< stmt.stmt#
     REFSYN_ASSIGN,               ///< assign.stmt#
     REFSYN_CALL,                 ///< call.stmt#
     REFSYN_CALL_PROCNAME,        ///< call.procName
-    REFSYN_WHILE,                ///< while.stmt#
-    REFSYN_IF,                   ///< if.stmt#
-    REFSYN_VAR,                  ///< variable.varName
     REFSYN_CONST,                ///< constant.value
+    REFSYN_IF,                   ///< if.stmt#
+    REFSYN_PROC,                 ///< procedure.procName
     REFSYN_PROGLINE,             ///< prog_line
     REFSYN_PROGLINE_PROGLINE_NO, ///< prog_line.prog_line#
+    REFSYN_STMT,                 ///< stmt.stmt#
+    REFSYN_STMTLST,              ///< stmtLst.stmt#
+    REFSYN_VAR,                  ///< variable.varName
+    REFSYN_WHILE,                ///< while.stmt#
     REFSYN_INVALID               ///< invalid type
 };
 
