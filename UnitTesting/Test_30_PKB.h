@@ -29,16 +29,6 @@ CPPUNIT_TEST(test_uses_stmt_var);
 CPPUNIT_TEST(test_uses_progline_var);
 CPPUNIT_TEST(test_follows);
 CPPUNIT_TEST(test_followsStar);
-CPPUNIT_TEST(test_has_assign);
-CPPUNIT_TEST(test_has_call);
-CPPUNIT_TEST(test_has_if);
-CPPUNIT_TEST(test_has_while);
-CPPUNIT_TEST(test_has_stmt);
-CPPUNIT_TEST(test_has_progline);
-CPPUNIT_TEST(test_has_stmtLst);
-CPPUNIT_TEST(test_has_const);
-CPPUNIT_TEST(test_has_variable);
-CPPUNIT_TEST(test_has_procedure);
 CPPUNIT_TEST(test_modifies_query_string_X_string_Y);
 //CPPUNIT_TEST(test_two);
 //CPPUNIT_TEST(test_three);
@@ -310,18 +300,6 @@ private:
 
     void test_follows();
     void test_followsStar();
-    // Test has_X methods
-    // We use the TEST_MODIFIES_SIMPLE_PROG
-    void test_has_assign();
-    void test_has_call();
-    void test_has_if();
-    void test_has_while();
-    void test_has_stmt();
-    void test_has_progline();
-    void test_has_stmtLst();
-    void test_has_const();
-    void test_has_variable();
-    void test_has_procedure();
     void test_two();
     void test_three();
 
