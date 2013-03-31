@@ -1017,3 +1017,517 @@ void Test40_With::test_ss_22()
             "28 cleanUp"),
             stringSet);
 }
+
+void Test40_With::test_i_0()
+{
+    string simpleProg, queryStr;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+
+    simpleProg =
+        "procedure p1 { \
+           a = b; \
+           x = c; \
+           if true then { \
+             add = minus; \
+             while fun { \
+               play = game; \
+               eat = popcorn; \
+             } \
+           } else { \
+             offer = it; \
+           } \
+           call pTwo; \
+         } \
+         procedure pTwo { \
+           who = knows; \
+           while someCond { \
+             who = cares; \
+           } \
+           b = c; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    queryStr = " assign a; Select a with a.stmt# = 2";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "2"),
+            stringSet);
+    // same as org but use stmt
+    queryStr = "stmt a; Select a with a.stmt# = 2";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "2"),
+            stringSet);
+    // same as org but wrong statement type
+    queryStr = " while a; Select a with a.stmt# = 2";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
+            stringSet);
+    // same as org but swap LHS and RHS
+    queryStr = " assign a; Select a with 2 = a.stmt#";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "2"),
+            stringSet);
+}
+
+void Test40_With::test_i_1()
+{
+    string simpleProg, queryStr;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+
+    simpleProg =
+        "procedure p1 { \
+           a = b; \
+           x = c; \
+           if true then { \
+             add = minus; \
+             while fun { \
+               play = game; \
+               eat = popcorn; \
+             } \
+           } else { \
+             offer = it; \
+           } \
+           call pTwo; \
+         } \
+         procedure pTwo { \
+           who = knows; \
+           while someCond { \
+             who = cares; \
+           } \
+           b = c; \
+           last = 1; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    queryStr = " assign a; Select a such that Modifies(a,_) ";
+    queryStr += " with a.stmt# = 2";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "2"),
+            stringSet);
+    queryStr = " prog_line a; Select a such that Modifies(a,_) ";
+    queryStr += " with a.prog_line# = 2";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "2"),
+            stringSet);
+    // same as org but wrong statement type
+    queryStr = " while a; Select a such that Modifies(a,_) ";
+    queryStr += " with a.stmt# = 2";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
+            stringSet);
+    // same as org but Uses
+    queryStr = " assign a; Select a such that Uses(a,_) ";
+    queryStr += " with a.stmt# = 2";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "2"),
+            stringSet);
+    // assign 14 uses nothing
+    queryStr = " assign a; Select a such that Uses(a,_) ";
+    queryStr += " with a.stmt# = 14";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
+            stringSet);
+    // assign 14 with Modifies
+    queryStr = " assign a; Select a such that Modifies(a,_) ";
+    queryStr += " with a.stmt# = 14";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "14"),
+            stringSet);
+    // same as org but swap LHS and RHS
+    queryStr = " assign a; Select a such that Modifies(a,_) ";
+    queryStr += " with 2 = a.stmt#";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "2"),
+            stringSet);
+}
+
+void Test40_With::test_s_0()
+{
+    string simpleProg, queryStr;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+
+    simpleProg =
+        "procedure p1 { \
+           a = b; \
+           x = c; \
+           if true then { \
+             add = minus; \
+             while fun { \
+               play = game; \
+               eat = popcorn; \
+             } \
+           } else { \
+             offer = it; \
+           } \
+           call pTwo; \
+         } \
+         procedure pTwo { \
+           who = knows; \
+           while someCond { \
+             who = cares; \
+           } \
+           b = c; \
+           last = 1; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    queryStr = "variable v; Select v with v.varName = \"minus\"";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "minus"),
+            stringSet);
+    // non existent variable
+    queryStr = "variable v; Select v with v.varName = \"blaaaa\"";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
+            stringSet);
+    queryStr = "procedure p; Select p with p.procName = \"pTwo\"";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "pTwo"),
+            stringSet);
+    // non existent procedure
+    queryStr = "procedure p; Select p with p.procName = \"cleanup\"";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
+            stringSet);
+}
+
+void Test40_With::test_cpn_0()
+{
+    string simpleProg, queryStr;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+
+    simpleProg =
+        "procedure p1 { \
+           a = b; \
+           x = c; \
+           if true then { \
+             add = minus; \
+             while fun { \
+               play = game; \
+               eat = popcorn; \
+             } \
+           } else { \
+             offer = it; \
+           } \
+           call pTwo; \
+         } \
+         procedure pTwo { \
+           who = knows; \
+           while someCond { \
+             who = cares; \
+           } \
+           b = c; \
+           last = 1; \
+         } \
+         procedure C { \
+           call pTwo; \
+           x = y; \
+         } \
+         procedure D { \
+           call F; \
+         } \
+         procedure E { \
+           call F; \
+         } \
+         procedure F { \
+           x = 1; \
+           call procX; \
+         } \
+         procedure procX { \
+           fun = games; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    queryStr = "call c; Select c with c.procName = \"pTwo\"";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "9", "15"),
+            stringSet);
+    // same as above but select call.procName
+    queryStr = "call c; Select c.procName with c.procName = \"pTwo\"";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "pTwo"),
+            stringSet);
+    // another procedure
+    queryStr = "call c; Select c with c.procName = \"procX\"";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "20"),
+            stringSet);
+    // procedure nobody calls
+    queryStr = "call c; Select c with c.procName = \"D\"";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
+            stringSet);
+    // non existent procedure
+    queryStr = "call c; Select c with c.procName = \"nonExistent\"";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
+            stringSet);
+}
+
+void Test40_With::test_s_1()
+{
+    string simpleProg, queryStr;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+
+    simpleProg =
+        "procedure p1 { \
+           a = b; \
+           x = c; \
+           if true then { \
+             add = minus; \
+             while fun { \
+               play = game; \
+               eat = popcorn; \
+             } \
+           } else { \
+             offer = it; \
+           } \
+           call pTwo; \
+         } \
+         procedure pTwo { \
+           who = knows; \
+           while someCond { \
+             who = cares; \
+           } \
+           b = c; \
+           last = 1; \
+         } \
+         procedure noUses { \
+           a = 1; \
+           c = 3; \
+           dab = 1234 - 67; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    queryStr = "variable v; Select v such that Modifies(_,v) ";
+    queryStr += " with v.varName = \"who\"";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "who"),
+            stringSet);
+    // same as above, but swap LHS and RHS
+    queryStr = "variable v; Select v such that Modifies(_,v) ";
+    queryStr += " with \"who\" = v.varName ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "who"),
+            stringSet);
+    // same as org, but Uses
+    queryStr = "variable v; Select v such that Uses(_,v) ";
+    queryStr += " with v.varName = \"who\" ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
+            stringSet);
+    // same as org, but Uses and choose a variable that's used
+    queryStr = "variable v; Select v such that Uses(_,v) ";
+    queryStr += " with v.varName = \"someCond\" ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "someCond"),
+            stringSet);
+    // non existent variable
+    queryStr = "variable v; Select v such that Uses(_,v) ";
+    queryStr += " with v.varName = \"sgfhdjhgjfa\" ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
+            stringSet);
+    // non existent variable
+    queryStr = "variable v; Select v such that Modifies(_,v) ";
+    queryStr += " with v.varName = \"sgfhdjhgjfa\" ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
+            stringSet);
+    // choose procedure
+    queryStr = "procedure p; Select p such that Uses(p,_) ";
+    queryStr += " with p.procName = \"p1\" ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "p1"),
+            stringSet);
+    // same as above, but swap LHS and RHS
+    queryStr = "procedure p; Select p such that Uses(p,_) ";
+    queryStr += " with \"p1\" = p.procName ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "p1"),
+            stringSet);
+    // procedure that Uses nothing
+    queryStr = "procedure p; Select p such that Uses(p,_) ";
+    queryStr += " with p.procName = \"noUses\" ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
+            stringSet);
+    // same as above, but Modifies
+    queryStr = "procedure p; Select p such that Modifies(p,_) ";
+    queryStr += " with p.procName = \"noUses\" ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "noUses"),
+            stringSet);
+    // non existent procedure
+    queryStr = "procedure p; Select p such that Modifies(p,_) ";
+    queryStr += " with p.procName = \"usdgsh\" ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
+            stringSet);
+}
+
+void Test40_With::test_cpn_1()
+{
+    string simpleProg, queryStr;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+
+    simpleProg =
+        "procedure p1 { \
+           a = b; \
+           x = c; \
+           if true then { \
+             add = minus; \
+             while fun { \
+               play = game; \
+               eat = popcorn; \
+             } \
+           } else { \
+             offer = it; \
+           } \
+           call pTwo; \
+         } \
+         procedure pTwo { \
+           who = knows; \
+           while someCond { \
+             who = cares; \
+           } \
+           b = c; \
+           last = 1; \
+         } \
+         procedure C { \
+           call pTwo; \
+           x = y; \
+         } \
+         procedure D { \
+           call F; \
+         } \
+         procedure E { \
+           call F; \
+         } \
+         procedure F { \
+           x = 1; \
+           call procX; \
+         } \
+         procedure procX { \
+           fun = games; \
+         } \
+         procedure noUses { \
+           gg = 1; \
+           x = 123 + 456 ;\
+         } \
+         procedure A1 { \
+           call noUses; \
+         } \
+         procedure A2 { \
+           call noUses; \
+         } \
+         procedure useThroughOther { \
+           a = 1; \
+           b = 2; \
+           call pTwo; \
+           x = 1236 - 41; \
+         } \
+         procedure lastProc { \
+           call useThroughOther; \
+         }";
+    evaluator.parseSimple(simpleProg);
+    queryStr = " call c; Select c such that Modifies(c,_) ";
+    queryStr += " with c.procName = \"F\"";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "17", "18"),
+            stringSet);
+    // same as above, but swap LHS and RHS
+    queryStr = " call c; Select c such that Modifies(c,_) ";
+    queryStr += " with \"F\" = c.procName ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "17", "18"),
+            stringSet);
+    // procedure which doesnt use anything
+    queryStr = " call c; Select c such that Uses(c,_) ";
+    queryStr += " with c.procName = \"noUses\" ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
+            stringSet);
+    // same as above, but Modifies
+    queryStr = " call c; Select c such that Modifies(c,_) ";
+    queryStr += " with c.procName = \"noUses\" ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "24", "25"),
+            stringSet);
+    // procedure which Uses stuff indirectly through call
+    queryStr = " call c; Select c such that Uses(c,_) ";
+    queryStr += " with c.procName = \"useThroughOther\" ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "30"),
+            stringSet);
+    // procedure nobody calls
+    queryStr = " call c; Select c such that Uses(c,_) ";
+    queryStr += " with c.procName = \"lastProc\" ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
+            stringSet);
+    // procedure nobody calls
+    queryStr = " call c; Select c such that Modifies(c,_) ";
+    queryStr += " with c.procName = \"lastProc\" ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
+            stringSet);
+    // non existent procedure
+    queryStr = " call c; Select c such that Uses(c,_) ";
+    queryStr += " with c.procName = \"sdfsdfsa\" ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
+            stringSet);
+    // non existent procedure
+    queryStr = " call c; Select c such that Modifies(c,_) ";
+    queryStr += " with c.procName = \"sdfsdfsa\" ";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
+            stringSet);
+}

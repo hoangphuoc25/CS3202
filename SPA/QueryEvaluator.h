@@ -757,7 +757,58 @@ private:
     /// @param withClause the WithClause to evaluate
     void ev_withClause_attrRef_X(int rTableIdx,
             const WithClause& withClause);
-
+    /// Evaluates a WithClause where both arguments are of BASETYPE_INT,
+    /// the LHS is an AttrRef and the RHS is a concrete integer value
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    void ev_withClause_attrRef_X_int(int rTableIdx,
+            const WithClause& withClause);
+    /// Evaluates a WithClause where both arguments are of
+    /// BASETYPE_STRING, the LHS is an AttrRef and the RHS is a
+    /// concrete string value
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    void ev_withClause_attrRef_X_string(int rTableIdx,
+            const WithClause& withClause);
+    /// Evaluates a WithClause where both arguments are of BASETYPE_INT,
+    /// the LHS is an unseen AttrRef and RHS is a concrete integer value
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    /// @param disp PKB Dispatch Table
+    void ev_withClause_i_0(int rTableIdx, const WithClause& withClause,
+            const EvalPKBDispatch& disp);
+    /// Evaluates a WithClause where both arguments are of BASETYPE_INT,
+    /// the LHS is a seen AttrRef and RHS is a concrete integer value
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    /// @param disp PKB Dispatch Table
+    void ev_withClause_i_1(int rTableIdx, const WithClause& withClause);
+    /// Evaluates a WithClause where both arguments are of
+    /// BASETYPE_STRING, the LHS is an unseen string AttrRef
+    /// (not call.procName) and RHS is a concrete string value
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    /// @param disp PKB Dispatch Table
+    void ev_withClause_s_0(int rTableIdx, const WithClause& withClause,
+            const EvalPKBDispatch& disp);
+    /// Evaluates a WithClause where both arguments are of
+    /// BASETYPE_STRING, the LHS is an unseen call.procName and RHS is
+    /// a concrete string value
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    void ev_withClause_cpn_0(int rTableIdx, const WithClause& withClause);
+    /// Evaluates a WithClause where both arguments are of
+    /// BASETYPE_STRING, the LHS is a seen string AttrRef
+    /// (not call.procName) and RHS is a concrete string value
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    void ev_withClause_s_1(int rTableIdx, const WithClause& withClause);
+    /// Evaluates a WithClause where both arguments are of
+    /// BASETYPE_STRING, the LHS is a seen call.procName and RHS is
+    /// a concrete string value
+    /// @param rTableIdx ResultsTable index
+    /// @param withClause the WithClause to evaluate
+    void ev_withClause_cpn_1(int rTableIdx, const WithClause& withClause);
 
     void evaluate_patCl(int rTableIdx, const GenericRef *genRef);
     void evaluate_patCl_if(int rTableIdx, const PatCl *patCl);

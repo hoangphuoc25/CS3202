@@ -24,6 +24,12 @@ CPPUNIT_TEST(test_ss_11);
 CPPUNIT_TEST(test_ss_cpn_cpn_22);
 CPPUNIT_TEST(test_ss_cpn_X_22);
 CPPUNIT_TEST(test_ss_22);
+CPPUNIT_TEST(test_i_0);
+CPPUNIT_TEST(test_i_1);
+CPPUNIT_TEST(test_s_0);
+CPPUNIT_TEST(test_cpn_0);
+CPPUNIT_TEST(test_s_1);
+CPPUNIT_TEST(test_cpn_1);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -89,6 +95,24 @@ private:
     /// Test with clause with both args being string RefSynType
     /// (not call.procName), both seen in but in different Table
     void test_ss_22();
+    /// Test with clause where arg 1 is unseen int AttrRef and
+    /// arg 2 is concrete integer value
+    void test_i_0();
+    /// Test with clause where arg 1 is seen int AttrRef and
+    /// arg 2 is concrete integer value
+    void test_i_1();
+    /// Test with clause where arg 1 is unseen string AttrRef
+    /// (not call.procName) and arg 2 is concrete string value
+    void test_s_0();
+    /// Test with clause where arg 1 is call.procName and arg 2
+    /// is concrete string value
+    void test_cpn_0();
+    /// Test with clause where arg 1 is seen string AttrRef
+    /// (not call.procName) and arg 2 is concrete string value
+    void test_s_1();
+    /// Test with clause where arg 1 is call.procName and arg 2
+    /// is concrete string value
+    void test_cpn_1();
 };
 
 #endif
