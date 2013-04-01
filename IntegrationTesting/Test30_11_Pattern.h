@@ -1,11 +1,11 @@
-#ifndef T11_TEST30_10_SELECT_PATTERN_H
-#define T11_TEST30_10_SELECT_PATTERN_H
+#ifndef T11_TEST30_11_SELECT_PATTERN_H
+#define T11_TEST30_11_SELECT_PATTERN_H
 
 #include <string>
 #include <cppunit/extensions/HelperMacros.h>
 
-class Test30_10_Pattern: public CPPUNIT_NS::TestFixture {
-CPPUNIT_TEST_SUITE(Test30_10_Pattern);
+class Test30_11_Pattern: public CPPUNIT_NS::TestFixture {
+CPPUNIT_TEST_SUITE(Test30_11_Pattern);
 //CPPUNIT_TEST(test_select_one_syn);
 CPPUNIT_TEST(test_2);
 CPPUNIT_TEST_SUITE_END();
