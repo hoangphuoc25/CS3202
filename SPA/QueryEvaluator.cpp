@@ -1,6 +1,7 @@
 #include "QueryEvaluator.h"
 #include "Parser.h"
 
+#include <iostream>
 #include <cstring>
 #include <cassert>
 #include <queue>
@@ -4903,12 +4904,12 @@ void QueryEvaluator::evaluate_patCl_assign_string_expr(int rTableIdx,
             pair<string, int> assignPair = rec.get_column(assignCol);
             int assignStmt = assignPair.second;
             Node* assignNode = this->pkb->get_stmtBank()->get_node(assignStmt);
-			string modifiedVar = assignNode->get_leaves()[0]->get_name();
-			if (modifiedVar == patCl->varRefString) {
-				if (this->evaluate_matching_tree(assignNode->get_leaves()[1], rootExprTree)) {
-					rTable.syn_1_mark_row_ok(i);
-				}
-			}
+            string modifiedVar = assignNode->get_leaves()[0]->get_name();
+            if (modifiedVar == patCl->varRefString) {
+                if (this->evaluate_matching_tree(assignNode->get_leaves()[1], rootExprTree)) {
+                    rTable.syn_1_mark_row_ok(i);
+                }
+            }
         }
         rTable.syn_1_transaction_end();
     } else {
@@ -4926,7 +4927,6 @@ void QueryEvaluator::evaluate_patCl_assign_string_expr(int rTableIdx,
                 const vector<Node*> leaves = assignStmtNode->get_leaves();
                 
                 if (this->evaluate_matching_tree(leaves[1], rootExprTree)) {
-                    //printf("added: %d", assignStmt);
                     rTable.syn_0_add_row(assignStmt);
                 }
             }
@@ -4946,14 +4946,14 @@ void QueryEvaluator::evaluate_patCl_assign_string_exprwild(int rTableIdx,
         int assignCol = viPair.second;
         const vector<Record>& records = *(viPair.first);
         int recordsSize = records.size();
-		for (int i=0; i<recordsSize; i++) {
-			const Record& rec = records[i];
-			pair<string, int> assignPair = rec.get_column(assignCol);
-			int assignStmt = assignPair.second;
+        for (int i=0; i<recordsSize; i++) {
+            const Record& rec = records[i];
+            pair<string, int> assignPair = rec.get_column(assignCol);
+            int assignStmt = assignPair.second;
 
 
-			Node* assignNode = this->pkb->get_stmtBank()->get_node(assignStmt);
-			string modifiedVar = assignNode->get_leaves()[0]->get_name();
+            Node* assignNode = this->pkb->get_stmtBank()->get_node(assignStmt);
+            string modifiedVar = assignNode->get_leaves()[0]->get_name();
             std::queue<Node*> nodeQueue;
             nodeQueue.push(assignNode);
             ///NEED TEST
@@ -4971,7 +4971,7 @@ void QueryEvaluator::evaluate_patCl_assign_string_exprwild(int rTableIdx,
                 }
             }
 
-		}
+        }
         rTable.syn_1_transaction_end();
     } else {
         rTable.syn_0_transaction_begin(patCl->syn, RV_INT);
@@ -5140,8 +5140,10 @@ void QueryEvaluator::evaluate_patCl_assign_syn_expr(int rTableIdx,
             for (set<int>::iterator i=allAssignStmts.begin(); i!=allAssignStmts.end(); i++) {
                 int assignStmt = *i;
                 Node* assignNode = this->pkb->get_stmtBank()->get_node(assignStmt);
-                if (this->evaluate_matching_tree(assignNode->get_leaves()[1], exprNode)) {
-                    rTable.syn_01_augment_new_row(j, assignStmt);
+                if (assignNode->get_name()=="=") {
+                    if (this->evaluate_matching_tree(assignNode->get_leaves()[1], exprNode)) {
+                        rTable.syn_01_augment_new_row(j, assignStmt);
+                    }
                 }
             }
         }
@@ -5290,6 +5292,9 @@ void QueryEvaluator::evaluate_patCl_assign_syn_exprwild(int rTableIdx,
                     i!=allConsideringStmts.end(); i++) {
                 int assignStmt = *i;
                 Node* assignNode = this->pkb->get_stmtBank()->get_node(assignStmt);
+                if (assignNode->get_name()!="=") {
+                    continue;
+                }
                 std::queue<Node*> nodeQueue;
                 nodeQueue.push(assignNode->get_leaves()[1]);
                 while (!nodeQueue.empty()) {
@@ -5363,6 +5368,7 @@ void QueryEvaluator::evaluate_patCl_assign_syn_exprwild_11(ResultsTable& rTable,
             nodeQueue.push(assignNode);
             while (!(nodeQueue.empty())) {
                 Node* frontNode = nodeQueue.front();
+                nodeQueue.pop();
                 vector<Node*> leaves = frontNode->get_leaves();
                 for (int k=0; k<leaves.size(); k++) {
                     Node* child = leaves[k];
@@ -5389,15 +5395,35 @@ void QueryEvaluator::evaluate_patCl_assign_syn_exprwild_22(ResultsTable& rTable,
     const vector<Record>& varRecords = *(vipPair.second.first);
     int varCol = vipPair.second.second;
 
+    Node* exprNode = Parser(patCl->exprString, FROMSTRING).yard();
     for (int i=0; i<assignRecords.size(); i++) {
         const Record& assignRec = assignRecords[i];
         pair<string, int> assignPair = assignRec.get_column(assignCol);
         int assignStmt = assignPair.second;
         Node* assignNode = this->pkb->get_stmtBank()->get_node(assignStmt);
+        string modifiedVar = assignNode->get_leaves()[0]->get_name();
         for (int j=0; j<varRecords.size(); j++) {
             const Record& varRec = varRecords[j];
             pair<string, int> varPair = varRec.get_column(varCol);
             string var = varPair.first;
+            if (var==modifiedVar) {
+                std::queue<Node*> nodeQueue;
+                nodeQueue.push(assignNode);
+                while (!(nodeQueue.empty())) {
+                    Node* frontNode = nodeQueue.front();
+                    nodeQueue.pop();
+                    vector<Node*> leaves = frontNode->get_leaves();
+                    for (int k=0; k<leaves.size(); k++) {
+                        nodeQueue.push(leaves[k]);
+                        Node* child = leaves[k];
+                        if (child->get_name() == exprNode->get_name()) {
+                            if (this->evaluate_matching_tree(child, exprNode)) {
+                                rTable.syn_22_add_row(i,j);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
     rTable.syn_22_transaction_end();
@@ -5528,11 +5554,12 @@ void QueryEvaluator::evaluate_patCl_assign_syn_wildcard_22(ResultsTable& rTable,
             modifiedVar = *k;
         }
         for (int j=0; j<varRecordsSize; j++) {
-            const Record& rec = varRecords[i];
+            const Record& rec = varRecords[j];
             const pair<string, int>& varPair = rec.get_column(varCol);
             string var = varPair.first;
             if (var == modifiedVar) {
-                rTable.syn_22_add_row(assignStmt, j);
+                //rTable.syn_22_add_row(assignStmt, j);
+                rTable.syn_22_add_row(i, j);
             }
         }
     }
@@ -5653,19 +5680,18 @@ void QueryEvaluator::evaluate_patCl_assign_wildcard_wildcard(int rTableIdx,
         const PatCl *patCl)
 {
     ResultsTable& rTable = this->resultsTable[rTableIdx];
-	bool hasSyn = rTable.has_synonym(patCl->syn);
-	if (hasSyn) {
-		//nothing to do here
-	} else {
-		rTable.syn_0_transaction_begin(patCl->syn, RV_INT);
-		set<int> allAssignStmts = this->pkb->get_all_assign();
-		for (set<int>::iterator i=allAssignStmts.begin(); i!=allAssignStmts.end(); i++) {
-			int assignStmt = *i;
-			rTable.syn_0_add_row(assignStmt);
-			//printf("%d,", assignStmt);
-		}
-		rTable.syn_0_transaction_end();
-	}
+    bool hasSyn = rTable.has_synonym(patCl->syn);
+    if (hasSyn) {
+        //nothing to do here
+    } else {
+        rTable.syn_0_transaction_begin(patCl->syn, RV_INT);
+        set<int> allAssignStmts = this->pkb->get_all_assign();
+        for (set<int>::iterator i=allAssignStmts.begin(); i!=allAssignStmts.end(); i++) {
+            int assignStmt = *i;
+            rTable.syn_0_add_row(assignStmt);
+        }
+        rTable.syn_0_transaction_end();
+    }
     
 }
 
