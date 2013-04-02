@@ -308,7 +308,6 @@ private:
     /// @return true if the Relation clause evaluates to true, false
     ///         otherwise
     bool ev_isolated_relation_wild_wild(const RelRef *relRef) const;
-    bool relRef_arg_use_string(DesignEnt entType) const;
     /// Evaluates a Relation clause
     /// @param rTableIdx index of the ResultsTable
     /// @param genRef the Relation clause

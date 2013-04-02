@@ -147,11 +147,6 @@ void QueryEvaluator::parseSimple_from_file(const string& fname)
     this->pkb = parser.get_pkb();
 }
 
-bool QueryEvaluator::relRef_arg_use_string(DesignEnt entType) const
-{
-    return (entType == ENT_PROC || entType == ENT_VAR);
-}
-
 void QueryEvaluator::evaluate(const string& queryStr,
         list<string>& resultSet)
 {
