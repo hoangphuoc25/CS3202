@@ -108,7 +108,7 @@ void Test30_10_Pattern::test_2()
     queryStr += "Select <w, v> such that Parent(w, a) pattern a(v,\"energy - 1\")";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "5,energy"), stringSet);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "5 energy"), stringSet);
 
     //a("x", "b+c")
     queryStr = "while w; assign a; variable v;";
@@ -121,35 +121,36 @@ void Test30_10_Pattern::test_2()
     queryStr += "Select <w, a> such that Parent(w, a) pattern a(\"energy\",\"energy - 1\")";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "5,6"), stringSet);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "5 6"), stringSet);
 
     //a(_, _"b+c"_)
     queryStr = "while w; assign a;Select <w, a> such that ";
     queryStr += "Parent*(w, a) pattern a(_, _\"energy - 1\"_)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "5,6", "5,10"), stringSet);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "5 6", "5 10"), stringSet);
 
     //a("x", _"b+c"_)
     queryStr = "while w; assign a;Select <w, a> such that ";
     queryStr += "Parent*(w, a) pattern a(\"health\", _\"health\"_)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "5,11"), stringSet);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "5 11"), stringSet);
 
     //a(v, _"b+c"_)
     queryStr = "while w; assign a; variable v; Select <w, a, v> such that ";
     queryStr += "Parent*(w, a) pattern a(v, _\"health\"_)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "5,11,health"), stringSet);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "5 11 health"), stringSet);
 
     //a(v, _)
     queryStr = "while w; assign a; variable v; Select <w, v> such that ";
     queryStr += "Parent*(w, a) pattern a(v, _)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "15,hp", "5,do", "5,energy", "5,health"), stringSet);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "15 hp", "5 do",
+        "5 energy", "5 health"), stringSet);
 
     //a("x", _)
     queryStr = "while w; assign a; variable v; Select w  such that ";
@@ -163,6 +164,6 @@ void Test30_10_Pattern::test_2()
     queryStr += "Parent*(w, a) pattern a(_, _)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "5,6", "5,7", "5,10","5,11",
-        "15,16","15,18"), stringSet);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "5 6", "5 7",
+        "5 10","5 11","15 16","15 18"), stringSet);
 }

@@ -79,10 +79,11 @@ void Test30_01_Pattern::test_2()
 
     //a(v, _"b+c"_)
     queryStr = "while w; assign a; variable v;";
-    queryStr += "Select <w, v> such that Modifies(w, v) pattern a(v, _\"health + energy\"_)";
+    queryStr += "Select <w, v> such that Modifies(w, v)\
+                pattern a(v, _\"health + energy\"_)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "5,health"), stringSet);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "5 health"), stringSet);
 
     //a(_, _)
     queryStr = "procedure p; while w; assign a; variable v;";
@@ -110,23 +111,23 @@ void Test30_01_Pattern::test_2()
     queryStr += "Select <p, a> such that Modifies(p, v) pattern a(\"hp\", _)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(12, "time,14", "time,16", "time,18",
-        "time,20","jobs,14", "jobs,16", "jobs,18","jobs,20","relax,14",
-        "relax,16","relax,18","relax,20"), stringSet);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(12, "time 14", "time 16", "time 18",
+        "time 20","jobs 14", "jobs 16", "jobs 18","jobs 20","relax 14",
+        "relax 16","relax 18","relax 20"), stringSet);
 
     //a("x", "b+c")
     queryStr = "procedure p; while w; assign a; variable v;";
     queryStr += "Select <p, a> such that Modifies(p, v) pattern a(\"energy\",\"energy - 1\")";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "time,6", "time,10", "relax,6",
-        "relax,10","jobs,6","jobs,10"), stringSet);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "time 6", "time 10", "relax 6",
+        "relax 10","jobs 6","jobs 10"), stringSet);
 
     //a("x", _"b+c"_)
     queryStr = "procedure p; while w; assign a; variable v;";
     queryStr += "Select <p, a> such that Modifies(p, v) pattern a(\"energy\",_\"energy - 1\"_)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "jobs,6","jobs,10","time,6",
-        "time,10","relax,6","relax,10"), stringSet);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "jobs 6","jobs 10","time 6",
+        "time 10","relax 6","relax 10"), stringSet);
 }

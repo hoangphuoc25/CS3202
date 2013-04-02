@@ -101,9 +101,8 @@ void Test30_11_Pattern::test_2()
                 Parent(w, a) pattern a(v, _)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(7, "time,6","time,7",
-        "time,16","jobs,16","relax,16",
-        "jobs,6","relax,6"), stringSet);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(7, "time 6","time 7",
+        "time 16","jobs 16","relax 16","jobs 6","relax 6"), stringSet);
 
     //a(v, "b+c")
     queryStr = "procedure p; while w; assign a; variable v;";
@@ -111,8 +110,8 @@ void Test30_11_Pattern::test_2()
                 and Parent(w, a) pattern a(v, \"energy - 1\")";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "time,6", "jobs,6",
-        "relax,6"), stringSet);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "time 6", "jobs 6",
+        "relax 6"), stringSet);
 
     //a(v, _"b+c"_)
     queryStr = "procedure p; while w; assign a; variable v;";
@@ -120,6 +119,6 @@ void Test30_11_Pattern::test_2()
                 and Parent(w, a) pattern a(v, _\"energy - 1\"_)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "time,6", "jobs,6",
-        "relax,6"), stringSet);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "time 6", "jobs 6",
+        "relax 6"), stringSet);
 }
