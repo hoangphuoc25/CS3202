@@ -1545,6 +1545,8 @@ void QueryEvaluator::ev_rr_ss_string_string_22(int rTableIdx,
 void QueryEvaluator::ev_rr_ss_string_int_00_from_argOne(int rTableIdx,
         const RelRef *relRef, const EvalPKBDispatch& disp)
 {
+    // fail immediately
+    assert(false);
     assert(disp.get_all_string_argOne != NULL);
     assert(disp.get_int_set_argTwo_from_string_argOne != NULL);
     ResultsTable& rTable = this->resultsTable[rTableIdx];
@@ -1568,6 +1570,8 @@ void QueryEvaluator::ev_rr_ss_string_int_00_from_argOne(int rTableIdx,
 void QueryEvaluator::ev_rr_ss_string_int_00_from_argTwo(int rTableIdx,
         const RelRef *relRef, const EvalPKBDispatch& disp)
 {
+    // fail immediately
+    assert(false);
     assert(disp.get_all_int_argTwo != NULL);
     assert(disp.get_string_set_argOne_from_int_argTwo != NULL);
     ResultsTable& rTable = this->resultsTable[rTableIdx];
@@ -1591,24 +1595,32 @@ void QueryEvaluator::ev_rr_ss_string_int_00_from_argTwo(int rTableIdx,
 void QueryEvaluator::ev_rr_ss_string_int_01(int rTableIdx,
         const RelRef *relRef, const EvalPKBDispatch& disp)
 {
+    // fail immediately
+    assert(false);
 }
 
 // Currently, nothing uses this and it does not seem it will be used
 void QueryEvaluator::ev_rr_ss_string_int_10(int rTableIdx,
         const RelRef *relRef, const EvalPKBDispatch& disp)
 {
+    // fail immediately
+    assert(false);
 }
 
 // Currently, nothing uses this and it does not seem it will be used
 void QueryEvaluator::ev_rr_ss_string_int_11(int rTableIdx,
         const RelRef *relRef, const EvalPKBDispatch& disp)
 {
+    // fail immediately
+    assert(false);
 }
 
 // Currently, nothing uses this and it does not seem it will be used
 void QueryEvaluator::ev_rr_ss_string_int_22(int rTableIdx,
         const RelRef *relRef, const EvalPKBDispatch& disp)
 {
+    // fail immediately
+    assert(false);
 }
 
 void QueryEvaluator::ev_rr_ss_int_string_00_from_argOne(int rTableIdx,

@@ -508,22 +508,22 @@ private:
     /// @param disp the PKB Dispatch Table
     void ev_rr_ss_string_string_22(int rTableIdx, const RelRef *relRef,
             const EvalPKBDispatch& disp);
-    // Currently, nothing uses this and it does not seem it will be used
+    /// Not supposed to be used; this fails immediately upon call
     void ev_rr_ss_string_int_00_from_argOne(int rTableIdx,
             const RelRef *relRef, const EvalPKBDispatch& disp);
-    // Currently, nothing uses this and it does not seem it will be used
+    /// Not supposed to be used; this fails immediately upon call
     void ev_rr_ss_string_int_00_from_argTwo(int rTableIdx,
             const RelRef *relRef, const EvalPKBDispatch& disp);
-    // Currently, nothing uses this and it does not seem it will be used
+    /// Not supposed to be used; this fails immediately upon call
     void ev_rr_ss_string_int_01(int rTableIdx, const RelRef *relRef,
             const EvalPKBDispatch& disp);
-    // Currently, nothing uses this and it does not seem it will be used
+    /// Not supposed to be used; this fails immediately upon call
     void ev_rr_ss_string_int_10(int rTableIdx, const RelRef *relRef,
             const EvalPKBDispatch& disp);
-    // Currently, nothing uses this and it does not seem it will be used
+    /// Not supposed to be used; this fails immediately upon call
     void ev_rr_ss_string_int_11(int rTableIdx, const RelRef *relRef,
             const EvalPKBDispatch& disp);
-    // Currently, nothing uses this and it does not seem it will be used
+    /// Not supposed to be used; this fails immediately upon call
     void ev_rr_ss_string_int_22(int rTableIdx, const RelRef *relRef,
             const EvalPKBDispatch& disp);
     /// Evaluates a (int,string) Relation clause where both arguments
