@@ -105,20 +105,23 @@ void Test30_10_Pattern::test_2()
 
     //a(v, "b+c")
     queryStr = "while w; assign a; variable v;";
-    queryStr += "Select <w, v> such that Parent(w, a) pattern a(v,\"energy - 1\")";
+    queryStr += "Select <w, v> such that Parent(w, a) pattern \
+                a(v,\"energy - 1\")";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "5 energy"), stringSet);
 
     //a("x", "b+c")
     queryStr = "while w; assign a; variable v;";
-    queryStr += "Select w such that Parent(w, a) pattern a(\"health\",\"energy - 1\")";
+    queryStr += "Select w such that Parent(w, a) pattern \
+                a(\"health\",\"energy - 1\")";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0), stringSet);
 
     queryStr = "while w; assign a; variable v;";
-    queryStr += "Select <w, a> such that Parent(w, a) pattern a(\"energy\",\"energy - 1\")";
+    queryStr += "Select <w, a> such that Parent(w, a) pattern \
+                a(\"energy\",\"energy - 1\")";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "5 6"), stringSet);

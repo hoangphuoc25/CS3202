@@ -117,7 +117,8 @@ void Test30_01_Pattern::test_2()
 
     //a("x", "b+c")
     queryStr = "procedure p; while w; assign a; variable v;";
-    queryStr += "Select <p, a> such that Modifies(p, v) pattern a(\"energy\",\"energy - 1\")";
+    queryStr += "Select <p, a> such that Modifies(p, v) pattern \
+                a(\"energy\",\"energy - 1\")";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "time 6", "time 10", "relax 6",
@@ -125,7 +126,8 @@ void Test30_01_Pattern::test_2()
 
     //a("x", _"b+c"_)
     queryStr = "procedure p; while w; assign a; variable v;";
-    queryStr += "Select <p, a> such that Modifies(p, v) pattern a(\"energy\",_\"energy - 1\"_)";
+    queryStr += "Select <p, a> such that Modifies(p, v) pattern \
+                a(\"energy\",_\"energy - 1\"_)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "jobs 6","jobs 10","time 6",
