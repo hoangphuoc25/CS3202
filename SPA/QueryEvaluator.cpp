@@ -5997,7 +5997,7 @@ void QueryEvaluator::evaluate_patCl_if_var_string(int rTableIdx,
         int ifSynCol = viPair.second;
         const vector<Record>& ifPair = *(viPair.first);
         int nrIfPair = ifPair.size();
-        for (int i=0; i<nrIfPair; i++) {
+        for (int i = 0; i < nrIfPair; i++) {
             const Record& rec = ifPair[i];
             const pair<string, int>& ifSynPair = rec.get_column(ifSynCol);
             int ifSynStmt = ifSynPair.second;
