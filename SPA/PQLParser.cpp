@@ -816,7 +816,7 @@ AttrRef PQLParser::eat_attrRef(StringBuffer &sb)
             break;
         case ATTR_STMTNO:
             ok = (entType == ENT_STMT || entType == ENT_STMTLST ||
-                    entType == ENT_ASSIGN || entType == ENT_CALL |
+                    entType == ENT_ASSIGN || entType == ENT_CALL ||
                     entType == ENT_WHILE || entType == ENT_IF);
             break;
         case ATTR_PROGLINE:
