@@ -197,6 +197,7 @@ DesignEnt PQLParser::retrieve_syn_type(const string &s) const
     }
 }
 
+__declspec(noreturn)
 void PQLParser::error(ParseError parseErr_, ...) throw(ParseError)
 {
     this->parseErr = parseErr_;
@@ -476,7 +477,9 @@ bool not_dquote(char ch)
 
 bool is_alpha(char ch)
 {
-    return isalpha(ch);
+    int ret = isalpha(ch);
+    // to silence C4800
+    return ret != 0;
 }
 
 bool is_alpha_star(char ch)
@@ -501,7 +504,9 @@ bool is_ident(char ch)
 
 bool is_space(char ch)
 {
-    return isspace(ch);
+    int ret = isspace(ch);
+    // to silence C4800
+    return ret != 0;
 }
 
 template<bool (*fn)(char ch)>
@@ -852,7 +857,6 @@ bool PQLParser::eat_decl_one() throw(ParseError)
 
     StringBuffer sb;
     string s;
-    bool ret;
     int saveIdx;
     this->eat_space();
     saveIdx = this->bufIdx;
@@ -1542,7 +1546,6 @@ bool PQLParser::eat_relCond(StringBuffer &sb) throw(ParseError)
 PatCl PQLParser::eat_patternClause(StringBuffer &sb) throw (ParseError)
 {
     int saveIdx = this->bufIdx;
-    bool ret;
     RelRefArgType rtype;
     PatCl patCl;
     PatClType patClType = PATCL_INVALID;
@@ -1931,7 +1934,6 @@ bool PQLParser::eat_withClause_one(StringBuffer &sb,
     char *errorMsg = NULL;
     Ref leftRef, rightRef;
     AttrRef attrRef;
-    bool parsedSynonym;
     sb.clear();
     if (!this->eat_ref(sb, leftRef, false, NULL)) {
         RESTORE_AND_RET(false, saveIdx);
@@ -1980,7 +1982,6 @@ bool PQLParser::eat_withClause(StringBuffer& sb) throw(ParseError)
     int saveIdx = this->bufIdx;
     WithClause withClause, prevWithClause;
     ParseError qinfoAddError;
-    char *errorMsg;
     if (this->eat_space() <= 0) {
         RESTORE_AND_RET(false, saveIdx);
     }

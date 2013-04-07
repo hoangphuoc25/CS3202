@@ -4970,7 +4970,8 @@ void QueryEvaluator::evaluate_patCl_assign_string_exprwild(int rTableIdx,
                 Node *frontNode = nodeQueue.front();
                 nodeQueue.pop();
                 vector<Node *> leaves = frontNode->get_leaves();
-                for (int k = 0; k < leaves.size(); k++) {
+                int nrLeaves = leaves.size();
+                for (int k = 0; k < nrLeaves; k++) {
                     nodeQueue.push(leaves[k]);
                     if (leaves[k]->get_name() ==
                             rootExprTree->get_name()) {
@@ -4997,7 +4998,8 @@ void QueryEvaluator::evaluate_patCl_assign_string_exprwild(int rTableIdx,
                 Node *frontNode = nodeQueue.front();
                 nodeQueue.pop();
                 vector<Node *> leaves = frontNode->get_leaves();
-                for (int k = 0; k < leaves.size(); k++) {
+                int nrLeaves = leaves.size();
+                for (int k = 0; k < nrLeaves; k++) {
                     nodeQueue.push(leaves[k]);
                     /*if (leaves[k]->get_name() == rootExprTree->get_name()) {
                         if (this->evaluate_matching_tree(leaves[k], rootExprTree)) {
@@ -5095,8 +5097,8 @@ bool QueryEvaluator::evaluate_matching_tree(Node* ASTNode, Node* assignNode)
             (astLeaves.size() != 0 && assignLeaves.size() == 0)) {
         return false;
     }
-
-    for (int i = 0; i < astLeaves.size(); i++) {
+    int nrAstLeaves = astLeaves.size();
+    for (int i = 0; i < nrAstLeaves; i++) {
         Node *astChild = astLeaves[i];
         Node *assignChild = assignLeaves[i];
         if (astChild->get_name() != assignChild->get_name()) {
@@ -5218,10 +5220,11 @@ void QueryEvaluator::evaluate_patCl_assign_syn_expr_11(
             rTable.syn_11_transaction_begin(patCl->syn,
                     patCl->varRefString);
     const vector<Record>& records = *(viiPair.first);
+    int nrRecords = records.size();
     int assignCol = viiPair.second.first;
     int varCol = viiPair.second.second;
     Node *rootExprTree = Parser(patCl->exprString, FROMSTRING).yard();
-    for (int i = 0; i < records.size(); i++) {
+    for (int i = 0; i < nrRecords; i++) {
         const Record& rec = records[i];
         pair<string, int> assignPair = rec.get_column(assignCol);
         pair<string, int> varPair = rec.get_column(varCol);
@@ -5254,13 +5257,15 @@ void QueryEvaluator::evaluate_patCl_assign_syn_expr_22(
             rTable.syn_22_transaction_begin(patCl->syn,
                     patCl->varRefString);
     const vector<Record>& assignRecords = *(vipPair.first.first);
+    int nrAssignRecords = assignRecords.size();
     int assignCol = vipPair.first.second;
 
     const vector<Record>& varRecords = *(vipPair.second.first);
+    int nrVarRecords = varRecords.size();
     int varCol = vipPair.second.second;
 
     Node *rootExprNode = Parser(patCl->exprString, FROMSTRING).yard();
-    for (int i = 0; i < assignRecords.size(); i++) {
+    for (int i = 0; i < nrAssignRecords; i++) {
         const Record& assignRec = assignRecords[i];
         pair<string, int> assignPair = assignRec.get_column(assignCol);
         int assignStmt = assignPair.second;
@@ -5273,7 +5278,7 @@ void QueryEvaluator::evaluate_patCl_assign_syn_expr_22(
                 k!= get_modifies.end(); k++) {
             modifiedVar = *k;
         }
-        for (int j = 0; j < varRecords.size(); j++) {
+        for (int j = 0; j < nrVarRecords; j++) {
             const Record& varRec = varRecords[j];
             pair<string, int> varPair = varRec.get_column(varCol);
             string var = varPair.first;
@@ -5322,7 +5327,8 @@ void QueryEvaluator::evaluate_patCl_assign_syn_exprwild(int rTableIdx,
                 Node *frontNode = nodeQueue.front();
                 nodeQueue.pop();
                 vector<Node *> leaves = frontNode->get_leaves();
-                for (int i = 0; i < leaves.size(); i++) {
+                int nrLeaves = leaves.size();
+                for (int i = 0; i < nrLeaves; i++) {
                     nodeQueue.push(leaves[i]);
                 }  /*change for testing*/
                 if (frontNode->get_name() == rootExprTree->get_name()) {
@@ -5361,7 +5367,8 @@ void QueryEvaluator::evaluate_patCl_assign_syn_exprwild(int rTableIdx,
                     Node *frontNode = nodeQueue.front();
                     nodeQueue.pop();
                     vector<Node *> leaves = frontNode->get_leaves();
-                    for (int i = 0; i < leaves.size(); i++) {
+                    int nrLeaves = leaves.size();
+                    for (int i = 0; i < nrLeaves; i++) {
                         nodeQueue.push(leaves[i]); /*CHANGED FOR TESTING*/
                     }
                     if (frontNode->get_name() ==
@@ -5392,7 +5399,8 @@ void QueryEvaluator::evaluate_patCl_assign_syn_exprwild(int rTableIdx,
                 Node *frontNode = nodeQueue.front();
                 nodeQueue.pop();
                 vector<Node *> leaves = frontNode->get_leaves();
-                for (int i = 0; i < leaves.size(); i++) {
+                int nrLeaves = leaves.size();
+                for (int i = 0; i < nrLeaves; i++) {
                     nodeQueue.push(leaves[i]);
                 } /*TESTING*/
                 if (frontNode->get_name() == rootExprTree->get_name()) {
@@ -5415,11 +5423,12 @@ void QueryEvaluator::evaluate_patCl_assign_syn_exprwild_11(
             rTable.syn_11_transaction_begin(patCl->syn,
                     patCl->varRefString);
     const vector<Record>& records = *(viiPair.first);
+    int nrRecords = records.size();
     int assignCol = viiPair.second.first;
     int varCol = viiPair.second.second;
     Node *rootExprTree = Parser(patCl->exprString, FROMSTRING).yard();
 
-    for (int i = 0; i < records.size(); i++) {
+    for (int i = 0; i < nrRecords; i++) {
         const Record& rec = records[i];
         pair<string, int> assignPair = rec.get_column(assignCol);
         int assignStmt = assignPair.second;
@@ -5441,7 +5450,8 @@ void QueryEvaluator::evaluate_patCl_assign_syn_exprwild_11(
                 Node *frontNode = nodeQueue.front();
                 nodeQueue.pop();
                 vector<Node *> leaves = frontNode->get_leaves();
-                for (int k = 0; k < leaves.size(); k++) {
+                int nrLeaves = leaves.size();
+                for (int k = 0; k < nrLeaves; k++) {
                     Node *child = leaves[k];
                     if (child->get_name() == rootExprTree->get_name()) {
                         if (this->evaluate_matching_tree(child,
@@ -5465,20 +5475,22 @@ void QueryEvaluator::evaluate_patCl_assign_syn_exprwild_22(
             rTable.syn_22_transaction_begin(patCl->syn,
                     patCl->varRefString);
     const vector<Record>& assignRecords = *(vipPair.first.first);
+    int nrAssignRecords = assignRecords.size();
     int assignCol = vipPair.first.second;
 
     const vector<Record>& varRecords = *(vipPair.second.first);
+    int nrVarRecords = varRecords.size();
     int varCol = vipPair.second.second;
 
     Node *exprNode = Parser(patCl->exprString, FROMSTRING).yard();
-    for (int i = 0; i < assignRecords.size(); i++) {
+    for (int i = 0; i < nrAssignRecords; i++) {
         const Record& assignRec = assignRecords[i];
         pair<string, int> assignPair = assignRec.get_column(assignCol);
         int assignStmt = assignPair.second;
         Node *assignNode =
                 this->pkb->get_stmtBank()->get_node(assignStmt);
         string modifiedVar = assignNode->get_leaves()[0]->get_name();
-        for (int j = 0; j < varRecords.size(); j++) {
+        for (int j = 0; j < nrVarRecords; j++) {
             const Record& varRec = varRecords[j];
             pair<string, int> varPair = varRec.get_column(varCol);
             string var = varPair.first;
@@ -5489,7 +5501,8 @@ void QueryEvaluator::evaluate_patCl_assign_syn_exprwild_22(
                     Node *frontNode = nodeQueue.front();
                     nodeQueue.pop();
                     vector<Node *> leaves = frontNode->get_leaves();
-                    for (int k = 0; k < leaves.size(); k++) {
+                    int nrLeaves = leaves.size();
+                    for (int k = 0; k < nrLeaves; k++) {
                         nodeQueue.push(leaves[k]);
                         Node *child = leaves[k];
                         if (child->get_name() == exprNode->get_name()) {
@@ -5740,7 +5753,8 @@ void QueryEvaluator::evaluate_patCl_assign_wildcard_exprwild(int rTableIdx,
                 Node *frontNode = nodeQueue.front();
                 nodeQueue.pop();
                 vector<Node *> leaves = frontNode->get_leaves();
-                for (int k = 0; k < leaves.size(); k++) {
+                int nrLeaves = leaves.size();
+                for (int k = 0; k < nrLeaves; k++) {
                     nodeQueue.push(leaves[k]);
                     if (leaves[k]->get_name() ==
                             rootExprTree->get_name()) {
@@ -5767,7 +5781,8 @@ void QueryEvaluator::evaluate_patCl_assign_wildcard_exprwild(int rTableIdx,
                 Node *frontNode = nodeQueue.front();
                 nodeQueue.pop();
                 vector<Node *> leaves = frontNode->get_leaves();
-                for (int i = 0; i < leaves.size(); i++) {
+                int nrLeaves = leaves.size();
+                for (int i = 0; i < nrLeaves; i++) {
                     nodeQueue.push(leaves[i]);
                     if (leaves[i]->get_name() ==
                             rootExprTree->get_name()) {
@@ -5981,7 +5996,8 @@ void QueryEvaluator::evaluate_patCl_if_var_string(int rTableIdx,
             rTable.syn_1_transaction_begin(patCl->syn);
         int ifSynCol = viPair.second;
         const vector<Record>& ifPair = *(viPair.first);
-        for (int i=0; i<ifPair.size(); i++) {
+        int nrIfPair = ifPair.size();
+        for (int i=0; i<nrIfPair; i++) {
             const Record& rec = ifPair[i];
             const pair<string, int>& ifSynPair = rec.get_column(ifSynCol);
             int ifSynStmt = ifSynPair.second;
@@ -6067,8 +6083,9 @@ void QueryEvaluator::evaluate_patCl_while_var_syn(int rTableIdx,
             syn_10_transaction_begin(patCl->syn, patCl->varRefString,
                     RV_INT);
         const vector<Record>& records = *(viPair.first);
+        int nrRecords = records.size();
         int whileCol = viPair.second;
-        for (int i = 0; i < records.size(); i++) {
+        for (int i = 0; i < nrRecords; i++) {
             const pair<string, int> &whileStmt =
                     records[i].get_column(whileCol);
             int whileStmtNo = whileStmt.second;

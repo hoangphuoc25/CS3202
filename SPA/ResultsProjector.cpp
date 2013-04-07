@@ -197,7 +197,7 @@ void ResultsProjector::get_results(ResultsTable& resultsTable,
 void ResultsProjector::recursive_generate(int n,
         QueryInfo *qinfo, PKB *pkb)
 {
-    if (n >= this->tablesUsed.size()) {
+    if (n >= (int)this->tablesUsed.size()) {
         // generate results
         const vector<AttrRef>& selectTuple = qinfo->get_selectTuple();
         this->sb.clear();

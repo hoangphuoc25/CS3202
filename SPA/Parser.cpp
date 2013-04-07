@@ -609,7 +609,7 @@ CFGNode* Parser::build_CFG(int stmtNo)
 }*/
 
 CFGNode* Parser::build_CFG(int stmtNo){
-    Node *succ, *child, *temp, *ifNode, *ifNodeChild2, *ifNodeGrandChild0;
+    Node *succ, *child, *ifNode, *ifNodeChild2, *ifNodeGrandChild0;
     Node *whileNode, *stmtNode;
     int succNo, childNo, thenNo, elseNo;
     CFGNode *next, *thenNode, *elseNode;

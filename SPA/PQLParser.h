@@ -1,6 +1,10 @@
 #ifndef T11_PQLPARSER_H
 #define T11_PQLPARSER_H
 
+// Disable warnings on exception specification
+// since Visual Studio 2010 does not support it
+#pragma warning(disable: 4290)
+
 #include <cstdarg>
 #include <string>
 #include <map>
@@ -230,7 +234,8 @@ private:
     DesignEnt retrieve_syn_type(const std::string& s) const;
     DesignEnt string_to_entity(const std::string &s);
     AttrType string_to_attrType(const std::string &s) const;
-    void error(ParseError parseErr_, ...) throw(ParseError);
+    __declspec(noreturn) void error(ParseError parseErr_, ...)
+            throw(ParseError);
     void warning(const char *s, ...) const;
     void valist_print(const char *pfx, const char *fmt, va_list ap)
             const throw();

@@ -25,10 +25,9 @@ void Test_20_Parser::test_one()
 // TEST AST relationships
 void Test_20_Parser::test_two()
 {
-
+    /*
     Parser p;
     Node* n;
-    /*
     p = Parser("Test_20_Parser\\test2\\Bill.txt",FROMFILE);
     p.init();
     n = p.get_proc_root();

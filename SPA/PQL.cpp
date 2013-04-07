@@ -10,6 +10,9 @@ using std::set;
 using std::string;
 using std::vector;
 
+// silence Visual Studio
+#define strdup _strdup
+
 /// Global AttrRefCmp
 struct AttrRefCmp glob__AttrRefCmp;
 

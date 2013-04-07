@@ -27,7 +27,6 @@ CPPUNIT_TEST_SUITE_REGISTRATION(Test_20_PQLParser_With);
 void Test_20_PQLParser_With::test_with_string_string_same()
 {
     string queryStr, out;
-    ostringstream *os;
     PQLParser parser;
     QueryInfo *qinfo;
 
@@ -78,7 +77,6 @@ void Test_20_PQLParser_With::test_with_string_string_same()
 void Test_20_PQLParser_With::test_with_string_string_different_halt()
 {
     string queryStr, out;
-    ostringstream *os;
     PQLParser parser;
     QueryInfo *qinfo;
 
@@ -161,7 +159,6 @@ void Test_20_PQLParser_With::test_with_string_string_different_halt()
 void Test_20_PQLParser_With::test_with_int_int_same()
 {
     string queryStr, out;
-    ostringstream *os;
     PQLParser parser;
     QueryInfo *qinfo;
 
@@ -233,7 +230,6 @@ void Test_20_PQLParser_With::test_with_int_int_same()
 void Test_20_PQLParser_With::test_with_int_int_different_halt()
 {
     string queryStr, out;
-    ostringstream *os;
     PQLParser parser;
     QueryInfo *qinfo;
 
@@ -306,7 +302,6 @@ void Test_20_PQLParser_With::test_with_int_int_different_halt()
 void Test_20_PQLParser_With::test_with_normalize()
 {
     string queryStr, out;
-    ostringstream *os;
     PQLParser parser;
     QueryInfo *qinfo;
 
@@ -1050,7 +1045,6 @@ void Test_20_PQLParser_With::test_err_parse_withclause_type_mismatch()
     string queryStr, out;
     ostringstream *os;
     PQLParser parser;
-    QueryInfo *qinfo;
     WithClause withCl;
 
     // 1st with clause, int vs. string
@@ -1312,7 +1306,6 @@ void Test_20_PQLParser_With::test_err_parse_withclause_and_nosep()
     string queryStr, out;
     ostringstream *os;
     PQLParser parser;
-    QueryInfo *qinfo;
     WithClause withCl;
 
     queryStr = " assign a; prog_line pl; variable v; ";
@@ -1334,7 +1327,6 @@ void Test_20_PQLParser_With::test_err_parse_withclause_expect_ref_on_rhs()
     string queryStr, out;
     ostringstream *os;
     PQLParser parser;
-    QueryInfo *qinfo;
     Ref leftRef;
 
     queryStr = "assign a; Select a with a.stmt# = ^&523";
@@ -1376,7 +1368,6 @@ void Test_20_PQLParser_With::test_err_parse_withclause_expect_with()
     string queryStr, out;
     ostringstream *os;
     PQLParser parser;
-    QueryInfo *qinfo;
     WithClause prevWithCl;
 
     queryStr = "assign a; stmt s; Select a with a.stmt# = 123 and ";

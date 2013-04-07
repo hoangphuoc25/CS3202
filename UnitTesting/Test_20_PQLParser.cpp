@@ -1,3 +1,8 @@
+// disable warnings about using _snprintf
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include <cstdio>
 #include <string>
 #include <map>
@@ -539,7 +544,7 @@ void Test_20_PQLParser::test_mult_decl()
     entTable = parser.get_ent_table();
     qinfo = parser.get_queryinfo();
     CPPUNIT_ASSERT_EQUAL(PARSE_OK, parser.get_parse_result());
-    CPPUNIT_ASSERT(30, (int)entTable.size());
+    CPPUNIT_ASSERT(30 == (int)entTable.size());
     s = "Ccxx1";
     it = entTable.find(s);
     CPPUNIT_ASSERT(it != entTable.end());
@@ -2766,7 +2771,6 @@ void Test_20_PQLParser::test_err_calls_and_star_argtypes()
     string queryStr, out;
     PQLParser parser;
     ostringstream *os;
-    QueryInfo *qinfo;
 
     for (set<pair<const char*, const char **> >::const_iterator
             it = S.begin(); it != S.end(); it++) {

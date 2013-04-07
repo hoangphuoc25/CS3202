@@ -9,7 +9,7 @@ using std::set;
 using std::string;
 
 template<>
-SetWrapper<string>::SetWrapper<string>()
+SetWrapper<string>::SetWrapper()
     : actualSet() {}
 
 template<>

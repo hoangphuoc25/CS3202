@@ -179,7 +179,6 @@ void Test_30_PKB::test_one(){
     set<int> s1;
     set<int> intSet;
     set<int>::iterator it;
-    int i;
 
     // Variables
     CPPUNIT_ASSERT_EQUAL(string("i"),

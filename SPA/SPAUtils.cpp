@@ -1,4 +1,11 @@
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include "SPAUtils.h"
+
+// silence C4996 from Visual Studio
+#define strdup _strdup
 
 using std::string;
 

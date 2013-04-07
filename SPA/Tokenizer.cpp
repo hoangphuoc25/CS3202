@@ -1,5 +1,9 @@
-#include "Tokenizer.h"
+// disable warnings about using fopen
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 
+#include "Tokenizer.h"
 
 /**** Tokeniser functions ***/
 

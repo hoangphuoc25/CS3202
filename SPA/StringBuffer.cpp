@@ -1,3 +1,8 @@
+// disable warnings on using strcpy, strncpy, strncat
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include "StringBuffer.h"
 
 #include <cctype>
@@ -109,7 +114,7 @@ int StringBuffer::append_int(int x)
     } else {
         grow_buffer(digits);
         while (digits-- > 0) {
-            d = r / tpow;
+            d = (int) (r / tpow);
             buf[nrChars++] = d + '0';
             r %= tpow;
             tpow /= 10;
