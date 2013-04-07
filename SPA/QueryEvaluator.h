@@ -4,6 +4,7 @@
 #include <list>
 #include <set>
 #include <string>
+#include <pthread.h>
 #include "PKB.h"
 #include "PQLParser.h"
 #include "ResultsTable.h"

@@ -6,6 +6,7 @@
 #include <cassert>
 #include <queue>
 #include <set>
+#include <pthread.h>
 
 using std::list;
 using std::string;
