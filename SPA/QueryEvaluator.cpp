@@ -1,18 +1,44 @@
 #include "QueryEvaluator.h"
 #include "Parser.h"
 
+#include <algorithm>
 #include <iostream>
+#include <cstdlib>
 #include <cstring>
 #include <cassert>
+#include <fstream>
 #include <queue>
 #include <set>
 #include <pthread.h>
 
+using std::getline;
+using std::ifstream;
 using std::list;
 using std::string;
 using std::map;
+using std::max;
+using std::min;
 using std::queue;
 using std::set;
+
+struct QEThreadInfo {
+    /// the actual thread
+    pthread_t thread_;
+    /// start component number
+    int startIdx_;
+    /// end component number, exclusive
+    int endIdx_;
+    /// total number of partitions/components
+    int nrPartitions_;
+    /// Pointer to actual partitioned clauses
+    std::vector<std::vector<int> > *partitionedClauses_;
+    /// Pointer to actual vector of ResultsTable
+    std::vector<ResultsTable> *resultsTable_;
+    /// PKB
+    PKB *pkb_;
+    /// QueryInfo
+    const QueryInfo *qinfo_;
+};
 
 //////////////////////////////////////////////////////////////////////
 // EvalSynArgDesc
@@ -121,18 +147,88 @@ const set<RelRefType> QueryEvaluator::EV_SAME_SYN_RELATION(
 
 QueryEvaluator::QueryEvaluator():
         pqlParser(), pkb(NULL), resultsProjector(),
-        isAlive(true),
+        isAlive(true), optMultithreaded_(false), nrThreads_(-1),
         graph_synMap(), graph_adjList(), graph_refToVertex(),
         graph_vertexCC(), graph_nrVertexCC(0), graph_isolatedClauses(),
         partitionedClauses(),
         resultsTable()
-{}
+{
+    this->read_config(SPACONFIG_FNAME);
+}
+
+QueryEvaluator::QueryEvaluator(const map<string, int>& flags):
+        pqlParser(), pkb(NULL), resultsProjector(),
+        isAlive(true), optMultithreaded_(false), nrThreads_(-1),
+        graph_synMap(), graph_adjList(), graph_refToVertex(),
+        graph_vertexCC(), graph_nrVertexCC(0), graph_isolatedClauses(),
+        partitionedClauses(),
+        resultsTable()
+{
+    map<string, int>::const_iterator it =
+            flags.find(QE_MAXTHREADS_STR);
+    if (flags.end() != it) {
+        int n = it->second;
+        optMultithreaded_ = true;
+        nrThreads_ = min(QE_MAX_THREADS,
+                             max(QE_MIN_THREADS, n));
+    }
+}
+
+QueryEvaluator::QueryEvaluator(const string& configFname):
+        pqlParser(), pkb(NULL), resultsProjector(),
+        isAlive(true), optMultithreaded_(false), nrThreads_(-1),
+        graph_synMap(), graph_adjList(), graph_refToVertex(),
+        graph_vertexCC(), graph_nrVertexCC(0), graph_isolatedClauses(),
+        partitionedClauses(),
+        resultsTable()
+{
+    this->read_config(configFname);
+}
 
 void QueryEvaluator::reset()
 {
     this->isAlive = true;
     this->partitionedClauses.clear();
     this->resultsTable.clear();
+}
+
+void QueryEvaluator::read_config(const string& configFile)
+{
+    ifstream infs(configFile);
+    string s;
+    const char *str;
+    char *p, *keyStart, *keyEnd, *valStart, *valEnd;
+    while (infs.good()) {
+        getline(infs, s);
+        str = s.c_str();
+        p = (char *) strchr(str, '=');
+        if (p) {
+            keyStart = (char *)str;
+            valEnd = (char *)str + strlen(str) - 1;
+            *p = '\0';
+            valStart = p+1;
+            keyEnd = p-1;
+            while (keyEnd >= str && isspace(*keyEnd)) {
+                *keyEnd-- = '\0';
+            }
+            while (keyStart < keyEnd && isspace(*keyStart)) {
+                *keyStart++ = '\0';
+            }
+            while (*valStart && isspace(*valStart)) {
+                *valStart++ = '\0';
+            }
+            while (valStart < valEnd && isspace(*valEnd)) {
+                *valEnd-- = '\0';
+            }
+            if (!strcmp(keyStart,  QE_MAXTHREADS_STR)) {
+                this->optMultithreaded_ = true;
+                int x = atoi(valStart);
+                this->nrThreads_ = min(QE_MAX_THREADS,
+                                           max(x, QE_MIN_THREADS));
+            }
+        }
+    }
+    infs.close();
 }
 
 void QueryEvaluator::parseSimple(const string& simple)
@@ -173,35 +269,38 @@ void QueryEvaluator::evaluate(const string& queryStr,
         }
     }
     if (this->isAlive) {
-        // Evaluate everything (sequentially for now)
-        // NOTE: Take care when we parallelize this
-        int nrPartitions = this->partitionedClauses.size();
-        ClauseType clauseType;
-        for (int rTableIdx = 0; rTableIdx < nrPartitions; rTableIdx++) {
-            const vector<int>& vec = this->partitionedClauses[rTableIdx];
-            int nrClauses = vec.size();
-            const ResultsTable& rTable = this->resultsTable[rTableIdx];
-            for (int k = 0; k < nrClauses && rTable.is_alive(); k++) {
-                int clauseIdx = vec[k];
-                const GenericRef *genericRef =
-                        qinfo->get_nth_clause(clauseIdx, &clauseType);
-                assert(INVALID_CLAUSE != clauseType);
-                assert(NULL != genericRef);
-                switch (clauseType) {
-                case SUCHTHAT_CLAUSE:
-                    this->evaluate_relRef(rTableIdx, genericRef);
-                    break;
-                case WITH_CLAUSE:
-                    this->evaluate_withClause(rTableIdx, genericRef);
-                    break;
-                case PATTERN_CLAUSE:
-                    this->evaluate_patCl(rTableIdx, genericRef);
+        if (optMultithreaded_) {
+            this->evaluate_parallel(qinfo);
+        } else {
+            int nrPartitions = this->partitionedClauses.size();
+            ClauseType clauseType;
+            for (int rTableIdx = 0; rTableIdx < nrPartitions; rTableIdx++) {
+                const vector<int>& vec = this->partitionedClauses[rTableIdx];
+                int nrClauses = vec.size();
+                ResultsTable& rTable = this->resultsTable[rTableIdx];
+                for (int k = 0; k < nrClauses && rTable.is_alive(); k++) {
+                    int clauseIdx = vec[k];
+                    const GenericRef *genericRef =
+                            qinfo->get_nth_clause(clauseIdx, &clauseType);
+                    assert(INVALID_CLAUSE != clauseType);
+                    assert(NULL != genericRef);
+                    switch (clauseType) {
+                    case SUCHTHAT_CLAUSE:
+                        QueryEvaluator::evaluate_relRef(rTable, pkb,
+                                genericRef);
+                        break;
+                    case WITH_CLAUSE:
+                        this->evaluate_withClause(rTableIdx, genericRef);
+                        break;
+                    case PATTERN_CLAUSE:
+                        this->evaluate_patCl(rTableIdx, genericRef);
+                        break;
+                    }
+                }
+                if (!rTable.is_alive()) {
+                    this->isAlive = false;
                     break;
                 }
-            }
-            if (!rTable.is_alive()) {
-                this->isAlive = false;
-                break;
             }
         }
     }
@@ -251,6 +350,98 @@ void QueryEvaluator::evaluate(const string& queryStr,
     }
     this->resultsProjector.get_results(this->results, qinfo, pkb, resultSet);
     */
+}
+
+void QueryEvaluator::evaluate_parallel(const QueryInfo *qinfo)
+{
+    int nrPartitions = this->partitionedClauses.size();
+    if (0 >= nrPartitions) {
+        return;
+    }
+    int totalThreads =
+            ((nrThreads_ > nrPartitions) ? nrPartitions : nrThreads_);
+    int rem = nrPartitions % totalThreads;
+    int componentsPerThread =
+            nrPartitions / totalThreads + ((rem == 0) ? 0 : 1);
+    int retVal;
+    void *threadRet;
+    pthread_attr_t threadAttr;
+    retVal = pthread_attr_init(&threadAttr);
+    if (retVal) {
+        fprintf(stderr, "pthread_attr_init error\n");
+        exit(1);
+    }
+    struct QEThreadInfo *qeThreads;
+    qeThreads = (struct QEThreadInfo *)calloc(nrThreads_,
+                        sizeof(struct QEThreadInfo));
+    if (!qeThreads) {
+        fprintf(stderr, "evaluate_parallel: "
+                "Fail to allocate memory for threads");
+        exit(1);
+    }
+    // initialize data structures
+    for (int i = 0; i < totalThreads; i++) {
+        qeThreads[i].startIdx_ = i * componentsPerThread;
+        qeThreads[i].endIdx_ = (i+1) * componentsPerThread;
+        if (qeThreads[i].endIdx_ > nrPartitions) {
+            qeThreads[i].endIdx_ = nrPartitions;
+        }
+        qeThreads[i].nrPartitions_ = nrPartitions;
+        qeThreads[i].partitionedClauses_ = &(this->partitionedClauses);
+        qeThreads[i].resultsTable_ = &(this->resultsTable);
+        qeThreads[i].pkb_ = this->pkb;
+        qeThreads[i].qinfo_ = qinfo;
+    }
+    // start threading
+    for (int i = 0; i < totalThreads; i++) {
+        pthread_create(&qeThreads[i].thread_, &threadAttr,
+                &thread_evaluate, &qeThreads[i]);
+    }
+    // join
+    for (int i = 0; i < totalThreads; i++) {
+        pthread_join(qeThreads[i].thread_, &threadRet);
+    }
+    for (int i = 0; i < nrPartitions; i++) {
+        this->isAlive = this->isAlive && this->resultsTable[i].is_alive();
+    }
+    free(qeThreads);
+}
+
+void * __cdecl thread_evaluate(void *qetInfo)
+{
+    struct QEThreadInfo *threadInfo = (struct QEThreadInfo *)qetInfo;
+    const QueryInfo *qinfo = threadInfo->qinfo_;
+    PKB *pkb = threadInfo->pkb_;
+    ClauseType clauseType;
+    for (int i = threadInfo->startIdx_; i < threadInfo->endIdx_; i++) {
+        // TODO: Reorder queries here
+        const vector<int>& vec =
+                (*(threadInfo->partitionedClauses_))[i];
+        int nrClauses = vec.size();
+        ResultsTable& rTable = (*threadInfo->resultsTable_)[i];
+        for (int k = 0; k < nrClauses && rTable.is_alive(); k++) {
+            int clauseIdx = vec[k];
+            const GenericRef *genericRef =
+                    qinfo->get_nth_clause(clauseIdx, &clauseType);
+            assert(INVALID_CLAUSE != clauseType);
+            assert(NULL != genericRef);
+            switch (clauseType) {
+            case SUCHTHAT_CLAUSE:
+                QueryEvaluator::evaluate_relRef(rTable, pkb, genericRef);
+                break;
+            case WITH_CLAUSE:
+                //this->evaluate_withClause(rTableIdx, genericRef);
+                break;
+            case PATTERN_CLAUSE:
+                //this->evaluate_patCl(rTableIdx, genericRef);
+                break;
+            }
+        }
+        if (!rTable.is_alive()) {
+            break;
+        }
+    }
+    return NULL;
 }
 
 void QueryEvaluator::partition_evaluation(const QueryInfo *qinfo)
@@ -785,32 +976,31 @@ bool QueryEvaluator::ev_isolated_relation_wild_wild(
     return false;
 }
 
-void QueryEvaluator::evaluate_relRef(int rTableIdx,
-        const GenericRef *genRef)
+void __cdecl QueryEvaluator::evaluate_relRef(ResultsTable& rTable,
+        PKB *pkb, const GenericRef *genRef)
 {
     const RelRef *relRef =
         dynamic_cast<const RelRef *>(genRef);
     assert(NULL != relRef);
     if (relRef->argOneType == RELARG_SYN &&
             relRef->argTwoType == RELARG_SYN) {
-        this->ev_relRef_syn_syn(rTableIdx, relRef);
+        QueryEvaluator::ev_relRef_syn_syn(rTable, pkb, relRef);
     } else if (relRef->argOneType == RELARG_SYN) {
-        this->ev_relRef_syn_X(rTableIdx, relRef);
+        QueryEvaluator::ev_relRef_syn_X(rTable, pkb, relRef);
     } else if (relRef->argTwoType == RELARG_SYN) {
-        this->ev_relRef_X_syn(rTableIdx, relRef);
+        QueryEvaluator::ev_relRef_X_syn(rTable, pkb, relRef);
     } else {
         // isolated clauses should no longer be evaluated here
         assert(false);
     }
 }
 
-void QueryEvaluator::ev_relRef_syn_syn(int rTableIdx,
-        const RelRef *relRef)
+void __cdecl QueryEvaluator::ev_relRef_syn_syn(ResultsTable& rTable,
+        PKB *pkb, const RelRef *relRef)
 {
     enum SynInGraph synInGraph = SYN_ARGS_INVALID;
     EvalSynArgDesc evalSynArgDesc;
     EvalPKBDispatch pkbDispatch;
-    const ResultsTable& rTable = this->resultsTable[rTableIdx];
     if (rTable.has_synonym(relRef->argOneString) &&
             rTable.has_synonym(relRef->argTwoString)) {
         bool setupDone = false;
@@ -821,7 +1011,8 @@ void QueryEvaluator::ev_relRef_syn_syn(int rTableIdx,
             //       at the parsing phase
             if (0 == relRef->argOneString.compare(
                              relRef->argTwoString)) {
-                this->ev_relRef_syn_syn_1_setup(pkbDispatch, relRef);
+                QueryEvaluator::ev_relRef_syn_syn_1_setup(pkbDispatch,
+                        relRef);
                 setupDone = true;
             } else {
                 // different synonym arguments, 11 case
@@ -832,15 +1023,15 @@ void QueryEvaluator::ev_relRef_syn_syn(int rTableIdx,
         }
         // else different synonyms in different table, 22 case
         if (!setupDone) {
-            this->ev_relRef_syn_syn_11_22_setup(synInGraph, pkbDispatch,
-                    relRef);
+            QueryEvaluator::ev_relRef_syn_syn_11_22_setup(synInGraph,
+                    pkbDispatch, relRef);
         }
     } else if (rTable.has_synonym(relRef->argOneString)) {
         synInGraph = SYN_SYN_10;
-        this->ev_relRef_syn_syn_10_setup(pkbDispatch, relRef);
+        QueryEvaluator::ev_relRef_syn_syn_10_setup(pkbDispatch, relRef);
     } else if (rTable.has_synonym(relRef->argTwoString)) {
         synInGraph = SYN_SYN_01;
-        this->ev_relRef_syn_syn_01_setup(pkbDispatch, relRef);
+        QueryEvaluator::ev_relRef_syn_syn_01_setup(pkbDispatch, relRef);
     } else {
         synInGraph = SYN_SYN_00;
         // TODO: We can simplify some of these to false
@@ -848,10 +1039,12 @@ void QueryEvaluator::ev_relRef_syn_syn(int rTableIdx,
         if (0 == relRef->argOneString.compare(
                          relRef->argTwoString)) {
             // both synonym arguments are same and not seen
-            this->ev_relRef_syn_syn_0_setup(pkbDispatch, relRef);
+            QueryEvaluator::ev_relRef_syn_syn_0_setup(pkbDispatch,
+                    relRef);
         } else {
             // both synonym arguments different and seen
-            this->ev_relRef_syn_syn_00_setup(pkbDispatch, relRef);
+            QueryEvaluator::ev_relRef_syn_syn_00_setup(pkbDispatch,
+                    relRef);
         }
     }
     evalSynArgDesc.synInGraph = synInGraph;
@@ -861,11 +1054,11 @@ void QueryEvaluator::ev_relRef_syn_syn(int rTableIdx,
 
     assert(pkbDispatch.relRef_eval != NULL);
     // evaluate relRef
-    (this->*(pkbDispatch.relRef_eval)) (rTableIdx, relRef, pkbDispatch);
+    (pkbDispatch.relRef_eval)(rTable, pkb, relRef, pkbDispatch);
 }
 
-void QueryEvaluator::ev_relRef_syn_syn_0_setup(
-        EvalPKBDispatch& pkbDispatch, const RelRef *relRef) const
+void __cdecl QueryEvaluator::ev_relRef_syn_syn_0_setup(
+        EvalPKBDispatch& pkbDispatch, const RelRef *relRef)
 {
     assert(0 == relRef->argOneString.compare(relRef->argTwoString));
     assert(RELARG_INVALID != relRef->argOneType);
@@ -879,7 +1072,8 @@ void QueryEvaluator::ev_relRef_syn_syn_0_setup(
             designEnt_to_relRefArgType(relRef->argOneSyn);
     assert(RELARG_INT == argType);
     pkbDispatch.get_all_int_argOne =
-            this->pkbd_setup_get_all_int_method(relRef->argOneSyn);
+            QueryEvaluator::pkbd_setup_get_all_int_method(
+                    relRef->argOneSyn);
     switch (relRef->relType) {
     case REL_NEXT:
         pkbDispatch.f_int_argOne_int_argTwo =
@@ -902,8 +1096,8 @@ void QueryEvaluator::ev_relRef_syn_syn_0_setup(
             &QueryEvaluator::ev_rr_ss_int_int_0;
 }
 
-void QueryEvaluator::ev_relRef_syn_syn_1_setup(
-        EvalPKBDispatch& pkbDispatch, const RelRef *relRef) const
+void __cdecl QueryEvaluator::ev_relRef_syn_syn_1_setup(
+        EvalPKBDispatch& pkbDispatch, const RelRef *relRef)
 {
     assert(0 == relRef->argOneString.compare(relRef->argTwoString));
     assert(RELARG_INVALID != relRef->argOneType);
@@ -938,8 +1132,8 @@ void QueryEvaluator::ev_relRef_syn_syn_1_setup(
             &QueryEvaluator::ev_rr_ss_int_int_1;
 }
 
-void QueryEvaluator::ev_relRef_syn_syn_00_setup(
-        EvalPKBDispatch& pkbDispatch, const RelRef *relRef) const
+void __cdecl QueryEvaluator::ev_relRef_syn_syn_00_setup(
+        EvalPKBDispatch& pkbDispatch, const RelRef *relRef)
 {
     RelRefArgType argOneType =
             designEnt_to_relRefArgType(relRef->argOneSyn);
@@ -949,57 +1143,69 @@ void QueryEvaluator::ev_relRef_syn_syn_00_setup(
     assert(argTwoType == RELARG_STRING || argTwoType == RELARG_INT);
     if (argOneType == RELARG_STRING && argTwoType == RELARG_STRING) {
         pkbDispatch.get_all_string_argOne =
-                this->pkbd_setup_get_all_string_method(
+                QueryEvaluator::pkbd_setup_get_all_string_method(
                         relRef->argOneSyn);
         pkbDispatch.get_all_string_argTwo =
-                this->pkbd_setup_get_all_string_method(
+                QueryEvaluator::pkbd_setup_get_all_string_method(
                         relRef->argTwoSyn);
         pkbDispatch.get_string_set_argOne_from_string_argTwo =
-                this->pkbd_setup_get_1SS_From_2SS(relRef->relType);
+                QueryEvaluator::pkbd_setup_get_1SS_From_2SS(
+                        relRef->relType);
         pkbDispatch.get_string_set_argTwo_from_string_argOne =
-                this->pkbd_setup_get_2SS_From_1SS(relRef->relType);
+                QueryEvaluator::pkbd_setup_get_2SS_From_1SS(
+                        relRef->relType);
         pkbDispatch.relRef_eval =
                 &QueryEvaluator::ev_rr_ss_string_string_00_from_argOne;
     } else if (argOneType == RELARG_STRING && argTwoType == RELARG_INT) {
         pkbDispatch.get_all_string_argOne =
-                this->pkbd_setup_get_all_string_method(
+                QueryEvaluator::pkbd_setup_get_all_string_method(
                         relRef->argOneSyn);
         pkbDispatch.get_all_int_argTwo =
-                this->pkbd_setup_get_all_int_method(relRef->argTwoSyn);
+                QueryEvaluator::pkbd_setup_get_all_int_method(
+                        relRef->argTwoSyn);
         pkbDispatch.get_string_set_argOne_from_int_argTwo =
-                this->pkbd_setup_get_1SS_From_2IS(relRef->relType);
+                QueryEvaluator::pkbd_setup_get_1SS_From_2IS(
+                        relRef->relType);
         pkbDispatch.get_int_set_argTwo_from_string_argOne =
-                this->pkbd_setup_get_2IS_From_1SS(relRef->relType);
+                QueryEvaluator::pkbd_setup_get_2IS_From_1SS(
+                        relRef->relType);
         pkbDispatch.relRef_eval =
                 &QueryEvaluator::ev_rr_ss_string_int_00_from_argOne;
     } else if (argOneType == RELARG_INT && argTwoType == RELARG_STRING) {
         pkbDispatch.get_all_int_argOne =
-                this->pkbd_setup_get_all_int_method(relRef->argOneSyn);
+                QueryEvaluator::pkbd_setup_get_all_int_method(
+                        relRef->argOneSyn);
         pkbDispatch.get_all_string_argTwo =
-                this->pkbd_setup_get_all_string_method(
+                QueryEvaluator::pkbd_setup_get_all_string_method(
                         relRef->argTwoSyn);
         pkbDispatch.get_int_set_argOne_from_string_argTwo =
-                this->pkbd_setup_get_1IS_From_2SS(relRef->relType);
+                QueryEvaluator::pkbd_setup_get_1IS_From_2SS(
+                        relRef->relType);
         pkbDispatch.get_string_set_argTwo_from_int_argOne =
-                this->pkbd_setup_get_2SS_From_1IS(relRef->relType);
+                QueryEvaluator::pkbd_setup_get_2SS_From_1IS(
+                        relRef->relType);
         pkbDispatch.relRef_eval =
                 &QueryEvaluator::ev_rr_ss_int_string_00_from_argOne;
     } else if (argOneType == RELARG_INT && argTwoType == RELARG_INT) {
         pkbDispatch.get_all_int_argOne =
-                this->pkbd_setup_get_all_int_method(relRef->argOneSyn);
+                QueryEvaluator::pkbd_setup_get_all_int_method(
+                        relRef->argOneSyn);
         pkbDispatch.get_all_int_argTwo =
-                this->pkbd_setup_get_all_int_method(relRef->argTwoSyn);
+                QueryEvaluator::pkbd_setup_get_all_int_method(
+                        relRef->argTwoSyn);
         pkbDispatch.get_int_set_argOne_from_int_argTwo =
-                this->pkbd_setup_get_1IS_From_2IS(relRef->relType);
+                QueryEvaluator::pkbd_setup_get_1IS_From_2IS(
+                        relRef->relType);
         pkbDispatch.get_int_set_argTwo_from_int_argOne =
-                this->pkbd_setup_get_2IS_From_1IS(relRef->relType);
+                QueryEvaluator::pkbd_setup_get_2IS_From_1IS(
+                        relRef->relType);
         pkbDispatch.relRef_eval =
                 &QueryEvaluator::ev_rr_ss_int_int_00_from_argOne;
     }
 }
 
-void QueryEvaluator::ev_relRef_syn_syn_01_setup(
-        EvalPKBDispatch& pkbDispatch, const RelRef *relRef) const
+void __cdecl QueryEvaluator::ev_relRef_syn_syn_01_setup(
+        EvalPKBDispatch& pkbDispatch, const RelRef *relRef)
 {
     RelRefArgType argOneType =
             designEnt_to_relRefArgType(relRef->argOneSyn);
@@ -1009,31 +1215,35 @@ void QueryEvaluator::ev_relRef_syn_syn_01_setup(
     assert(RELARG_INT == argTwoType || RELARG_STRING == argTwoType);
     if (RELARG_STRING == argOneType && RELARG_STRING == argTwoType) {
         pkbDispatch.get_string_set_argOne_from_string_argTwo =
-                this->pkbd_setup_get_1SS_From_2SS(relRef->relType);
+                QueryEvaluator::pkbd_setup_get_1SS_From_2SS(
+                        relRef->relType);
         pkbDispatch.relRef_eval =
                 &QueryEvaluator::ev_rr_ss_string_string_01;
     } else if (RELARG_STRING == argOneType && RELARG_INT == argTwoType) {
         pkbDispatch.get_string_set_argOne_from_int_argTwo =
-                this->pkbd_setup_get_1SS_From_2IS(relRef->relType);
+                QueryEvaluator::pkbd_setup_get_1SS_From_2IS(
+                        relRef->relType);
         pkbDispatch.relRef_eval =
                 &QueryEvaluator::ev_rr_ss_string_int_01;
     } else if (RELARG_INT == argOneType && RELARG_STRING == argTwoType) {
         pkbDispatch.get_int_set_argOne_from_string_argTwo =
-                this->pkbd_setup_get_1IS_From_2SS(relRef->relType);
+                QueryEvaluator::pkbd_setup_get_1IS_From_2SS(
+                        relRef->relType);
         pkbDispatch.relRef_eval =
                 &QueryEvaluator::ev_rr_ss_int_string_01;
     } else if (RELARG_INT == argOneType && RELARG_INT == argTwoType) {
         pkbDispatch.get_int_set_argOne_from_int_argTwo =
-                this->pkbd_setup_get_1IS_From_2IS(relRef->relType);
+                QueryEvaluator::pkbd_setup_get_1IS_From_2IS(
+                        relRef->relType);
         pkbDispatch.relRef_eval =
                 &QueryEvaluator::ev_rr_ss_int_int_01;
     }
 }
 
-void QueryEvaluator::ev_relRef_syn_syn_10_setup(
-        EvalPKBDispatch& pkbDispatch, const RelRef *relRef) const
+void __cdecl QueryEvaluator::ev_relRef_syn_syn_10_setup(
+        EvalPKBDispatch& pkbDispatch, const RelRef *relRef)
 {
-        RelRefArgType argOneType =
+    RelRefArgType argOneType =
             designEnt_to_relRefArgType(relRef->argOneSyn);
     RelRefArgType argTwoType =
             designEnt_to_relRefArgType(relRef->argTwoSyn);
@@ -1041,30 +1251,34 @@ void QueryEvaluator::ev_relRef_syn_syn_10_setup(
     assert(RELARG_INT == argTwoType || RELARG_STRING == argTwoType);
     if (RELARG_STRING == argOneType && RELARG_STRING == argTwoType) {
         pkbDispatch.get_string_set_argTwo_from_string_argOne =
-                this->pkbd_setup_get_2SS_From_1SS(relRef->relType);
+                QueryEvaluator::pkbd_setup_get_2SS_From_1SS(
+                        relRef->relType);
         pkbDispatch.relRef_eval =
                 &QueryEvaluator::ev_rr_ss_string_string_10;
     } else if (RELARG_STRING == argOneType && RELARG_INT == argTwoType) {
         pkbDispatch.get_int_set_argTwo_from_string_argOne =
-                this->pkbd_setup_get_2IS_From_1SS(relRef->relType);
+                QueryEvaluator::pkbd_setup_get_2IS_From_1SS(
+                        relRef->relType);
         pkbDispatch.relRef_eval =
                 &QueryEvaluator::ev_rr_ss_string_int_10;
     } else if (RELARG_INT == argOneType && RELARG_STRING == argTwoType) {
         pkbDispatch.get_string_set_argTwo_from_int_argOne =
-                this->pkbd_setup_get_2SS_From_1IS(relRef->relType);
+                QueryEvaluator::pkbd_setup_get_2SS_From_1IS(
+                        relRef->relType);
         pkbDispatch.relRef_eval =
                 &QueryEvaluator::ev_rr_ss_int_string_10;
     } else if (RELARG_INT == argOneType && RELARG_INT == argTwoType) {
         pkbDispatch.get_int_set_argTwo_from_int_argOne =
-                this->pkbd_setup_get_2IS_From_1IS(relRef->relType);
+                QueryEvaluator::pkbd_setup_get_2IS_From_1IS(
+                        relRef->relType);
         pkbDispatch.relRef_eval =
                 &QueryEvaluator::ev_rr_ss_int_int_10;
     }
 }
 
-void QueryEvaluator::ev_relRef_syn_syn_11_22_setup(
+void __cdecl QueryEvaluator::ev_relRef_syn_syn_11_22_setup(
         SynInGraph synInGraph, EvalPKBDispatch& pkbDispatch,
-        const RelRef *relRef) const
+        const RelRef *relRef)
 {
     assert(SYN_SYN_11 == synInGraph || SYN_SYN_22 == synInGraph);
     RelRefArgType argOneType =
@@ -1172,7 +1386,7 @@ void QueryEvaluator::ev_relRef_syn_syn_11_22_setup(
 }
 
 QueryEvaluator::pkbGetAllStringFn
-QueryEvaluator::pkbd_setup_get_all_string_method(DesignEnt ent) const
+__cdecl QueryEvaluator::pkbd_setup_get_all_string_method(DesignEnt ent)
 {
     assert (ent == ENT_PROC || ent == ENT_VAR);
     if (ent == ENT_PROC) {
@@ -1184,7 +1398,7 @@ QueryEvaluator::pkbd_setup_get_all_string_method(DesignEnt ent) const
 }
 
 QueryEvaluator::pkbGetAllIntFn
-QueryEvaluator::pkbd_setup_get_all_int_method(DesignEnt ent) const
+__cdecl QueryEvaluator::pkbd_setup_get_all_int_method(DesignEnt ent)
 {
     assert(RELARG_INT == designEnt_to_relRefArgType(ent));
     switch (ent) {
@@ -1216,7 +1430,7 @@ QueryEvaluator::pkbd_setup_get_all_int_method(DesignEnt ent) const
 }
 
 QueryEvaluator::pkbGet_1SS_From_2SS
-QueryEvaluator::pkbd_setup_get_1SS_From_2SS(RelRefType relType) const
+__cdecl QueryEvaluator::pkbd_setup_get_1SS_From_2SS(RelRefType relType)
 {
     switch (relType) {
     case REL_MODIFIES:
@@ -1238,7 +1452,7 @@ QueryEvaluator::pkbd_setup_get_1SS_From_2SS(RelRefType relType) const
 }
 
 QueryEvaluator::pkbGet_1SS_From_2IS
-QueryEvaluator::pkbd_setup_get_1SS_From_2IS(RelRefType relType) const
+__cdecl QueryEvaluator::pkbd_setup_get_1SS_From_2IS(RelRefType relType)
 {
     // no relation has (string,int) arguments
     assert(false);
@@ -1246,7 +1460,7 @@ QueryEvaluator::pkbd_setup_get_1SS_From_2IS(RelRefType relType) const
 }
 
 QueryEvaluator::pkbGet_1IS_From_2SS
-QueryEvaluator::pkbd_setup_get_1IS_From_2SS(RelRefType relType) const
+__cdecl QueryEvaluator::pkbd_setup_get_1IS_From_2SS(RelRefType relType)
 {
     switch (relType) {
     case REL_MODIFIES:
@@ -1262,7 +1476,7 @@ QueryEvaluator::pkbd_setup_get_1IS_From_2SS(RelRefType relType) const
 }
 
 QueryEvaluator::pkbGet_1IS_From_2IS
-QueryEvaluator::pkbd_setup_get_1IS_From_2IS(RelRefType relType) const
+__cdecl QueryEvaluator::pkbd_setup_get_1IS_From_2IS(RelRefType relType)
 {
     switch (relType) {
     case REL_PARENT:
@@ -1296,7 +1510,7 @@ QueryEvaluator::pkbd_setup_get_1IS_From_2IS(RelRefType relType) const
 }
 
 QueryEvaluator::pkbGet_2SS_From_1SS
-QueryEvaluator::pkbd_setup_get_2SS_From_1SS(RelRefType relType) const
+__cdecl QueryEvaluator::pkbd_setup_get_2SS_From_1SS(RelRefType relType)
 {
     switch (relType) {
     case REL_MODIFIES:
@@ -1318,7 +1532,7 @@ QueryEvaluator::pkbd_setup_get_2SS_From_1SS(RelRefType relType) const
 }
 
 QueryEvaluator::pkbGet_2SS_From_1IS
-QueryEvaluator::pkbd_setup_get_2SS_From_1IS(RelRefType relType) const
+__cdecl QueryEvaluator::pkbd_setup_get_2SS_From_1IS(RelRefType relType)
 {
     switch (relType) {
     case REL_MODIFIES:
@@ -1334,7 +1548,7 @@ QueryEvaluator::pkbd_setup_get_2SS_From_1IS(RelRefType relType) const
 }
 
 QueryEvaluator::pkbGet_2IS_From_1SS
-QueryEvaluator::pkbd_setup_get_2IS_From_1SS(RelRefType relType) const
+__cdecl QueryEvaluator::pkbd_setup_get_2IS_From_1SS(RelRefType relType)
 {
     // no Rel with (string,int) as arguments
     assert(false);
@@ -1342,7 +1556,7 @@ QueryEvaluator::pkbd_setup_get_2IS_From_1SS(RelRefType relType) const
 }
 
 QueryEvaluator::pkbGet_2IS_From_1IS
-QueryEvaluator::pkbd_setup_get_2IS_From_1IS(RelRefType relType) const
+__cdecl QueryEvaluator::pkbd_setup_get_2IS_From_1IS(RelRefType relType)
 {
     switch (relType) {
     case REL_PARENT:
@@ -1375,20 +1589,19 @@ QueryEvaluator::pkbd_setup_get_2IS_From_1IS(RelRefType relType) const
     return NULL;
 }
 
-void QueryEvaluator::ev_rr_ss_string_string_00_from_argOne(
-        int rTableIdx, const RelRef *relRef,
+void __cdecl QueryEvaluator::ev_rr_ss_string_string_00_from_argOne(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
         const EvalPKBDispatch& disp)
 {
     assert(disp.get_all_string_argOne != NULL);
     assert(disp.get_string_set_argTwo_from_string_argOne != NULL);
-    set<string> argOneSet = (this->pkb->*(disp.get_all_string_argOne))();
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    set<string> argOneSet = (pkb->*(disp.get_all_string_argOne))();
     rTable.syn_00_transaction_begin(relRef->argOneString, RV_STRING,
             relRef->argTwoString, RV_STRING);
     for (set<string>::const_iterator it = argOneSet.begin();
             it != argOneSet.end(); it++) {
         set<string> argTwoSet =
-                (this->pkb->*(disp.get_string_set_argTwo_from_string_argOne))
+                (pkb->*(disp.get_string_set_argTwo_from_string_argOne))
                     (relRef->argOneSyn, relRef->argTwoSyn, *it);
         for (set<string>::const_iterator kt = argTwoSet.begin();
                 kt != argTwoSet.end(); kt++) {
@@ -1399,20 +1612,19 @@ void QueryEvaluator::ev_rr_ss_string_string_00_from_argOne(
 }
 
 // Currently, nothing uses this and it does not seem it will be used
-void QueryEvaluator::ev_rr_ss_string_string_00_from_argTwo(
-        int rTableIdx, const RelRef *relRef,
+void __cdecl QueryEvaluator::ev_rr_ss_string_string_00_from_argTwo(
+        ResultsTable &rTable, PKB *pkb, const RelRef *relRef,
         const EvalPKBDispatch& disp)
 {
     assert(disp.get_all_string_argTwo != NULL);
     assert(disp.get_string_set_argOne_from_string_argTwo != NULL);
-    set<string> argTwoSet = (this->pkb->*(disp.get_all_string_argTwo))();
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
+    set<string> argTwoSet = (pkb->*(disp.get_all_string_argTwo))();
     rTable.syn_00_transaction_begin(relRef->argOneString, RV_STRING,
             relRef->argTwoString, RV_STRING);
     for (set<string>::const_iterator it = argTwoSet.begin();
             it != argTwoSet.end(); it++) {
         set<string> argOneSet =
-                (this->pkb->*
+                (pkb->*
                     (disp.get_string_set_argOne_from_string_argTwo))
                         (relRef->argOneSyn, relRef->argTwoSyn, *it);
         for (set<string>::const_iterator kt = argOneSet.begin();
@@ -1423,11 +1635,11 @@ void QueryEvaluator::ev_rr_ss_string_string_00_from_argTwo(
     rTable.syn_00_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_string_string_01(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_rr_ss_string_string_01(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+        const EvalPKBDispatch& disp)
 {
     assert(disp.get_string_set_argOne_from_string_argTwo != NULL);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair =
             rTable.syn_01_transaction_begin(relRef->argOneString,
                     relRef->argTwoString, RV_STRING);
@@ -1439,7 +1651,7 @@ void QueryEvaluator::ev_rr_ss_string_string_01(int rTableIdx,
         const pair<string, int> recPair = record.get_column(colIdx);
         const string& argTwoVal = recPair.first;
         set<string> argOneSet =
-            (this->pkb->*(disp.get_string_set_argOne_from_string_argTwo))
+            (pkb->*(disp.get_string_set_argOne_from_string_argTwo))
                     (relRef->argOneSyn, relRef->argTwoSyn, argTwoVal);
         for (set<string>::const_iterator argOneIt = argOneSet.begin();
                 argOneIt != argOneSet.end(); argOneIt++) {
@@ -1449,11 +1661,11 @@ void QueryEvaluator::ev_rr_ss_string_string_01(int rTableIdx,
     rTable.syn_01_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_string_string_10(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_rr_ss_string_string_10(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+        const EvalPKBDispatch& disp)
 {
     assert(disp.get_string_set_argTwo_from_string_argOne != NULL);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair =
             rTable.syn_10_transaction_begin(relRef->argOneString,
                     relRef->argTwoString, RV_STRING);
@@ -1465,7 +1677,7 @@ void QueryEvaluator::ev_rr_ss_string_string_10(int rTableIdx,
         const pair<string, int>& recPair = record.get_column(colIdx);
         const string& argOneVal = recPair.first;
         set<string> argTwoSet =
-                (this->pkb->*(disp.get_string_set_argTwo_from_string_argOne))
+                (pkb->*(disp.get_string_set_argTwo_from_string_argOne))
                         (relRef->argOneSyn, relRef->argTwoSyn, argOneVal);
         for (set<string>::const_iterator argTwoIt = argTwoSet.begin();
                 argTwoIt != argTwoSet.end(); argTwoIt++) {
@@ -1475,11 +1687,11 @@ void QueryEvaluator::ev_rr_ss_string_string_10(int rTableIdx,
     rTable.syn_10_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_string_string_11(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_rr_ss_string_string_11(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+        const EvalPKBDispatch& disp)
 {
     assert(disp.f_string_argOne_string_argTwo != NULL);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, pair<int, int> > viiPair =
             rTable.syn_11_transaction_begin(relRef->argOneString,
                     relRef->argTwoString);
@@ -1493,7 +1705,7 @@ void QueryEvaluator::ev_rr_ss_string_string_11(int rTableIdx,
         const pair<string, int>& pairTwo = record.get_column(colTwo);
         const string& argOneVal = pairOne.first;
         const string& argTwoVal = pairTwo.first;
-        if ((this->pkb->*(disp.f_string_argOne_string_argTwo))
+        if ((pkb->*(disp.f_string_argOne_string_argTwo))
                         (relRef->argOneSyn, argOneVal,
                          relRef->argTwoSyn, argTwoVal)) {
             rTable.syn_11_mark_row_ok(i);
@@ -1502,12 +1714,12 @@ void QueryEvaluator::ev_rr_ss_string_string_11(int rTableIdx,
     rTable.syn_11_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_string_string_22(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_rr_ss_string_string_22(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+        const EvalPKBDispatch& disp)
 {
     assert(NULL != disp.f_string_argOne_string_argTwo);
     assert(NULL != disp.relRef_eval);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<pair<const vector<Record> *, int>,
          pair<const vector<Record> *, int> > pvriPair =
             rTable.syn_22_transaction_begin(relRef->argOneString,
@@ -1533,7 +1745,7 @@ void QueryEvaluator::ev_rr_ss_string_string_22(int rTableIdx,
                     recOne.get_column(argOneCol);
             const string& argOneVal = pairOne.first;
             const string& argTwoVal = *(a2Vec[k]);
-            if ((this->pkb->*(disp.f_string_argOne_string_argTwo))
+            if ((pkb->*(disp.f_string_argOne_string_argTwo))
                         (relRef->argOneSyn, argOneVal,
                          relRef->argTwoSyn, argTwoVal)) {
                 rTable.syn_22_add_row(i, k);
@@ -1544,21 +1756,21 @@ void QueryEvaluator::ev_rr_ss_string_string_22(int rTableIdx,
 }
 
 // Currently, nothing uses this and it does not seem it will be used
-void QueryEvaluator::ev_rr_ss_string_int_00_from_argOne(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_rr_ss_string_int_00_from_argOne(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+        const EvalPKBDispatch& disp)
 {
     // fail immediately
     assert(false);
     assert(disp.get_all_string_argOne != NULL);
     assert(disp.get_int_set_argTwo_from_string_argOne != NULL);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     rTable.syn_00_transaction_begin(relRef->argOneString, RV_STRING,
             relRef->argOneString, RV_INT);
-    set<string> argOneSet = (this->pkb->*(disp.get_all_string_argOne))();
+    set<string> argOneSet = (pkb->*(disp.get_all_string_argOne))();
     for (set<string>::const_iterator it = argOneSet.begin();
             it != argOneSet.end(); it++) {
         set<int> argTwoSet =
-            (this->pkb->*(disp.get_int_set_argTwo_from_string_argOne))
+            (pkb->*(disp.get_int_set_argTwo_from_string_argOne))
                     (relRef->argOneSyn, relRef->argTwoSyn, *it);
         for (set<int>::const_iterator kt = argTwoSet.begin();
                 kt != argTwoSet.end(); kt++) {
@@ -1569,21 +1781,21 @@ void QueryEvaluator::ev_rr_ss_string_int_00_from_argOne(int rTableIdx,
 }
 
 // Currently, nothing uses this and it does not seem it will be used
-void QueryEvaluator::ev_rr_ss_string_int_00_from_argTwo(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_rr_ss_string_int_00_from_argTwo(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+        const EvalPKBDispatch& disp)
 {
     // fail immediately
     assert(false);
     assert(disp.get_all_int_argTwo != NULL);
     assert(disp.get_string_set_argOne_from_int_argTwo != NULL);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     rTable.syn_00_transaction_begin(relRef->argOneString, RV_STRING,
             relRef->argOneString, RV_INT);
-    set<int> argTwoSet = (this->pkb->*(disp.get_all_int_argTwo))();
+    set<int> argTwoSet = (pkb->*(disp.get_all_int_argTwo))();
     for (set<int>::const_iterator it = argTwoSet.begin();
             it != argTwoSet.end(); it++) {
         set<string> argOneSet =
-            (this->pkb->*(disp.get_string_set_argOne_from_int_argTwo))
+            (pkb->*(disp.get_string_set_argOne_from_int_argTwo))
                     (relRef->argOneSyn, relRef->argTwoSyn, *it);
         for (set<string>::const_iterator kt = argOneSet.begin();
                 kt != argOneSet.end(); kt++) {
@@ -1594,50 +1806,50 @@ void QueryEvaluator::ev_rr_ss_string_int_00_from_argTwo(int rTableIdx,
 }
 
 // Currently, nothing uses this and it does not seem it will be used
-void QueryEvaluator::ev_rr_ss_string_int_01(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_rr_ss_string_int_01(ResultsTable& rTable,
+        PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     // fail immediately
     assert(false);
 }
 
 // Currently, nothing uses this and it does not seem it will be used
-void QueryEvaluator::ev_rr_ss_string_int_10(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_rr_ss_string_int_10(ResultsTable& rTable,
+        PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     // fail immediately
     assert(false);
 }
 
 // Currently, nothing uses this and it does not seem it will be used
-void QueryEvaluator::ev_rr_ss_string_int_11(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_rr_ss_string_int_11(ResultsTable& rTable,
+        PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     // fail immediately
     assert(false);
 }
 
 // Currently, nothing uses this and it does not seem it will be used
-void QueryEvaluator::ev_rr_ss_string_int_22(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_rr_ss_string_int_22(ResultsTable& rTable,
+        PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     // fail immediately
     assert(false);
 }
 
-void QueryEvaluator::ev_rr_ss_int_string_00_from_argOne(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_rr_ss_int_string_00_from_argOne(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+        const EvalPKBDispatch& disp)
 {
     assert(disp.get_all_int_argOne != NULL);
     assert(disp.get_string_set_argTwo_from_int_argOne != NULL);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     rTable.syn_00_transaction_begin(relRef->argOneString, RV_INT,
             relRef->argTwoString, RV_STRING);
-    set<int> argOneSet = (this->pkb->*(disp.get_all_int_argOne))();
+    set<int> argOneSet = (pkb->*(disp.get_all_int_argOne))();
     for (set<int>::const_iterator it = argOneSet.begin();
             it != argOneSet.end(); it++) {
         set<string> argTwoSet =
-                (this->pkb->*(disp.get_string_set_argTwo_from_int_argOne))
+                (pkb->*(disp.get_string_set_argTwo_from_int_argOne))
                         (relRef->argOneSyn, relRef->argTwoSyn, *it);
         for (set<string>::const_iterator kt = argTwoSet.begin();
                 kt != argTwoSet.end(); kt++) {
@@ -1648,19 +1860,19 @@ void QueryEvaluator::ev_rr_ss_int_string_00_from_argOne(int rTableIdx,
 }
 
 // not used for now
-void QueryEvaluator::ev_rr_ss_int_string_00_from_argTwo(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_rr_ss_int_string_00_from_argTwo(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+        const EvalPKBDispatch& disp)
 {
     assert(disp.get_all_string_argTwo != NULL);
     assert(disp.get_int_set_argOne_from_string_argTwo != NULL);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     rTable.syn_00_transaction_begin(relRef->argOneString, RV_INT,
             relRef->argTwoString, RV_STRING);
-    set<string> argTwoSet = (this->pkb->*(disp.get_all_string_argTwo))();
+    set<string> argTwoSet = (pkb->*(disp.get_all_string_argTwo))();
     for (set<string>::const_iterator it = argTwoSet.begin();
             it != argTwoSet.end(); it++) {
         set<int> argOneSet =
-                (this->pkb->*(disp.get_int_set_argOne_from_string_argTwo))
+                (pkb->*(disp.get_int_set_argOne_from_string_argTwo))
                         (relRef->argOneSyn, relRef->argTwoSyn, *it);
         for (set<int>::const_iterator kt = argOneSet.begin();
                 kt != argOneSet.end(); kt++) {
@@ -1670,11 +1882,10 @@ void QueryEvaluator::ev_rr_ss_int_string_00_from_argTwo(int rTableIdx,
     rTable.syn_00_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_int_string_01(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_rr_ss_int_string_01(ResultsTable& rTable,
+        PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.get_int_set_argOne_from_string_argTwo != NULL);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair =
             rTable.syn_01_transaction_begin(relRef->argOneString,
                     relRef->argTwoString, RV_INT);
@@ -1686,10 +1897,9 @@ void QueryEvaluator::ev_rr_ss_int_string_01(int rTableIdx,
         const pair<string, int>& siPair = record.get_column(colIdx);
         const string& argTwoVal = siPair.first;
         set<int> argOneSet =
-                (this->pkb->*
-                        (disp.get_int_set_argOne_from_string_argTwo))
-                                (relRef->argOneSyn, relRef->argTwoSyn,
-                                 argTwoVal);
+                (pkb->*(disp.get_int_set_argOne_from_string_argTwo))
+                        (relRef->argOneSyn, relRef->argTwoSyn,
+                                argTwoVal);
         for (set<int>::const_iterator argOneIt = argOneSet.begin();
                 argOneIt != argOneSet.end(); argOneIt++){
             rTable.syn_01_augment_new_row(i, *argOneIt);
@@ -1698,11 +1908,10 @@ void QueryEvaluator::ev_rr_ss_int_string_01(int rTableIdx,
     rTable.syn_01_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_int_string_10(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_rr_ss_int_string_10(ResultsTable& rTable,
+        PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.get_string_set_argTwo_from_int_argOne != NULL);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair =
             rTable.syn_10_transaction_begin(relRef->argOneString,
                     relRef->argTwoString, RV_STRING);
@@ -1714,7 +1923,7 @@ void QueryEvaluator::ev_rr_ss_int_string_10(int rTableIdx,
         const pair<string, int>& siPair = record.get_column(colIdx);
         int argOneVal = siPair.second;
         set<string> argTwoSet =
-                (this->pkb->*(disp.get_string_set_argTwo_from_int_argOne))
+                (pkb->*(disp.get_string_set_argTwo_from_int_argOne))
                         (relRef->argOneSyn, relRef->argTwoSyn,
                          argOneVal);
         for (set<string>::const_iterator argTwoIt = argTwoSet.begin();
@@ -1725,11 +1934,10 @@ void QueryEvaluator::ev_rr_ss_int_string_10(int rTableIdx,
     rTable.syn_10_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_int_string_11(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_rr_ss_int_string_11(ResultsTable& rTable,
+        PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.f_int_argOne_string_argTwo != NULL);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, pair<int, int> > viiPair =
             rTable.syn_11_transaction_begin(relRef->argOneString,
                     relRef->argTwoString);
@@ -1743,7 +1951,7 @@ void QueryEvaluator::ev_rr_ss_int_string_11(int rTableIdx,
         const pair<string, int>& pairTwo = record.get_column(colTwo);
         int argOneVal = pairOne.second;
         const string& argTwoVal = pairTwo.first;
-        if ((this->pkb->*(disp.f_int_argOne_string_argTwo))
+        if ((pkb->*(disp.f_int_argOne_string_argTwo))
                     (relRef->argOneSyn, argOneVal,
                         relRef->argTwoSyn, argTwoVal)) {
             rTable.syn_11_mark_row_ok(i);
@@ -1752,12 +1960,11 @@ void QueryEvaluator::ev_rr_ss_int_string_11(int rTableIdx,
     rTable.syn_11_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_int_string_22(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_rr_ss_int_string_22(ResultsTable& rTable,
+        PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(NULL != disp.f_int_argOne_string_argTwo);
     assert(NULL != disp.relRef_eval);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<pair<const vector<Record> *, int>,
          pair<const vector<Record> *, int> > pvriPair =
             rTable.syn_22_transaction_begin(relRef->argOneString,
@@ -1783,7 +1990,7 @@ void QueryEvaluator::ev_rr_ss_int_string_22(int rTableIdx,
                     recOne.get_column(argOneCol);
             int argOneVal = pairOne.second;
             const string& argTwoVal = *(a2Vec[k]);
-            if ((this->pkb->*(disp.f_int_argOne_string_argTwo))
+            if ((pkb->*(disp.f_int_argOne_string_argTwo))
                         (relRef->argOneSyn, argOneVal,
                          relRef->argTwoSyn, argTwoVal)) {
                 rTable.syn_22_add_row(i, k);
@@ -1793,19 +2000,19 @@ void QueryEvaluator::ev_rr_ss_int_string_22(int rTableIdx,
     rTable.syn_22_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_int_int_00_from_argOne(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_rr_ss_int_int_00_from_argOne(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+        const EvalPKBDispatch& disp)
 {
     assert(disp.get_all_int_argOne != NULL);
     assert(disp.get_int_set_argTwo_from_int_argOne != NULL);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     rTable.syn_00_transaction_begin(relRef->argOneString, RV_INT,
             relRef->argTwoString, RV_INT);
-    set<int> argOneSet = (this->pkb->*(disp.get_all_int_argOne))();
+    set<int> argOneSet = (pkb->*(disp.get_all_int_argOne))();
     for (set<int>::const_iterator it = argOneSet.begin();
             it != argOneSet.end(); it++) {
         set<int> argTwoSet =
-                (this->pkb->*(disp.get_int_set_argTwo_from_int_argOne))
+                (pkb->*(disp.get_int_set_argTwo_from_int_argOne))
                         (relRef->argOneSyn, relRef->argTwoSyn, *it);
         for (set<int>::const_iterator kt = argTwoSet.begin();
                 kt != argTwoSet.end(); kt++) {
@@ -1815,19 +2022,19 @@ void QueryEvaluator::ev_rr_ss_int_int_00_from_argOne(int rTableIdx,
     rTable.syn_00_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_int_int_00_from_argTwo(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_rr_ss_int_int_00_from_argTwo(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+        const EvalPKBDispatch& disp)
 {
     assert(disp.get_all_int_argTwo != NULL);
     assert(disp.get_int_set_argOne_from_int_argTwo != NULL);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     rTable.syn_00_transaction_begin(relRef->argOneString, RV_INT,
             relRef->argTwoString, RV_INT);
-    set<int> argTwoSet = (this->pkb->*(disp.get_all_int_argTwo))();
+    set<int> argTwoSet = (pkb->*(disp.get_all_int_argTwo))();
     for (set<int>::const_iterator it = argTwoSet.begin();
             it != argTwoSet.end(); it++) {
         set<int> argOneSet =
-                (this->pkb->*(disp.get_int_set_argOne_from_int_argTwo))
+                (pkb->*(disp.get_int_set_argOne_from_int_argTwo))
                         (relRef->argOneSyn, relRef->argTwoSyn, *it);
         for (set<int>::const_iterator kt = argOneSet.begin();
                 kt != argOneSet.end(); kt++) {
@@ -1837,11 +2044,10 @@ void QueryEvaluator::ev_rr_ss_int_int_00_from_argTwo(int rTableIdx,
     rTable.syn_00_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_int_int_01(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_rr_ss_int_int_01(ResultsTable& rTable,
+        PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(NULL != disp.get_int_set_argOne_from_int_argTwo);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair =
             rTable.syn_01_transaction_begin(relRef->argOneString,
                     relRef->argTwoString, RV_INT);
@@ -1853,10 +2059,9 @@ void QueryEvaluator::ev_rr_ss_int_int_01(int rTableIdx,
         const pair<string, int>& siPair = record.get_column(colIdx);
         int argTwoVal = siPair.second;
         set<int> argOneSet =
-                (this->pkb->*
-                        (disp.get_int_set_argOne_from_int_argTwo))
-                                (relRef->argOneSyn, relRef->argTwoSyn,
-                                 argTwoVal);
+                (pkb->*(disp.get_int_set_argOne_from_int_argTwo))
+                        (relRef->argOneSyn, relRef->argTwoSyn,
+                                argTwoVal);
         for (set<int>::const_iterator argOneIt = argOneSet.begin();
                 argOneIt != argOneSet.end(); argOneIt++){
             rTable.syn_01_augment_new_row(i, *argOneIt);
@@ -1865,11 +2070,10 @@ void QueryEvaluator::ev_rr_ss_int_int_01(int rTableIdx,
     rTable.syn_01_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_int_int_10(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_rr_ss_int_int_10(ResultsTable& rTable,
+        PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.get_int_set_argTwo_from_int_argOne != NULL);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair =
             rTable.syn_10_transaction_begin(relRef->argOneString,
                     relRef->argTwoString, RV_INT);
@@ -1881,7 +2085,7 @@ void QueryEvaluator::ev_rr_ss_int_int_10(int rTableIdx,
         const pair<string, int>& siPair = record.get_column(colIdx);
         int argOneVal = siPair.second;
         set<int> argTwoSet =
-                (this->pkb->*(disp.get_int_set_argTwo_from_int_argOne))
+                (pkb->*(disp.get_int_set_argTwo_from_int_argOne))
                         (relRef->argOneSyn, relRef->argTwoSyn,
                          argOneVal);
         for (set<int>::const_iterator argTwoIt = argTwoSet.begin();
@@ -1892,11 +2096,10 @@ void QueryEvaluator::ev_rr_ss_int_int_10(int rTableIdx,
     rTable.syn_10_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_int_int_11(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_rr_ss_int_int_11(ResultsTable& rTable,
+        PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(disp.f_int_argOne_int_argTwo != NULL);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, pair<int, int> > viiPair =
             rTable.syn_11_transaction_begin(relRef->argOneString,
                     relRef->argTwoString);
@@ -1910,7 +2113,7 @@ void QueryEvaluator::ev_rr_ss_int_int_11(int rTableIdx,
         const pair<string, int>& pairTwo = record.get_column(colTwo);
         int argOneVal = pairOne.second;
         int argTwoVal = pairTwo.second;
-        if ((this->pkb->*(disp.f_int_argOne_int_argTwo))
+        if ((pkb->*(disp.f_int_argOne_int_argTwo))
                     (relRef->argOneSyn, argOneVal,
                         relRef->argTwoSyn, argTwoVal)) {
             rTable.syn_11_mark_row_ok(i);
@@ -1919,12 +2122,11 @@ void QueryEvaluator::ev_rr_ss_int_int_11(int rTableIdx,
     rTable.syn_11_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_int_int_22(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_rr_ss_int_int_22(ResultsTable& rTable,
+        PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(NULL != disp.f_int_argOne_int_argTwo);
     assert(NULL != disp.relRef_eval);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<pair<const vector<Record> *, int>,
          pair<const vector<Record> *, int> > pvriPair =
             rTable.syn_22_transaction_begin(relRef->argOneString,
@@ -1950,7 +2152,7 @@ void QueryEvaluator::ev_rr_ss_int_int_22(int rTableIdx,
                     recOne.get_column(argOneCol);
             int argOneVal = pairOne.second;
             int argTwoVal = a2Vec[k];
-            if ((this->pkb->*(disp.f_int_argOne_int_argTwo))
+            if ((pkb->*(disp.f_int_argOne_int_argTwo))
                         (relRef->argOneSyn, argOneVal,
                          relRef->argTwoSyn, argTwoVal)) {
                 rTable.syn_22_add_row(i, k);
@@ -1960,19 +2162,18 @@ void QueryEvaluator::ev_rr_ss_int_int_22(int rTableIdx,
     rTable.syn_22_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_int_int_0(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_rr_ss_int_int_0(ResultsTable& rTable,
+        PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(NULL != disp.get_all_int_argOne);
     assert(NULL != disp.f_int_argOne_int_argTwo);
     assert(NULL != disp.relRef_eval);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     rTable.syn_0_transaction_begin(relRef->argOneString, RV_INT);
-    set<int> argSet = (this->pkb->*(disp.get_all_int_argOne))();
+    set<int> argSet = (pkb->*(disp.get_all_int_argOne))();
     for (set<int>::const_iterator argIt = argSet.begin();
             argIt != argSet.end(); argIt++) {
         int argVal = *argIt;
-        if ((this->pkb->*(disp.f_int_argOne_int_argTwo))
+        if ((pkb->*(disp.f_int_argOne_int_argTwo))
                    (relRef->argOneSyn, argVal,
                     relRef->argOneSyn, argVal)) {
             rTable.syn_0_add_row(argVal);
@@ -1981,12 +2182,11 @@ void QueryEvaluator::ev_rr_ss_int_int_0(int rTableIdx,
     rTable.syn_0_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_ss_int_int_1(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_rr_ss_int_int_1(ResultsTable& rTable,
+        PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(NULL != disp.f_int_argOne_int_argTwo);
     assert(NULL != disp.relRef_eval);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair =
             rTable.syn_1_transaction_begin(relRef->argOneString);
     const vector<Record>& records = *(viPair.first);
@@ -1996,7 +2196,7 @@ void QueryEvaluator::ev_rr_ss_int_int_1(int rTableIdx,
         const Record& record = records[rowNum];
         const pair<string, int>& siPair = record.get_column(colIdx);
         int argVal = siPair.second;
-        if ((this->pkb->*(disp.f_int_argOne_int_argTwo))
+        if ((pkb->*(disp.f_int_argOne_int_argTwo))
                     (relRef->argOneSyn, argVal,
                      relRef->argOneSyn, argVal)) {
             rTable.syn_1_mark_row_ok(rowNum);
@@ -2005,10 +2205,9 @@ void QueryEvaluator::ev_rr_ss_int_int_1(int rTableIdx,
     rTable.syn_1_transaction_end();
 }
 
-void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
-        const RelRef *relRef)
+void __cdecl QueryEvaluator::ev_relRef_syn_X(ResultsTable& rTable,
+        PKB *pkb, const RelRef *relRef)
 {
-    const ResultsTable& rTable = this->resultsTable[rTableIdx];
     EvalPKBDispatch pkbDispatch;
     if (rTable.has_synonym(relRef->argOneString)) {
         switch (relRef->relType) {
@@ -2017,14 +2216,14 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
                 if (RELARG_STRING == relRef->argTwoType) {
                     pkbDispatch.f_string_argOne_string_argTwo =
                             &PKB::modifies_query_string_X_string_Y;
-                    this->ev_rr_syn_X_string_string_1(rTableIdx,
-                            relRef, pkbDispatch, ENT_VAR,
+                    QueryEvaluator::ev_rr_syn_X_string_string_1(rTable,
+                            pkb, relRef, pkbDispatch, ENT_VAR,
                             relRef->argTwoString);
                 } else if (RELARG_WILDCARD == relRef->argTwoType) {
                     pkbDispatch.f_string_argOne_smth =
                             &PKB::modifies_X_Y_string_X_smth;
-                    this->ev_rr_syn_X_string_wild_1(rTableIdx, relRef,
-                            pkbDispatch);
+                    QueryEvaluator::ev_rr_syn_X_string_wild_1(rTable,
+                            pkb, relRef, pkbDispatch);
                 } else {
                     assert(false);
                 }
@@ -2033,13 +2232,13 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
                 if (RELARG_STRING == relRef->argTwoType) {
                     pkbDispatch.f_int_argOne_string_argTwo =
                             &PKB::modifies_query_int_X_string_Y;
-                    this->ev_rr_syn_X_int_string_1(rTableIdx, relRef,
-                            pkbDispatch, ENT_VAR, relRef->argTwoString);
+                    QueryEvaluator::ev_rr_syn_X_int_string_1(rTable, pkb,
+                            relRef, pkbDispatch, ENT_VAR, relRef->argTwoString);
                 } else if (RELARG_WILDCARD == relRef->argTwoType) {
                     pkbDispatch.f_int_argOne_smth =
                             &PKB::modifies_X_Y_int_X_smth;
-                    this->ev_rr_syn_X_int_wild_1(rTableIdx, relRef,
-                            pkbDispatch);
+                    QueryEvaluator::ev_rr_syn_X_int_wild_1(rTable, pkb,
+                            relRef, pkbDispatch);
                 } else {
                     assert(false);
                 }
@@ -2050,14 +2249,14 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
                 if (RELARG_STRING == relRef->argTwoType) {
                     pkbDispatch.f_string_argOne_string_argTwo =
                             &PKB::uses_query_string_X_string_Y;
-                    this->ev_rr_syn_X_string_string_1(rTableIdx,
-                            relRef, pkbDispatch, ENT_VAR,
+                    QueryEvaluator::ev_rr_syn_X_string_string_1(rTable,
+                            pkb, relRef, pkbDispatch, ENT_VAR,
                             relRef->argTwoString);
                 } else if (RELARG_WILDCARD == relRef->argTwoType) {
                     pkbDispatch.f_string_argOne_smth =
                             &PKB::uses_X_Y_string_X_smth;
-                    this->ev_rr_syn_X_string_wild_1(rTableIdx,
-                            relRef, pkbDispatch);
+                    QueryEvaluator::ev_rr_syn_X_string_wild_1(rTable,
+                            pkb, relRef, pkbDispatch);
                 } else {
                     assert(false);
                 }
@@ -2066,14 +2265,14 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
                 if (RELARG_STRING == relRef->argTwoType) {
                     pkbDispatch.f_int_argOne_string_argTwo =
                             &PKB::uses_query_int_X_string_Y;
-                    this->ev_rr_syn_X_int_string_1(rTableIdx,
+                    QueryEvaluator::ev_rr_syn_X_int_string_1(rTable, pkb,
                             relRef, pkbDispatch, ENT_VAR,
                             relRef->argTwoString);
                 } else if (RELARG_WILDCARD == relRef->argTwoType) {
                     pkbDispatch.f_int_argOne_smth =
                             &PKB::uses_X_Y_int_X_smth;
-                    this->ev_rr_syn_X_int_wild_1(rTableIdx, relRef,
-                            pkbDispatch);
+                    QueryEvaluator::ev_rr_syn_X_int_wild_1(rTable,
+                            pkb, relRef, pkbDispatch);
                 } else {
                     assert(false);
                 }
@@ -2084,14 +2283,15 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
             if (RELARG_STRING == relRef->argTwoType) {
                 pkbDispatch.f_string_argOne_string_argTwo =
                         &PKB::calls_query_string_X_string_Y;
-                this->ev_rr_syn_X_string_string_1(rTableIdx, relRef,
-                        pkbDispatch, ENT_PROC, relRef->argTwoString);
+                QueryEvaluator::ev_rr_syn_X_string_string_1(rTable, pkb,
+                        relRef, pkbDispatch, ENT_PROC,
+                        relRef->argTwoString);
             } else {
                 // wildcard
                 pkbDispatch.f_string_argOne_smth =
                         &PKB::calls_X_Y_string_X_smth;
-                this->ev_rr_syn_X_string_wild_1(rTableIdx, relRef,
-                        pkbDispatch);
+                QueryEvaluator::ev_rr_syn_X_string_wild_1(rTable, pkb,
+                        relRef, pkbDispatch);
             }
             break;
         case REL_CALLS_STAR:
@@ -2099,14 +2299,15 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
             if (RELARG_STRING == relRef->argTwoType) {
                 pkbDispatch.f_string_argOne_string_argTwo =
                         &PKB::callsStar_query_string_X_string_Y;
-                this->ev_rr_syn_X_string_string_1(rTableIdx, relRef,
-                        pkbDispatch, ENT_PROC, relRef->argTwoString);
+                QueryEvaluator::ev_rr_syn_X_string_string_1(rTable, pkb,
+                        relRef, pkbDispatch, ENT_PROC,
+                        relRef->argTwoString);
             } else {
                 // wildcard
                 pkbDispatch.f_string_argOne_smth =
                         &PKB::callsStar_X_Y_string_X_smth;
-                this->ev_rr_syn_X_string_wild_1(rTableIdx, relRef,
-                        pkbDispatch);
+                QueryEvaluator::ev_rr_syn_X_string_wild_1(rTable, pkb,
+                        relRef, pkbDispatch);
             }
             break;
         case REL_PARENT:
@@ -2114,14 +2315,14 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
             if (RELARG_INT == relRef->argTwoType) {
                 pkbDispatch.f_int_argOne_int_argTwo =
                         &PKB::parent_query_int_X_int_Y;
-                this->ev_rr_syn_X_int_int_1(rTableIdx, relRef,
-                        pkbDispatch, ENT_STMT, relRef->argTwoInt);
+                QueryEvaluator::ev_rr_syn_X_int_int_1(rTable, pkb,
+                        relRef, pkbDispatch, ENT_STMT, relRef->argTwoInt);
             } else {
                 // arg two is wildcard
                 pkbDispatch.f_int_argOne_smth =
                         &PKB::parent_X_Y_int_X_smth;
-                this->ev_rr_syn_X_int_wild_1(rTableIdx, relRef,
-                        pkbDispatch);
+                QueryEvaluator::ev_rr_syn_X_int_wild_1(rTable, pkb,
+                        relRef, pkbDispatch);
             }
             break;
         case REL_PARENT_STAR:
@@ -2129,14 +2330,14 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
             if (RELARG_INT == relRef->argTwoType) {
                 pkbDispatch.f_int_argOne_int_argTwo =
                         &PKB::parentStar_query_int_X_int_Y;
-                this->ev_rr_syn_X_int_int_1(rTableIdx, relRef,
+                QueryEvaluator::ev_rr_syn_X_int_int_1(rTable, pkb, relRef,
                         pkbDispatch, ENT_STMT, relRef->argTwoInt);
             } else {
                 // arg two is wildcard
                 pkbDispatch.f_int_argOne_smth =
                         &PKB::parentStar_X_Y_int_X_smth;
-                this->ev_rr_syn_X_int_wild_1(rTableIdx, relRef,
-                        pkbDispatch);
+                QueryEvaluator::ev_rr_syn_X_int_wild_1(rTable, pkb,
+                        relRef, pkbDispatch);
             }
             break;
         case REL_FOLLOWS:
@@ -2144,14 +2345,14 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
             if (RELARG_INT == relRef->argTwoType) {
                 pkbDispatch.f_int_argOne_int_argTwo =
                         &PKB::follows_query_int_X_int_Y;
-                this->ev_rr_syn_X_int_int_1(rTableIdx, relRef,
+                QueryEvaluator::ev_rr_syn_X_int_int_1(rTable, pkb, relRef,
                         pkbDispatch, ENT_STMT, relRef->argTwoInt);
             } else {
                 // arg two is wildcard
                 pkbDispatch.f_int_argOne_smth =
                         &PKB::follows_X_Y_int_X_smth;
-                this->ev_rr_syn_X_int_wild_1(rTableIdx, relRef,
-                        pkbDispatch);
+                QueryEvaluator::ev_rr_syn_X_int_wild_1(rTable, pkb,
+                        relRef, pkbDispatch);
             }
             break;
         case REL_FOLLOWS_STAR:
@@ -2159,35 +2360,37 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
             if (RELARG_INT == relRef->argTwoType) {
                 pkbDispatch.f_int_argOne_int_argTwo =
                         &PKB::followsStar_query_int_X_int_Y;
-                this->ev_rr_syn_X_int_int_1(rTableIdx, relRef,
-                        pkbDispatch, ENT_STMT, relRef->argTwoInt);
+                QueryEvaluator::ev_rr_syn_X_int_int_1(rTable, pkb,
+                        relRef, pkbDispatch, ENT_STMT, relRef->argTwoInt);
             } else {
                 // arg two is wildcard
                 pkbDispatch.f_int_argOne_smth =
                         &PKB::followsStar_X_Y_int_X_smth;
-                this->ev_rr_syn_X_int_wild_1(rTableIdx, relRef,
-                        pkbDispatch);
+                QueryEvaluator::ev_rr_syn_X_int_wild_1(rTable, pkb,
+                        relRef, pkbDispatch);
             }
             break;
         case REL_NEXT:
-            this->ev_relRef_syn_X_1_nextAndStar(rTableIdx, relRef);
+            QueryEvaluator::ev_relRef_syn_X_1_nextAndStar(rTable, pkb,
+                    relRef);
             break;
         case REL_NEXT_STAR:
-            this->ev_relRef_syn_X_1_nextAndStar(rTableIdx, relRef);
+            QueryEvaluator::ev_relRef_syn_X_1_nextAndStar(rTable, pkb,
+                    relRef);
             break;
         case REL_AFFECTS:
             // arg one is all stmt type
             if (RELARG_INT == relRef->argTwoType) {
                 pkbDispatch.f_int_argOne_int_argTwo =
                         &PKB::affects_query_int_X_int_Y;
-                this->ev_rr_syn_X_int_int_1(rTableIdx, relRef,
+                QueryEvaluator::ev_rr_syn_X_int_int_1(rTable, pkb, relRef,
                         pkbDispatch, ENT_ASSIGN, relRef->argTwoInt);
             } else {
                 // arg two is wildcard
                 pkbDispatch.f_int_argOne_smth =
                         &PKB::affects_X_Y_int_X_smth;
-                this->ev_rr_syn_X_int_wild_1(rTableIdx, relRef,
-                        pkbDispatch);
+                QueryEvaluator::ev_rr_syn_X_int_wild_1(rTable, pkb,
+                        relRef, pkbDispatch);
             }
             break;
         case REL_AFFECTS_STAR:
@@ -2195,14 +2398,15 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
             if (RELARG_INT == relRef->argTwoType) {
                 pkbDispatch.f_int_argOne_int_argTwo =
                         &PKB::affectsStar_query_int_X_int_Y;
-                this->ev_rr_syn_X_int_int_1(rTableIdx, relRef,
-                        pkbDispatch, ENT_ASSIGN, relRef->argTwoInt);
+                QueryEvaluator::ev_rr_syn_X_int_int_1(rTable, pkb,
+                        relRef, pkbDispatch, ENT_ASSIGN,
+                        relRef->argTwoInt);
             } else {
                 // arg two is wildcard
                 pkbDispatch.f_int_argOne_smth =
                         &PKB::affectsStar_X_Y_int_X_smth;
-                this->ev_rr_syn_X_int_wild_1(rTableIdx, relRef,
-                        pkbDispatch);
+                QueryEvaluator::ev_rr_syn_X_int_wild_1(rTable, pkb,
+                        relRef, pkbDispatch);
             }
             break;
         }
@@ -2214,8 +2418,9 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
                 if (RELARG_STRING == relRef->argTwoType) {
                     pkbDispatch.get_string_set_argOne_from_string_argTwo =
                             &PKB::modifies_X_Y_get_string_X_from_string_Y;
-                    this->ev_rr_syn_X_string_string_0(rTableIdx, relRef,
-                            pkbDispatch, ENT_VAR, relRef->argTwoString);
+                    QueryEvaluator::ev_rr_syn_X_string_string_0(rTable,
+                            pkb, relRef, pkbDispatch, ENT_VAR,
+                            relRef->argTwoString);
                 } else if (RELARG_WILDCARD == relRef->argTwoType) {
                     // TODO: Can we actually retrieve _all_ procedures
                     //       here? Since they must modify smth
@@ -2223,8 +2428,8 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
                             &PKB::get_all_procs;
                     pkbDispatch.f_string_argOne_smth =
                             &PKB::modifies_X_Y_string_X_smth;
-                    this->ev_rr_syn_X_string_wild_0(rTableIdx, relRef,
-                            pkbDispatch);
+                    QueryEvaluator::ev_rr_syn_X_string_wild_0(rTable, pkb,
+                            relRef, pkbDispatch);
                 } else {
                     assert(false);
                 }
@@ -2233,8 +2438,9 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
                 if (RELARG_STRING == relRef->argTwoType) {
                     pkbDispatch.get_int_set_argOne_from_string_argTwo =
                             &PKB::modifies_X_Y_get_int_X_from_string_Y;
-                    this->ev_rr_syn_X_int_string_0(rTableIdx, relRef,
-                            pkbDispatch, ENT_VAR, relRef->argTwoString);
+                    QueryEvaluator::ev_rr_syn_X_int_string_0(rTable, pkb,
+                            relRef, pkbDispatch, ENT_VAR,
+                            relRef->argTwoString);
                 } else if (RELARG_WILDCARD == relRef->argTwoType) {
                     switch (relRef->argOneSyn) {
                     case ENT_ASSIGN:
@@ -2263,8 +2469,8 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
                     }
                     pkbDispatch.f_int_argOne_smth =
                             &PKB::modifies_X_Y_int_X_smth;
-                    this->ev_rr_syn_X_int_wild_0(rTableIdx, relRef,
-                            pkbDispatch);
+                    QueryEvaluator::ev_rr_syn_X_int_wild_0(rTable, pkb,
+                            relRef, pkbDispatch);
                 } else {
                     assert(false);
                 }
@@ -2275,15 +2481,16 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
                 if (RELARG_STRING == relRef->argTwoType) {
                     pkbDispatch.get_string_set_argOne_from_string_argTwo =
                             &PKB::uses_X_Y_get_string_X_from_string_Y;
-                    this->ev_rr_syn_X_string_string_0(rTableIdx, relRef,
-                            pkbDispatch, ENT_VAR, relRef->argTwoString);
+                    QueryEvaluator::ev_rr_syn_X_string_string_0(rTable,
+                            pkb, relRef, pkbDispatch, ENT_VAR,
+                            relRef->argTwoString);
                 } else if (RELARG_WILDCARD == relRef->argTwoType) {
                     pkbDispatch.get_all_string_argOne =
                             &PKB::get_all_procs;
                     pkbDispatch.f_string_argOne_smth =
                             &PKB::uses_X_Y_string_X_smth;
-                    this->ev_rr_syn_X_string_wild_0(rTableIdx, relRef,
-                            pkbDispatch);
+                    QueryEvaluator::ev_rr_syn_X_string_wild_0(rTable, pkb,
+                            relRef, pkbDispatch);
                 } else {
                     assert(false);
                 }
@@ -2292,8 +2499,9 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
                 if (RELARG_STRING == relRef->argTwoType) {
                     pkbDispatch.get_int_set_argOne_from_string_argTwo =
                             &PKB::uses_X_Y_get_int_X_from_string_Y;
-                    this->ev_rr_syn_X_int_string_0(rTableIdx, relRef,
-                            pkbDispatch, ENT_VAR, relRef->argTwoString);
+                    QueryEvaluator::ev_rr_syn_X_int_string_0(rTable, pkb,
+                            relRef, pkbDispatch, ENT_VAR,
+                            relRef->argTwoString);
                 } else if (RELARG_WILDCARD == relRef->argTwoType) {
                     switch (relRef->argOneSyn) {
                     case ENT_ASSIGN:
@@ -2322,8 +2530,8 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
                     }
                     pkbDispatch.f_int_argOne_smth =
                             &PKB::uses_X_Y_int_X_smth;
-                    this->ev_rr_syn_X_int_wild_0(rTableIdx, relRef,
-                            pkbDispatch);
+                    QueryEvaluator::ev_rr_syn_X_int_wild_0(rTable, pkb,
+                            relRef, pkbDispatch);
                 } else {
                     assert(false);
                 }
@@ -2334,15 +2542,16 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
             if (RELARG_STRING == relRef->argTwoType) {
                 pkbDispatch.get_string_set_argOne_from_string_argTwo =
                         &PKB::calls_X_Y_get_string_X_from_string_Y;
-                this->ev_rr_syn_X_string_string_0(rTableIdx, relRef,
-                        pkbDispatch, ENT_PROC, relRef->argTwoString);
+                QueryEvaluator::ev_rr_syn_X_string_string_0(rTable, pkb,
+                        relRef, pkbDispatch, ENT_PROC,
+                        relRef->argTwoString);
             } else if (RELARG_WILDCARD == relRef->argTwoType) {
                 pkbDispatch.get_all_string_argOne =
                         &PKB::get_all_procs;
                 pkbDispatch.f_string_argOne_smth =
                         &PKB::calls_X_Y_string_X_smth;
-                this->ev_rr_syn_X_string_wild_0(rTableIdx, relRef,
-                        pkbDispatch);
+                QueryEvaluator::ev_rr_syn_X_string_wild_0(rTable, pkb,
+                        relRef, pkbDispatch);
             } else {
                 assert(false);
             }
@@ -2352,15 +2561,16 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
             if (RELARG_STRING == relRef->argTwoType) {
                 pkbDispatch.get_string_set_argOne_from_string_argTwo =
                         &PKB::callsStar_X_Y_get_string_X_from_string_Y;
-                this->ev_rr_syn_X_string_string_0(rTableIdx, relRef,
-                        pkbDispatch, ENT_PROC, relRef->argTwoString);
+                QueryEvaluator::ev_rr_syn_X_string_string_0(rTable, pkb,
+                        relRef, pkbDispatch, ENT_PROC,
+                        relRef->argTwoString);
             } else if (RELARG_WILDCARD == relRef->argTwoType) {
                 pkbDispatch.get_all_string_argOne =
                         &PKB::get_all_procs;
                 pkbDispatch.f_string_argOne_smth =
                         &PKB::callsStar_X_Y_string_X_smth;
-                this->ev_rr_syn_X_string_wild_0(rTableIdx, relRef,
-                        pkbDispatch);
+                QueryEvaluator::ev_rr_syn_X_string_wild_0(rTable, pkb,
+                        relRef, pkbDispatch);
             } else {
                 assert(false);
             }
@@ -2370,7 +2580,7 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
             if (RELARG_INT == relRef->argTwoType) {
                 pkbDispatch.get_int_set_argOne_from_int_argTwo =
                         &PKB::parent_X_Y_get_int_X_from_int_Y;
-                this->ev_rr_syn_X_int_int_0(rTableIdx, relRef,
+                QueryEvaluator::ev_rr_syn_X_int_int_0(rTable, pkb, relRef,
                         pkbDispatch, ENT_STMT, relRef->argTwoInt);
             } else if (RELARG_WILDCARD == relRef->argTwoType) {
                 switch (relRef->argOneSyn) {
@@ -2392,8 +2602,8 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
                 }
                 pkbDispatch.f_int_argOne_smth =
                         &PKB::parent_X_Y_int_X_smth;
-                this->ev_rr_syn_X_int_wild_0(rTableIdx, relRef,
-                        pkbDispatch);
+                QueryEvaluator::ev_rr_syn_X_int_wild_0(rTable, pkb,
+                        relRef, pkbDispatch);
             } else {
                 assert(false);
             }
@@ -2403,7 +2613,7 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
             if (RELARG_INT == relRef->argTwoType) {
                 pkbDispatch.get_int_set_argOne_from_int_argTwo =
                         &PKB::parentStar_X_Y_get_int_X_from_int_Y;
-                this->ev_rr_syn_X_int_int_0(rTableIdx, relRef,
+                QueryEvaluator::ev_rr_syn_X_int_int_0(rTable, pkb, relRef,
                         pkbDispatch, ENT_STMT, relRef->argTwoInt);
             } else if (RELARG_WILDCARD == relRef->argTwoType) {
                 switch (relRef->argOneSyn) {
@@ -2425,8 +2635,8 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
                 }
                 pkbDispatch.f_int_argOne_smth =
                         &PKB::parentStar_X_Y_int_X_smth;
-                this->ev_rr_syn_X_int_wild_0(rTableIdx, relRef,
-                        pkbDispatch);
+                QueryEvaluator::ev_rr_syn_X_int_wild_0(rTable, pkb,
+                        relRef, pkbDispatch);
             } else {
                 assert(false);
             }
@@ -2436,7 +2646,7 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
             if (RELARG_INT == relRef->argTwoType) {
                 pkbDispatch.get_int_set_argOne_from_int_argTwo =
                         &PKB::follows_X_Y_get_int_X_from_int_Y;
-                this->ev_rr_syn_X_int_int_0(rTableIdx, relRef,
+                QueryEvaluator::ev_rr_syn_X_int_int_0(rTable, pkb, relRef,
                         pkbDispatch, ENT_STMT, relRef->argTwoInt);
             } else if (RELARG_WILDCARD == relRef->argTwoType) {
                 switch (relRef->argOneSyn) {
@@ -2466,8 +2676,8 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
                 }
                 pkbDispatch.f_int_argOne_smth =
                         &PKB::follows_X_Y_int_X_smth;
-                this->ev_rr_syn_X_int_wild_0(rTableIdx, relRef,
-                        pkbDispatch);
+                QueryEvaluator::ev_rr_syn_X_int_wild_0(rTable, pkb,
+                        relRef, pkbDispatch);
             } else {
                 assert(false);
             }
@@ -2477,7 +2687,7 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
             if (RELARG_INT == relRef->argTwoType) {
                 pkbDispatch.get_int_set_argOne_from_int_argTwo =
                         &PKB::followsStar_X_Y_get_int_X_from_int_Y;
-                this->ev_rr_syn_X_int_int_0(rTableIdx, relRef,
+                QueryEvaluator::ev_rr_syn_X_int_int_0(rTable, pkb, relRef,
                         pkbDispatch, ENT_STMT, relRef->argTwoInt);
             } else if (RELARG_WILDCARD == relRef->argTwoType) {
                 switch (relRef->argOneSyn) {
@@ -2507,24 +2717,26 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
                 }
                 pkbDispatch.f_int_argOne_smth =
                         &PKB::followsStar_X_Y_int_X_smth;
-                this->ev_rr_syn_X_int_wild_0(rTableIdx, relRef,
-                        pkbDispatch);
+                QueryEvaluator::ev_rr_syn_X_int_wild_0(rTable, pkb,
+                        relRef, pkbDispatch);
             } else {
                 assert(false);
             }
             break;
         case REL_NEXT:
-            this->ev_relRef_syn_X_0_nextAndStar(rTableIdx, relRef);
+            QueryEvaluator::ev_relRef_syn_X_0_nextAndStar(rTable, pkb,
+                    relRef);
             break;
         case REL_NEXT_STAR:
-            this->ev_relRef_syn_X_0_nextAndStar(rTableIdx, relRef);
+            QueryEvaluator::ev_relRef_syn_X_0_nextAndStar(rTable, pkb,
+                    relRef);
             break;
         case REL_AFFECTS:
             // syn one is assign
             if (RELARG_INT == relRef->argTwoType) {
                 pkbDispatch.get_int_set_argOne_from_int_argTwo =
                         &PKB::affects_X_Y_get_int_X_from_int_Y;
-                this->ev_rr_syn_X_int_int_0(rTableIdx, relRef,
+                QueryEvaluator::ev_rr_syn_X_int_int_0(rTable, pkb, relRef,
                         pkbDispatch, ENT_ASSIGN, relRef->argTwoInt);
             } else if (RELARG_WILDCARD == relRef->argTwoType) {
                 switch (relRef->argOneSyn) {
@@ -2537,8 +2749,8 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
                 }
                 pkbDispatch.f_int_argOne_smth =
                         &PKB::affects_X_Y_int_X_smth;
-                this->ev_rr_syn_X_int_wild_0(rTableIdx, relRef,
-                        pkbDispatch);
+                QueryEvaluator::ev_rr_syn_X_int_wild_0(rTable, pkb,
+                        relRef, pkbDispatch);
             } else {
                 assert(false);
             }
@@ -2548,7 +2760,7 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
             if (RELARG_INT == relRef->argTwoType) {
                 pkbDispatch.get_int_set_argOne_from_int_argTwo =
                         &PKB::affectsStar_X_Y_get_int_X_from_int_Y;
-                this->ev_rr_syn_X_int_int_0(rTableIdx, relRef,
+                QueryEvaluator::ev_rr_syn_X_int_int_0(rTable, pkb, relRef,
                         pkbDispatch, ENT_ASSIGN, relRef->argTwoInt);
             } else if (RELARG_WILDCARD == relRef->argTwoType) {
                 switch (relRef->argOneSyn) {
@@ -2561,8 +2773,8 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
                 }
                 pkbDispatch.f_int_argOne_smth =
                         &PKB::affectsStar_X_Y_int_X_smth;
-                this->ev_rr_syn_X_int_wild_0(rTableIdx, relRef,
-                        pkbDispatch);
+                QueryEvaluator::ev_rr_syn_X_int_wild_0(rTable, pkb,
+                        relRef, pkbDispatch);
             } else {
                 assert(false);
             }
@@ -2571,8 +2783,8 @@ void QueryEvaluator::ev_relRef_syn_X(int rTableIdx,
     }
 }
 
-void QueryEvaluator::ev_relRef_syn_X_0_nextAndStar(int rTableIdx,
-        const RelRef *relRef)
+void __cdecl QueryEvaluator::ev_relRef_syn_X_0_nextAndStar(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef)
 {
     EvalPKBDispatch pkbDispatch;
     switch (relRef->argTwoType) {
@@ -2586,8 +2798,8 @@ void QueryEvaluator::ev_relRef_syn_X_0_nextAndStar(int rTableIdx,
         } else {
             assert(false);
         }
-        this->ev_rr_syn_X_int_int_0(rTableIdx, relRef, pkbDispatch,
-                ENT_STMT, relRef->argTwoInt);
+        QueryEvaluator::ev_rr_syn_X_int_int_0(rTable, pkb, relRef,
+                pkbDispatch, ENT_STMT, relRef->argTwoInt);
         break;
     case RELARG_WILDCARD:
         switch (relRef->argOneSyn) {
@@ -2624,15 +2836,16 @@ void QueryEvaluator::ev_relRef_syn_X_0_nextAndStar(int rTableIdx,
         } else {
             assert(false);
         }
-        this->ev_rr_syn_X_int_wild_0(rTableIdx, relRef, pkbDispatch);
+        QueryEvaluator::ev_rr_syn_X_int_wild_0(rTable, pkb, relRef,
+                pkbDispatch);
         break;
     default:
         assert(false);
     }
 }
 
-void QueryEvaluator::ev_relRef_syn_X_1_nextAndStar(int rTableIdx,
-        const RelRef *relRef)
+void __cdecl QueryEvaluator::ev_relRef_syn_X_1_nextAndStar(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef)
 {
     EvalPKBDispatch pkbDispatch;
     switch (relRef->argTwoType) {
@@ -2646,8 +2859,8 @@ void QueryEvaluator::ev_relRef_syn_X_1_nextAndStar(int rTableIdx,
         } else {
             assert(false);
         }
-        this->ev_rr_syn_X_int_int_1(rTableIdx, relRef, pkbDispatch,
-                ENT_STMT, relRef->argTwoInt);
+        QueryEvaluator::ev_rr_syn_X_int_int_1(rTable, pkb, relRef,
+                pkbDispatch, ENT_STMT, relRef->argTwoInt);
         break;
     case RELARG_WILDCARD:
         if (REL_NEXT == relRef->relType) {
@@ -2659,22 +2872,22 @@ void QueryEvaluator::ev_relRef_syn_X_1_nextAndStar(int rTableIdx,
         } else {
             assert(false);
         }
-        this->ev_rr_syn_X_int_wild_1(rTableIdx, relRef, pkbDispatch);
+        QueryEvaluator::ev_rr_syn_X_int_wild_1(rTable, pkb, relRef,
+                pkbDispatch);
         break;
     default:
         assert(false);
     }
 }
 
-void QueryEvaluator::ev_rr_syn_X_string_string_0(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp,
-        DesignEnt xType, const string& xVal)
+void __cdecl QueryEvaluator::ev_rr_syn_X_string_string_0(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+        const EvalPKBDispatch& disp, DesignEnt xType, const string& xVal)
 {
     assert(NULL != disp.get_string_set_argOne_from_string_argTwo);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     rTable.syn_0_transaction_begin(relRef->argOneString, RV_STRING);
     const set<string>& synSet =
-            (this->pkb->*(disp.get_string_set_argOne_from_string_argTwo))
+            (pkb->*(disp.get_string_set_argOne_from_string_argTwo))
                     (relRef->argOneSyn, xType, xVal);
     for (set<string>::const_iterator it = synSet.begin();
             it != synSet.end(); it++) {
@@ -2683,36 +2896,34 @@ void QueryEvaluator::ev_rr_syn_X_string_string_0(int rTableIdx,
     rTable.syn_0_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_syn_X_string_wild_0(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_rr_syn_X_string_wild_0(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+        const EvalPKBDispatch& disp)
 {
     assert(NULL != disp.get_all_string_argOne);
     assert(NULL != disp.f_string_argOne_smth);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     rTable.syn_0_transaction_begin(relRef->argOneString, RV_STRING);
     const set<string>& synSet =
-            (this->pkb->*(disp.get_all_string_argOne))();
+            (pkb->*(disp.get_all_string_argOne))();
     DesignEnt synEntType = relRef->argOneSyn;
     for (set<string>::const_iterator synIt = synSet.begin();
             synIt != synSet.end(); synIt++) {
         const string& synVal = *synIt;
-        if ((this->pkb->*(disp.f_string_argOne_smth))
-                (synEntType, synVal)) {
+        if ((pkb->*(disp.f_string_argOne_smth)) (synEntType, synVal)) {
             rTable.syn_0_add_row(synVal);
         }
     }
     rTable.syn_0_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_syn_X_int_string_0(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp,
-        DesignEnt xType, const string& xVal)
+void __cdecl QueryEvaluator::ev_rr_syn_X_int_string_0(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+        const EvalPKBDispatch& disp, DesignEnt xType, const string& xVal)
 {
     assert(NULL != disp.get_int_set_argOne_from_string_argTwo);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     rTable.syn_0_transaction_begin(relRef->argOneString, RV_INT);
     const set<int>& synSet =
-            (this->pkb->*(disp.get_int_set_argOne_from_string_argTwo))
+            (pkb->*(disp.get_int_set_argOne_from_string_argTwo))
                     (relRef->argOneSyn, xType, xVal);
     for (set<int>::const_iterator synIt = synSet.begin();
             synIt != synSet.end(); synIt++) {
@@ -2721,15 +2932,14 @@ void QueryEvaluator::ev_rr_syn_X_int_string_0(int rTableIdx,
     rTable.syn_0_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_syn_X_int_int_0(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp,
+void __cdecl QueryEvaluator::ev_rr_syn_X_int_int_0(ResultsTable& rTable,
+        PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp,
         DesignEnt xType, int xVal)
 {
     assert(NULL != disp.get_int_set_argOne_from_int_argTwo);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     rTable.syn_0_transaction_begin(relRef->argOneString, RV_INT);
     const set<int>& synSet =
-            (this->pkb->*(disp.get_int_set_argOne_from_int_argTwo))
+            (pkb->*(disp.get_int_set_argOne_from_int_argTwo))
                     (relRef->argOneSyn, xType, xVal);
     for (set<int>::const_iterator synIt = synSet.begin();
             synIt != synSet.end(); synIt++ ) {
@@ -2738,32 +2948,29 @@ void QueryEvaluator::ev_rr_syn_X_int_int_0(int rTableIdx,
     rTable.syn_0_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_syn_X_int_wild_0(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_rr_syn_X_int_wild_0(ResultsTable& rTable,
+        PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp)
 {
     assert(NULL != disp.get_all_int_argOne);
     assert(NULL != disp.f_int_argOne_smth);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     rTable.syn_0_transaction_begin(relRef->argOneString, RV_INT);
-    const set<int>& synSet = (this->pkb->*(disp.get_all_int_argOne))();
+    const set<int>& synSet = (pkb->*(disp.get_all_int_argOne))();
     DesignEnt synEntType = relRef->argOneSyn;
     for (set<int>::const_iterator synIt = synSet.begin();
             synIt != synSet.end(); synIt++) {
         int synVal = *synIt;
-        if ((this->pkb->*(disp.f_int_argOne_smth))
-                (synEntType, synVal)) {
+        if ((pkb->*(disp.f_int_argOne_smth)) (synEntType, synVal)) {
             rTable.syn_0_add_row(synVal);
         }
     }
     rTable.syn_0_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_syn_X_string_string_1(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp,
-        DesignEnt xType, const string& xVal)
+void __cdecl QueryEvaluator::ev_rr_syn_X_string_string_1(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+        const EvalPKBDispatch& disp, DesignEnt xType, const string& xVal)
 {
     assert(NULL != disp.f_string_argOne_string_argTwo);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair =
             rTable.syn_1_transaction_begin(relRef->argOneString);
     const vector<Record>& records = *(viPair.first);
@@ -2774,7 +2981,7 @@ void QueryEvaluator::ev_rr_syn_X_string_string_1(int rTableIdx,
         const Record& record = records[i];
         const pair<string, int>& siPair = record.get_column(colIdx);
         const string& synVal = siPair.first;
-        if ((this->pkb->*(disp.f_string_argOne_string_argTwo))
+        if ((pkb->*(disp.f_string_argOne_string_argTwo))
                     (synType, synVal, xType, xVal)) {
             rTable.syn_1_mark_row_ok(i);
         }
@@ -2782,11 +2989,11 @@ void QueryEvaluator::ev_rr_syn_X_string_string_1(int rTableIdx,
     rTable.syn_1_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_syn_X_string_wild_1(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_rr_syn_X_string_wild_1(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+        const EvalPKBDispatch& disp)
 {
     assert(NULL != disp.f_string_argOne_smth);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair =
             rTable.syn_1_transaction_begin(relRef->argOneString);
     const vector<Record>& records = *(viPair.first);
@@ -2797,20 +3004,18 @@ void QueryEvaluator::ev_rr_syn_X_string_wild_1(int rTableIdx,
         const Record& record = records[i];
         const pair<string, int>& siPair = record.get_column(colIdx);
         const string& synVal = siPair.first;
-        if ((this->pkb->*(disp.f_string_argOne_smth))
-                (synEntType, synVal)) {
+        if ((pkb->*(disp.f_string_argOne_smth)) (synEntType, synVal)) {
             rTable.syn_1_mark_row_ok(i);
         }
     }
     rTable.syn_1_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_syn_X_int_string_1(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp,
-        DesignEnt xType, const string& xVal)
+void __cdecl QueryEvaluator::ev_rr_syn_X_int_string_1(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+        const EvalPKBDispatch& disp, DesignEnt xType, const string& xVal)
 {
     assert(NULL != disp.f_int_argOne_string_argTwo);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair =
             rTable.syn_1_transaction_begin(relRef->argOneString);
     const vector<Record>& records = *(viPair.first);
@@ -2821,7 +3026,7 @@ void QueryEvaluator::ev_rr_syn_X_int_string_1(int rTableIdx,
         const Record& record = records[i];
         const pair<string, int>& siPair = record.get_column(colIdx);
         int synVal = siPair.second;
-        if ((this->pkb->*(disp.f_int_argOne_string_argTwo))
+        if ((pkb->*(disp.f_int_argOne_string_argTwo))
                 (synEntType, synVal, xType, xVal)) {
             rTable.syn_1_mark_row_ok(i);
         }
@@ -2829,12 +3034,11 @@ void QueryEvaluator::ev_rr_syn_X_int_string_1(int rTableIdx,
     rTable.syn_1_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_syn_X_int_int_1(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp,
+void __cdecl QueryEvaluator::ev_rr_syn_X_int_int_1(ResultsTable& rTable,
+        PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp,
         DesignEnt xType, int xVal)
 {
     assert(NULL != disp.f_int_argOne_int_argTwo);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair =
             rTable.syn_1_transaction_begin(relRef->argOneString);
     const vector<Record>& records = *(viPair.first);
@@ -2845,7 +3049,7 @@ void QueryEvaluator::ev_rr_syn_X_int_int_1(int rTableIdx,
         const Record& record = records[i];
         const pair<string, int>& siPair = record.get_column(colIdx);
         int synVal = siPair.second;
-        if ((this->pkb->*(disp.f_int_argOne_int_argTwo))
+        if ((pkb->*(disp.f_int_argOne_int_argTwo))
                 (synEntType, synVal, xType, xVal)) {
             rTable.syn_1_mark_row_ok(i);
         }
@@ -2853,11 +3057,10 @@ void QueryEvaluator::ev_rr_syn_X_int_int_1(int rTableIdx,
     rTable.syn_1_transaction_end();
 }
 
-void QueryEvaluator::ev_rr_syn_X_int_wild_1(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch &disp)
+void __cdecl QueryEvaluator::ev_rr_syn_X_int_wild_1(ResultsTable& rTable,
+        PKB *pkb, const RelRef *relRef, const EvalPKBDispatch &disp)
 {
     assert(NULL != disp.f_int_argOne_smth);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair=
             rTable.syn_1_transaction_begin(relRef->argOneString);
     const vector<Record>& records = *(viPair.first);
@@ -2868,102 +3071,115 @@ void QueryEvaluator::ev_rr_syn_X_int_wild_1(int rTableIdx,
         const Record& record = records[i];
         const pair<string, int>& siPair = record.get_column(colIdx);
         int synVal = siPair.second;
-        if ((this->pkb->*(disp.f_int_argOne_smth))
-                (synEntType, synVal)) {
+        if ((pkb->*(disp.f_int_argOne_smth)) (synEntType, synVal)) {
             rTable.syn_1_mark_row_ok(i);
         }
     }
     rTable.syn_1_transaction_end();
 }
 
-void QueryEvaluator::ev_relRef_X_syn(int rTableIdx,
-        const RelRef *relRef)
+void __cdecl QueryEvaluator::ev_relRef_X_syn(ResultsTable& rTable,
+        PKB *pkb, const RelRef *relRef)
 {
-    const ResultsTable& rTable = this->resultsTable[rTableIdx];
     if (rTable.has_synonym(relRef->argTwoString)) {
         switch (relRef->relType) {
         case REL_MODIFIES:
-            this->ev_relRef_X_syn_1_modifies(rTableIdx, relRef);
+            QueryEvaluator::ev_relRef_X_syn_1_modifies(rTable, pkb,
+                    relRef);
             break;
         case REL_USES:
-            this->ev_relRef_X_syn_1_uses(rTableIdx, relRef);
+            QueryEvaluator::ev_relRef_X_syn_1_uses(rTable, pkb, relRef);
             break;
         case REL_CALLS:
-            this->ev_relRef_X_syn_1_calls(rTableIdx, relRef);
+            QueryEvaluator::ev_relRef_X_syn_1_calls(rTable, pkb, relRef);
             break;
         case REL_CALLS_STAR:
-            this->ev_relRef_X_syn_1_callsStar(rTableIdx, relRef);
+            QueryEvaluator::ev_relRef_X_syn_1_callsStar(rTable, pkb,
+                    relRef);
             break;
         case REL_PARENT:
-            this->ev_relRef_X_syn_1_parent(rTableIdx, relRef);
+            QueryEvaluator::ev_relRef_X_syn_1_parent(rTable, pkb,
+                    relRef);
             break;
         case REL_PARENT_STAR:
-            this->ev_relRef_X_syn_1_parentStar(rTableIdx, relRef);
+            QueryEvaluator::ev_relRef_X_syn_1_parentStar(rTable, pkb,
+                    relRef);
             break;
         case REL_FOLLOWS:
         case REL_FOLLOWS_STAR:
-            this->ev_relRef_X_syn_1_followsAndStar(rTableIdx, relRef);
+            QueryEvaluator::ev_relRef_X_syn_1_followsAndStar(rTable,
+                    pkb, relRef);
             break;
         case REL_NEXT:
         case REL_NEXT_STAR:
-            this->ev_relRef_X_syn_1_nextAndStar(rTableIdx, relRef);
+            QueryEvaluator::ev_relRef_X_syn_1_nextAndStar(rTable,
+                    pkb, relRef);
             break;
         case REL_AFFECTS:
         case REL_AFFECTS_STAR:
-            this->ev_relRef_X_syn_1_affectsAndStar(rTableIdx, relRef);
+            QueryEvaluator::ev_relRef_X_syn_1_affectsAndStar(rTable,
+                    pkb, relRef);
             break;
         }
     } else {
         switch (relRef->relType) {
         case REL_MODIFIES:
-            this->ev_relRef_X_syn_0_modifies(rTableIdx, relRef);
+            QueryEvaluator::ev_relRef_X_syn_0_modifies(rTable, pkb,
+                    relRef);
             break;
         case REL_USES:
-            this->ev_relRef_X_syn_0_uses(rTableIdx, relRef);
+            QueryEvaluator::ev_relRef_X_syn_0_uses(rTable, pkb,
+                    relRef);
             break;
         case REL_CALLS:
-            this->ev_relRef_X_syn_0_calls(rTableIdx, relRef);
+            QueryEvaluator::ev_relRef_X_syn_0_calls(rTable, pkb, relRef);
             break;
         case REL_CALLS_STAR:
-            this->ev_relRef_X_syn_0_callsStar(rTableIdx, relRef);
+            QueryEvaluator::ev_relRef_X_syn_0_callsStar(rTable, pkb,
+                    relRef);
             break;
         case REL_PARENT:
-            this->ev_relRef_X_syn_0_parent(rTableIdx, relRef);
+            QueryEvaluator::ev_relRef_X_syn_0_parent(rTable, pkb,
+                    relRef);
             break;
         case REL_PARENT_STAR:
-            this->ev_relRef_X_syn_0_parentStar(rTableIdx, relRef);
+            QueryEvaluator::ev_relRef_X_syn_0_parentStar(rTable, pkb,
+                    relRef);
             break;
         case REL_FOLLOWS:
         case REL_FOLLOWS_STAR:
-            this->ev_relRef_X_syn_0_followsAndStar(rTableIdx, relRef);
+            QueryEvaluator::ev_relRef_X_syn_0_followsAndStar(rTable,
+                    pkb, relRef);
             break;
         case REL_NEXT:
         case REL_NEXT_STAR:
-            this->ev_relRef_X_syn_0_nextAndStar(rTableIdx, relRef);
+            QueryEvaluator::ev_relRef_X_syn_0_nextAndStar(rTable, pkb,
+                    relRef);
             break;
         case REL_AFFECTS:
         case REL_AFFECTS_STAR:
-            this->ev_relRef_X_syn_0_affectsAndStar(rTableIdx, relRef);
+            QueryEvaluator::ev_relRef_X_syn_0_affectsAndStar(rTable,
+                    pkb, relRef);
             break;
         }
     }
 }
 
-void QueryEvaluator::ev_relRef_X_syn_0_modifies(int rTableIdx,
-        const RelRef *relRef)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_0_modifies(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef)
 {
     EvalPKBDispatch pkbDispatch;
     switch (relRef->argOneType) {
     case RELARG_STRING:
         pkbDispatch.get_string_set_argTwo_from_string_argOne =
                 &PKB::modifies_X_Y_get_string_Y_from_string_X;
-        this->ev_relRef_X_syn_string_string_0(rTableIdx, relRef,
-                pkbDispatch, ENT_PROC, relRef->argOneString);
+        QueryEvaluator::ev_relRef_X_syn_string_string_0(rTable, pkb,
+                relRef, pkbDispatch, ENT_PROC, relRef->argOneString);
         break;
     case RELARG_INT:
         pkbDispatch.get_string_set_argTwo_from_int_argOne =
                 &PKB::modifies_X_Y_get_string_Y_from_int_X;
-        this->ev_relRef_X_syn_int_string_0(rTableIdx, relRef,
+        QueryEvaluator::ev_relRef_X_syn_int_string_0(rTable, pkb, relRef,
                 pkbDispatch, ENT_STMT, relRef->argOneInt);
         break;
     case RELARG_WILDCARD:
@@ -2971,7 +3187,7 @@ void QueryEvaluator::ev_relRef_X_syn_0_modifies(int rTableIdx,
                 &PKB::get_all_vars;
         pkbDispatch.f_smth_string_argTwo =
                 &PKB::modifies_X_Y_smth_string_Y;
-        this->ev_relRef_X_syn_wild_string_0(rTableIdx, relRef,
+        QueryEvaluator::ev_relRef_X_syn_wild_string_0(rTable, pkb, relRef,
                 pkbDispatch);
         break;
     default:
@@ -2979,27 +3195,27 @@ void QueryEvaluator::ev_relRef_X_syn_0_modifies(int rTableIdx,
     }
 }
 
-void QueryEvaluator::ev_relRef_X_syn_1_modifies(int rTableIdx,
-        const RelRef *relRef)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_1_modifies(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef)
 {
     EvalPKBDispatch pkbDispatch;
     switch (relRef->argOneType) {
     case RELARG_STRING:
         pkbDispatch.f_string_argOne_string_argTwo =
                 &PKB::modifies_query_string_X_string_Y;
-        this->ev_relRef_X_syn_string_string_1(rTableIdx, relRef,
-                pkbDispatch, ENT_PROC, relRef->argOneString);
+        QueryEvaluator::ev_relRef_X_syn_string_string_1(rTable, pkb,
+                relRef, pkbDispatch, ENT_PROC, relRef->argOneString);
         break;
     case RELARG_INT:
         pkbDispatch.f_int_argOne_string_argTwo =
                 &PKB::modifies_query_int_X_string_Y;
-        this->ev_relRef_X_syn_int_string_1(rTableIdx, relRef,
+        QueryEvaluator::ev_relRef_X_syn_int_string_1(rTable, pkb, relRef,
                 pkbDispatch, ENT_STMT, relRef->argOneInt);
         break;
     case RELARG_WILDCARD:
         pkbDispatch.f_smth_string_argTwo =
                 &PKB::modifies_X_Y_smth_string_Y;
-        this->ev_relRef_X_syn_wild_string_1(rTableIdx, relRef,
+        QueryEvaluator::ev_relRef_X_syn_wild_string_1(rTable, pkb, relRef,
                 pkbDispatch);
         break;
     default:
@@ -3007,21 +3223,21 @@ void QueryEvaluator::ev_relRef_X_syn_1_modifies(int rTableIdx,
     }
 }
 
-void QueryEvaluator::ev_relRef_X_syn_0_uses(int rTableIdx,
-        const RelRef *relRef)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_0_uses(ResultsTable& rTable,
+        PKB *pkb, const RelRef *relRef)
 {
     EvalPKBDispatch pkbDispatch;
     switch (relRef->argOneType) {
     case RELARG_STRING:
         pkbDispatch.get_string_set_argTwo_from_string_argOne =
                 &PKB::uses_X_Y_get_string_Y_from_string_X;
-        this->ev_relRef_X_syn_string_string_0(rTableIdx, relRef,
-                pkbDispatch, ENT_PROC, relRef->argOneString);
+        QueryEvaluator::ev_relRef_X_syn_string_string_0(rTable, pkb,
+                relRef, pkbDispatch, ENT_PROC, relRef->argOneString);
         break;
     case RELARG_INT:
         pkbDispatch.get_string_set_argTwo_from_int_argOne =
                 &PKB::uses_X_Y_get_string_Y_from_int_X;
-        this->ev_relRef_X_syn_int_string_0(rTableIdx, relRef,
+       QueryEvaluator::ev_relRef_X_syn_int_string_0(rTable, pkb, relRef,
                 pkbDispatch, ENT_STMT, relRef->argOneInt);
         break;
     case RELARG_WILDCARD:
@@ -3029,7 +3245,7 @@ void QueryEvaluator::ev_relRef_X_syn_0_uses(int rTableIdx,
                 &PKB::get_all_vars;
         pkbDispatch.f_smth_string_argTwo =
                 &PKB::uses_X_Y_smth_string_Y;
-        this->ev_relRef_X_syn_wild_string_0(rTableIdx, relRef,
+        QueryEvaluator::ev_relRef_X_syn_wild_string_0(rTable, pkb, relRef,
                 pkbDispatch);
         break;
     default:
@@ -3037,27 +3253,27 @@ void QueryEvaluator::ev_relRef_X_syn_0_uses(int rTableIdx,
     }
 }
 
-void QueryEvaluator::ev_relRef_X_syn_1_uses(int rTableIdx,
-        const RelRef *relRef)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_1_uses(ResultsTable& rTable,
+        PKB *pkb, const RelRef *relRef)
 {
     EvalPKBDispatch pkbDispatch;
     switch (relRef->argOneType) {
     case RELARG_STRING:
         pkbDispatch.f_string_argOne_string_argTwo =
                 &PKB::uses_query_string_X_string_Y;
-        this->ev_relRef_X_syn_string_string_1(rTableIdx, relRef,
-                pkbDispatch, ENT_PROC, relRef->argOneString);
+        QueryEvaluator::ev_relRef_X_syn_string_string_1(rTable, pkb,
+                relRef, pkbDispatch, ENT_PROC, relRef->argOneString);
         break;
     case RELARG_INT:
         pkbDispatch.f_int_argOne_string_argTwo =
                 &PKB::uses_query_int_X_string_Y;
-        this->ev_relRef_X_syn_int_string_1(rTableIdx, relRef,
+        QueryEvaluator::ev_relRef_X_syn_int_string_1(rTable, pkb, relRef,
                 pkbDispatch, ENT_STMT, relRef->argOneInt);
         break;
     case RELARG_WILDCARD:
         pkbDispatch.f_smth_string_argTwo =
                 &PKB::uses_X_Y_smth_string_Y;
-        this->ev_relRef_X_syn_wild_string_1(rTableIdx, relRef,
+        QueryEvaluator::ev_relRef_X_syn_wild_string_1(rTable, pkb, relRef,
                 pkbDispatch);
         break;
     default:
@@ -3065,23 +3281,23 @@ void QueryEvaluator::ev_relRef_X_syn_1_uses(int rTableIdx,
     }
 }
 
-void QueryEvaluator::ev_relRef_X_syn_0_calls(int rTableIdx,
-        const RelRef *relRef)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_0_calls(ResultsTable& rTable,
+        PKB *pkb, const RelRef *relRef)
 {
     EvalPKBDispatch pkbDispatch;
     switch (relRef->argOneType) {
     case RELARG_STRING:
         pkbDispatch.get_string_set_argTwo_from_string_argOne =
                 &PKB::calls_X_Y_get_string_Y_from_string_X;
-        this->ev_relRef_X_syn_string_string_0(rTableIdx, relRef,
-                pkbDispatch, ENT_PROC, relRef->argOneString);
+        QueryEvaluator::ev_relRef_X_syn_string_string_0(rTable, pkb,
+                relRef, pkbDispatch, ENT_PROC, relRef->argOneString);
         break;
     case RELARG_WILDCARD:
         pkbDispatch.get_all_string_argTwo =
                 &PKB::get_all_procs;
         pkbDispatch.f_smth_string_argTwo =
                 &PKB::calls_X_Y_smth_string_Y;
-        this->ev_relRef_X_syn_wild_string_0(rTableIdx, relRef,
+        QueryEvaluator::ev_relRef_X_syn_wild_string_0(rTable, pkb, relRef,
                 pkbDispatch);
         break;
     default:
@@ -3089,21 +3305,21 @@ void QueryEvaluator::ev_relRef_X_syn_0_calls(int rTableIdx,
     }
 }
 
-void QueryEvaluator::ev_relRef_X_syn_1_calls(int rTableIdx,
-        const RelRef *relRef)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_1_calls(ResultsTable& rTable,
+        PKB *pkb, const RelRef *relRef)
 {
     EvalPKBDispatch pkbDispatch;
     switch (relRef->argOneType) {
     case RELARG_STRING:
         pkbDispatch.f_string_argOne_string_argTwo =
                 &PKB::calls_query_string_X_string_Y;
-        this->ev_relRef_X_syn_string_string_1(rTableIdx, relRef,
-                pkbDispatch, ENT_PROC, relRef->argOneString);
+        QueryEvaluator::ev_relRef_X_syn_string_string_1(rTable, pkb,
+                relRef, pkbDispatch, ENT_PROC, relRef->argOneString);
         break;
     case RELARG_WILDCARD:
         pkbDispatch.f_smth_string_argTwo =
                 &PKB::calls_X_Y_smth_string_Y;
-        this->ev_relRef_X_syn_wild_string_1(rTableIdx, relRef,
+        QueryEvaluator::ev_relRef_X_syn_wild_string_1(rTable, pkb, relRef,
                 pkbDispatch);
         break;
     default:
@@ -3111,23 +3327,23 @@ void QueryEvaluator::ev_relRef_X_syn_1_calls(int rTableIdx,
     }
 }
 
-void QueryEvaluator::ev_relRef_X_syn_0_callsStar(int rTableIdx,
-        const RelRef *relRef)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_0_callsStar(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef)
 {
     EvalPKBDispatch pkbDispatch;
     switch (relRef->argOneType) {
     case RELARG_STRING:
         pkbDispatch.get_string_set_argTwo_from_string_argOne =
                 &PKB::callsStar_X_Y_get_string_Y_from_string_X;
-        this->ev_relRef_X_syn_string_string_0(rTableIdx, relRef,
-                pkbDispatch, ENT_PROC, relRef->argOneString);
+        QueryEvaluator::ev_relRef_X_syn_string_string_0(rTable, pkb,
+                relRef, pkbDispatch, ENT_PROC, relRef->argOneString);
         break;
     case RELARG_WILDCARD:
         pkbDispatch.get_all_string_argTwo =
                 &PKB::get_all_procs;
         pkbDispatch.f_smth_string_argTwo =
                 &PKB::callsStar_X_Y_smth_string_Y;
-        this->ev_relRef_X_syn_wild_string_0(rTableIdx, relRef,
+        QueryEvaluator::ev_relRef_X_syn_wild_string_0(rTable, pkb, relRef,
                 pkbDispatch);
         break;
     default:
@@ -3135,21 +3351,21 @@ void QueryEvaluator::ev_relRef_X_syn_0_callsStar(int rTableIdx,
     }
 }
 
-void QueryEvaluator::ev_relRef_X_syn_1_callsStar(int rTableIdx,
-        const RelRef *relRef)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_1_callsStar(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef)
 {
     EvalPKBDispatch pkbDispatch;
     switch (relRef->argOneType) {
     case RELARG_STRING:
         pkbDispatch.f_string_argOne_string_argTwo =
                 &PKB::callsStar_query_string_X_string_Y;
-        this->ev_relRef_X_syn_string_string_1(rTableIdx, relRef,
-                pkbDispatch, ENT_PROC, relRef->argOneString);
+        QueryEvaluator::ev_relRef_X_syn_string_string_1(rTable, pkb,
+                relRef, pkbDispatch, ENT_PROC, relRef->argOneString);
         break;
     case RELARG_WILDCARD:
         pkbDispatch.f_smth_string_argTwo =
                 &PKB::callsStar_X_Y_smth_string_Y;
-        this->ev_relRef_X_syn_wild_string_1(rTableIdx, relRef,
+        QueryEvaluator::ev_relRef_X_syn_wild_string_1(rTable, pkb, relRef,
                 pkbDispatch);
         break;
     default:
@@ -3157,15 +3373,15 @@ void QueryEvaluator::ev_relRef_X_syn_1_callsStar(int rTableIdx,
     }
 }
 
-void QueryEvaluator::ev_relRef_X_syn_0_parent(int rTableIdx,
-        const RelRef *relRef)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_0_parent(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef)
 {
     EvalPKBDispatch pkbDispatch;
     switch (relRef->argOneType) {
     case RELARG_INT:
         pkbDispatch.get_int_set_argTwo_from_int_argOne =
                 &PKB::parent_X_Y_get_int_Y_from_int_X;
-        this->ev_relRef_X_syn_int_int_0(rTableIdx, relRef,
+        QueryEvaluator::ev_relRef_X_syn_int_int_0(rTable, pkb, relRef,
                 pkbDispatch, ENT_STMT, relRef->argOneInt);
         break;
     case RELARG_WILDCARD:
@@ -3196,7 +3412,7 @@ void QueryEvaluator::ev_relRef_X_syn_0_parent(int rTableIdx,
         }
         pkbDispatch.f_smth_int_argTwo =
                 &PKB::parent_X_Y_smth_int_Y;
-        this->ev_relRef_X_syn_wild_int_0(rTableIdx, relRef,
+        QueryEvaluator::ev_relRef_X_syn_wild_int_0(rTable, pkb, relRef,
                 pkbDispatch);
         break;
     default:
@@ -3204,21 +3420,21 @@ void QueryEvaluator::ev_relRef_X_syn_0_parent(int rTableIdx,
     }
 }
 
-void QueryEvaluator::ev_relRef_X_syn_1_parent(int rTableIdx,
-        const RelRef *relRef)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_1_parent(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef)
 {
     EvalPKBDispatch pkbDispatch;
     switch (relRef->argOneType) {
     case RELARG_INT:
         pkbDispatch.f_int_argOne_int_argTwo =
                 &PKB::parent_query_int_X_int_Y;
-        this->ev_relRef_X_syn_int_int_1(rTableIdx, relRef,
+        QueryEvaluator::ev_relRef_X_syn_int_int_1(rTable, pkb, relRef,
                 pkbDispatch, ENT_STMT, relRef->argOneInt);
         break;
     case RELARG_WILDCARD:
         pkbDispatch.f_smth_int_argTwo =
                 &PKB::parent_X_Y_smth_int_Y;
-        this->ev_relRef_X_syn_wild_int_1(rTableIdx, relRef,
+        QueryEvaluator::ev_relRef_X_syn_wild_int_1(rTable, pkb, relRef,
                 pkbDispatch);
         break;
     default:
@@ -3226,15 +3442,15 @@ void QueryEvaluator::ev_relRef_X_syn_1_parent(int rTableIdx,
     }
 }
 
-void QueryEvaluator::ev_relRef_X_syn_0_parentStar(int rTableIdx,
-        const RelRef *relRef)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_0_parentStar(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef)
 {
     EvalPKBDispatch pkbDispatch;
     switch (relRef->argOneType) {
     case RELARG_INT:
         pkbDispatch.get_int_set_argTwo_from_int_argOne =
                 &PKB::parentStar_X_Y_get_int_Y_from_int_X;
-        this->ev_relRef_X_syn_int_int_0(rTableIdx, relRef,
+        QueryEvaluator::ev_relRef_X_syn_int_int_0(rTable, pkb, relRef,
                 pkbDispatch, ENT_STMT, relRef->argOneInt);
         break;
     case RELARG_WILDCARD:
@@ -3265,7 +3481,7 @@ void QueryEvaluator::ev_relRef_X_syn_0_parentStar(int rTableIdx,
         }
         pkbDispatch.f_smth_int_argTwo =
                 &PKB::parentStar_X_Y_smth_int_Y;
-        this->ev_relRef_X_syn_wild_int_0(rTableIdx, relRef,
+        QueryEvaluator::ev_relRef_X_syn_wild_int_0(rTable, pkb, relRef,
                 pkbDispatch);
         break;
     default:
@@ -3273,21 +3489,21 @@ void QueryEvaluator::ev_relRef_X_syn_0_parentStar(int rTableIdx,
     }
 }
 
-void QueryEvaluator::ev_relRef_X_syn_1_parentStar(int rTableIdx,
-        const RelRef *relRef)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_1_parentStar(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef)
 {
     EvalPKBDispatch pkbDispatch;
     switch (relRef->argOneType) {
     case RELARG_INT:
         pkbDispatch.f_int_argOne_int_argTwo =
                 &PKB::parentStar_query_int_X_int_Y;
-        this->ev_relRef_X_syn_int_int_1(rTableIdx, relRef,
+        QueryEvaluator::ev_relRef_X_syn_int_int_1(rTable, pkb, relRef,
                 pkbDispatch, ENT_STMT, relRef->argOneInt);
         break;
     case RELARG_WILDCARD:
         pkbDispatch.f_smth_int_argTwo =
                 &PKB::parentStar_X_Y_smth_int_Y;
-        this->ev_relRef_X_syn_wild_int_1(rTableIdx, relRef,
+        QueryEvaluator::ev_relRef_X_syn_wild_int_1(rTable, pkb, relRef,
                 pkbDispatch);
         break;
     default:
@@ -3295,8 +3511,8 @@ void QueryEvaluator::ev_relRef_X_syn_1_parentStar(int rTableIdx,
     }
 }
 
-void QueryEvaluator::ev_relRef_X_syn_0_followsAndStar(int rTableIdx,
-        const RelRef *relRef)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_0_followsAndStar(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef)
 {
     EvalPKBDispatch pkbDispatch;
     switch (relRef->argOneType) {
@@ -3310,8 +3526,8 @@ void QueryEvaluator::ev_relRef_X_syn_0_followsAndStar(int rTableIdx,
         } else {
             assert(false);
         }
-        this->ev_relRef_X_syn_int_int_0(rTableIdx, relRef, pkbDispatch,
-                ENT_STMT, relRef->argOneInt);
+        QueryEvaluator::ev_relRef_X_syn_int_int_0(rTable, pkb, relRef,
+                pkbDispatch, ENT_STMT, relRef->argOneInt);
         break;
     case RELARG_WILDCARD:
         switch (relRef->argTwoSyn) {
@@ -3348,15 +3564,16 @@ void QueryEvaluator::ev_relRef_X_syn_0_followsAndStar(int rTableIdx,
         } else {
             assert(false);
         }
-        this->ev_relRef_X_syn_wild_int_0(rTableIdx, relRef, pkbDispatch);
+        QueryEvaluator::ev_relRef_X_syn_wild_int_0(rTable, pkb,
+                relRef, pkbDispatch);
         break;
     default:
         assert(false);
     }
 }
 
-void QueryEvaluator::ev_relRef_X_syn_1_followsAndStar(int rTableIdx,
-        const RelRef *relRef)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_1_followsAndStar(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef)
 {
     EvalPKBDispatch pkbDispatch;
     switch (relRef->argOneType) {
@@ -3370,8 +3587,8 @@ void QueryEvaluator::ev_relRef_X_syn_1_followsAndStar(int rTableIdx,
         } else {
             assert(false);
         }
-        this->ev_relRef_X_syn_int_int_1(rTableIdx, relRef, pkbDispatch,
-                ENT_STMT, relRef->argOneInt);
+        QueryEvaluator::ev_relRef_X_syn_int_int_1(rTable, pkb, relRef,
+                pkbDispatch, ENT_STMT, relRef->argOneInt);
         break;
     case RELARG_WILDCARD:
         if (REL_FOLLOWS == relRef->relType) {
@@ -3383,15 +3600,16 @@ void QueryEvaluator::ev_relRef_X_syn_1_followsAndStar(int rTableIdx,
         } else {
             assert(false);
         }
-        this->ev_relRef_X_syn_wild_int_1(rTableIdx, relRef, pkbDispatch);
+        QueryEvaluator::ev_relRef_X_syn_wild_int_1(rTable, pkb, relRef,
+                pkbDispatch);
         break;
     default:
         assert(false);
     }
 }
 
-void QueryEvaluator::ev_relRef_X_syn_0_nextAndStar(int rTableIdx,
-        const RelRef *relRef)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_0_nextAndStar(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef)
 {
     EvalPKBDispatch pkbDispatch;
     switch (relRef->argOneType) {
@@ -3405,8 +3623,8 @@ void QueryEvaluator::ev_relRef_X_syn_0_nextAndStar(int rTableIdx,
         } else {
             assert(false);
         }
-        this->ev_relRef_X_syn_int_int_0(rTableIdx, relRef, pkbDispatch,
-                ENT_STMT, relRef->argOneInt);
+        QueryEvaluator::ev_relRef_X_syn_int_int_0(rTable, pkb, relRef,
+                pkbDispatch, ENT_STMT, relRef->argOneInt);
         break;
     case RELARG_WILDCARD:
         switch (relRef->argTwoSyn) {
@@ -3441,15 +3659,16 @@ void QueryEvaluator::ev_relRef_X_syn_0_nextAndStar(int rTableIdx,
             pkbDispatch.f_smth_int_argTwo =
                     &PKB::nextStar_X_Y_smth_int_Y;
         }
-        this->ev_relRef_X_syn_wild_int_0(rTableIdx, relRef, pkbDispatch);
+        QueryEvaluator::ev_relRef_X_syn_wild_int_0(rTable, pkb, relRef,
+                pkbDispatch);
         break;
     default:
         assert(false);
     }
 }
 
-void QueryEvaluator::ev_relRef_X_syn_1_nextAndStar(int rTableIdx,
-        const RelRef *relRef)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_1_nextAndStar(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef)
 {
     EvalPKBDispatch pkbDispatch;
     switch (relRef->argOneType) {
@@ -3463,8 +3682,8 @@ void QueryEvaluator::ev_relRef_X_syn_1_nextAndStar(int rTableIdx,
         } else {
             assert(false);
         }
-        this->ev_relRef_X_syn_int_int_1(rTableIdx, relRef, pkbDispatch,
-                ENT_STMT, relRef->argOneInt);
+        QueryEvaluator::ev_relRef_X_syn_int_int_1(rTable, pkb, relRef,
+                pkbDispatch, ENT_STMT, relRef->argOneInt);
         break;
     case RELARG_WILDCARD:
         if (REL_NEXT == relRef->relType) {
@@ -3476,15 +3695,16 @@ void QueryEvaluator::ev_relRef_X_syn_1_nextAndStar(int rTableIdx,
         } else {
             assert(false);
         }
-        this->ev_relRef_X_syn_wild_int_1(rTableIdx, relRef, pkbDispatch);
+        QueryEvaluator::ev_relRef_X_syn_wild_int_1(rTable, pkb, relRef,
+                pkbDispatch);
         break;
     default:
         assert(false);
     }
 }
 
-void QueryEvaluator::ev_relRef_X_syn_0_affectsAndStar(int rTableIdx,
-        const RelRef *relRef)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_0_affectsAndStar(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef)
 {
     EvalPKBDispatch pkbDispatch;
     switch (relRef->argOneType) {
@@ -3498,8 +3718,8 @@ void QueryEvaluator::ev_relRef_X_syn_0_affectsAndStar(int rTableIdx,
         } else {
             assert(false);
         }
-        this->ev_relRef_X_syn_int_int_0(rTableIdx, relRef, pkbDispatch,
-                ENT_ASSIGN, relRef->argOneInt);
+        QueryEvaluator::ev_relRef_X_syn_int_int_0(rTable, pkb, relRef,
+                pkbDispatch, ENT_ASSIGN, relRef->argOneInt);
         break;
     case RELARG_WILDCARD:
         switch (relRef->argTwoSyn) {
@@ -3519,15 +3739,16 @@ void QueryEvaluator::ev_relRef_X_syn_0_affectsAndStar(int rTableIdx,
         } else {
             assert(false);
         }
-        this->ev_relRef_X_syn_wild_int_0(rTableIdx, relRef, pkbDispatch);
+        QueryEvaluator::ev_relRef_X_syn_wild_int_0(rTable, pkb, relRef,
+                pkbDispatch);
         break;
     default:
         assert(false);
     }
 }
 
-void QueryEvaluator::ev_relRef_X_syn_1_affectsAndStar(int rTableIdx,
-        const RelRef *relRef)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_1_affectsAndStar(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef)
 {
     EvalPKBDispatch pkbDispatch;
     switch (relRef->argOneType) {
@@ -3541,8 +3762,8 @@ void QueryEvaluator::ev_relRef_X_syn_1_affectsAndStar(int rTableIdx,
         } else {
             assert(false);
         }
-        this->ev_relRef_X_syn_int_int_1(rTableIdx, relRef, pkbDispatch,
-                ENT_ASSIGN, relRef->argOneInt);
+        QueryEvaluator::ev_relRef_X_syn_int_int_1(rTable, pkb, relRef,
+                pkbDispatch, ENT_ASSIGN, relRef->argOneInt);
         break;
     case RELARG_WILDCARD:
         if (REL_AFFECTS == relRef->relType) {
@@ -3554,22 +3775,22 @@ void QueryEvaluator::ev_relRef_X_syn_1_affectsAndStar(int rTableIdx,
         } else {
             assert(false);
         }
-        this->ev_relRef_X_syn_wild_int_1(rTableIdx, relRef, pkbDispatch);
+        QueryEvaluator::ev_relRef_X_syn_wild_int_1(rTable, pkb, relRef,
+                pkbDispatch);
         break;
     default:
         assert(false);
     }
 }
 
-void QueryEvaluator::ev_relRef_X_syn_string_string_0(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp,
-        DesignEnt xType, const string& xVal)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_string_string_0(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+        const EvalPKBDispatch& disp, DesignEnt xType, const string& xVal)
 {
     assert(NULL != disp.get_string_set_argTwo_from_string_argOne);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     rTable.syn_0_transaction_begin(relRef->argTwoString, RV_STRING);
     const set<string> synSet =
-            (this->pkb->*(disp.get_string_set_argTwo_from_string_argOne))
+            (pkb->*(disp.get_string_set_argTwo_from_string_argOne))
                     (xType, relRef->argTwoSyn, xVal);
     for (set<string>::const_iterator synIt = synSet.begin();
             synIt != synSet.end(); synIt++) {
@@ -3579,12 +3800,11 @@ void QueryEvaluator::ev_relRef_X_syn_string_string_0(int rTableIdx,
     rTable.syn_0_transaction_end();
 }
 
-void QueryEvaluator::ev_relRef_X_syn_string_string_1(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp,
-        DesignEnt xType, const string& xVal)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_string_string_1(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+        const EvalPKBDispatch& disp, DesignEnt xType, const string& xVal)
 {
     assert(NULL != disp.f_string_argOne_string_argTwo);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair =
             rTable.syn_1_transaction_begin(relRef->argTwoString);
     const vector<Record>& records = *(viPair.first);
@@ -3595,7 +3815,7 @@ void QueryEvaluator::ev_relRef_X_syn_string_string_1(int rTableIdx,
         const Record& record = records[i];
         const pair<string, int> siPair = record.get_column(colIdx);
         const string& synVal = siPair.first;
-        if ((this->pkb->*(disp.f_string_argOne_string_argTwo))
+        if ((pkb->*(disp.f_string_argOne_string_argTwo))
                 (xType, xVal, synEntType, synVal)) {
             rTable.syn_1_mark_row_ok(i);
         }
@@ -3603,15 +3823,14 @@ void QueryEvaluator::ev_relRef_X_syn_string_string_1(int rTableIdx,
     rTable.syn_1_transaction_end();
 }
 
-void QueryEvaluator::ev_relRef_X_syn_int_string_0(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp,
-        DesignEnt xType, int xVal)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_int_string_0(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+        const EvalPKBDispatch& disp, DesignEnt xType, int xVal)
 {
     assert(NULL != disp.get_string_set_argTwo_from_int_argOne);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     rTable.syn_0_transaction_begin(relRef->argTwoString, RV_STRING);
     const set<string>& synSet =
-            (this->pkb->*(disp.get_string_set_argTwo_from_int_argOne))
+            (pkb->*(disp.get_string_set_argTwo_from_int_argOne))
                     (xType, relRef->argTwoSyn, xVal);
     for (set<string>::const_iterator synIt = synSet.begin();
             synIt != synSet.end(); synIt++) {
@@ -3621,12 +3840,11 @@ void QueryEvaluator::ev_relRef_X_syn_int_string_0(int rTableIdx,
     rTable.syn_0_transaction_end();
 }
 
-void QueryEvaluator::ev_relRef_X_syn_int_string_1(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp,
-        DesignEnt xType, int xVal)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_int_string_1(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+        const EvalPKBDispatch& disp, DesignEnt xType, int xVal)
 {
     assert(NULL != disp.f_int_argOne_string_argTwo);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair =
             rTable.syn_1_transaction_begin(relRef->argTwoString);
     const vector<Record>& records = *(viPair.first);
@@ -3637,7 +3855,7 @@ void QueryEvaluator::ev_relRef_X_syn_int_string_1(int rTableIdx,
         const Record& record = records[i];
         const pair<string, int> siPair = record.get_column(colIdx);
         const string& synVal = siPair.first;
-        if ((this->pkb->*(disp.f_int_argOne_string_argTwo))
+        if ((pkb->*(disp.f_int_argOne_string_argTwo))
                 (xType, xVal, synEntType, synVal)) {
             rTable.syn_1_mark_row_ok(i);
         }
@@ -3645,32 +3863,31 @@ void QueryEvaluator::ev_relRef_X_syn_int_string_1(int rTableIdx,
     rTable.syn_1_transaction_end();
 }
 
-void QueryEvaluator::ev_relRef_X_syn_wild_string_0(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_wild_string_0(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+        const EvalPKBDispatch& disp)
 {
     assert(NULL != disp.get_all_string_argTwo);
     assert(NULL != disp.f_smth_string_argTwo);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     rTable.syn_0_transaction_begin(relRef->argTwoString, RV_STRING);
     const set<string>& synSet =
-            (this->pkb->*(disp.get_all_string_argTwo))();
+            (pkb->*(disp.get_all_string_argTwo))();
     DesignEnt synEntType = relRef->argTwoSyn;
     for (set<string>::const_iterator synIt = synSet.begin();
             synIt != synSet.end(); synIt++) {
         const string& synVal = *synIt;
-        if ((this->pkb->*(disp.f_smth_string_argTwo))
-                (synEntType, synVal)) {
+        if ((pkb->*(disp.f_smth_string_argTwo)) (synEntType, synVal)) {
             rTable.syn_0_add_row(synVal);
         }
     }
     rTable.syn_0_transaction_end();
 }
 
-void QueryEvaluator::ev_relRef_X_syn_wild_string_1(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_wild_string_1(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+        const EvalPKBDispatch& disp)
 {
     assert(NULL != disp.f_smth_string_argTwo);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair =
             rTable.syn_1_transaction_begin(relRef->argTwoString);
     const vector<Record>& records = *(viPair.first);
@@ -3682,23 +3899,21 @@ void QueryEvaluator::ev_relRef_X_syn_wild_string_1(int rTableIdx,
         const pair<string, int> siPair =
                 record.get_column(colIdx);
         const string& synVal = siPair.first;
-        if ((this->pkb->*(disp.f_smth_string_argTwo))
-                (synEntType, synVal)) {
+        if ((pkb->*(disp.f_smth_string_argTwo)) (synEntType, synVal)) {
             rTable.syn_1_mark_row_ok(i);
         }
     }
     rTable.syn_1_transaction_end();
 }
 
-void QueryEvaluator::ev_relRef_X_syn_int_int_0(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp,
-        DesignEnt xType, int xVal)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_int_int_0(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+        const EvalPKBDispatch& disp, DesignEnt xType, int xVal)
 {
     assert(NULL != disp.get_int_set_argTwo_from_int_argOne);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     rTable.syn_0_transaction_begin(relRef->argTwoString, RV_INT);
     const set<int>& synSet =
-            (this->pkb->*(disp.get_int_set_argTwo_from_int_argOne))
+            (pkb->*(disp.get_int_set_argTwo_from_int_argOne))
                     (xType, relRef->argTwoSyn, xVal);
     for (set<int>::const_iterator synIt = synSet.begin();
             synIt != synSet.end(); synIt++) {
@@ -3707,12 +3922,11 @@ void QueryEvaluator::ev_relRef_X_syn_int_int_0(int rTableIdx,
     rTable.syn_0_transaction_end();
 }
 
-void QueryEvaluator::ev_relRef_X_syn_int_int_1(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp,
-        DesignEnt xType, int xVal)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_int_int_1(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+        const EvalPKBDispatch& disp, DesignEnt xType, int xVal)
 {
     assert(NULL != disp.f_int_argOne_int_argTwo);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair =
             rTable.syn_1_transaction_begin(relRef->argTwoString);
     const vector<Record>& records = *(viPair.first);
@@ -3723,7 +3937,7 @@ void QueryEvaluator::ev_relRef_X_syn_int_int_1(int rTableIdx,
         const Record& record = records[i];
         const pair<string, int>& siPair = record.get_column(colIdx);
         int synVal = siPair.second;
-        if ((this->pkb->*(disp.f_int_argOne_int_argTwo))
+        if ((pkb->*(disp.f_int_argOne_int_argTwo))
                 (xType, xVal, synEntType, synVal)) {
             rTable.syn_1_mark_row_ok(i);
         }
@@ -3731,32 +3945,31 @@ void QueryEvaluator::ev_relRef_X_syn_int_int_1(int rTableIdx,
     rTable.syn_1_transaction_end();
 }
 
-void QueryEvaluator::ev_relRef_X_syn_wild_int_0(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_wild_int_0(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+        const EvalPKBDispatch& disp)
 {
     assert(NULL != disp.get_all_int_argTwo);
     assert(NULL != disp.f_smth_int_argTwo);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     rTable.syn_0_transaction_begin(relRef->argTwoString, RV_INT);
     const set<int>& synSet =
-            (this->pkb->*(disp.get_all_int_argTwo))();
+            (pkb->*(disp.get_all_int_argTwo))();
     DesignEnt synEntType = relRef->argTwoSyn;
     for (set<int>::const_iterator synIt = synSet.begin();
             synIt != synSet.end(); synIt++) {
         int synVal = *synIt;
-        if ((this->pkb->*(disp.f_smth_int_argTwo))
-                (synEntType, synVal)) {
+        if ((pkb->*(disp.f_smth_int_argTwo)) (synEntType, synVal)) {
             rTable.syn_0_add_row(synVal);
         }
     }
     rTable.syn_0_transaction_end();
 }
 
-void QueryEvaluator::ev_relRef_X_syn_wild_int_1(int rTableIdx,
-        const RelRef *relRef, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_relRef_X_syn_wild_int_1(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+        const EvalPKBDispatch& disp)
 {
     assert(NULL != disp.f_smth_int_argTwo);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair =
             rTable.syn_1_transaction_begin(relRef->argTwoString);
     const vector<Record>& records = *(viPair.first);
@@ -3767,8 +3980,7 @@ void QueryEvaluator::ev_relRef_X_syn_wild_int_1(int rTableIdx,
         const Record& record = records[i];
         const pair<string, int>& siPair = record.get_column(colIdx);
         int synVal = siPair.second;
-        if ((this->pkb->*(disp.f_smth_int_argTwo))
-                (synEntType, synVal)) {
+        if ((pkb->*(disp.f_smth_int_argTwo)) (synEntType, synVal)) {
             rTable.syn_1_mark_row_ok(i);
         }
     }

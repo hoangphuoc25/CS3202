@@ -10,6 +10,13 @@
 #include "ResultsTable.h"
 #include "ResultsProjector.h"
 
+#define SPACONFIG_FNAME "spaconfig.txt"
+#define QE_MAXTHREADS_STR "MaxThreads"
+/// Minimum number of threads for multithreaded config
+#define QE_MIN_THREADS 2
+/// Maximum number of threads for multithreaded config
+#define QE_MAX_THREADS 8
+
 /// Represents whether synonym argument(s) to a clause have been seen
 enum SynInGraph {
     SYN_SYN_00, //< both args syn, both not in graph
@@ -144,19 +151,34 @@ struct EvalPKBDispatch {
 
     /// Generic QueryEvaluator evaluation function used for evaluating
     /// Relation clauses
-    void (QueryEvaluator::*relRef_eval)
-             (int rTableIdx, const RelRef *relRef, const EvalPKBDispatch&);
+    void (*relRef_eval)
+             (ResultsTable &rTable, PKB *pkb, const RelRef *relRef,
+              const EvalPKBDispatch&);
     /// Default constructor
     EvalPKBDispatch();
     /// Sets all the PKB method fields in the object to NULL
     void reset();
 };
 
-/// Query Evaluator, the brains of the SPA.
+/// QueryEvaluator, the brains of the SPA.
+/// Configuration of QueryEvaluator settings can be done through
+/// supplying a map of string -> int flags in one of its constructors.
+/// The flags currently include:
+/// 1. multithreaded - If set, will fork up to the specified number
+///                    of threads (minimum 1 thread) to evaluate the
+///                    queries
 class QueryEvaluator {
 public:
     /// Default constructor
     QueryEvaluator();
+    /// Constructor taking in a a map of settings
+    /// @param flags Query Evaluator settings. Refer to the summary
+    ///              documentation for QueryEvaluator for more details
+    QueryEvaluator(const std::map<std::string, int>& flags);
+    /// Initializes QueryEvaluator from a configuration file.
+    /// The default configuration file is named 'spaconfig' and housed
+    /// in the same directory as the executable.
+    QueryEvaluator(const std::string& configFile);
     /// Parses a SIMPLE program; must be called before evaluate
     /// @param simple the SIMPLE source code in C++ std::string format
     void parseSimple(const std::string& simple);
@@ -208,10 +230,734 @@ public:
     static pkbHasAnyStringFn
         get_hasAnyString_pkb_method_from_RefSynType(
             RefSynType refSynType);
+
+    /// Evaluates a Relation clause
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param genRef the Relation clause
+    static void __cdecl evaluate_relRef(ResultsTable& rTable, PKB *pkb,
+            const GenericRef *genRef);
+    /// Evaluates a Relation clause where both arguments are synonyms
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause
+    static void __cdecl ev_relRef_syn_syn(ResultsTable& rTable, PKB *pkb,
+            const RelRef *relRef);
+    /// Sets up the PKB Dispatch Table for a Relation clause with
+    /// 1 synonym argument which is not seen
+    /// @param pkbDispatch the PKB Dispatch Table to set up
+    /// @param relRef the Relation clause to evaluate
+    static void __cdecl ev_relRef_syn_syn_0_setup(
+            EvalPKBDispatch& pkbDispatch, const RelRef *relRef);
+    /// Sets up the PKB Dispatch Table for a Relation clause with
+    /// 1 synonym argument which has been seen
+    /// @param pkbDispatch the PKB Dispatch Table to set up
+    /// @param relRef the Relation clause to evaluate
+    static void __cdecl ev_relRef_syn_syn_1_setup(
+            EvalPKBDispatch& pkbDispatch, const RelRef *relRef);
+    /// Sets up the PKB Dispatch Table for a Relation clause with
+    /// 2 synonym arguments which are not seen
+    /// @param pkbDispatch the PKB Dispatch Table to set up
+    /// @param relRef the Relation clause to evaluate
+    static void __cdecl ev_relRef_syn_syn_00_setup(
+            EvalPKBDispatch& pkbDispatch, const RelRef *relRef);
+    /// Sets up the PKB Dispatch Table for a Relation clause with
+    /// 2 synonym arguments, where the 1st argument has not been seen
+    /// and the 2nd argument has been seen
+    /// @param pkbDispatch the PKB Dispatch Table to set up
+    /// @param relRef the Relation clause to evaluate
+    static void __cdecl ev_relRef_syn_syn_01_setup(
+            EvalPKBDispatch& pkbDispatch, const RelRef *relRef);
+    /// Sets up the PKB Dispatch Table for a Relation clause with
+    /// 2 synonym arguments where the 1st argument has been seen
+    /// and the 2nd argument has not been seen
+    /// @param pkbDispatch the PKB Dispatch Table to set up
+    /// @param relRef the Relation clause to evaluate
+    static void __cdecl ev_relRef_syn_syn_10_setup(
+            EvalPKBDispatch& pkbDispatch, const RelRef *relRef);
+    /// Sets up the PKB Dispatch Table for a Relation clause with
+    /// 2 synonym arguments and the 2 arguments have been seen,
+    /// including 11 and 22 case
+    /// @param pkbDispatch the PKB Dispatch Table to set up
+    /// @param relRef the Relation clause to evaluate
+    static void __cdecl ev_relRef_syn_syn_11_22_setup(SynInGraph sig,
+            EvalPKBDispatch& pkbDispatch, const RelRef *relRef);
+
+    /// typedef for Relation argument types are (string,string),
+    /// retrieves the 1st string synonym based on a concrete 2nd string
+    /// synonym
+    typedef std::set<std::string> (PKB::*pkbGet_1SS_From_2SS)
+                    (DesignEnt, DesignEnt, const std::string&) const;
+    /// typedef for Relation argument types are (string,int),
+    /// retrieves the 1st string synonym based on a concrete 2nd int
+    /// synonym
+    typedef std::set<std::string> (PKB::*pkbGet_1SS_From_2IS)
+                    (DesignEnt, DesignEnt, int) const;
+    /// typedef for Relation argument types are (int,string),
+    /// retrieves the 1st int synonym based on a concrete 2nd string
+    /// synonym
+    typedef std::set<int> (PKB::*pkbGet_1IS_From_2SS)
+                    (DesignEnt, DesignEnt, const std::string&) const;
+    /// typedef for Relation argument types are (int,int),
+    /// retrieves the 1st int synonym based on a concrete 2nd int
+    /// synonym
+    typedef std::set<int> (PKB::*pkbGet_1IS_From_2IS)
+                    (DesignEnt, DesignEnt, int) const;
+    /// typedef for Relation argument types are (string,string),
+    /// retrieves the 2nd string synonym based on a concrete 1st string
+    /// synonym
+    typedef std::set<std::string> (PKB::*pkbGet_2SS_From_1SS)
+                    (DesignEnt, DesignEnt, const std::string&) const;
+    /// typedef for Relation argument types are (int,string),
+    /// retrieves the 2nd string synonym based on a concrete 1st int
+    /// synonym
+    typedef std::set<std::string> (PKB::*pkbGet_2SS_From_1IS)
+                    (DesignEnt, DesignEnt, int) const;
+    /// typedef for Relation argument types are (string,int),
+    /// retrieves the 2nd int synonym based on a concrete 1st string
+    /// synonym
+    typedef std::set<int> (PKB::*pkbGet_2IS_From_1SS)
+                    (DesignEnt, DesignEnt, const std::string&) const;
+    /// typedef for Relation argument types are (int,int),
+    /// retrieves the 2nd int synonym based on a concrete 1st int
+    /// synonym
+    typedef std::set<int> (PKB::*pkbGet_2IS_From_1IS)
+                    (DesignEnt, DesignEnt, int) const;
+    /// Retrieves the appropriate PKB method for retrieving all string
+    /// synonyms of a given type
+    /// @param ent the synonym design entity type
+    /// @return the PKB method for retrieving all string synonyms of
+    /// the given type
+    static pkbGetAllStringFn __cdecl pkbd_setup_get_all_string_method(
+            DesignEnt ent);
+    /// Retrieves the appropriate PKB method for retrieving all int
+    /// synonyms of a given type
+    /// @param ent the synonym design entity type
+    /// @return the PKB method for retrieving all int synonyms of the
+    ///         given type
+    static pkbGetAllIntFn __cdecl pkbd_setup_get_all_int_method
+            (DesignEnt ent);
+    /// Relation args are (string,string); gets the PKB method used for
+    /// retrieving all 1st string synonym based on a concrete 2nd string
+    /// synonym, depending on the Relation type
+    /// @param r the Relation type
+    /// @return the appropriate PKB method retrieving all 1st string
+    ///         synonym based on a concrete 2nd string synonym
+    static pkbGet_1SS_From_2SS
+            __cdecl pkbd_setup_get_1SS_From_2SS(RelRefType r);
+    /// This is not used and will cause an assertion failure if called
+    static pkbGet_1SS_From_2IS
+            __cdecl pkbd_setup_get_1SS_From_2IS(RelRefType r);
+    /// Relation args are (int,string); gets the PKB method used for
+    /// retrieving all 1st int synonym based on a concrete 2nd string
+    /// synonym, depending on the Relation type
+    /// @param r the Relation type
+    /// @return the appropriate PKB method retrieving all 1st int
+    ///         synonym based on a concrete 2nd string synonym
+    static pkbGet_1IS_From_2SS
+            __cdecl pkbd_setup_get_1IS_From_2SS(RelRefType r);
+    /// Relation args are (int,int); gets the PKB method used for
+    /// retrieving all 1st int synonym based on a concrete 2nd int
+    /// synonym, depending on the Relation type
+    /// @param r the Relation type
+    /// @return the appropriate PKB method retrieving all 1st int
+    ///         synonym based on a concrete 2nd int synonym
+    static pkbGet_1IS_From_2IS
+            __cdecl pkbd_setup_get_1IS_From_2IS(RelRefType r);
+    /// Relation args are (string,string); gets the PKB method used for
+    /// retrieving all 2nd string synonym based on a concrete 1st string
+    /// synonym, depending on the Relation type
+    /// @param r the Relation type
+    /// @return the appropriate PKB method retrieving all 2nd string
+    ///         synonym based on a concrete 1st string synonym
+    static pkbGet_2SS_From_1SS
+            __cdecl pkbd_setup_get_2SS_From_1SS(RelRefType r);
+    /// Relation args are (int,string); gets the PKB method used for
+    /// retrieving all 2nd string synonym based on a concrete 1st int
+    /// synonym, depending on the Relation type
+    /// @param r the Relation type
+    /// @return the appropriate PKB method retrieving all 2nd string
+    ///         synonym based on a concrete 1st int synonym
+    static pkbGet_2SS_From_1IS
+            __cdecl pkbd_setup_get_2SS_From_1IS(RelRefType r);
+    /// This is not used and will cause an assertion failure if called
+    static pkbGet_2IS_From_1SS
+            __cdecl pkbd_setup_get_2IS_From_1SS(RelRefType r);
+    /// Relation args are (int,int); gets the PKB method used for
+    /// retrieving all 2nd int synonym based on a concrete 1st int
+    /// synonym, depending on the Relation type
+    /// @param r the Relation type
+    /// @return the appropriate PKB method retrieving all 2nd int
+    ///         synonym based on a concrete 1st int synonym
+    static pkbGet_2IS_From_1IS
+            __cdecl pkbd_setup_get_2IS_From_1IS(RelRefType r);
+
+    // How to read these functions
+    // eg. ev_rr_ss_string_string_00_from_argOne
+    //     ev = evaluate, rr = relRef, ss = syn syn (both args are syn)
+    //     string_string = arg 1 is string, arg 2 is string
+    //     00 = arg 1 is not in results, arg 2 is not in results
+    //     from_argOne = since both arg 1 and arg 2 are not in results,
+    //                   we can choose to get either all arg 1 or all arg 2
+    //                   from the PKB. In this case, we choose to get all
+    //                   all arg 1. Hence from_argOne
+
+    /// Evaluates a (string,string) Relation clause where both arguments
+    /// have not been seen and we start from retrieving all 1st synonym
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    static void __cdecl ev_rr_ss_string_string_00_from_argOne(
+            ResultsTable &rTable, PKB *pkb, const RelRef *relRef,
+            const EvalPKBDispatch& disp);
+    /// Evaluates a (string,string) Relation clause where both arguments
+    /// have not been seen and we start from retrieving all 2nd synonym
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    static void __cdecl ev_rr_ss_string_string_00_from_argTwo(
+            ResultsTable &rTable, PKB *pkb, const RelRef *relRef,
+            const EvalPKBDispatch& disp);
+    /// Evaluates a (string,string) Relation clause where arg 1 has not
+    /// been seen and arg 2 has been seen
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    static void __cdecl ev_rr_ss_string_string_01(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp);
+    /// Evaluates a (string,string) Relation clause where arg 1 has been
+    /// seen and arg 2 has not been seen
+    /// @param rTable the ResultsTable for this relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    static void __cdecl ev_rr_ss_string_string_10(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp);
+    /// Evaluates a (string,string) Relation clause where both arguments
+    /// have been seen and are in the same Table
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    static void __cdecl ev_rr_ss_string_string_11(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp);
+    /// Evaluates a (string,string) Relation clause where both arguments
+    /// have been seen and but are not in the same Table.
+    /// NOTE: This should be deprecated in future patches
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    static void __cdecl ev_rr_ss_string_string_22(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp);
+    /// Not supposed to be used; this fails immediately upon call
+    static void __cdecl ev_rr_ss_string_int_00_from_argOne(
+            ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+            const EvalPKBDispatch& disp);
+    /// Not supposed to be used; this fails immediately upon call
+    static void __cdecl ev_rr_ss_string_int_00_from_argTwo(
+            ResultsTable &rTable, PKB *pkb, const RelRef *relRef,
+            const EvalPKBDispatch& disp);
+    /// Not supposed to be used; this fails immediately upon call
+    static void __cdecl ev_rr_ss_string_int_01(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp);
+    /// Not supposed to be used; this fails immediately upon call
+    static void __cdecl ev_rr_ss_string_int_10(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp);
+    /// Not supposed to be used; this fails immediately upon call
+    static void __cdecl ev_rr_ss_string_int_11(ResultsTable &rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp);
+    /// Not supposed to be used; this fails immediately upon call
+    static void __cdecl ev_rr_ss_string_int_22(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp);
+    /// Evaluates a (int,string) Relation clause where both arguments
+    /// have not been seen and we start from retrieving all 1st synonym
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    static void __cdecl ev_rr_ss_int_string_00_from_argOne(
+            ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+            const EvalPKBDispatch& disp);
+    /// Evaluates a (int,string) Relation clause where both arguments
+    /// have not been seen and we start from retrieving all 2nd synonym
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    static void __cdecl ev_rr_ss_int_string_00_from_argTwo(
+            ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+            const EvalPKBDispatch& disp);
+    /// Evaluates a (int,string) Relation clause where the 1st arg has
+    /// not been seen and the 2nd arg has been seen
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    static void __cdecl ev_rr_ss_int_string_01(ResultsTable &rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp);
+    /// Evaluates a (int,string) Relation clause where the 1st arg has
+    /// been seen and the 2nd arg has not been seen
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    static void __cdecl ev_rr_ss_int_string_10(ResultsTable &rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp);
+    /// Evaluates a (int,string) Relation clause where the both args
+    /// have been seen and are in the same Table
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    static void __cdecl ev_rr_ss_int_string_11(ResultsTable &rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp);
+    /// Evaluates a (int,string) Relation clause where the both args
+    /// have been seen and but are in different Table.
+    /// NOTE: This should be deprecated in future patches
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    static void __cdecl ev_rr_ss_int_string_22(ResultsTable &rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp);
+    /// Evaluates a (int,int) Relation clause where the both args
+    /// have not been seen and we start from retrieving all 1st synonym
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    static void __cdecl ev_rr_ss_int_int_00_from_argOne(
+            ResultsTable &rTable, PKB *pkb, const RelRef *relRef,
+            const EvalPKBDispatch& disp);
+    /// Evaluates a (int,int) Relation clause where the both args
+    /// have not been seen and we start from retrieving all 2nd synonym
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    static void __cdecl ev_rr_ss_int_int_00_from_argTwo(
+            ResultsTable &rTable, PKB *pkb, const RelRef *relRef,
+            const EvalPKBDispatch& disp);
+    /// Evaluates a (int,int) Relation clause where arg 1 has not been
+    /// seen and arg 2 has been seen
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    static void __cdecl ev_rr_ss_int_int_01(ResultsTable &rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp);
+    /// Evaluates a (int,int) Relation clause where arg 1 has been
+    /// seen and arg 2 has not been seen
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    static void __cdecl ev_rr_ss_int_int_10(ResultsTable &rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp);
+    /// Evaluates a (int,int) Relation clause where both args have been
+    /// seen and are in the same Table
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    static void __cdecl ev_rr_ss_int_int_11(ResultsTable &rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp);
+    /// Evaluates a (int,int) Relation clause where both args have been
+    /// seen but are in different Table.
+    /// NOTE: This should be deprecated by future patches
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    static void __cdecl ev_rr_ss_int_int_22(ResultsTable &rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp);
+
+    /// Evaluating of Relation where synonym arguments are both of
+    /// type int, both synonym arguments are the same and unseen
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef a pointer to the RelRef describing the Relation
+    ///               and its parameters
+    /// @param disp A dispatch table into PKB and QueryEvaluator methods
+    ///             for query evaluation purposes
+    static void __cdecl ev_rr_ss_int_int_0(ResultsTable &rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp);
+    /// Evaluating of Relation where synonym arguments are both of
+    /// type int, both synonym arguments are the same and seen
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef a pointer to the RelRef describing the Relation
+    ///               and its parameters
+    /// @param disp A dispatch table into PKB and QueryEvaluator methods
+    ///             for query evaluation purposes
+    static void __cdecl ev_rr_ss_int_int_1(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp);
+
+    /// Evaluate a Relation clause, where the first argument is a
+    /// synonym and the second argument is not a synonym
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause
+    static void __cdecl ev_relRef_syn_X(ResultsTable& rTable, PKB *pkb,
+            const RelRef *relRef);
+    /// Evaluates Next(X,syn) and Next*(X,syn), where syn has not
+    /// been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    static void __cdecl ev_relRef_syn_X_0_nextAndStar(
+            ResultsTable& rTable, PKB *pkb, const RelRef *relRef);
+    /// Evaluates Next(X,syn) and Next*(X,syn), where syn has not been
+    /// seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    static void __cdecl ev_relRef_syn_X_1_nextAndStar(
+            ResultsTable& rTable, PKB *pkb, const RelRef *relRef);
+    /// Evaluates a Relation clause where args are (string,string),
+    /// the first synonym has not been seen and the second arg
+    /// is a concrete string
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    /// @param xType the synonym type of 2nd argument (a concrete
+    ///              string value)
+    /// @param xVal the concrete string value for the 2nd argument
+    static void __cdecl ev_rr_syn_X_string_string_0(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp,
+            DesignEnt xType, const std::string& xVal);
+    /// Evaluates a Relation clause where args are (string,_),
+    /// the first synonym has not been seen and the second argument
+    /// is an underscore
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    static void __cdecl ev_rr_syn_X_string_wild_0(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp);
+    /// Evaluates a Relation clause where args are (int,string),
+    /// the first synonym has not been seen and the second argument
+    /// is a concrete string
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    /// @param xType the synonym type of the 2nd argument (a concrete
+    ///              string value)
+    /// @param xVal the concrete string value for the 2nd argument
+    static void __cdecl ev_rr_syn_X_int_string_0(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp,
+            DesignEnt xType, const std::string& xVal);
+    /// Evaluates a Relation clause where args are (int,int),
+    /// the first synonym has not been seen and the second argument
+    /// is a concrete int
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    /// @param xType the synonym type of the 2nd argument (a concrete
+    ///              integer value)
+    /// @param xVal the concrete integer value for the 2nd argument
+    static void __cdecl ev_rr_syn_X_int_int_0(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp,
+            DesignEnt xType, int xVal);
+    /// Evaluates a Relation clause where args are (int,_),
+    /// the first synonym has not been seen and the second argument
+    /// is an underscore
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    static void __cdecl ev_rr_syn_X_int_wild_0(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp);
+    /// Evaluates a Relation clause where args are (string,string),
+    /// the first synonym has been seen and the second argument
+    /// is a concrete string
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    /// @param xType the synonym type of the second argument (a concrete
+    ///              string value)
+    /// @param xVal the concrete string value for the second argument
+    static void __cdecl ev_rr_syn_X_string_string_1(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp,
+            DesignEnt xType, const std::string& xVal);
+    /// Evaluates a Relation clause where args are (string,_),
+    /// the first synonym has been seen and the second argument
+    /// is an underscore
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    static void __cdecl ev_rr_syn_X_string_wild_1(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp);
+    /// Evaluates a Relation clause where args are (int,string),
+    /// the first synonym hasbeen seen and the second argument
+    /// is a concrete string
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    /// @param xType the synonym type of the 2nd argument (a concrete
+    ///              string value)
+    /// @param xVal the concrete string value for the 2nd argument
+    static void __cdecl ev_rr_syn_X_int_string_1(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp,
+            DesignEnt xType, const std::string& xVal);
+    /// Evaluates a Relation clause where args are (int,int),
+    /// the first synonym has been seen and the second argument
+    /// is a concrete integer
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    /// @param xType the synonym type of the 2nd argument (a concrete
+    ///              integer value)
+    /// @param xVal the concrete integer value for the 2nd argument
+    static void __cdecl ev_rr_syn_X_int_int_1(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp,
+            DesignEnt xType, int xVal);
+    /// Evaluates a Relation clause where args are (int,_),
+    /// the first synonym has been seen and the second argument
+    /// is an undersscore
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    /// @param disp the PKB Dispatch Table
+    static void __cdecl ev_rr_syn_X_int_wild_1(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp);
+
+    /// Evaluates a Relation clause where the first argument is not
+    /// a synonym and the second argument is a synonym
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef the Relation clause to evaluate
+    static void __cdecl ev_relRef_X_syn(ResultsTable& rTable, PKB *pkb,
+            const RelRef *relRef);
+    /// Evaluates Modifies(X,syn) where syn has not been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    static void __cdecl ev_relRef_X_syn_0_modifies(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef);
+    /// Evaluates Modifies(X,syn) where syn has been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    static void __cdecl ev_relRef_X_syn_1_modifies(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef);
+    /// Evaluates Uses(X,syn) where syn has not been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    static void __cdecl ev_relRef_X_syn_0_uses(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef);
+    /// Evaluates Uses(X,syn) where syn has been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    static void __cdecl ev_relRef_X_syn_1_uses(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef);
+    /// Evaluates Calls(X,syn) where syn has not been seen
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    static void __cdecl ev_relRef_X_syn_0_calls(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef);
+    /// Evaluates Calls(X,syn) where syn has been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    static void __cdecl ev_relRef_X_syn_1_calls(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef);
+    /// Evaluates Calls*(X,syn) where syn has not been seen
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    static void __cdecl ev_relRef_X_syn_0_callsStar(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef);
+    /// Evaluates Calls*(X,syn) where syn has been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    static void __cdecl ev_relRef_X_syn_1_callsStar(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef);
+    /// Evaluates Parent(X,syn) where syn has not been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    static void __cdecl ev_relRef_X_syn_0_parent(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef);
+    /// Evaluates Parent(X,syn) where syn has been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    static void __cdecl ev_relRef_X_syn_1_parent(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef);
+    /// Evaluates Parent*(X,syn) where syn has not been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    static void __cdecl ev_relRef_X_syn_0_parentStar(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef);
+    /// Evaluates Parent*(X,syn) where syn has been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    static void __cdecl ev_relRef_X_syn_1_parentStar(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef);
+    /// Evaluates Follows(X,syn) and Follows*(X,syn) where syn
+    /// has not been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    static void __cdecl ev_relRef_X_syn_0_followsAndStar(
+            ResultsTable& rTable, PKB *pkb, const RelRef *relRef);
+    /// Evaluates Follows(X,syn) and Follows*(X,syn) where syn
+    /// has been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    static void __cdecl ev_relRef_X_syn_1_followsAndStar(
+            ResultsTable& rTable, PKB *pkb, const RelRef *relRef);
+    /// Evaluates Next(X,syn) and Next*(X,syn) where syn
+    /// has not been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    static void __cdecl ev_relRef_X_syn_0_nextAndStar(
+            ResultsTable& rTable, PKB *pkb, const RelRef *relRef);
+    /// Evaluates Next(X,syn) and Next*(X,syn) where syn
+    /// has been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    static void __cdecl ev_relRef_X_syn_1_nextAndStar(
+            ResultsTable& rTable, PKB *pkb, const RelRef *relRef);
+    /// Evaluates Affects(X,syn) and Affects*(X,syn) where syn
+    /// has not been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    static void __cdecl ev_relRef_X_syn_0_affectsAndStar(
+            ResultsTable& rTable, PKB *pkb, const RelRef *relRef);
+    /// Evaluates Affects(X,syn) and Affects*(X,syn) where syn
+    /// has been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    static void __cdecl ev_relRef_X_syn_1_affectsAndStar(
+            ResultsTable& rTable, PKB *pkb, const RelRef *relRef);
+    /// Evaluates Rel(X,syn), where both arguments are strings and syn
+    /// has not been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    /// @param disp PKB dispatch table
+    /// @param xType design entity type of X
+    /// @param xVal value of X
+    static void __cdecl ev_relRef_X_syn_string_string_0(
+            ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+            const EvalPKBDispatch& disp, DesignEnt xType, const string& xVal);
+    /// Evaluates Rel(X,syn), where both arguments are strings and syn
+    /// has been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    /// @param disp PKB dispatch table
+    /// @param xType design entity type of X
+    /// @param xVal value of X
+    static void __cdecl ev_relRef_X_syn_string_string_1(
+            ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+            const EvalPKBDispatch& disp, DesignEnt xType,
+            const string& xVal);
+    /// Evaluates Rel(X,syn), where arguments are (int,string) and syn
+    /// has not been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    /// @param disp PKB dispatch table
+    /// @param xType design entity type of X
+    /// @param xVal value of X
+    static void __cdecl ev_relRef_X_syn_int_string_0(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp,
+            DesignEnt xType, int xVal);
+    /// Evaluates Rel(X,syn), where arguments are (int,string) and syn
+    /// has been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    /// @param disp PKB dispatch table
+    /// @param xType design entity type of X
+    /// @param xVal value of X
+    static void __cdecl ev_relRef_X_syn_int_string_1(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp,
+            DesignEnt xType, int xVal);
+    /// Evaluates Rel(X,syn), where arguments are (_,string) and syn
+    /// has not been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    /// @param disp PKB dispatch table
+    static void __cdecl ev_relRef_X_syn_wild_string_0(
+            ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+            const EvalPKBDispatch& disp);
+    /// Evaluates Rel(X,syn), where arguments are (_,string) and syn
+    /// has been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    /// @param disp PKB dispatch table
+    static void __cdecl ev_relRef_X_syn_wild_string_1(
+            ResultsTable& rTable, PKB *pkb, const RelRef *relRef,
+            const EvalPKBDispatch& disp);
+    /// Evaluates Rel(X,syn), where arguments are (int,int) and syn
+    /// has not been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    /// @param disp PKB dispatch table
+    static void __cdecl ev_relRef_X_syn_int_int_0(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp,
+            DesignEnt xType, int xVal);
+    /// Evaluates Rel(X,syn), where arguments are (int,int) and syn
+    /// has been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    /// @param disp PKB dispatch table
+    static void __cdecl ev_relRef_X_syn_int_int_1(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp,
+            DesignEnt xType, int xVal);
+    /// Evaluates Rel(X,syn), where arguments are (_,int) and syn
+    /// has not been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    /// @param disp PKB dispatch table
+    static void __cdecl ev_relRef_X_syn_wild_int_0(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp);
+    /// Evaluates Rel(X,syn), where arguments are (_,int) and syn
+    /// has been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    /// @param disp PKB dispatch table
+    static void __cdecl ev_relRef_X_syn_wild_int_1(ResultsTable& rTable,
+            PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp);
 private:
     /// Resets the QueryEvaluator so it is ready for evaluating another
     /// PQL query
     void reset();
+    /// Reads configuration settings from the given file
+    /// @param configFile name of the configuration file
+    void read_config(const std::string& configFile);
     /// Partitions the clauses into connected components by building an
     /// undirected graph, with synonyms as vertices. Each vertex v has
     /// an edge with vertex w if and only if v and w are distinct and
@@ -250,6 +996,9 @@ private:
     /// Creates the ResultsTable objects based on the connected
     /// components computed in the query partitioning process
     void partition_evaluation_partition(int nrClauses);
+
+    /// Evaluates queries component wise in parallel
+    void evaluate_parallel(const QueryInfo *qinfo);
 
     /// Evaluates an isolated clause and returns the evaluation
     /// result (either true / false)
@@ -309,625 +1058,6 @@ private:
     /// @return true if the Relation clause evaluates to true, false
     ///         otherwise
     bool ev_isolated_relation_wild_wild(const RelRef *relRef) const;
-    /// Evaluates a Relation clause
-    /// @param rTableIdx index of the ResultsTable
-    /// @param genRef the Relation clause
-    void evaluate_relRef(int rTableIdx, const GenericRef *genRef);
-    /// Evaluates a Relation clause where both arguments are synonyms
-    /// @param rTableIdx index of the ResultsTable
-    /// @param relRef the Relation clause
-    void ev_relRef_syn_syn(int rTableIdx, const RelRef *relRef);
-    /// Sets up the PKB Dispatch Table for a Relation clause with
-    /// 1 synonym argument which is not seen
-    /// @param pkbDispatch the PKB Dispatch Table to set up
-    /// @param relRef the Relation clause to evaluate
-    void ev_relRef_syn_syn_0_setup(EvalPKBDispatch& pkbDispatch,
-            const RelRef *relRef) const;
-    /// Sets up the PKB Dispatch Table for a Relation clause with
-    /// 1 synonym argument which has been seen
-    /// @param pkbDispatch the PKB Dispatch Table to set up
-    /// @param relRef the Relation clause to evaluate
-    void ev_relRef_syn_syn_1_setup(EvalPKBDispatch& pkbDispatch,
-            const RelRef *relRef) const;
-    /// Sets up the PKB Dispatch Table for a Relation clause with
-    /// 2 synonym arguments which are not seen
-    /// @param pkbDispatch the PKB Dispatch Table to set up
-    /// @param relRef the Relation clause to evaluate
-    void ev_relRef_syn_syn_00_setup(EvalPKBDispatch& pkbDispatch,
-            const RelRef *relRef) const;
-    /// Sets up the PKB Dispatch Table for a Relation clause with
-    /// 2 synonym arguments, where the 1st argument has not been seen
-    /// and the 2nd argument has been seen
-    /// @param pkbDispatch the PKB Dispatch Table to set up
-    /// @param relRef the Relation clause to evaluate
-    void ev_relRef_syn_syn_01_setup(EvalPKBDispatch& pkbDispatch,
-            const RelRef *relRef) const;
-    /// Sets up the PKB Dispatch Table for a Relation clause with
-    /// 2 synonym arguments where the 1st argument has been seen
-    /// and the 2nd argument has not been seen
-    /// @param pkbDispatch the PKB Dispatch Table to set up
-    /// @param relRef the Relation clause to evaluate
-    void ev_relRef_syn_syn_10_setup(EvalPKBDispatch& pkbDispatch,
-            const RelRef *relRef) const;
-    /// Sets up the PKB Dispatch Table for a Relation clause with
-    /// 2 synonym arguments and the 2 arguments have been seen,
-    /// including 11 and 22 case
-    /// @param pkbDispatch the PKB Dispatch Table to set up
-    /// @param relRef the Relation clause to evaluate
-    void ev_relRef_syn_syn_11_22_setup(SynInGraph sig,
-            EvalPKBDispatch& pkbDispatch, const RelRef *relRef) const;
-    /// typedef for Relation argument types are (string,string),
-    /// retrieves the 1st string synonym based on a concrete 2nd string
-    /// synonym
-    typedef std::set<std::string> (PKB::*pkbGet_1SS_From_2SS)
-                    (DesignEnt, DesignEnt, const std::string&) const;
-    /// typedef for Relation argument types are (string,int),
-    /// retrieves the 1st string synonym based on a concrete 2nd int
-    /// synonym
-    typedef std::set<std::string> (PKB::*pkbGet_1SS_From_2IS)
-                    (DesignEnt, DesignEnt, int) const;
-    /// typedef for Relation argument types are (int,string),
-    /// retrieves the 1st int synonym based on a concrete 2nd string
-    /// synonym
-    typedef std::set<int> (PKB::*pkbGet_1IS_From_2SS)
-                    (DesignEnt, DesignEnt, const std::string&) const;
-    /// typedef for Relation argument types are (int,int),
-    /// retrieves the 1st int synonym based on a concrete 2nd int
-    /// synonym
-    typedef std::set<int> (PKB::*pkbGet_1IS_From_2IS)
-                    (DesignEnt, DesignEnt, int) const;
-    /// typedef for Relation argument types are (string,string),
-    /// retrieves the 2nd string synonym based on a concrete 1st string
-    /// synonym
-    typedef std::set<std::string> (PKB::*pkbGet_2SS_From_1SS)
-                    (DesignEnt, DesignEnt, const std::string&) const;
-    /// typedef for Relation argument types are (int,string),
-    /// retrieves the 2nd string synonym based on a concrete 1st int
-    /// synonym
-    typedef std::set<std::string> (PKB::*pkbGet_2SS_From_1IS)
-                    (DesignEnt, DesignEnt, int) const;
-    /// typedef for Relation argument types are (string,int),
-    /// retrieves the 2nd int synonym based on a concrete 1st string
-    /// synonym
-    typedef std::set<int> (PKB::*pkbGet_2IS_From_1SS)
-                    (DesignEnt, DesignEnt, const std::string&) const;
-    /// typedef for Relation argument types are (int,int),
-    /// retrieves the 2nd int synonym based on a concrete 1st int
-    /// synonym
-    typedef std::set<int> (PKB::*pkbGet_2IS_From_1IS)
-                    (DesignEnt, DesignEnt, int) const;
-    /// Retrieves the appropriate PKB method for retrieving all string
-    /// synonyms of a given type
-    /// @param ent the synonym design entity type
-    /// @return the PKB method for retrieving all string synonyms of
-    /// the given type
-    pkbGetAllStringFn pkbd_setup_get_all_string_method(
-            DesignEnt ent) const;
-    /// Retrieves the appropriate PKB method for retrieving all int
-    /// synonyms of a given type
-    /// @param ent the synonym design entity type
-    /// @return the PKB method for retrieving all int synonyms of the
-    ///         given type
-    pkbGetAllIntFn pkbd_setup_get_all_int_method(DesignEnt ent) const;
-    /// Relation args are (string,string); gets the PKB method used for
-    /// retrieving all 1st string synonym based on a concrete 2nd string
-    /// synonym, depending on the Relation type
-    /// @param r the Relation type
-    /// @return the appropriate PKB method retrieving all 1st string
-    ///         synonym based on a concrete 2nd string synonym
-    pkbGet_1SS_From_2SS pkbd_setup_get_1SS_From_2SS(RelRefType r) const;
-    /// This is not used and will cause an assertion failure if called
-    pkbGet_1SS_From_2IS pkbd_setup_get_1SS_From_2IS(RelRefType r) const;
-    /// Relation args are (int,string); gets the PKB method used for
-    /// retrieving all 1st int synonym based on a concrete 2nd string
-    /// synonym, depending on the Relation type
-    /// @param r the Relation type
-    /// @return the appropriate PKB method retrieving all 1st int
-    ///         synonym based on a concrete 2nd string synonym
-    pkbGet_1IS_From_2SS pkbd_setup_get_1IS_From_2SS(RelRefType r) const;
-    /// Relation args are (int,int); gets the PKB method used for
-    /// retrieving all 1st int synonym based on a concrete 2nd int
-    /// synonym, depending on the Relation type
-    /// @param r the Relation type
-    /// @return the appropriate PKB method retrieving all 1st int
-    ///         synonym based on a concrete 2nd int synonym
-    pkbGet_1IS_From_2IS pkbd_setup_get_1IS_From_2IS(RelRefType r) const;
-    /// Relation args are (string,string); gets the PKB method used for
-    /// retrieving all 2nd string synonym based on a concrete 1st string
-    /// synonym, depending on the Relation type
-    /// @param r the Relation type
-    /// @return the appropriate PKB method retrieving all 2nd string
-    ///         synonym based on a concrete 1st string synonym
-    pkbGet_2SS_From_1SS pkbd_setup_get_2SS_From_1SS(RelRefType r) const;
-    /// Relation args are (int,string); gets the PKB method used for
-    /// retrieving all 2nd string synonym based on a concrete 1st int
-    /// synonym, depending on the Relation type
-    /// @param r the Relation type
-    /// @return the appropriate PKB method retrieving all 2nd string
-    ///         synonym based on a concrete 1st int synonym
-    pkbGet_2SS_From_1IS pkbd_setup_get_2SS_From_1IS(RelRefType r) const;
-    /// This is not used and will cause an assertion failure if called
-    pkbGet_2IS_From_1SS pkbd_setup_get_2IS_From_1SS(RelRefType r) const;
-    /// Relation args are (int,int); gets the PKB method used for
-    /// retrieving all 2nd int synonym based on a concrete 1st int
-    /// synonym, depending on the Relation type
-    /// @param r the Relation type
-    /// @return the appropriate PKB method retrieving all 2nd int
-    ///         synonym based on a concrete 1st int synonym
-    pkbGet_2IS_From_1IS pkbd_setup_get_2IS_From_1IS(RelRefType r) const;
-
-    // How to read these functions
-    // eg. ev_rr_ss_string_string_00_from_argOne
-    //     ev = evaluate, rr = relRef, ss = syn syn (both args are syn)
-    //     string_string = arg 1 is string, arg 2 is string
-    //     00 = arg 1 is not in results, arg 2 is not in results
-    //     from_argOne = since both arg 1 and arg 2 are not in results,
-    //                   we can choose to get either all arg 1 or all arg 2
-    //                   from the PKB. In this case, we choose to get all
-    //                   all arg 1. Hence from_argOne
-
-    /// Evaluates a (string,string) Relation clause where both arguments
-    /// have not been seen and we start from retrieving all 1st synonym
-    /// @param rTableIdx the ResultsTable index
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_rr_ss_string_string_00_from_argOne(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp);
-    /// Evaluates a (string,string) Relation clause where both arguments
-    /// have not been seen and we start from retrieving all 2nd synonym
-    /// @param rTableIdx the ResultsTable index
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_rr_ss_string_string_00_from_argTwo(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp);
-    /// Evaluates a (string,string) Relation clause where arg 1 has not
-    /// been seen and arg 2 has been seen
-    /// @param rTableIdx the ResultsTable index
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_rr_ss_string_string_01(int rTableIdx, const RelRef *relRef,
-            const EvalPKBDispatch& disp);
-    /// Evaluates a (string,string) Relation clause where arg 1 has been
-    /// seen and arg 2 has not been seen
-    /// @param rTableIdx the ResultsTable index
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_rr_ss_string_string_10(int rTableIdx, const RelRef *relRef,
-            const EvalPKBDispatch& disp);
-    /// Evaluates a (string,string) Relation clause where both arguments
-    /// have been seen and are in the same Table
-    /// @param rTableIdx the ResultsTable index
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_rr_ss_string_string_11(int rTableIdx, const RelRef *relRef,
-            const EvalPKBDispatch& disp);
-    /// Evaluates a (string,string) Relation clause where both arguments
-    /// have been seen and but are not in the same Table.
-    /// NOTE: This should be deprecated in future patches
-    /// @param rTableIdx the ResultsTable index
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_rr_ss_string_string_22(int rTableIdx, const RelRef *relRef,
-            const EvalPKBDispatch& disp);
-    /// Not supposed to be used; this fails immediately upon call
-    void ev_rr_ss_string_int_00_from_argOne(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp);
-    /// Not supposed to be used; this fails immediately upon call
-    void ev_rr_ss_string_int_00_from_argTwo(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp);
-    /// Not supposed to be used; this fails immediately upon call
-    void ev_rr_ss_string_int_01(int rTableIdx, const RelRef *relRef,
-            const EvalPKBDispatch& disp);
-    /// Not supposed to be used; this fails immediately upon call
-    void ev_rr_ss_string_int_10(int rTableIdx, const RelRef *relRef,
-            const EvalPKBDispatch& disp);
-    /// Not supposed to be used; this fails immediately upon call
-    void ev_rr_ss_string_int_11(int rTableIdx, const RelRef *relRef,
-            const EvalPKBDispatch& disp);
-    /// Not supposed to be used; this fails immediately upon call
-    void ev_rr_ss_string_int_22(int rTableIdx, const RelRef *relRef,
-            const EvalPKBDispatch& disp);
-    /// Evaluates a (int,string) Relation clause where both arguments
-    /// have not been seen and we start from retrieving all 1st synonym
-    /// @param rTableIdx the ResultsTable index
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_rr_ss_int_string_00_from_argOne(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp);
-    /// Evaluates a (int,string) Relation clause where both arguments
-    /// have not been seen and we start from retrieving all 2nd synonym
-    /// @param rTableIdx the ResultsTable index
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_rr_ss_int_string_00_from_argTwo(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp);
-    /// Evaluates a (int,string) Relation clause where the 1st arg has
-    /// not been seen and the 2nd arg has been seen
-    /// @param rTableIdx the ResultsTable index
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_rr_ss_int_string_01(int rTableIdx, const RelRef *relRef,
-            const EvalPKBDispatch& disp);
-    /// Evaluates a (int,string) Relation clause where the 1st arg has
-    /// been seen and the 2nd arg has not been seen
-    /// @param rTableIdx the ResultsTable index
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_rr_ss_int_string_10(int rTableIdx, const RelRef *relRef,
-            const EvalPKBDispatch& disp);
-    /// Evaluates a (int,string) Relation clause where the both args
-    /// have been seen and are in the same Table
-    /// @param rTableIdx the ResultsTable index
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_rr_ss_int_string_11(int rTableIdx, const RelRef *relRef,
-            const EvalPKBDispatch& disp);
-    /// Evaluates a (int,string) Relation clause where the both args
-    /// have been seen and but are in different Table.
-    /// NOTE: This should be deprecated in future patches
-    /// @param rTableIdx the ResultsTable index
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_rr_ss_int_string_22(int rTableIdx, const RelRef *relRef,
-            const EvalPKBDispatch& disp);
-    /// Evaluates a (int,int) Relation clause where the both args
-    /// have not been seen and we start from retrieving all 1st synonym
-    /// @param rTableIdx the ResultsTable index
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_rr_ss_int_int_00_from_argOne(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp);
-    /// Evaluates a (int,int) Relation clause where the both args
-    /// have not been seen and we start from retrieving all 2nd synonym
-    /// @param rTableIdx the ResultsTable index
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_rr_ss_int_int_00_from_argTwo(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp);
-    /// Evaluates a (int,int) Relation clause where arg 1 has not been
-    /// seen and arg 2 has been seen
-    /// @param rTableIdx the ResultsTable index
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_rr_ss_int_int_01(int rTableIdx, const RelRef *relRef,
-            const EvalPKBDispatch& disp);
-    /// Evaluates a (int,int) Relation clause where arg 1 has been
-    /// seen and arg 2 has not been seen
-    /// @param rTableIdx the ResultsTable index
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_rr_ss_int_int_10(int rTableIdx, const RelRef *relRef,
-            const EvalPKBDispatch& disp);
-    /// Evaluates a (int,int) Relation clause where both args have been
-    /// seen and are in the same Table
-    /// @param rTableIdx the ResultsTable index
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_rr_ss_int_int_11(int rTableIdx, const RelRef *relRef,
-            const EvalPKBDispatch& disp);
-    /// Evaluates a (int,int) Relation clause where both args have been
-    /// seen but are in different Table.
-    /// NOTE: This should be deprecated by future patches
-    /// @param rTableIdx the ResultsTable index
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_rr_ss_int_int_22(int rTableIdx, const RelRef *relRef,
-            const EvalPKBDispatch& disp);
-
-    /// Evaluating of Relation where synonym arguments are both of
-    /// type int, both synonym arguments are the same and unseen
-    /// @param rTableIdx index of the ResultsTable
-    /// @param relRef a pointer to the RelRef describing the Relation
-    ///               and its parameters
-    /// @param disp A dispatch table into PKB and QueryEvaluator methods
-    ///             for query evaluation purposes
-    void ev_rr_ss_int_int_0(int rTableIdx, const RelRef *relRef,
-            const EvalPKBDispatch& disp);
-    /// Evaluating of Relation where synonym arguments are both of
-    /// type int, both synonym arguments are the same and seen
-    /// @param rTableIdx index of the ResultsTable
-    /// @param relRef a pointer to the RelRef describing the Relation
-    ///               and its parameters
-    /// @param disp A dispatch table into PKB and QueryEvaluator methods
-    ///             for query evaluation purposes
-    void ev_rr_ss_int_int_1(int rTableIdx, const RelRef *relRef,
-            const EvalPKBDispatch& disp);
-
-    /// Evaluate a Relation clause, where the first argument is a
-    /// synonym and the second argument is not a synonym
-    /// @param rTableIdx index of the ResultsTable
-    /// @param relRef the Relation clause
-    void ev_relRef_syn_X(int rTableIdx, const RelRef *relRef);
-    /// Evaluates Next(X,syn) and Next*(X,syn), where syn has not
-    /// been seen.
-    /// @param rTableIdx index of the ResultsTable
-    /// @param relRef info on this Relation clause
-    void ev_relRef_syn_X_0_nextAndStar(int rTableIdx,
-            const RelRef *relRef);
-    /// Evaluates Next(X,syn) and Next*(X,syn), where syn has not been
-    /// seen.
-    /// @param rTableIdx index of the ResultsTable
-    /// @param relRef the Relation clause to evaluate
-    void ev_relRef_syn_X_1_nextAndStar(int rTableIdx,
-            const RelRef *relRef);
-    /// Evaluates a Relation clause where args are (string,string),
-    /// the first synonym has not been seen and the second arg
-    /// is a concrete string
-    /// @param rTableIdx index of the ResultsTable
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    /// @param xType the synonym type of 2nd argument (a concrete
-    ///              string value)
-    /// @param xVal the concrete string value for the 2nd argument
-    void ev_rr_syn_X_string_string_0(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp,
-            DesignEnt xType, const std::string& xVal);
-    /// Evaluates a Relation clause where args are (string,_),
-    /// the first synonym has not been seen and the second argument
-    /// is an underscore
-    /// @param rTableIdx index of the ResultsTable
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_rr_syn_X_string_wild_0(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp);
-    /// Evaluates a Relation clause where args are (int,string),
-    /// the first synonym has not been seen and the second argument
-    /// is a concrete string
-    /// @param rTableIdx index of the ResultsTable
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    /// @param xType the synonym type of the 2nd argument (a concrete
-    ///              string value)
-    /// @param xVal the concrete string value for the 2nd argument
-    void ev_rr_syn_X_int_string_0(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp,
-            DesignEnt xType, const std::string& xVal);
-    /// Evaluates a Relation clause where args are (int,int),
-    /// the first synonym has not been seen and the second argument
-    /// is a concrete int
-    /// @param rTableIdx index of the ResultsTable
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    /// @param xType the synonym type of the 2nd argument (a concrete
-    ///              integer value)
-    /// @param xVal the concrete integer value for the 2nd argument
-    void ev_rr_syn_X_int_int_0(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp,
-            DesignEnt xType, int xVal);
-    /// Evaluates a Relation clause where args are (int,_),
-    /// the first synonym has not been seen and the second argument
-    /// is an underscore
-    /// @param rTableIdx index of the ResultsTable
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_rr_syn_X_int_wild_0(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp);
-    /// Evaluates a Relation clause where args are (string,string),
-    /// the first synonym has been seen and the second argument
-    /// is a concrete string
-    /// @param rTableIdx index of the ResultsTable
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    /// @param xType the synonym type of the second argument (a concrete
-    ///              string value)
-    /// @param xVal the concrete string value for the second argument
-    void ev_rr_syn_X_string_string_1(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp,
-            DesignEnt xType, const std::string& xVal);
-    /// Evaluates a Relation clause where args are (string,_),
-    /// the first synonym has been seen and the second argument
-    /// is an underscore
-    /// @param rTableIdx index of the ResultsTable
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_rr_syn_X_string_wild_1(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp);
-    /// Evaluates a Relation clause where args are (int,string),
-    /// the first synonym hasbeen seen and the second argument
-    /// is a concrete string
-    /// @param rTableIdx index of the ResultsTable
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    /// @param xType the synonym type of the 2nd argument (a concrete
-    ///              string value)
-    /// @param xVal the concrete string value for the 2nd argument
-    void ev_rr_syn_X_int_string_1(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp,
-            DesignEnt xType, const std::string& xVal);
-    /// Evaluates a Relation clause where args are (int,int),
-    /// the first synonym has been seen and the second argument
-    /// is a concrete integer
-    /// @param rTableIdx index of the ResultsTable
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    /// @param xType the synonym type of the 2nd argument (a concrete
-    ///              integer value)
-    /// @param xVal the concrete integer value for the 2nd argument
-    void ev_rr_syn_X_int_int_1(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp,
-            DesignEnt xType, int xVal);
-    /// Evaluates a Relation clause where args are (int,_),
-    /// the first synonym has been seen and the second argument
-    /// is an undersscore
-    /// @param rTableIdx index of the ResultsTable
-    /// @param relRef the Relation clause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_rr_syn_X_int_wild_1(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp);
-
-    /// Evaluates a Relation clause where the first argument is not
-    /// a synonym and the second argument is a synonym
-    /// @param rTableIdx the ResultsTable index
-    /// @param relRef the Relation clause to evaluate
-    void ev_relRef_X_syn(int rTableIdx, const RelRef *relRef);
-    /// Evaluates Modifies(X,syn) where syn has not been seen.
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    void ev_relRef_X_syn_0_modifies(int rTableIdx, const RelRef *relRef);
-    /// Evaluates Modifies(X,syn) where syn has been seen.
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    void ev_relRef_X_syn_1_modifies(int rTableIdx, const RelRef *relRef);
-    /// Evaluates Uses(X,syn) where syn has not been seen.
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    void ev_relRef_X_syn_0_uses(int rTableIdx, const RelRef *relRef);
-    /// Evaluates Uses(X,syn) where syn has been seen.
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    void ev_relRef_X_syn_1_uses(int rTableIdx, const RelRef *relRef);
-    /// Evaluates Calls(X,syn) where syn has not been seen
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    void ev_relRef_X_syn_0_calls(int rTableIdx, const RelRef *relRef);
-    /// Evaluates Calls(X,syn) where syn has been seen.
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    void ev_relRef_X_syn_1_calls(int rTableIdx, const RelRef *relRef);
-    /// Evaluates Calls*(X,syn) where syn has not been seen
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    void ev_relRef_X_syn_0_callsStar(int rTableIdx, const RelRef *relRef);
-    /// Evaluates Calls*(X,syn) where syn has been seen.
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    void ev_relRef_X_syn_1_callsStar(int rTableIdx, const RelRef *relRef);
-    /// Evaluates Parent(X,syn) where syn has not been seen.
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    void ev_relRef_X_syn_0_parent(int rTableIdx, const RelRef *relRef);
-    /// Evaluates Parent(X,syn) where syn has been seen.
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    void ev_relRef_X_syn_1_parent(int rTableIdx, const RelRef *relRef);
-    /// Evaluates Parent*(X,syn) where syn has not been seen.
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    void ev_relRef_X_syn_0_parentStar(int rTableIdx, const RelRef *relRef);
-    /// Evaluates Parent*(X,syn) where syn has been seen.
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    void ev_relRef_X_syn_1_parentStar(int rTableIdx, const RelRef *relRef);
-    /// Evaluates Follows(X,syn) and Follows*(X,syn) where syn
-    /// has not been seen.
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    void ev_relRef_X_syn_0_followsAndStar(int rTableIdx,
-            const RelRef *relRef);
-    /// Evaluates Follows(X,syn) and Follows*(X,syn) where syn
-    /// has been seen.
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    void ev_relRef_X_syn_1_followsAndStar(int rTableIdx,
-            const RelRef *relRef);
-    /// Evaluates Next(X,syn) and Next*(X,syn) where syn
-    /// has not been seen.
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    void ev_relRef_X_syn_0_nextAndStar(int rTableIdx,
-            const RelRef *relRef);
-    /// Evaluates Next(X,syn) and Next*(X,syn) where syn
-    /// has been seen.
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    void ev_relRef_X_syn_1_nextAndStar(int rTableIdx,
-            const RelRef *relRef);
-    /// Evaluates Affects(X,syn) and Affects*(X,syn) where syn
-    /// has not been seen.
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    void ev_relRef_X_syn_0_affectsAndStar(int rTableIdx,
-            const RelRef *relRef);
-    /// Evaluates Affects(X,syn) and Affects*(X,syn) where syn
-    /// has been seen.
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    void ev_relRef_X_syn_1_affectsAndStar(int rTableIdx,
-            const RelRef *relRef);
-    /// Evaluates Rel(X,syn), where both arguments are strings and syn
-    /// has not been seen.
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    /// @param disp PKB dispatch table
-    /// @param xType design entity type of X
-    /// @param xVal value of X
-    void ev_relRef_X_syn_string_string_0(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp,
-            DesignEnt xType, const string& xVal);
-    /// Evaluates Rel(X,syn), where both arguments are strings and syn
-    /// has been seen.
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    /// @param disp PKB dispatch table
-    /// @param xType design entity type of X
-    /// @param xVal value of X
-    void ev_relRef_X_syn_string_string_1(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp,
-            DesignEnt xType, const string& xVal);
-    /// Evaluates Rel(X,syn), where arguments are (int,string) and syn
-    /// has not been seen.
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    /// @param disp PKB dispatch table
-    /// @param xType design entity type of X
-    /// @param xVal value of X
-    void ev_relRef_X_syn_int_string_0(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp,
-            DesignEnt xType, int xVal);
-    /// Evaluates Rel(X,syn), where arguments are (int,string) and syn
-    /// has been seen.
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    /// @param disp PKB dispatch table
-    /// @param xType design entity type of X
-    /// @param xVal value of X
-    void ev_relRef_X_syn_int_string_1(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp,
-            DesignEnt xType, int xVal);
-    /// Evaluates Rel(X,syn), where arguments are (_,string) and syn
-    /// has not been seen.
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    /// @param disp PKB dispatch table
-    void ev_relRef_X_syn_wild_string_0(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp);
-    /// Evaluates Rel(X,syn), where arguments are (_,string) and syn
-    /// has been seen.
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    /// @param disp PKB dispatch table
-    void ev_relRef_X_syn_wild_string_1(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp);
-    /// Evaluates Rel(X,syn), where arguments are (int,int) and syn
-    /// has not been seen.
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    /// @param disp PKB dispatch table
-    void ev_relRef_X_syn_int_int_0(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp,
-            DesignEnt xType, int xVal);
-    /// Evaluates Rel(X,syn), where arguments are (int,int) and syn
-    /// has been seen.
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    /// @param disp PKB dispatch table
-    void ev_relRef_X_syn_int_int_1(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp,
-            DesignEnt xType, int xVal);
-    /// Evaluates Rel(X,syn), where arguments are (_,int) and syn
-    /// has not been seen.
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    /// @param disp PKB dispatch table
-    void ev_relRef_X_syn_wild_int_0(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp);
-    /// Evaluates Rel(X,syn), where arguments are (_,int) and syn
-    /// has been seen.
-    /// @param rTableIdx ResultsTable index
-    /// @param relRef info on this Relation clause
-    /// @param disp PKB dispatch table
-    void ev_relRef_X_syn_wild_int_1(int rTableIdx,
-            const RelRef *relRef, const EvalPKBDispatch& disp);
 
     /// Evaluates a WithClause
     /// @param rTableIdx ResultsTable index
@@ -1237,6 +1367,10 @@ private:
              EvalSynArgDescCmp> dispatchTable;
     /// Indicates whether the query evaluator is alive
     bool isAlive;
+    /// If true, the query evaluator will evaluate components
+    /// in parallel by forking an appropriate number of threads
+    bool optMultithreaded_;
+    int nrThreads_;
 
     // graph construction purposes
 
@@ -1271,5 +1405,10 @@ private:
     /// exact same synonym argument as both the arguments
     static const std::set<RelRefType> EV_SAME_SYN_RELATION;
 };
+
+/// Entry function for a single thread to evaluate queries
+/// @param qetInfo cast this to struct QEThreadInfo *
+/// @return NULL
+void * __cdecl thread_evaluate(void *qetinfo);
 
 #endif
