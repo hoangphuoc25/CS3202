@@ -1179,21 +1179,21 @@ private:
             const PatCl *patCl);
     void evaluate_patCl_assign_syn_expr(int rTableIdx,
             const PatCl *patCl);
-    void evaluate_patCl_assign_syn_expr_11(ResultsTable& rTable, 
+    void evaluate_patCl_assign_syn_expr_11(ResultsTable& rTable,
             const PatCl* patCl);
-    void evaluate_patCl_assign_syn_expr_22(ResultsTable& rTable, 
+    void evaluate_patCl_assign_syn_expr_22(ResultsTable& rTable,
             const PatCl* patCl);
     void evaluate_patCl_assign_syn_exprwild(int rTableIdx,
             const PatCl *patCl);
-    void evaluate_patCl_assign_syn_exprwild_11(ResultsTable& rTable, 
+    void evaluate_patCl_assign_syn_exprwild_11(ResultsTable& rTable,
             const PatCl* patCl);
-    void evaluate_patCl_assign_syn_exprwild_22(ResultsTable& rTable, 
+    void evaluate_patCl_assign_syn_exprwild_22(ResultsTable& rTable,
             const PatCl* patCl);
     void evaluate_patCl_assign_syn_wildcard(int rTableIdx,
             const PatCl *patCl);
-    void evaluate_patCl_assign_syn_wildcard_11(ResultsTable& rTable, 
+    void evaluate_patCl_assign_syn_wildcard_11(ResultsTable& rTable,
             const PatCl *patCl);
-    void evaluate_patCl_assign_syn_wildcard_22(ResultsTable& rTable, 
+    void evaluate_patCl_assign_syn_wildcard_22(ResultsTable& rTable,
             const PatCl *patCl);
     void evaluate_patCl_assign_wildcard_expr(int rTableIdx,
             const PatCl *patCl);
@@ -1213,10 +1213,14 @@ private:
     
     void evaluate_patCl_while(int rTableIdx, const PatCl *patCl);
     void evaluate_patCl_while_var_syn(int rTableIdx, const PatCl *patCl);
-    void evaluate_patCl_while_var_syn_11(ResultsTable& rTable, const PatCl *patCl);
-    void evaluate_patCl_while_var_syn_22(ResultsTable& rTable, const PatCl *patCl);
-    void evaluate_patCl_while_var_string(int rTableIdx, const PatCl *patCl);
-    void evaluate_patCl_while_var_wildcard(int rTableIdx, const PatCl *patCl);
+    void evaluate_patCl_while_var_syn_11(ResultsTable& rTable,
+            const PatCl *patCl);
+    void evaluate_patCl_while_var_syn_22(ResultsTable& rTable,
+            const PatCl *patCl);
+    void evaluate_patCl_while_var_string(int rTableIdx,
+            const PatCl *patCl);
+    void evaluate_patCl_while_var_wildcard(int rTableIdx,
+            const PatCl *patCl);
 
     bool evaluate_matching_tree(Node*, Node*);
     bool is_operation(const string& operation);
