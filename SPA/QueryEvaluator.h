@@ -14,6 +14,8 @@
 #define TEMP_SPACONFIG_FNAME "tempspaconfig.txt"
 #define QE_MAXTHREADS_STR    "MaxThreads"
 #define QE_THREADSON_STR     "ThreadsOn"
+/// Default number of threads for multithreaded config
+#define QE_DEFAULT_NR_THREADS 4
 /// Minimum number of threads for multithreaded config
 #define QE_MIN_THREADS 2
 /// Maximum number of threads for multithreaded config
@@ -204,7 +206,7 @@ public:
     /// is enabled
     /// @return the maximum number of threads to spawn if multithreading
     ///         is enabled
-    int get_nrThreads() const;
+    int get_maxThreads() const;
 
     /// typedef for get_all_[string synonym] PKB methods
     typedef std::set<std::string> (PKB::*pkbGetAllStringFn) () const;
@@ -1390,7 +1392,9 @@ private:
     /// If true, the query evaluator will evaluate components
     /// in parallel by forking an appropriate number of threads
     bool optMultithreaded_;
-    int nrThreads_;
+    /// Specifies the maximum number of threads to spawn if
+    /// multithreading is enabled (defaults to QE_DEFAULT_NR_THREADS)
+    int maxThreads_;
 
     // graph construction purposes
 

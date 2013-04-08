@@ -148,7 +148,8 @@ const set<RelRefType> QueryEvaluator::EV_SAME_SYN_RELATION(
 
 QueryEvaluator::QueryEvaluator():
         pqlParser(), pkb(NULL), resultsProjector(),
-        isAlive(true), optMultithreaded_(false), nrThreads_(-1),
+        isAlive(true), optMultithreaded_(false),
+        maxThreads_(QE_DEFAULT_NR_THREADS),
         graph_synMap(), graph_adjList(), graph_refToVertex(),
         graph_vertexCC(), graph_nrVertexCC(0), graph_isolatedClauses(),
         partitionedClauses(),
@@ -159,7 +160,8 @@ QueryEvaluator::QueryEvaluator():
 
 QueryEvaluator::QueryEvaluator(const map<string, string>& flags):
         pqlParser(), pkb(NULL), resultsProjector(),
-        isAlive(true), optMultithreaded_(false), nrThreads_(-1),
+        isAlive(true), optMultithreaded_(false),
+        maxThreads_(QE_DEFAULT_NR_THREADS),
         graph_synMap(), graph_adjList(), graph_refToVertex(),
         graph_vertexCC(), graph_nrVertexCC(0), graph_isolatedClauses(),
         partitionedClauses(),
@@ -170,7 +172,8 @@ QueryEvaluator::QueryEvaluator(const map<string, string>& flags):
 
 QueryEvaluator::QueryEvaluator(const string& configFname):
         pqlParser(), pkb(NULL), resultsProjector(),
-        isAlive(true), optMultithreaded_(false), nrThreads_(-1),
+        isAlive(true), optMultithreaded_(false),
+        maxThreads_(QE_DEFAULT_NR_THREADS),
         graph_synMap(), graph_adjList(), graph_refToVertex(),
         graph_vertexCC(), graph_nrVertexCC(0), graph_isolatedClauses(),
         partitionedClauses(),
@@ -192,7 +195,7 @@ void QueryEvaluator::reset()
 {
     this->isAlive = true;
     this->optMultithreaded_ = false;
-    this->nrThreads_ = -1;
+    this->maxThreads_ = QE_DEFAULT_NR_THREADS;
     this->partitionedClauses.clear();
     this->resultsTable.clear();
 }
@@ -249,8 +252,8 @@ void QueryEvaluator::read_config(const string& configFile)
             }
             if (!strcmp(keyStart,  QE_MAXTHREADS_STR)) {
                 int x = atoi(valStart);
-                this->nrThreads_ = min(QE_MAX_THREADS,
-                                           max(x, QE_MIN_THREADS));
+                this->maxThreads_ = min(QE_MAX_THREADS,
+                                            max(x, QE_MIN_THREADS));
             } else if (!strcmp(keyStart, QE_THREADSON_STR)) {
                 if (!strcmp(valStart, YES_STR)) {
                     this->optMultithreaded_ = true;
@@ -268,9 +271,9 @@ bool QueryEvaluator::is_multithreaded() const
     return this->optMultithreaded_;
 }
 
-int QueryEvaluator::get_nrThreads() const
+int QueryEvaluator::get_maxThreads() const
 {
-    return this->nrThreads_;
+    return this->maxThreads_;
 }
 
 void QueryEvaluator::parseSimple(const string& simple)
@@ -401,7 +404,7 @@ void QueryEvaluator::evaluate_parallel(const QueryInfo *qinfo)
         return;
     }
     int totalThreads =
-            ((nrThreads_ > nrPartitions) ? nrPartitions : nrThreads_);
+            ((maxThreads_ > nrPartitions) ? nrPartitions : maxThreads_);
     int rem = nrPartitions % totalThreads;
     int componentsPerThread =
             nrPartitions / totalThreads + ((rem == 0) ? 0 : 1);
@@ -414,7 +417,7 @@ void QueryEvaluator::evaluate_parallel(const QueryInfo *qinfo)
         exit(1);
     }
     struct QEThreadInfo *qeThreads;
-    qeThreads = (struct QEThreadInfo *)calloc(nrThreads_,
+    qeThreads = (struct QEThreadInfo *)calloc(totalThreads,
                         sizeof(struct QEThreadInfo));
     if (!qeThreads) {
         fprintf(stderr, "evaluate_parallel: "

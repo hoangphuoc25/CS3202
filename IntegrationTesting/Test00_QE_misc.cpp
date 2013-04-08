@@ -18,32 +18,34 @@ void Test00_QE_misc::test_readconfig()
 {
     map<string, string> settings;
     QueryEvaluator evaluator(settings);
-    // multithreaded off and nrThreads_ = -1 by default
+    // multithreaded off and nrThreads_ = QE_DEFAULT_NR_THREADS by default
     CPPUNIT_ASSERT_EQUAL(false, evaluator.is_multithreaded());
-    CPPUNIT_ASSERT_EQUAL(-1, evaluator.get_nrThreads());
+    CPPUNIT_ASSERT_EQUAL(QE_DEFAULT_NR_THREADS,
+            evaluator.get_maxThreads());
     // threads on, nrThreads_ = -1
     settings[QE_THREADSON_STR] = YES_STR;
     evaluator.reset(settings);
     CPPUNIT_ASSERT_EQUAL(true, evaluator.is_multithreaded());
-    CPPUNIT_ASSERT_EQUAL(-1, evaluator.get_nrThreads());
+    CPPUNIT_ASSERT_EQUAL(QE_DEFAULT_NR_THREADS,
+            evaluator.get_maxThreads());
     // threads off, nrThreads_ = 4
     settings.clear();
     settings[QE_MAXTHREADS_STR] = "4";
     evaluator.reset(settings);
     CPPUNIT_ASSERT_EQUAL(false, evaluator.is_multithreaded());
-    CPPUNIT_ASSERT_EQUAL(4, evaluator.get_nrThreads());
+    CPPUNIT_ASSERT_EQUAL(4, evaluator.get_maxThreads());
     // threads on, nrThreads_ = QE_MAX_THREADS [exceed 8 threads here]
     settings.clear();
     settings[QE_THREADSON_STR] = YES_STR;
     settings[QE_MAXTHREADS_STR] = "16";
     evaluator.reset(settings);
     CPPUNIT_ASSERT_EQUAL(true, evaluator.is_multithreaded());
-    CPPUNIT_ASSERT_EQUAL(QE_MAX_THREADS, evaluator.get_nrThreads());
+    CPPUNIT_ASSERT_EQUAL(QE_MAX_THREADS, evaluator.get_maxThreads());
     // threads on, nrThreads_ = QE_MIN_THREADS [1 thread specified]
     settings.clear();
     settings[QE_THREADSON_STR] = YES_STR;
     settings[QE_MAXTHREADS_STR] = "1";
     evaluator.reset(settings);
     CPPUNIT_ASSERT_EQUAL(true, evaluator.is_multithreaded());
-    CPPUNIT_ASSERT_EQUAL(QE_MIN_THREADS, evaluator.get_nrThreads());
+    CPPUNIT_ASSERT_EQUAL(QE_MIN_THREADS, evaluator.get_maxThreads());
 }
