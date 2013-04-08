@@ -29,6 +29,8 @@
 #define SUCH_STR            "such"
 #define THAT_STR            "that"
 #define INVALID_STR         "invalid"
+#define YES_STR             "Yes"
+#define NO_STR              "No"
 #define MODIFIES_STR        "Modifies"
 #define USES_STR            "Uses"
 #define CALLS_STAR_STR      "Calls*"

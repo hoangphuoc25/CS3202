@@ -68,6 +68,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="source\IntegrationTest.cpp" />
+    <ClCompile Include="Test00_QE_misc.cpp" />
     <ClCompile Include="Test01_SelectNoClause.cpp" />
     <ClCompile Include="Test10_00_Affects.cpp" />
     <ClCompile Include="Test10_00_AffectsStar.cpp" />
@@ -149,6 +150,7 @@
     <ClCompile Include="Test60_ParseFromFile.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Test00_QE_misc.h" />
     <ClInclude Include="Test01_SelectNoClause.h" />
     <ClInclude Include="Test10_00_Affects.h" />
     <ClInclude Include="Test10_00_AffectsStar.h" />

@@ -10,8 +10,10 @@
 #include "ResultsTable.h"
 #include "ResultsProjector.h"
 
-#define SPACONFIG_FNAME "spaconfig.txt"
-#define QE_MAXTHREADS_STR "MaxThreads"
+#define SPACONFIG_FNAME      "spaconfig.txt"
+#define TEMP_SPACONFIG_FNAME "tempspaconfig.txt"
+#define QE_MAXTHREADS_STR    "MaxThreads"
+#define QE_THREADSON_STR     "ThreadsOn"
 /// Minimum number of threads for multithreaded config
 #define QE_MIN_THREADS 2
 /// Maximum number of threads for multithreaded config
@@ -174,7 +176,7 @@ public:
     /// Constructor taking in a a map of settings
     /// @param flags Query Evaluator settings. Refer to the summary
     ///              documentation for QueryEvaluator for more details
-    QueryEvaluator(const std::map<std::string, int>& flags);
+    QueryEvaluator(const std::map<std::string, std::string>& flags);
     /// Initializes QueryEvaluator from a configuration file.
     /// The default configuration file is named 'spaconfig' and housed
     /// in the same directory as the executable.
@@ -185,12 +187,24 @@ public:
     /// Parses a SIMPLE program in a given file
     /// @fname name of the file containing the SIMPLE program
     void parseSimple_from_file(const std::string& fname);
+    /// Resets the QueryEvaluator with different settings
+    /// @param settings read the class documentation for QueryEvaluator
+    ///        for more information
+    void reset(const std::map<std::string, std::string>& settings);
     /// Evaluates a PQL query; must be called after one of
     /// parseSimple or parseSimple_from_file
     /// @param queryStr the query string
     /// @param resultList results of query evaluation placed here
     void evaluate(const std::string& queryStr,
             std::list<std::string>& resultList);
+    /// Checks if multithreading is enabled
+    /// @return true if multithreading is enabled, false otherwise
+    bool is_multithreaded() const;
+    /// Gets the maximum number of threads to spawn if multithreading
+    /// is enabled
+    /// @return the maximum number of threads to spawn if multithreading
+    ///         is enabled
+    int get_nrThreads() const;
 
     /// typedef for get_all_[string synonym] PKB methods
     typedef std::set<std::string> (PKB::*pkbGetAllStringFn) () const;
@@ -952,9 +966,15 @@ public:
     static void __cdecl ev_relRef_X_syn_wild_int_1(ResultsTable& rTable,
             PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp);
 private:
+    /// Private copy constructor to prevent copying
+    QueryEvaluator(const QueryEvaluator& o);
+    /// Private copy assign operator to prevent assignment
+    QueryEvaluator& operator=(const QueryEvaluator& o);
     /// Resets the QueryEvaluator so it is ready for evaluating another
     /// PQL query
     void reset();
+    void read_config_from_map(
+            const std::map<std::string, std::string>& settings);
     /// Reads configuration settings from the given file
     /// @param configFile name of the configuration file
     void read_config(const std::string& configFile);

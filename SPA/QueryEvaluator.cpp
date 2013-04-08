@@ -18,6 +18,7 @@ using std::string;
 using std::map;
 using std::max;
 using std::min;
+using std::ofstream;
 using std::queue;
 using std::set;
 
@@ -156,7 +157,7 @@ QueryEvaluator::QueryEvaluator():
     this->read_config(SPACONFIG_FNAME);
 }
 
-QueryEvaluator::QueryEvaluator(const map<string, int>& flags):
+QueryEvaluator::QueryEvaluator(const map<string, string>& flags):
         pqlParser(), pkb(NULL), resultsProjector(),
         isAlive(true), optMultithreaded_(false), nrThreads_(-1),
         graph_synMap(), graph_adjList(), graph_refToVertex(),
@@ -164,14 +165,7 @@ QueryEvaluator::QueryEvaluator(const map<string, int>& flags):
         partitionedClauses(),
         resultsTable()
 {
-    map<string, int>::const_iterator it =
-            flags.find(QE_MAXTHREADS_STR);
-    if (flags.end() != it) {
-        int n = it->second;
-        optMultithreaded_ = true;
-        nrThreads_ = min(QE_MAX_THREADS,
-                             max(QE_MIN_THREADS, n));
-    }
+    this->read_config_from_map(flags);
 }
 
 QueryEvaluator::QueryEvaluator(const string& configFname):
@@ -185,11 +179,40 @@ QueryEvaluator::QueryEvaluator(const string& configFname):
     this->read_config(configFname);
 }
 
+// private
+QueryEvaluator::QueryEvaluator(const QueryEvaluator& o) {}
+
+// private
+QueryEvaluator& QueryEvaluator::operator=(const QueryEvaluator& o)
+{
+    return *this;
+}
+
 void QueryEvaluator::reset()
 {
     this->isAlive = true;
+    this->optMultithreaded_ = false;
+    this->nrThreads_ = -1;
     this->partitionedClauses.clear();
     this->resultsTable.clear();
+}
+
+void QueryEvaluator::reset(const map<string, string>& settings)
+{
+    this->reset();
+    this->read_config_from_map(settings);
+}
+
+void QueryEvaluator::read_config_from_map(
+        const map<string, string>& settings)
+{
+    ofstream of(TEMP_SPACONFIG_FNAME);
+    for (map<string, string>::const_iterator it = settings.begin();
+            it != settings.end(); it++) {
+        of << it->first << " = " << it->second << std::endl;
+    }
+    of.close();
+    this->read_config(TEMP_SPACONFIG_FNAME);
 }
 
 void QueryEvaluator::read_config(const string& configFile)
@@ -201,18 +224,22 @@ void QueryEvaluator::read_config(const string& configFile)
     while (infs.good()) {
         getline(infs, s);
         str = s.c_str();
-        p = (char *) strchr(str, '=');
+        keyStart = (char *)str;
+        while (*keyStart && isspace(*keyStart)) {
+            *keyStart++ = '\0';
+        }
+        // skip comment lines
+        if ('#' == *keyStart) {
+            continue;
+        }
+        p = (char *) strchr(keyStart, '=');
         if (p) {
-            keyStart = (char *)str;
-            valEnd = (char *)str + strlen(str) - 1;
+            valEnd = (char *)str + strlen(keyStart) - 1;
             *p = '\0';
             valStart = p+1;
             keyEnd = p-1;
-            while (keyEnd >= str && isspace(*keyEnd)) {
+            while (keyEnd > keyStart && isspace(*keyEnd)) {
                 *keyEnd-- = '\0';
-            }
-            while (keyStart < keyEnd && isspace(*keyStart)) {
-                *keyStart++ = '\0';
             }
             while (*valStart && isspace(*valStart)) {
                 *valStart++ = '\0';
@@ -221,14 +248,29 @@ void QueryEvaluator::read_config(const string& configFile)
                 *valEnd-- = '\0';
             }
             if (!strcmp(keyStart,  QE_MAXTHREADS_STR)) {
-                this->optMultithreaded_ = true;
                 int x = atoi(valStart);
                 this->nrThreads_ = min(QE_MAX_THREADS,
                                            max(x, QE_MIN_THREADS));
+            } else if (!strcmp(keyStart, QE_THREADSON_STR)) {
+                if (!strcmp(valStart, YES_STR)) {
+                    this->optMultithreaded_ = true;
+                } else if (!strcmp(valStart, NO_STR)) {
+                    this->optMultithreaded_ = false;
+                }
             }
         }
     }
     infs.close();
+}
+
+bool QueryEvaluator::is_multithreaded() const
+{
+    return this->optMultithreaded_;
+}
+
+int QueryEvaluator::get_nrThreads() const
+{
+    return this->nrThreads_;
 }
 
 void QueryEvaluator::parseSimple(const string& simple)
