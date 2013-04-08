@@ -58,9 +58,12 @@ VarElements& VarElements::operator=(const struct VarElements &other)
     return *this;
 }
 
-VarTable::VarTable() {}
+VarTable::VarTable()
+        : varSet_()
+{}
 
 VarTable::VarTable(const VarTable &other)
+        : varSet_(other.varSet_)
 {
     if (this != &other) {
         varTable = other.varTable;
@@ -72,6 +75,7 @@ VarTable& VarTable::operator=(const VarTable &other)
 {
     if (this != &other) {
         varTable = other.varTable;
+        varSet_ = other.varSet_;
         nameToIndex = other.nameToIndex;
     }
     return *this;
@@ -89,7 +93,7 @@ int VarTable::get_index(string var) const
     }
 }
 
-string VarTable::get_var_name(int index) const
+const string& VarTable::get_var_name(int index) const
 {
     int sz = varTable.size();
     if (index < 0 || index >= sz) {
@@ -106,6 +110,7 @@ int VarTable::insert_var(string var)
     }
 
     int index = varTable.size();
+    varSet_.insert(var);
     nameToIndex[var] = index;
     VarElements varEntry = VarElements(index, var);
     varTable.push_back(varEntry);
@@ -382,14 +387,9 @@ set<string> VarTable::get_used_by_proc(string var){
     return varTable[index].usedByProc;
 }
 
-set<string> VarTable::get_all_vars() const
+const set<string>& VarTable::get_all_vars() const
 {
-    set<string> result;
-    int len = varTable.size();
-    for(int i = 0; i < len; i ++) {
-        result.insert(varTable[i].var);
-    }
-    return result;
+    return this->varSet_;
 }
 
 bool VarTable::has_any_var() const

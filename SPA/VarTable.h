@@ -47,7 +47,7 @@ public:
     ~VarTable();
 
     int get_index(string var) const;
-    string get_var_name(int index) const;
+    const std::string& get_var_name(int index) const;
 
     int insert_var(string var);
 
@@ -90,7 +90,7 @@ public:
     set<string> get_modified_by_proc(string var);
     set<string> get_used_by_proc(string var);
 
-    set<string> get_all_vars() const;
+    const std::set<std::string>& get_all_vars() const;
 
     /// Checks if the VarTable contains any variable
     /// @returns true if there is at least one variable in the
@@ -107,6 +107,7 @@ private:
     const set<int> EMPTY_INTSET;
     const set<string> EMPTY_STRINGSET;
     vector<VarElements> varTable;
+    std::set<std::string> varSet_;
     std::map<string,int> nameToIndex;
 };
 
