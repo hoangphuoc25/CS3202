@@ -29,14 +29,14 @@ public:
 
     // Physical methods
     void add_leaf(Node *node);
-    Node* get_root();
-    vector<Node*> get_leaves();
+    Node* get_root() const;
+    const std::vector<Node*>& get_leaves() const;
 
     // AST methods
-    Node* get_parent();
-    vector<Node*> get_children();
-    Node* get_predecessor();
-    Node* get_successor();
+    Node* get_parent() const;
+    const std::vector<Node*>& get_children() const;
+    Node* get_predecessor() const;
+    Node* get_successor() const;
     const std::set<std::string>& get_modifies() const;
     const std::set<std::string>& get_uses() const;
     const std::string& get_control_var() const;
@@ -50,22 +50,22 @@ public:
     void set_control_var(string var);
     void set_updated();
 
-    bool is_updated();
+    bool is_updated() const;
 
     // Helper
     void link_stmt(Node *n1); //helper to link stmt nodes
 
     // Printer
-    void dump(int n);
-    void dump(int n, FILE *fp);
-    void preorder(int n);
-    void preorder(int n, FILE *fp);
-    void out(int n, string name);
+    void dump(int n) const;
+    void dump(int n, FILE *fp) const;
+    void preorder(int n) const;
+    void preorder(int n, FILE *fp) const;
+    void out(int n, string name) const;
 
-    void dump_relationships();
-    void dump_relationships(FILE *fp);
-    void preorder_relationship(FILE *fp);
-    void out_relationship(string name);
+    void dump_relationships() const;
+    void dump_relationships(FILE *fp) const;
+    void preorder_relationship(FILE *fp) const;
+    void out_relationship(string name) const;
 
 private:
     // Node Fields

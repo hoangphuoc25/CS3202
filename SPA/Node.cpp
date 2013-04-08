@@ -45,33 +45,33 @@ void Node::add_leaf(Node *node){
     node->set_root(this);
 }
 
-Node* Node::get_root()
+Node* Node::get_root() const
 {
     return root;
 }
 
-vector<Node*> Node::get_leaves()
+const vector<Node*>& Node::get_leaves() const
 {
     return leaves;
 }
 
 // AST methods
-Node* Node::get_parent()
+Node* Node::get_parent() const
 {
     return parent;
 }
 
-vector<Node*> Node::get_children()
+const vector<Node*>& Node::get_children() const
 {
     return children;
 }
 
-Node* Node::get_predecessor()
+Node* Node::get_predecessor() const
 {
     return predecessor;
 }
 
-Node* Node::get_successor()
+Node* Node::get_successor() const
 {
     return successor;
 }
@@ -143,7 +143,7 @@ void Node::set_updated()
     updated = true;
 }
 
-bool Node::is_updated()
+bool Node::is_updated() const
 {
     return updated;
 }
@@ -168,7 +168,7 @@ void Node::link_stmt(Node *n1)
 }
 
 // Printer
-void Node::dump(int n)
+void Node::dump(int n) const
 {
     while (n--) {
         putchar(' ');
@@ -176,7 +176,7 @@ void Node::dump(int n)
     printf("%s\n", nodeName.c_str());
 }
 
-void Node::preorder(int n)
+void Node::preorder(int n) const
 {
     dump(n);
     int len = leaves.size();
@@ -185,7 +185,7 @@ void Node::preorder(int n)
     }
 }
 
-void Node::out(int n, string name)
+void Node::out(int n, string name) const
 {
     FILE *fp;
     fp = fopen(name.c_str(), "w");
@@ -193,7 +193,7 @@ void Node::out(int n, string name)
     fclose(fp);
 }
 
-void Node::dump(int n, FILE *fp)
+void Node::dump(int n, FILE *fp) const
 {
     while (n--) {
         fputc(' ', fp);
@@ -201,7 +201,7 @@ void Node::dump(int n, FILE *fp)
     fprintf(fp,"%s\n", nodeName.c_str());
 }
 
-void Node::preorder(int n, FILE *fp)
+void Node::preorder(int n, FILE *fp) const
 {
     dump(n,fp);
     int len = leaves.size();
@@ -210,7 +210,7 @@ void Node::preorder(int n, FILE *fp)
     }
 }
 
-void Node::dump_relationships()
+void Node::dump_relationships() const
 {
 
     printf("Current Node: (%s, %d)\n", nodeName.c_str(), nodeStmtNo);
@@ -245,7 +245,7 @@ void Node::dump_relationships()
     putchar('\n');
 }
 
-void Node::dump_relationships(FILE *fp)
+void Node::dump_relationships(FILE *fp) const
 {
 
     fprintf(fp, "Current Node: (%s, %d)\n", nodeName.c_str(), nodeStmtNo);
@@ -280,7 +280,7 @@ void Node::dump_relationships(FILE *fp)
     fputc('\n', fp);
 }
 
-void Node::preorder_relationship(FILE *fp)
+void Node::preorder_relationship(FILE *fp) const
 {
     dump_relationships(fp);
     int len = leaves.size();
@@ -289,7 +289,7 @@ void Node::preorder_relationship(FILE *fp)
     }
 }
 
-void Node::out_relationship(string name)
+void Node::out_relationship(string name) const
 {
     FILE *fp;
     fp = fopen(name.c_str(), "w");

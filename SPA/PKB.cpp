@@ -499,7 +499,7 @@ set<int> PKB::parent_X_Y_get_int_Y_from_int_X(DesignEnt xType,
         break;
     }
     if (node != NULL) {
-        vector<Node*> v = node->get_children();
+        const vector<Node*>& v = node->get_children();
         int sz = v.size();
         for(int i = 0; i < sz; i++) {
             int stmt = v[i]->get_stmtNo();
@@ -590,7 +590,7 @@ set<int> PKB::parentStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
         queue<Node*> q;
         set<int> res;
         Node *n = xNode;
-        vector<Node*> v = n->get_children();
+        const vector<Node*>& v = n->get_children();
         int sz = v.size();
         for (int i = 0; i < sz; i++) {
             q.push(v[i]);
@@ -600,10 +600,10 @@ set<int> PKB::parentStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
             if (stmtBank->is_stmtType(n->get_stmtNo(), yType)) {
                 res.insert(n->get_stmtNo());
             }
-            v = n->get_children();
-            sz = v.size();
+            const vector<Node*>& childVec = n->get_children();
+            sz = childVec.size();
             for (int i = 0; i < sz; i++) {
-                q.push(v[i]);
+                q.push(childVec[i]);
             }
         }
         return res;

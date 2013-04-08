@@ -5185,7 +5185,8 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_string_expr(
                 modifiedVar= *j;
             }
             if (modifiedVar == patCl->varRefString) {
-                const vector<Node*> leaves = assignStmtNode->get_leaves();
+                const vector<Node*>& leaves =
+                        assignStmtNode->get_leaves();
                 if (QueryEvaluator::evaluate_matching_tree(leaves[1],
                         rootExprTree)) {
                     rTable.syn_0_add_row(assignStmt);
@@ -5219,7 +5220,7 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_string_exprwild(
             while (!nodeQueue.empty()) {
                 Node *frontNode = nodeQueue.front();
                 nodeQueue.pop();
-                vector<Node *> leaves = frontNode->get_leaves();
+                const vector<Node *>& leaves = frontNode->get_leaves();
                 int nrLeaves = leaves.size();
                 for (int k = 0; k < nrLeaves; k++) {
                     nodeQueue.push(leaves[k]);
@@ -5247,7 +5248,7 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_string_exprwild(
             while (!nodeQueue.empty()) {
                 Node *frontNode = nodeQueue.front();
                 nodeQueue.pop();
-                vector<Node *> leaves = frontNode->get_leaves();
+                const vector<Node *>& leaves = frontNode->get_leaves();
                 int nrLeaves = leaves.size();
                 for (int k = 0; k < nrLeaves; k++) {
                     nodeQueue.push(leaves[k]);
@@ -5339,8 +5340,8 @@ bool __cdecl QueryEvaluator::evaluate_matching_tree(Node* ASTNode,
     if (ASTNode->get_name() != assignNode->get_name()) {
         return false;
     }
-    vector<Node *> astLeaves = ASTNode->get_leaves();
-    vector<Node *> assignLeaves = assignNode->get_leaves();
+    const vector<Node *>& astLeaves = ASTNode->get_leaves();
+    const vector<Node *>& assignLeaves = assignNode->get_leaves();
     if (assignLeaves.size() != assignLeaves.size()) {
         return false;
     } else if ((astLeaves.size() == 0 && assignLeaves.size() != 0) ||
@@ -5579,7 +5580,7 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_syn_exprwild(
             while (!nodeQueue.empty()) {
                 Node *frontNode = nodeQueue.front();
                 nodeQueue.pop();
-                vector<Node *> leaves = frontNode->get_leaves();
+                const vector<Node *>& leaves = frontNode->get_leaves();
                 int nrLeaves = leaves.size();
                 for (int i = 0; i < nrLeaves; i++) {
                     nodeQueue.push(leaves[i]);
@@ -5619,7 +5620,8 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_syn_exprwild(
                 while (!nodeQueue.empty()) {
                     Node *frontNode = nodeQueue.front();
                     nodeQueue.pop();
-                    vector<Node *> leaves = frontNode->get_leaves();
+                    const vector<Node *>& leaves =
+                            frontNode->get_leaves();
                     int nrLeaves = leaves.size();
                     for (int i = 0; i < nrLeaves; i++) {
                         nodeQueue.push(leaves[i]); /*CHANGED FOR TESTING*/
@@ -5650,7 +5652,7 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_syn_exprwild(
             while (!nodeQueue.empty()) {
                 Node *frontNode = nodeQueue.front();
                 nodeQueue.pop();
-                vector<Node *> leaves = frontNode->get_leaves();
+                const vector<Node *>& leaves = frontNode->get_leaves();
                 int nrLeaves = leaves.size();
                 for (int i = 0; i < nrLeaves; i++) {
                     nodeQueue.push(leaves[i]);
@@ -5701,7 +5703,7 @@ void QueryEvaluator::evaluate_patCl_assign_syn_exprwild_11(
             while (!(nodeQueue.empty())) {
                 Node *frontNode = nodeQueue.front();
                 nodeQueue.pop();
-                vector<Node *> leaves = frontNode->get_leaves();
+                const vector<Node *>& leaves = frontNode->get_leaves();
                 int nrLeaves = leaves.size();
                 for (int k = 0; k < nrLeaves; k++) {
                     Node *child = leaves[k];
@@ -5752,7 +5754,8 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_syn_exprwild_22(
                 while (!(nodeQueue.empty())) {
                     Node *frontNode = nodeQueue.front();
                     nodeQueue.pop();
-                    vector<Node *> leaves = frontNode->get_leaves();
+                    const vector<Node *>& leaves =
+                            frontNode->get_leaves();
                     int nrLeaves = leaves.size();
                     for (int k = 0; k < nrLeaves; k++) {
                         nodeQueue.push(leaves[k]);
@@ -5958,7 +5961,7 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_wildcard_expr(
             while (!nodeQueue.empty()) {
                 Node* frontNode = nodeQueue.front();
                 nodeQueue.pop();
-                vector<Node*> leaves = frontNode->get_leaves();
+                const vector<Node*>& leaves = frontNode->get_leaves();
                 for (int i=0; i<leaves.size(); i++) {
                     nodeQueue.push(leaves[i]);
                     if (leaves[i]->get_name() == rootExprTree->get_name()) {
@@ -5999,7 +6002,7 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_wildcard_exprwild(
             while (!nodeQueue.empty()) {
                 Node *frontNode = nodeQueue.front();
                 nodeQueue.pop();
-                vector<Node *> leaves = frontNode->get_leaves();
+                const vector<Node *>& leaves = frontNode->get_leaves();
                 int nrLeaves = leaves.size();
                 for (int k = 0; k < nrLeaves; k++) {
                     nodeQueue.push(leaves[k]);
@@ -6026,7 +6029,7 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_wildcard_exprwild(
             while (!nodeQueue.empty()) {
                 Node *frontNode = nodeQueue.front();
                 nodeQueue.pop();
-                vector<Node *> leaves = frontNode->get_leaves();
+                const vector<Node *>& leaves = frontNode->get_leaves();
                 int nrLeaves = leaves.size();
                 for (int i = 0; i < nrLeaves; i++) {
                     nodeQueue.push(leaves[i]);

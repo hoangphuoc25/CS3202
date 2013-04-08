@@ -87,7 +87,7 @@ void Parser::update_nodes(Node *n)
 {
     int stmtNo = n->get_stmtNo();
     if (!n->is_updated()) {
-        vector<Node*> v = n->get_children();
+        const vector<Node*>& v = n->get_children();
         int sz = v.size();
         for (int i = 0; i < sz; i++) {
             update_nodes(v[i]);
