@@ -67,40 +67,72 @@ procedure rara {\
     Parser parser(simpleProg, FROMSTRING);
     parser.init();
     auto_ptr<PKB> pkb(parser.get_pkb());
-    CPPUNIT_ASSERT_EQUAL(false,pkb->is_affects(17,17));
     CPPUNIT_ASSERT_EQUAL(false,
-        pkb->affects_query_int_X_int_Y(ENT_ASSIGN,17,ENT_ASSIGN,17));
+            pkb->affects_query_int_X_int_Y(ENT_ASSIGN, 17,
+                    ENT_ASSIGN, 17));
     CPPUNIT_ASSERT_EQUAL(false,
-        pkb->affects_query_int_X_int_Y(ENT_ASSIGN,9,ENT_ASSIGN,9));
+            pkb->affects_query_int_X_int_Y(ENT_ASSIGN, 17,
+                    ENT_ASSIGN, 17));
+    CPPUNIT_ASSERT_EQUAL(false,
+            pkb->affects_query_int_X_int_Y(ENT_ASSIGN, 9, ENT_ASSIGN, 9));
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"16"),SetWrapper<string>
-        (pkb->affects_X_Y_get_int_Y_from_int_X(ENT_ASSIGN,ENT_ASSIGN,9)));
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"6"),SetWrapper<string>
-        (pkb->affects_X_Y_get_int_X_from_int_Y(ENT_ASSIGN,ENT_ASSIGN,9)));
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"5"),SetWrapper<string>
-        (pkb->affects_X_Y_get_int_X_from_int_Y(ENT_ASSIGN,ENT_ASSIGN,5)));
+            (pkb->affects_X_Y_get_int_Y_from_int_X(ENT_ASSIGN,
+                    ENT_ASSIGN, 9)));
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"6"),
+            SetWrapper<string>
+                    (pkb->affects_X_Y_get_int_X_from_int_Y(ENT_ASSIGN,
+                            ENT_ASSIGN,9)));
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "5"),
+            SetWrapper<string>(
+                    pkb->affects_X_Y_get_int_X_from_int_Y(ENT_ASSIGN,
+                            ENT_ASSIGN,5)));
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3,"5","8","12"),
-        SetWrapper<string>(pkb->affects_X_Y_get_int_Y_from_int_X(
-            ENT_ASSIGN,ENT_ASSIGN,5)));
-    CPPUNIT_ASSERT_EQUAL(true,pkb->is_affects_star(9,9));
+            SetWrapper<string>(pkb->affects_X_Y_get_int_Y_from_int_X(
+                    ENT_ASSIGN,ENT_ASSIGN,5)));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->affectsStar_query_int_X_int_Y(ENT_ASSIGN, 9,
+                    ENT_ASSIGN, 9));
 
     // Testing loops
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5,"6","9","13","16","15"),
-        SetWrapper<string>(pkb->get_affects_star(6)));
+        SetWrapper<string>(
+                pkb->affectsStar_X_Y_get_int_Y_from_int_X(
+                        ENT_ASSIGN, ENT_ASSIGN, 6)));
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5,"6","9","13","16","15"),
-        SetWrapper<string>(pkb->get_affects_star(9)));
+        SetWrapper<string>(
+                pkb->affectsStar_X_Y_get_int_Y_from_int_X(
+                        ENT_ASSIGN, ENT_ASSIGN, 9)));
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5,"6","9","13","16","15"),
-        SetWrapper<string>(pkb->get_affects_star(13)));
+        SetWrapper<string>(
+                pkb->affectsStar_X_Y_get_int_Y_from_int_X(
+                        ENT_ASSIGN, ENT_ASSIGN, 13)));
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5,"6","9","13","16","15"),
-        SetWrapper<string>(pkb->get_affects_star(16)));
+        SetWrapper<string>(
+                pkb->affectsStar_X_Y_get_int_Y_from_int_X(
+                        ENT_ASSIGN, ENT_ASSIGN, 16)));
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5,"6","9","13","16","15"),
-        SetWrapper<string>(pkb->get_affects_star(15)));
+        SetWrapper<string>(
+                pkb->affectsStar_X_Y_get_int_Y_from_int_X(
+                        ENT_ASSIGN, ENT_ASSIGN, 15)));
 
-    CPPUNIT_ASSERT_EQUAL(false,pkb->is_affects(17,15));
-    CPPUNIT_ASSERT_EQUAL(true,pkb->is_affects_star(17,15));
-    CPPUNIT_ASSERT_EQUAL(false,pkb->is_affects(8,16));
-    CPPUNIT_ASSERT_EQUAL(true,pkb->is_affects_star(8,16));
-    CPPUNIT_ASSERT_EQUAL(false,pkb->is_affects(13,8));
-    CPPUNIT_ASSERT_EQUAL(false,pkb->is_affects_star(13,8));
+    CPPUNIT_ASSERT_EQUAL(false,
+            pkb->affects_query_int_X_int_Y(ENT_ASSIGN, 17,
+                    ENT_ASSIGN, 15));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->affectsStar_query_int_X_int_Y(ENT_ASSIGN, 17,
+                    ENT_ASSIGN, 15));
+    CPPUNIT_ASSERT_EQUAL(false,
+            pkb->affects_query_int_X_int_Y(ENT_ASSIGN, 8,
+                    ENT_ASSIGN, 16));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->affectsStar_query_int_X_int_Y(ENT_ASSIGN, 8,
+                    ENT_ASSIGN, 16));
+    CPPUNIT_ASSERT_EQUAL(false,
+            pkb->affects_query_int_X_int_Y(ENT_ASSIGN, 13,
+                    ENT_ASSIGN, 8));
+    CPPUNIT_ASSERT_EQUAL(false,
+            pkb->affectsStar_query_int_X_int_Y(ENT_ASSIGN, 13,
+                    ENT_ASSIGN, 8));
 
     CPPUNIT_ASSERT_EQUAL(true,
         pkb->affectsStar_query_int_X_int_Y(ENT_ASSIGN,15,ENT_ASSIGN,15));
@@ -133,7 +165,9 @@ procedure rara {\
         SetWrapper<string>(pkb->affects_X_Y_get_int_X_from_int_Y(
             ENT_ASSIGN,ENT_ASSIGN,16)));
 
-    CPPUNIT_ASSERT_EQUAL(true,pkb->is_affects_star(15,15));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb->affectsStar_query_int_X_int_Y(ENT_ASSIGN, 15,
+                    ENT_ASSIGN, 15));
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5,"6","9","13","16","15"),
         SetWrapper<string>(pkb->affectsStar_X_Y_get_int_Y_from_int_X
             (ENT_ASSIGN,ENT_ASSIGN,15)));
@@ -152,7 +186,9 @@ procedure rara {\
 
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>
         (9,"5","8","12","6","9","13","16","15","17"),
-            SetWrapper<string>(pkb->get_affected_by_star(15)));
+            SetWrapper<string>(
+                    pkb->affectsStar_X_Y_get_int_X_from_int_Y(
+                            ENT_ASSIGN, ENT_ASSIGN, 15)));
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>
         (9,"5","8","12","6","9","13","16","15","17"),
         SetWrapper<string>(pkb->affectsStar_X_Y_get_int_X_from_int_Y

@@ -803,75 +803,9 @@ public:
     // Variables
     set<string> get_all_vars_by_proc(string procName);
 
-    // Calls
-    bool is_calls(string proc1, string proc2);
-    bool is_calls_star(string proc1, string proc2);
-
-    set<string> get_calls(string procName);
-    set<string> get_calls_star(string procName);
-
-    set<string> get_called_by(string procName);
-    set<string> get_called_by_star(string procName);
-
-    // Modifies
-    bool is_modifies(string procName, string varName);
-    bool is_modifies(int stmtNo, string varName);
-        
-    set<string> get_proc_modifies(string var);
     set<int> get_stmt_modifies(const std::string& var) const;
     
-    set<string> get_var_proc_modifies(string procName);
     set<string> get_var_stmt_modifies(int stmtNo) const;
-
-    // Uses
-    bool is_uses(string procName, string varName);
-    bool is_uses(int stmtNo, string varName);
-
-    set<string> get_proc_uses(string var);
-    set<int> get_stmt_uses(string var);
-    
-    set<string> get_var_proc_uses(string procName);
-    set<string> get_var_stmt_uses(int stmtNo) const; 
-
-    // Parent
-    bool is_parent(int stmt1, int stmt2);
-    bool is_parent_star(int stmt1, int stmt2);
-
-    int get_parent(int stmtNo);
-    set<int> get_parent_star(int stmtNo);
-    
-    set<int> get_children(int stmtNo);
-    set<int> get_children_star(int stmtNo);
-
-    // Follows
-    bool is_follows(int stmt1, int stmt2);
-    bool is_follows_star(int stmt1, int stmt2);
-
-    int get_successor(int stmtNo);
-    set<int> get_successor_star(int stmNo);
-
-    int get_predecessor(int stmtNo);
-    set<int> get_predecessor_star(int stmtNo);
-
-    // Next
-    bool is_next(int stmt1, int stmt2);
-    bool is_next_star(int stmt1, int stmt2);
-
-    set<int> get_before(int stmtNo);
-    set<int> get_before_star(int stmtNo);
-
-    set<int> get_after(int stmtNo);
-    set<int> get_after_star(int stmtNo);
-
-    // Affects
-    bool is_affects(int stmt1, int stmt2) const;
-    bool is_affects_star(int stmt1, int stmt2);
-
-    set<int> get_affects(int stmtNo);
-    set<int> get_affects_star(int stmtNo);
-
-    set<int> get_affected_by(int stmtNo);
-    set<int> get_affected_by_star(int stmtNo);
 
     // Others
     bool is_stmtType(int stmtNo, DesignEnt type) const;

@@ -215,38 +215,57 @@ void Test_30_PKB::test_one(){
             "z"), stringSet);
     
     // Calls 
-    CPPUNIT_ASSERT_EQUAL(true, pkb.is_calls("Mary", "John"));
-    CPPUNIT_ASSERT_EQUAL(true, pkb.is_calls("Bill", "Mary"));
-    CPPUNIT_ASSERT_EQUAL(false, pkb.is_calls("Jane", "John"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb.calls_query_string_X_string_Y(ENT_PROC, "Mary",
+                    ENT_PROC, "John"));
+    CPPUNIT_ASSERT_EQUAL(true,
+        pkb.calls_query_string_X_string_Y(ENT_PROC, "Bill",
+                ENT_PROC, "Mary"));
+    CPPUNIT_ASSERT_EQUAL(false,
+        pkb.calls_query_string_X_string_Y(ENT_PROC, "Jane",
+                ENT_PROC, "John"));
 
-    CPPUNIT_ASSERT_EQUAL(true, pkb.is_calls_star("Bill", "John"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb.callsStar_query_string_X_string_Y(ENT_PROC, "Bill",
+                    ENT_PROC, "John"));
 
-    s = pkb.get_calls("Bill");
+    s = pkb.calls_X_Y_get_string_Y_from_string_X(ENT_PROC, ENT_PROC,
+            "Bill");
     stringSet = SetWrapper<string>(s);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "John", "Jane", "Mary"),
             stringSet);
 
-    s = pkb.get_calls_star("Bill");
+    s = pkb.callsStar_X_Y_get_string_Y_from_string_X(ENT_PROC, ENT_PROC,
+            "Bill");
     stringSet = SetWrapper<string>(s);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "John", "Jane", "Mary"),
             stringSet);
 
-    s = pkb.get_called_by("John");
+    s = pkb.calls_X_Y_get_string_X_from_string_Y(ENT_PROC, ENT_PROC,
+            "John");
     stringSet = SetWrapper<string>(s);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "Bill", "Mary"),
             stringSet);
 
-    s = pkb.get_called_by_star("John");
+    s = pkb.callsStar_X_Y_get_string_X_from_string_Y(ENT_PROC, ENT_PROC,
+            "John");
         stringSet = SetWrapper<string>(s);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "Bill", "Mary"),
             stringSet);
 
     // Modifies
-    CPPUNIT_ASSERT_EQUAL(true, pkb.is_modifies("Mary", "z"));
-    CPPUNIT_ASSERT_EQUAL(false, pkb.is_modifies("Mary", "x"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb.modifies_query_string_X_string_Y(ENT_PROC, "Mary",
+                    ENT_VAR, "z"));
+    CPPUNIT_ASSERT_EQUAL(false,
+            pkb.modifies_query_string_X_string_Y(ENT_PROC, "Mary",
+                    ENT_VAR, "x"));
 
-    CPPUNIT_ASSERT_EQUAL(true, pkb.is_modifies(1, "z"));
-    CPPUNIT_ASSERT_EQUAL(true, pkb.is_modifies(30, "z"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb.modifies_query_int_X_string_Y(ENT_STMT, 1, ENT_VAR, "z"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb.modifies_query_int_X_string_Y(ENT_STMT, 30,
+                    ENT_VAR, "z"));
 
     s = pkb.modifies_X_Y_get_string_X_from_string_Y(ENT_PROC, ENT_VAR, "i");
     stringSet = SetWrapper<string>(s);
@@ -277,12 +296,22 @@ void Test_30_PKB::test_one(){
             stringSet);
 
     // Uses
-    CPPUNIT_ASSERT_EQUAL(true, pkb.is_uses("Mary", "x"));
-    CPPUNIT_ASSERT_EQUAL(true, pkb.is_uses("Mary", "d"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb.uses_query_string_X_string_Y(ENT_PROC, "Mary",
+                    ENT_VAR, "x"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb.uses_query_string_X_string_Y(ENT_PROC, "Mary",
+                    ENT_VAR, "d"));
 
-    CPPUNIT_ASSERT_EQUAL(true, pkb.is_uses(3, "z"));
-    CPPUNIT_ASSERT_EQUAL(true, pkb.is_uses(9, "y"));
-    CPPUNIT_ASSERT_EQUAL(true, pkb.is_uses(21, "i"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb.uses_query_int_X_string_Y(ENT_STMT, 3,
+                    ENT_VAR, "z"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb.uses_query_int_X_string_Y(ENT_STMT, 9,
+                    ENT_VAR, "y"));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb.uses_query_int_X_string_Y(ENT_STMT, 21,
+                    ENT_VAR, "i"));
 
     s = pkb.uses_X_Y_get_string_X_from_string_Y(ENT_PROC, ENT_VAR, "d");
     stringSet = SetWrapper<string>(s);
@@ -298,61 +327,80 @@ void Test_30_PKB::test_one(){
     stringSet = SetWrapper<string>(s);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "d", "x", "z"), stringSet);
 
-    s = pkb.get_var_stmt_uses(9);
+    s = pkb.uses_X_Y_get_string_Y_from_int_X(ENT_STMT, ENT_VAR, 9);
     stringSet = SetWrapper<string>(s);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5, "d", "i", "x", "y", "z"),
             stringSet);
 
     // Parent
 
-    CPPUNIT_ASSERT(pkb.is_parent(11, 15));
-    CPPUNIT_ASSERT(pkb.is_parent(11, 15));
+    CPPUNIT_ASSERT(pkb.parent_query_int_X_int_Y(ENT_STMT, 11,
+            ENT_STMT, 15));
+    CPPUNIT_ASSERT(pkb.parent_query_int_X_int_Y(ENT_STMT, 11,
+            ENT_STMT, 15));
 
-    CPPUNIT_ASSERT(pkb.is_parent_star(11, 15));
-    CPPUNIT_ASSERT(pkb.is_parent_star(9, 15));
+    CPPUNIT_ASSERT(pkb.parentStar_query_int_X_int_Y(ENT_STMT, 11,
+            ENT_STMT, 15));
+    CPPUNIT_ASSERT(pkb.parentStar_query_int_X_int_Y(ENT_STMT, 9,
+            ENT_STMT, 15));
 
-    CPPUNIT_ASSERT(11 == pkb.get_parent(15));
+    s1 = pkb.parent_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 15);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "11"), stringSet);
 
-    s1 = pkb.get_parent_star(16);
+    s1 = pkb.parentStar_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 16);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "9", "11"), stringSet);
 
-    s1 = pkb.get_children_star(9);
+    s1 = pkb.parentStar_X_Y_get_int_Y_from_int_X(ENT_STMT, ENT_STMT, 9);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(8, "10", "11", "12", "13",
             "14", "15", "16", "17"), stringSet);
 
-    s1 = pkb.get_children(9);
+    s1 = pkb.parent_X_Y_get_int_Y_from_int_X(ENT_STMT, ENT_STMT, 9);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "10", "11", "17"),
             stringSet);
 
-    s1 = pkb.get_children_star(9);
+    s1 = pkb.parentStar_X_Y_get_int_Y_from_int_X(ENT_STMT, ENT_STMT, 9);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(8, "10", "11", "12", "13",
             "14", "15", "16", "17"), stringSet);
     CPPUNIT_ASSERT_EQUAL(8, (int)s1.size());
 
     // Follows
-    CPPUNIT_ASSERT(pkb.is_follows(9, 18));
-    CPPUNIT_ASSERT(!pkb.is_follows(11, 15));
+    CPPUNIT_ASSERT(pkb.follows_query_int_X_int_Y(ENT_STMT, 9,
+            ENT_STMT, 18));
+    CPPUNIT_ASSERT(!pkb.follows_query_int_X_int_Y(ENT_STMT, 11,
+            ENT_STMT, 15));
 
-    CPPUNIT_ASSERT(pkb.is_follows_star(3, 4));
-    CPPUNIT_ASSERT(pkb.is_follows_star(3, 18));
-    CPPUNIT_ASSERT(!pkb.is_follows_star(12, 15));
+    CPPUNIT_ASSERT(pkb.followsStar_query_int_X_int_Y(ENT_STMT, 3,
+            ENT_STMT, 4));
+    CPPUNIT_ASSERT(pkb.followsStar_query_int_X_int_Y(ENT_STMT, 3,
+            ENT_STMT, 18));
+    CPPUNIT_ASSERT(!pkb.followsStar_query_int_X_int_Y(ENT_STMT, 12,
+            ENT_STMT, 15));
 
-    CPPUNIT_ASSERT_EQUAL(23, pkb.get_successor(19));
-    CPPUNIT_ASSERT_EQUAL(26, pkb.get_successor(24));
+    s1 = pkb.follows_X_Y_get_int_Y_from_int_X(ENT_STMT, ENT_STMT, 19);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "23"), stringSet);
+    s1 = pkb.follows_X_Y_get_int_Y_from_int_X(ENT_STMT, ENT_STMT, 24);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "26"), stringSet);
 
-    s1 = pkb.get_successor_star(7);
+    s1 = pkb.followsStar_X_Y_get_int_Y_from_int_X(ENT_STMT, ENT_STMT, 7);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "8", "9", "18"),
             stringSet);
 
-    CPPUNIT_ASSERT_EQUAL(19, pkb.get_predecessor(23));
-    CPPUNIT_ASSERT_EQUAL(24, pkb.get_predecessor(26));
+    s1 = pkb.follows_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 23);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "19"), stringSet);
+    s1 = pkb.follows_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 26);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "24"), stringSet);
 
-    s1 = pkb.get_predecessor_star(6);
+    s1 = pkb.followsStar_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 6);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5, "2", "3", "4", "5", "1"),
             stringSet);
@@ -392,122 +440,158 @@ void Test_30_PKB::test_one(){
 
     // Assignment 1
     // Q1
-    CPPUNIT_ASSERT_EQUAL(-1, pkb.get_parent(3));
-    CPPUNIT_ASSERT_EQUAL(9, pkb.get_parent(11));
-    CPPUNIT_ASSERT_EQUAL(11, pkb.get_parent(13));
-    CPPUNIT_ASSERT_EQUAL(19, pkb.get_parent(21));
-
-    // Q2
-    CPPUNIT_ASSERT_EQUAL(-1, pkb.get_parent(3));
-    CPPUNIT_ASSERT_EQUAL(11, pkb.get_parent(13));
-    CPPUNIT_ASSERT_EQUAL(11, pkb.get_parent(15));
-    CPPUNIT_ASSERT_EQUAL(19, pkb.get_parent(22));
-
-    // Q3
-    s1 = pkb.get_children(2);
+    s1 = pkb.parent_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 3);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
-    s1 = pkb.get_children(9);
+    s1 = pkb.parent_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 11);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "9"), stringSet);
+    s1 = pkb.parent_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 13);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "11"), stringSet);
+    s1 = pkb.parent_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 21);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "19"), stringSet);
+
+    // Q2
+    s1 = pkb.parent_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 3);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
+    s1 = pkb.parent_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 13);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "11"), stringSet);
+    s1 = pkb.parent_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 15);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "11"), stringSet);
+    s1 = pkb.parent_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 22);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "19"), stringSet);
+
+    // Q3
+    s1 = pkb.parent_X_Y_get_int_Y_from_int_X(ENT_STMT, ENT_STMT, 2);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
+    s1 = pkb.parent_X_Y_get_int_Y_from_int_X(ENT_STMT, ENT_STMT, 9);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "10", "11", "17"),
             stringSet);
-    s1 = pkb.get_children(10);
+    s1 = pkb.parent_X_Y_get_int_Y_from_int_X(ENT_STMT, ENT_STMT, 10);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
-    s1 = pkb.get_children(11);
+    s1 = pkb.parent_X_Y_get_int_Y_from_int_X(ENT_STMT, ENT_STMT, 11);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5, "12", "13", "14", "15",
             "16"), stringSet);
 
     // Q4
-    s1 = pkb.get_parent_star(2);
+    s1 = pkb.parentStar_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 2);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
-    s1 = pkb.get_parent_star(10);
+    s1 = pkb.parentStar_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 10);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "9"), stringSet);
-    s1 = pkb.get_parent_star(15);
+    s1 = pkb.parentStar_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 15);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "9", "11"), stringSet);
-    s1 = pkb.get_parent_star(21);
+    s1 = pkb.parentStar_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 21);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "19"), stringSet);
 
     // Q5
-    s1 = pkb.filter_by_stmtType(ENT_WHILE, pkb.get_parent_star(2));
+    s1 = pkb.parentStar_X_Y_get_int_X_from_int_Y(ENT_WHILE, ENT_STMT, 2);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
-    s1 = pkb.filter_by_stmtType(ENT_WHILE, pkb.get_parent_star(10));
+    s1 = pkb.parentStar_X_Y_get_int_X_from_int_Y(ENT_WHILE, ENT_STMT, 10);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "9"), stringSet);
-    s1 = pkb.filter_by_stmtType(ENT_WHILE, pkb.get_parent_star(13));
+    s1 = pkb.parentStar_X_Y_get_int_X_from_int_Y(ENT_WHILE, ENT_STMT, 13);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "9"), stringSet);
-    s1 = pkb.filter_by_stmtType(ENT_WHILE, pkb.get_parent_star(17));
+    s1 = pkb.parentStar_X_Y_get_int_X_from_int_Y(ENT_WHILE, ENT_STMT, 17);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "9"), stringSet);
-    s1 = pkb.filter_by_stmtType(ENT_WHILE, pkb.get_parent_star(22));
+    s1 = pkb.parentStar_X_Y_get_int_X_from_int_Y(ENT_WHILE, ENT_STMT, 22);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "19"), stringSet);
 
     // Q7
-    CPPUNIT_ASSERT_EQUAL(-1, pkb.get_predecessor(1));
-    CPPUNIT_ASSERT_EQUAL(2, pkb.get_predecessor(3));
-    CPPUNIT_ASSERT_EQUAL(8, pkb.get_predecessor(9));
-    CPPUNIT_ASSERT_EQUAL(-1, pkb.get_predecessor(10));
-    CPPUNIT_ASSERT_EQUAL(-1, pkb.get_predecessor(19));
-
-    // Q8
-    CPPUNIT_ASSERT_EQUAL(-1, pkb.filter_by_stmtType(ENT_ASSIGN,
-        pkb.get_predecessor(1)));
-    CPPUNIT_ASSERT_EQUAL(2, pkb.filter_by_stmtType(ENT_ASSIGN,
-        pkb.get_predecessor(3)));
-    CPPUNIT_ASSERT_EQUAL(8, pkb.filter_by_stmtType(ENT_ASSIGN,
-        pkb.get_predecessor(9)));
-    CPPUNIT_ASSERT_EQUAL(-1, pkb.filter_by_stmtType(ENT_ASSIGN,
-        pkb.get_predecessor(10)));
-    CPPUNIT_ASSERT_EQUAL(-1, pkb.filter_by_stmtType(ENT_ASSIGN,
-        pkb.get_predecessor(18)));
-
-    // Q10
-    s1 = pkb.get_predecessor_star(2);
-    stringSet = SetWrapper<string>(s1);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "1"), stringSet);
-    s1 = pkb.get_predecessor_star(10);
+    s1 = pkb.follows_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 1);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
-    s1 = pkb.get_predecessor_star(11);
+    s1 = pkb.follows_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 3);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "2"), stringSet);
+    s1 = pkb.follows_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 9);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "8"), stringSet);
+    s1 = pkb.follows_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 10);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
+    s1 = pkb.follows_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 19);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
+
+    // Q8
+    s1 = pkb.follows_X_Y_get_int_X_from_int_Y(ENT_ASSIGN, ENT_STMT, 1);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
+    s1 = pkb.follows_X_Y_get_int_X_from_int_Y(ENT_ASSIGN, ENT_STMT, 3);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "2"), stringSet);
+    s1 = pkb.follows_X_Y_get_int_X_from_int_Y(ENT_ASSIGN, ENT_STMT, 9);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "8"), stringSet);
+    s1 = pkb.follows_X_Y_get_int_X_from_int_Y(ENT_ASSIGN, ENT_STMT, 10);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
+    s1 = pkb.follows_X_Y_get_int_X_from_int_Y(ENT_ASSIGN, ENT_STMT, 18);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
+
+    // Q10
+    s1 = pkb.followsStar_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 2);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "1"), stringSet);
+    s1 = pkb.followsStar_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 10);
+    stringSet = SetWrapper<string>(s1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
+    s1 = pkb.followsStar_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 11);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "10"), stringSet);
-    s1 = pkb.get_predecessor_star(21);
+    s1 = pkb.followsStar_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 21);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "20"), stringSet);
 
     // Q11
-    s1 = pkb.filter_by_stmtType(ENT_IF,pkb.get_predecessor_star(10));
+    s1 = pkb.followsStar_X_Y_get_int_X_from_int_Y(ENT_IF, ENT_STMT, 10);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
-    s1 = pkb.filter_by_stmtType(ENT_IF,pkb.get_predecessor_star(17));
+    s1 = pkb.followsStar_X_Y_get_int_X_from_int_Y(ENT_IF, ENT_STMT, 17);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "11"), stringSet);
 
     // Q12
-    s1 = pkb.filter_by_stmtType(ENT_ASSIGN,pkb.get_predecessor_star(4));
+    s1 = pkb.followsStar_X_Y_get_int_X_from_int_Y(ENT_ASSIGN,
+            ENT_STMT, 4);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "1", "2", "3"),
             stringSet);
-    s1 = pkb.filter_by_stmtType(ENT_ASSIGN,pkb.get_predecessor_star(5));
+    s1 = pkb.followsStar_X_Y_get_int_X_from_int_Y(ENT_ASSIGN,
+            ENT_STMT, 5);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "1", "2", "3", "4"),
             stringSet);
-    s1 = pkb.filter_by_stmtType(ENT_ASSIGN,pkb.get_predecessor_star(9));
+    s1 = pkb.followsStar_X_Y_get_int_X_from_int_Y(ENT_ASSIGN,
+            ENT_STMT, 9);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "1", "2", "3", "4", "6",
             "8"), stringSet);
-    s1 = pkb.filter_by_stmtType(ENT_ASSIGN,pkb.get_predecessor_star(17));
+    s1 = pkb.followsStar_X_Y_get_int_X_from_int_Y(ENT_ASSIGN,
+            ENT_STMT, 17);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "10"), stringSet);
-    s1 = pkb.filter_by_stmtType(ENT_ASSIGN,pkb.get_predecessor_star(22));
+    s1 = pkb.followsStar_X_Y_get_int_X_from_int_Y(ENT_ASSIGN,
+            ENT_STMT, 22);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "20"), stringSet);
 
@@ -555,112 +639,142 @@ void Test_30_PKB::test_one(){
             "27", "28", "30"), stringSet);
 
     // Q17
-    s = pkb.get_var_stmt_uses(10);
+    s = pkb.uses_X_Y_get_string_Y_from_int_X(ENT_STMT, ENT_VAR, 10);
     stringSet = SetWrapper<string>(s);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "x", "y"), stringSet);
-    s = pkb.get_var_stmt_uses(18);
+    s = pkb.uses_X_Y_get_string_Y_from_int_X(ENT_STMT, ENT_VAR, 18);
     stringSet = SetWrapper<string>(s);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "d", "e", "i", "x", "y",
             "z"), stringSet);
 
     // Q23
-    s = pkb.get_called_by_star("John");
+    s = pkb.calls_X_Y_get_string_X_from_string_Y(ENT_PROC, ENT_PROC,
+            "John");
     stringSet = SetWrapper<string>(s);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "Bill", "Mary"),
             stringSet);
 
     // Q39
-    s1 = pkb.get_after(1);
+    s1 = pkb.next_X_Y_get_int_Y_from_int_X(ENT_STMT, ENT_STMT, 1);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "2"), stringSet);
-    s1 = pkb.get_after(9);
+    s1 = pkb.next_X_Y_get_int_Y_from_int_X(ENT_STMT, ENT_STMT, 9);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "10", "18"), stringSet);
-    s1 = pkb.get_after(11);
+    s1 = pkb.next_X_Y_get_int_Y_from_int_X(ENT_STMT, ENT_STMT, 11);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "12", "14"), stringSet);
-    s1 = pkb.get_after(13);
+    s1 = pkb.next_X_Y_get_int_Y_from_int_X(ENT_STMT, ENT_STMT, 13);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "17"), stringSet);
-    s1 = pkb.get_after(15);
+    s1 = pkb.next_X_Y_get_int_Y_from_int_X(ENT_STMT, ENT_STMT, 15);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "16"), stringSet);
-    s1 = pkb.get_after(17);
+    s1 = pkb.next_X_Y_get_int_Y_from_int_X(ENT_STMT, ENT_STMT, 17);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "9"), stringSet);
-    s1 = pkb.get_after(18);
+    s1 = pkb.next_X_Y_get_int_Y_from_int_X(ENT_STMT, ENT_STMT, 18);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
 
     // Q40
-    s1 = pkb.get_before(1);
+    s1 = pkb.next_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 1);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
-    s1 = pkb.get_before(9);
+    s1 = pkb.next_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 9);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "8", "17"), stringSet);
-    s1 = pkb.get_before(10);
+    s1 = pkb.next_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 10);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "9"), stringSet);
-    s1 = pkb.get_before(17);
+    s1 = pkb.next_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 17);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "13", "16"), stringSet);
-    s1 = pkb.get_before(18);
+    s1 = pkb.next_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 18);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "9"), stringSet);
-    s1 = pkb.get_before(19);
+    s1 = pkb.next_X_Y_get_int_X_from_int_Y(ENT_STMT, ENT_STMT, 19);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "22"), stringSet);
 
     // Q43
-    CPPUNIT_ASSERT_EQUAL(true, pkb.is_affects(1, 2));
-    CPPUNIT_ASSERT_EQUAL(true, pkb.is_affects(1, 3));
-    CPPUNIT_ASSERT_EQUAL(false, pkb.is_affects(1, 5));
-    CPPUNIT_ASSERT_EQUAL(true, pkb.is_affects(2, 6));
-    CPPUNIT_ASSERT_EQUAL(false, pkb.is_affects(2, 8));
-    CPPUNIT_ASSERT_EQUAL(false, pkb.is_affects(3, 12));
-    CPPUNIT_ASSERT_EQUAL(false, pkb.is_affects(3, 13));
-    CPPUNIT_ASSERT_EQUAL(false, pkb.is_affects(16, 21));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb.affects_query_int_X_int_Y(ENT_ASSIGN, 1, ENT_ASSIGN, 2));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb.affects_query_int_X_int_Y(ENT_ASSIGN, 1, ENT_ASSIGN, 3));
+    CPPUNIT_ASSERT_EQUAL(false,
+            pkb.affects_query_int_X_int_Y(ENT_ASSIGN, 1, ENT_ASSIGN, 5));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb.affects_query_int_X_int_Y(ENT_ASSIGN, 2, ENT_ASSIGN, 6));
+    CPPUNIT_ASSERT_EQUAL(false,
+            pkb.affects_query_int_X_int_Y(ENT_ASSIGN, 2, ENT_ASSIGN, 8));
+    CPPUNIT_ASSERT_EQUAL(false,
+            pkb.affects_query_int_X_int_Y(ENT_ASSIGN, 3, ENT_ASSIGN, 12));
+    CPPUNIT_ASSERT_EQUAL(false,
+            pkb.affects_query_int_X_int_Y(ENT_ASSIGN, 3, ENT_ASSIGN, 13));
+    CPPUNIT_ASSERT_EQUAL(false,
+            pkb.affects_query_int_X_int_Y(ENT_ASSIGN, 16,
+                    ENT_ASSIGN, 21));
 
     // Q44
-    s1 = pkb.get_affected_by(1);
+    s1 = pkb.affects_X_Y_get_int_X_from_int_Y(ENT_ASSIGN, ENT_ASSIGN, 1);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
-    s1 = pkb.get_affected_by(10);
-    CPPUNIT_ASSERT_EQUAL(true, pkb.is_affects(17, 10));
-    CPPUNIT_ASSERT_EQUAL(true, pkb.is_affects(12, 10));
+    s1 = pkb.affects_X_Y_get_int_X_from_int_Y(ENT_ASSIGN, ENT_ASSIGN, 10);
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb.affects_query_int_X_int_Y(ENT_ASSIGN, 17,
+                    ENT_ASSIGN, 10));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb.affects_query_int_X_int_Y(ENT_ASSIGN, 12,
+                    ENT_ASSIGN, 10));
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "12", "17"), stringSet);
 
     // Q45
-    s1 = pkb.get_affects(1);
+    s1 = pkb.affects_X_Y_get_int_Y_from_int_X(ENT_ASSIGN, ENT_ASSIGN, 1);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "2", "3"), stringSet);
-    s1 = pkb.get_affects(13);
+    s1 = pkb.affects_X_Y_get_int_Y_from_int_X(ENT_ASSIGN, ENT_ASSIGN, 13);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "16"), stringSet);
 
     // Q46
-    CPPUNIT_ASSERT_EQUAL(true, pkb.is_affects_star(1, 2));
-    CPPUNIT_ASSERT_EQUAL(true, pkb.is_affects_star(1, 3));
-    CPPUNIT_ASSERT_EQUAL(true, pkb.is_affects_star(1, 6));
-    CPPUNIT_ASSERT_EQUAL(true, pkb.is_affects_star(1, 8));
-    CPPUNIT_ASSERT_EQUAL(false, pkb.is_affects_star(11, 14));
-    CPPUNIT_ASSERT_EQUAL(false, pkb.is_affects_star(20, 20));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb.affectsStar_query_int_X_int_Y(ENT_ASSIGN, 1,
+                    ENT_ASSIGN, 2));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb.affectsStar_query_int_X_int_Y(ENT_ASSIGN, 1,
+                    ENT_ASSIGN, 3));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb.affectsStar_query_int_X_int_Y(ENT_ASSIGN, 1,
+                    ENT_ASSIGN, 6));
+    CPPUNIT_ASSERT_EQUAL(true,
+            pkb.affectsStar_query_int_X_int_Y(ENT_ASSIGN, 1,
+                    ENT_ASSIGN, 8));
+    CPPUNIT_ASSERT_EQUAL(false,
+            pkb.affectsStar_query_int_X_int_Y(ENT_ASSIGN, 11,
+                    ENT_ASSIGN, 14));
+    CPPUNIT_ASSERT_EQUAL(false,
+            pkb.affectsStar_query_int_X_int_Y(ENT_ASSIGN, 20,
+                    ENT_ASSIGN, 20));
 
     // Q47
-    s1 = pkb.get_affected_by_star(12);
+    s1 = pkb.affectsStar_X_Y_get_int_X_from_int_Y(
+            ENT_ASSIGN, ENT_ASSIGN, 12);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"12"), stringSet);
-    s1 = pkb.get_affected_by_star(26);
+    s1 = pkb.affectsStar_X_Y_get_int_X_from_int_Y(
+            ENT_ASSIGN, ENT_ASSIGN, 26);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "25"), stringSet);
 
     // Q48
-    s1 = pkb.get_affects_star(20);
+    s1 = pkb.affectsStar_X_Y_get_int_Y_from_int_X(ENT_ASSIGN,
+            ENT_ASSIGN, 20);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
-    s1 = pkb.get_affects_star(6);
+    s1 = pkb.affectsStar_X_Y_get_int_Y_from_int_X(ENT_ASSIGN,
+            ENT_ASSIGN, 6);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "8"), stringSet);
 }
