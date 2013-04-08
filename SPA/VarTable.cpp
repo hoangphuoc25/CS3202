@@ -371,22 +371,6 @@ const set<string>& VarTable::get_string_X_using_var(DesignEnt entType,
     return EMPTY_STRINGSET;
 }
 
-set<string> VarTable::get_modified_by_proc(string var){
-    int index = get_index(var);
-    if (index == -1) {
-        return EMPTY_STRINGSET;
-    }
-    return varTable[index].procModifying;
-}
-
-set<string> VarTable::get_used_by_proc(string var){
-    int index = get_index(var);
-    if (index == -1) {
-        return EMPTY_STRINGSET;
-    }
-    return varTable[index].usedByProc;
-}
-
 const set<string>& VarTable::get_all_vars() const
 {
     return this->varSet_;
