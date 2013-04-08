@@ -14,14 +14,14 @@ public:
     CFGNode();
     CFGNode(int n);
 
-    int get_stmtNo();
+    int get_stmtNo() const;
 
     void set_edge(CFGNode *node, edge e, int i);
-    CFGNode* get_edge(edge e, int i);
-    set<int> get_before();
-    set<int> get_after();
+    CFGNode* get_edge(edge e, int i) const;
+    set<int> get_before() const;
+    set<int> get_after() const;
 
-    void print();
+    void print() const;
 
 private:
     int stmtNo;

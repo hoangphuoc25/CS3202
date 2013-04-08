@@ -44,7 +44,7 @@ void CFGNode::set_edge(CFGNode *node, edge e, int i)
     }
 }
 
-CFGNode* CFGNode::get_edge(edge e, int i)
+CFGNode* CFGNode::get_edge(edge e, int i) const
 {
     switch (e) {
     case IN:
@@ -70,12 +70,13 @@ CFGNode* CFGNode::get_edge(edge e, int i)
     }
 }
 
-int CFGNode::get_stmtNo()
+int CFGNode::get_stmtNo() const
 {
     return stmtNo;
 }
 
-set<int> CFGNode::get_before(){
+set<int> CFGNode::get_before() const
+{
     set<int> s, temp;
     int n;
     if (inOne != NULL) {
@@ -98,7 +99,8 @@ set<int> CFGNode::get_before(){
     return s;
 }
 
-set<int> CFGNode::get_after(){
+set<int> CFGNode::get_after() const
+{
     set<int> s,temp;
     int n;
     if (outOne != NULL) {
@@ -119,7 +121,7 @@ set<int> CFGNode::get_after(){
 }
 
 
-void CFGNode::print()
+void CFGNode::print() const
 {
     printf("Stmtno: %d\n", stmtNo);
     if (inOne != NULL) {
