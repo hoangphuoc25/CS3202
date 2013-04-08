@@ -974,7 +974,7 @@ private:
     QueryEvaluator& operator=(const QueryEvaluator& o);
     /// Resets the QueryEvaluator so it is ready for evaluating another
     /// PQL query
-    void reset();
+    void reset_for_pql_query();
     void read_config_from_map(
             const std::map<std::string, std::string>& settings);
     /// Reads configuration settings from the given file

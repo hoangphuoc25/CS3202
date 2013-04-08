@@ -191,19 +191,19 @@ QueryEvaluator& QueryEvaluator::operator=(const QueryEvaluator& o)
     return *this;
 }
 
-void QueryEvaluator::reset()
+void QueryEvaluator::reset_for_pql_query()
 {
     this->isAlive = true;
-    this->optMultithreaded_ = false;
-    this->maxThreads_ = QE_DEFAULT_NR_THREADS;
     this->partitionedClauses.clear();
     this->resultsTable.clear();
 }
 
 void QueryEvaluator::reset(const map<string, string>& settings)
 {
-    this->reset();
+    this->optMultithreaded_ = false;
+    this->maxThreads_ = QE_DEFAULT_NR_THREADS;
     this->read_config_from_map(settings);
+    this->reset_for_pql_query();
 }
 
 void QueryEvaluator::read_config_from_map(
@@ -294,7 +294,7 @@ void QueryEvaluator::evaluate(const string& queryStr,
         list<string>& resultSet)
 {
     QueryInfo *qinfo;
-    this->reset();
+    this->reset_for_pql_query();
     this->pqlParser.parse(queryStr, true, true);
     qinfo = this->pqlParser.get_queryinfo();
     resultSet.clear();
