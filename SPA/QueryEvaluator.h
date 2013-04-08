@@ -1232,6 +1232,67 @@ public:
     /// @param withClause the WithClause to evaluate
     static void __cdecl ev_withClause_cpn_1(ResultsTable& rTable,
             PKB *pkb, const WithClause& withClause);
+
+    static void __cdecl evaluate_patCl(ResultsTable& rTable, PKB *pkb,
+            const GenericRef *genRef);
+    static void __cdecl evaluate_patCl_if(ResultsTable& rTable, PKB *pkb,
+            const PatCl *patCl);
+    static void __cdecl evaluate_patCl_if_var_syn(ResultsTable& rTable,
+            PKB *pkb, const PatCl *patCl);
+    static void __cdecl evaluate_patCl_assign(ResultsTable& rTable,
+            PKB *pkb, const PatCl *patCl);
+    static void __cdecl evaluate_patCl_assign_string_expr(
+            ResultsTable& rTable, PKB *pkb, const PatCl *patCl);
+    static void __cdecl evaluate_patCl_assign_string_exprwild(
+            ResultsTable& rTable, PKB *pkb, const PatCl *patCl);
+    static void __cdecl evaluate_patCl_assign_string_wildcard(
+            ResultsTable& rTable, PKB *pkb, const PatCl *patCl);
+    static void __cdecl evaluate_patCl_assign_syn_expr(
+            ResultsTable& rTable, PKB *pkb, const PatCl *patCl);
+    static void __cdecl evaluate_patCl_assign_syn_expr_11(
+            ResultsTable& rTable, PKB *pkb, const PatCl* patCl);
+    static void __cdecl evaluate_patCl_assign_syn_expr_22(
+            ResultsTable& rTable, PKB *pkb, const PatCl* patCl);
+    static void __cdecl evaluate_patCl_assign_syn_exprwild(
+            ResultsTable& rTable, PKB *pkb, const PatCl *patCl);
+    static void __cdecl evaluate_patCl_assign_syn_exprwild_11(
+            ResultsTable& rTable, PKB *pkb, const PatCl* patCl);
+    static void __cdecl evaluate_patCl_assign_syn_exprwild_22(
+            ResultsTable& rTable, PKB *pkb, const PatCl* patCl);
+    static void __cdecl evaluate_patCl_assign_syn_wildcard(
+            ResultsTable& rTable, PKB *pkb, const PatCl *patCl);
+    static void __cdecl evaluate_patCl_assign_syn_wildcard_11(
+            ResultsTable& rTable, PKB *pkb, const PatCl *patCl);
+    static void __cdecl evaluate_patCl_assign_syn_wildcard_22(
+            ResultsTable& rTable, PKB *pkb, const PatCl *patCl);
+    static void __cdecl evaluate_patCl_assign_wildcard_expr(
+            ResultsTable& rTable, PKB *pkb, const PatCl *patCl);
+    static void __cdecl evaluate_patCl_assign_wildcard_exprwild(
+            ResultsTable& rTable, PKB *pkb, const PatCl *patCl);
+    static void __cdecl evaluate_patCl_assign_wildcard_wildcard(
+            ResultsTable& rTable, PKB *pkb, const PatCl *patCl);
+    static void __cdecl evaluate_patCl_if_var_syn_11(
+            ResultsTable& rTable, PKB *pkb, const PatCl *patCl);
+    static void __cdecl evaluate_patCl_if_var_syn_22(
+            ResultsTable& rTable, PKB *pkb, const PatCl *patCl);
+    static void __cdecl evaluate_patCl_if_var_string(ResultsTable& rTable,
+            PKB *pkb, const PatCl *patCl);
+    static void __cdecl evaluate_patCl_if_var_wildcard(
+            ResultsTable& rTable, PKB *pkb, const PatCl *patCl);
+    static void __cdecl evaluate_patCl_while(ResultsTable& rTable,
+            PKB *pkb, const PatCl *patCl);
+    static void __cdecl evaluate_patCl_while_var_syn(
+            ResultsTable& rTable, PKB *pkb, const PatCl *patCl);
+    static void __cdecl evaluate_patCl_while_var_syn_11(
+            ResultsTable& rTable, PKB *pkb, const PatCl *patCl);
+    static void __cdecl evaluate_patCl_while_var_syn_22(
+            ResultsTable& rTable, PKB *pkb, const PatCl *patCl);
+    static void __cdecl evaluate_patCl_while_var_string(
+            ResultsTable& rTable, PKB *pkb, const PatCl *patCl);
+    static void __cdecl evaluate_patCl_while_var_wildcard(
+            ResultsTable& rTable, PKB *pkb, const PatCl *patCl);
+    static bool __cdecl evaluate_matching_tree(Node*, Node*);
+    static bool __cdecl is_operation(const string& operation);
 private:
     /// Private copy constructor to prevent copying
     QueryEvaluator(const QueryEvaluator& o);
@@ -1345,65 +1406,6 @@ private:
     /// @return true if the Relation clause evaluates to true, false
     ///         otherwise
     bool ev_isolated_relation_wild_wild(const RelRef *relRef) const;
-
-    void evaluate_patCl(int rTableIdx, const GenericRef *genRef);
-    void evaluate_patCl_if(int rTableIdx, const PatCl *patCl);
-    void evaluate_patCl_if_var_syn(int rTableIdx, const PatCl *patCl);
-
-    void evaluate_patCl_assign(int rTableIdx, const PatCl *patCl);
-    void evaluate_patCl_assign_string_expr(int rTableIdx,
-            const PatCl *patCl);
-    void evaluate_patCl_assign_string_exprwild(int rTableIdx,
-            const PatCl *patCl);
-    void evaluate_patCl_assign_string_wildcard(int rTableIdx,
-            const PatCl *patCl);
-    void evaluate_patCl_assign_syn_expr(int rTableIdx,
-            const PatCl *patCl);
-    void evaluate_patCl_assign_syn_expr_11(ResultsTable& rTable,
-            const PatCl* patCl);
-    void evaluate_patCl_assign_syn_expr_22(ResultsTable& rTable,
-            const PatCl* patCl);
-    void evaluate_patCl_assign_syn_exprwild(int rTableIdx,
-            const PatCl *patCl);
-    void evaluate_patCl_assign_syn_exprwild_11(ResultsTable& rTable,
-            const PatCl* patCl);
-    void evaluate_patCl_assign_syn_exprwild_22(ResultsTable& rTable,
-            const PatCl* patCl);
-    void evaluate_patCl_assign_syn_wildcard(int rTableIdx,
-            const PatCl *patCl);
-    void evaluate_patCl_assign_syn_wildcard_11(ResultsTable& rTable,
-            const PatCl *patCl);
-    void evaluate_patCl_assign_syn_wildcard_22(ResultsTable& rTable,
-            const PatCl *patCl);
-    void evaluate_patCl_assign_wildcard_expr(int rTableIdx,
-            const PatCl *patCl);
-    void evaluate_patCl_assign_wildcard_exprwild(int rTableIdx,
-            const PatCl *patCl);
-    void evaluate_patCl_assign_wildcard_wildcard(int rTableIdx,
-            const PatCl *patCl);
-
-    void evaluate_patCl_if_var_syn_11(ResultsTable& rTable,
-            const PatCl *patCl);
-    void evaluate_patCl_if_var_syn_22(ResultsTable& rTable,
-            const PatCl *patCl);
-    void evaluate_patCl_if_var_string(int rTableIdx,
-            const PatCl *patCl);
-    void evaluate_patCl_if_var_wildcard(int rTableIdx,
-            const PatCl *patCl);
-    
-    void evaluate_patCl_while(int rTableIdx, const PatCl *patCl);
-    void evaluate_patCl_while_var_syn(int rTableIdx, const PatCl *patCl);
-    void evaluate_patCl_while_var_syn_11(ResultsTable& rTable,
-            const PatCl *patCl);
-    void evaluate_patCl_while_var_syn_22(ResultsTable& rTable,
-            const PatCl *patCl);
-    void evaluate_patCl_while_var_string(int rTableIdx,
-            const PatCl *patCl);
-    void evaluate_patCl_while_var_wildcard(int rTableIdx,
-            const PatCl *patCl);
-
-    bool evaluate_matching_tree(Node*, Node*);
-    bool is_operation(const string& operation);
 
     /// Internal PQLParser used to parse PQL queries
     PQLParser pqlParser;
