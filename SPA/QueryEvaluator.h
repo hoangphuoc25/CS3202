@@ -967,6 +967,271 @@ public:
     /// @param disp PKB dispatch table
     static void __cdecl ev_relRef_X_syn_wild_int_1(ResultsTable& rTable,
             PKB *pkb, const RelRef *relRef, const EvalPKBDispatch& disp);
+
+    /// Evaluates a WithClause
+    /// @param rTable the ResultsTable for this with clause
+    /// @param pkb PKB
+    /// @param genRef the GenericRef representing the WithClause
+    static void __cdecl evaluate_withClause(ResultsTable& rTable,
+            PKB *pkb, const GenericRef *genRef);
+    /// Evaluates a WithClause where both arguments are AttrRef
+    /// @param rTable the ResultsTable for this with clause
+    /// @param pkb PKB
+    /// @param withClause the WithClause to evaluate
+    static void __cdecl ev_withClause_attrRef_attrRef(
+            ResultsTable& rTable, PKB *pkb, const WithClause& withClause);
+    /// Setup the pkbDispatch for WithClause where both arguments
+    /// are AttrRef int and not seen
+    /// @param withClause information on the WithClause
+    /// @param pkbDispatch the PKB Dispatch Table to fill up
+    static void __cdecl ev_withClause_attrRef_attrRef_ii_00_setup(
+            const WithClause& withClause,
+            EvalPKBDispatch& pkbDispatch);
+    /// Setup the pkbDispatch for WithClause where both arguments
+    /// are AttrRef int and arg 2 has been seen
+    /// @param withClause information on the WithClause
+    /// @param pkbDispatch the PKB Dispatch Table to fill up
+    static void __cdecl ev_withClause_attrRef_attrRef_ii_01_setup(
+            const WithClause& withClause,
+            EvalPKBDispatch& pkbDispatch);
+    /// Setup the pkbDispatch for WithClause where both arguments
+    /// are AttrRef int and arg 1 has been seen
+    /// @param withClause information on the WithClause
+    /// @param pkbDispatch the PKB Dispatch Table to fill up
+    static void __cdecl ev_withClause_attrRef_attrRef_ii_10_setup(
+            const WithClause& withClause,
+            EvalPKBDispatch& pkbDispatch);
+    /// Setup the pkbDispatch for WithClause where both arguments
+    /// are AttrRef string and not seen
+    /// @param withClause information on the WithClause
+    /// @param pkbDispatch the PKB Dispatch Table to fill up
+    static void __cdecl ev_withClause_attrRef_attrRef_ss_00_setup(
+            const WithClause& withClause,
+            EvalPKBDispatch& pkbDispatch);
+    /// Setup the pkbDispatch for WithClause where both arguments
+    /// are AttrRef string and arg 2 has been seen
+    /// @param withClause information on the WithClause
+    /// @param pkbDispatch the PKB Dispatch Table to fill up
+    static void __cdecl ev_withClause_attrRef_attrRef_ss_01_setup(
+            const WithClause& withClause,
+            EvalPKBDispatch& pkbDispatch);
+    /// Setup the pkbDispatch for WithClause where both arguments
+    /// are AttrRef string and arg 1 has been seen
+    /// @param withClause information on the WithClause
+    /// @param pkbDispatch the PKB Dispatch Table to fill up
+    static void __cdecl ev_withClause_attrRef_attrRef_ss_10_setup(
+            const WithClause& withClause,
+            EvalPKBDispatch& pkbDispatch);
+    /// Evaluates a WithClause where both arguments are AttrRef of
+    /// type int and none of them have been seen
+    /// @param rTable theResultsTable for this with clause
+    /// @param pkb PKB
+    /// @param withClause the WithClause to evaluate
+    /// @param disp the PKB Dispatch Table
+    static void __cdecl ev_withClause_ii_00(ResultsTable& rTable,
+            PKB *pkb, const WithClause& withClause,
+            const EvalPKBDispatch& disp);
+    /// Evaluates a WithClause where both arguments are AttrRef of
+    /// type int and arg 2 has  been seen
+    /// @param rTable the ResultsTable for this with clause
+    /// @param pkb PKB
+    /// @param withClause the WithClause to evaluate
+    /// @param disp the PKB Dispatch Table
+    static void __cdecl ev_withClause_ii_01(ResultsTable& rTable,
+            PKB *pkb, const WithClause& withClause,
+            const EvalPKBDispatch& disp);
+    /// Evaluates a WithClause where both arguments are AttrRef of
+    /// type int and arg 1 has been seen
+    /// @param rTable the ResultsTable for this with clause
+    /// @param pkb PKB
+    /// @param withClause the WithClause to evaluate
+    /// @param disp the PKB Dispatch Table
+    static void __cdecl ev_withClause_ii_10(ResultsTable& rTable,
+            PKB *pkb, const WithClause& withClause,
+            const EvalPKBDispatch& disp);
+    /// Evaluates a WithClause where both arguments are AttrRef of
+    /// type int and have been seen in same Table
+    /// @param rTable the ResultsTable for this with clause
+    /// @param withClause the WithClause to evaluate
+    static void __cdecl ev_withClause_ii_11(ResultsTable& rTable,
+            const WithClause& withClause);
+    /// Evaluates a WithClause where both arguments are AttrRef of
+    /// type int and have been seen, but in same Table
+    /// @param rTable the ResultsTable for this with clause
+    /// @param withClause the WithClause to evaluate
+    static void __cdecl ev_withClause_ii_22(ResultsTable& rTable,
+            const WithClause& withClause);
+    /// Evaluates a WithClause where both arguments are AttrRef of
+    /// type string and none of them have been seen
+    /// @param rTable the ResultsTable for this with clause
+    /// @param pkb PKB
+    /// @param withClause the WithClause to evaluate
+    /// @param disp the PKB Dispatch Table
+    static void __cdecl ev_withClause_ss_00(ResultsTable& rTable,
+            PKB *pkb, const WithClause& withClause,
+            const EvalPKBDispatch& disp);
+    /// Evaluates a WithClause where both arguments are call.procName
+    /// and have not been seen
+    /// @param rTable the ResultsTable for this with clause
+    /// @param pkb PKB
+    /// @param withClause the WithClause to evaluate
+    static void __cdecl ev_withClause_ss_cpn_cpn_00(ResultsTable& rTable,
+            PKB *pkb, const WithClause& withClause);
+    /// Evaluates a WithClause where arg 1 is call.procName,
+    /// arg 2 is a string RefSynType (other than call.procName)
+    /// and both args have not been seen
+    /// @param rTable the ResultsTable for this with clause
+    /// @param pkb PKB
+    /// @param withClause the WithClause to evaluate
+    /// @param disp PKB Dispatch Table
+    static void __cdecl ev_withClause_ss_cpn_X_00(ResultsTable& rTable,
+            PKB *pkb, const WithClause& withClause,
+            const EvalPKBDispatch& disp);
+    /// Evaluates a WithClause where both arguments are AttrRef of
+    /// type string and arg 2 has been seen
+    /// @param rTable the ResultsTable for this with clause
+    /// @param pkb PKB
+    /// @param withClause the WithClause to evaluate
+    /// @param disp the PKB Dispatch Table
+    static void __cdecl ev_withClause_ss_01(ResultsTable& rTable,
+            PKB *pkb, const WithClause& withClause,
+            const EvalPKBDispatch& disp);
+    /// Evaluates a WithClause where both arguments are call.procName
+    /// and arg 2 has been seen
+    /// @param rTable the ResultsTable for this with clause
+    /// @param pkb PKB
+    /// @param withClause the WithClause to evaluate
+    static void __cdecl ev_withClause_ss_cpn_cpn_01(ResultsTable& rTable,
+            PKB *pkb, const WithClause& withClause);
+    /// Evaluates a WithClause where arg 1 is call.procName,
+    /// arg 2 is a string RefSynType (not call.procName) and
+    /// arg 2 has been seen
+    /// @param rTable the ResultsTable for this with clause
+    /// @param pkb PKB
+    /// @param withClause the WithClause to evaluate
+    static void __cdecl ev_withClause_ss_cpn_X_01(ResultsTable& rTable,
+            PKB *pkb, const WithClause& withClause);
+    /// Evaluates a WithClause where arg 1 is a string RefSynType
+    /// (not call.procName), arg 2 is call.procName, and arg 2
+    /// has been seen
+    /// @param rTable the ResultsTable for this with clause
+    /// @param pkb PKB
+    /// @param withClause the WithClause to evaluate
+    /// @param disp PKB Dispatch Table
+    static void __cdecl ev_withClause_ss_cpn_X_10(ResultsTable& rTable,
+            PKB *pkb, const WithClause& withClause,
+            const EvalPKBDispatch& disp);
+    /// Evaluates a WithClause where both arguments are AttrRef of
+    /// type string and arg 1 has been seen
+    /// @param rTable the ResultsTable for this with clause
+    /// @param withClause the WithClause to evaluate
+    static void __cdecl ev_withClause_ss_11(ResultsTable& rTable,
+            const WithClause& withClause);
+    /// Evaluates a WithClause where both args are call.procName
+    /// and have been seen in the same Table
+    /// @param rTable the ResultsTable for this with clause
+    /// @param pkb PKB
+    /// @param withClause the WithClause to evaluate
+    static void __cdecl ev_withClause_ss_cpn_cpn_11(ResultsTable& rTable,
+            PKB *pkb, const WithClause& withClause);
+    /// Evaluates a WithClause where arg 1 is call.procName,
+    /// arg 2 is a string RefSynType (not call.procName) and both args
+    /// have been seen in the same Table
+    /// @param rTable the ResultsTable for this with clause
+    /// @param pkb PKB
+    /// @param withClause the WithClause to evaluate
+    static void __cdecl ev_withClause_ss_cpn_X_11(ResultsTable& rTable,
+            PKB *pkb, const WithClause& withClause);
+    /// Evaluates a WithClause where both arguments are AttrRef of
+    /// type string and have been seen, but in same Table
+    /// @param rTable the ResultsTable for this with clause
+    /// @param withClause the WithClause to evaluate
+    static void __cdecl ev_withClause_ss_22(ResultsTable& rTable,
+            const WithClause& withClause);
+    /// Evaluates a WithClause where both args are call.procName
+    /// and have been seen but in different Table
+    /// @param rTable the ResultsTable for this with clause
+    /// @param pkb PKB
+    /// @param withClause the WithClause to evaluate
+    static void __cdecl ev_withClause_ss_cpn_cpn_22(ResultsTable& rTable,
+            PKB *pkb, const WithClause& withClause);
+    /// Evaluates a WithClause where arg 1 is call.procName,
+    /// arg 2 is a string RefSynType (not call.procName) and both args
+    /// have been seen but in different Table
+    /// @param rTable the ResultsTable for this with clause
+    /// @param pkb PKB
+    /// @param withClause the WithClause to evaluate
+    static void __cdecl ev_withClause_ss_cpn_X_22(ResultsTable& rTable,
+            PKB *pkb, const WithClause& withClause);
+    /// Evaluates a WithClause where the LHS is an AttrRef and
+    /// the RHS is a concrete value
+    /// @param rTable the ResultsTable for this with clause
+    /// @param pkb PKB
+    /// @param withClause the WithClause to evaluate
+    static void __cdecl ev_withClause_attrRef_X(ResultsTable& rTable,
+            PKB *pkb, const WithClause& withClause);
+    /// Evaluates a WithClause where both arguments are of BASETYPE_INT,
+    /// the LHS is an AttrRef and the RHS is a concrete integer value
+    /// @param rTable the ResultsTable for this with clause
+    /// @param pkb PKB
+    /// @param withClause the WithClause to evaluate
+    static void __cdecl ev_withClause_attrRef_X_int(ResultsTable& rTable,
+            PKB *pkb, const WithClause& withClause);
+    /// Evaluates a WithClause where both arguments are of
+    /// BASETYPE_STRING, the LHS is an AttrRef and the RHS is a
+    /// concrete string value
+    /// @param rTable the ResultsTable for this with clause
+    /// @param pkb PKB
+    /// @param withClause the WithClause to evaluate
+    static void __cdecl ev_withClause_attrRef_X_string(
+            ResultsTable& rTable, PKB *pkb, const WithClause& withClause);
+    /// Evaluates a WithClause where both arguments are of BASETYPE_INT,
+    /// the LHS is an unseen AttrRef and RHS is a concrete integer value
+    /// @param rTable the ResultsTable for this with clause
+    /// @param pkb PKB
+    /// @param withClause the WithClause to evaluate
+    /// @param disp PKB Dispatch Table
+    static void __cdecl ev_withClause_i_0(ResultsTable& rTable, PKB *pkb,
+            const WithClause& withClause, const EvalPKBDispatch& disp);
+    /// Evaluates a WithClause where both arguments are of BASETYPE_INT,
+    /// the LHS is a seen AttrRef and RHS is a concrete integer value
+    /// @param rTable the ResultsTable for this with clause
+    /// @param withClause the WithClause to evaluate
+    /// @param disp PKB Dispatch Table
+    static void __cdecl ev_withClause_i_1(ResultsTable& rTable,
+            const WithClause& withClause);
+    /// Evaluates a WithClause where both arguments are of
+    /// BASETYPE_STRING, the LHS is an unseen string AttrRef
+    /// (not call.procName) and RHS is a concrete string value
+    /// @param rTable the ResultsTable for this with clause
+    /// @param pkb PKB
+    /// @param withClause the WithClause to evaluate
+    /// @param disp PKB Dispatch Table
+    static void __cdecl ev_withClause_s_0(ResultsTable& rTable, PKB *pkb,
+            const WithClause& withClause, const EvalPKBDispatch& disp);
+    /// Evaluates a WithClause where both arguments are of
+    /// BASETYPE_STRING, the LHS is an unseen call.procName and RHS is
+    /// a concrete string value
+    /// @param rTable the ResultsTable for this with clause
+    /// @param pkb PKB
+    /// @param withClause the WithClause to evaluate
+    static void __cdecl ev_withClause_cpn_0(ResultsTable& rTable,
+            PKB *pkb, const WithClause& withClause);
+    /// Evaluates a WithClause where both arguments are of
+    /// BASETYPE_STRING, the LHS is a seen string AttrRef
+    /// (not call.procName) and RHS is a concrete string value
+    /// @param rTable the ResultsTable for this with clause
+    /// @param withClause the WithClause to evaluate
+    static void __cdecl ev_withClause_s_1(ResultsTable& rTable,
+            const WithClause& withClause);
+    /// Evaluates a WithClause where both arguments are of
+    /// BASETYPE_STRING, the LHS is a seen call.procName and RHS is
+    /// a concrete string value
+    /// @param rTable the ResultsTable for this with clause
+    /// @param pkb PKB
+    /// @param withClause the WithClause to evaluate
+    static void __cdecl ev_withClause_cpn_1(ResultsTable& rTable,
+            PKB *pkb, const WithClause& withClause);
 private:
     /// Private copy constructor to prevent copying
     QueryEvaluator(const QueryEvaluator& o);
@@ -1080,244 +1345,6 @@ private:
     /// @return true if the Relation clause evaluates to true, false
     ///         otherwise
     bool ev_isolated_relation_wild_wild(const RelRef *relRef) const;
-
-    /// Evaluates a WithClause
-    /// @param rTableIdx ResultsTable index
-    /// @param genRef the GenericRef representing the WithClause
-    void evaluate_withClause(int rTableIdx, const GenericRef *genRef);
-    /// Evaluates a WithClause where both arguments are AttrRef
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    void ev_withClause_attrRef_attrRef(int rTableIdx,
-            const WithClause& withClause);
-    /// Setup the pkbDispatch for WithClause where both arguments
-    /// are AttrRef int and not seen
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause information on the WithClause
-    /// @param pkbDispatch the PKB Dispatch Table to fill up
-    void ev_withClause_attrRef_attrRef_ii_00_setup(int rTableIdx,
-            const WithClause& withClause, EvalPKBDispatch& pkbDispatch)
-                const;
-    /// Setup the pkbDispatch for WithClause where both arguments
-    /// are AttrRef int and arg 2 has been seen
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause information on the WithClause
-    /// @param pkbDispatch the PKB Dispatch Table to fill up
-    void ev_withClause_attrRef_attrRef_ii_01_setup(int rTableIdx,
-            const WithClause& withClause, EvalPKBDispatch& pkbDispatch)
-                const;
-    /// Setup the pkbDispatch for WithClause where both arguments
-    /// are AttrRef int and arg 1 has been seen
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause information on the WithClause
-    /// @param pkbDispatch the PKB Dispatch Table to fill up
-    void ev_withClause_attrRef_attrRef_ii_10_setup(int rTableIdx,
-            const WithClause& withClause, EvalPKBDispatch& pkbDispatch)
-                const;
-    /// Setup the pkbDispatch for WithClause where both arguments
-    /// are AttrRef string and not seen
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause information on the WithClause
-    /// @param pkbDispatch the PKB Dispatch Table to fill up
-    void ev_withClause_attrRef_attrRef_ss_00_setup(int rTableIdx,
-            const WithClause& withClause, EvalPKBDispatch& pkbDispatch)
-                const;
-    /// Setup the pkbDispatch for WithClause where both arguments
-    /// are AttrRef string and arg 2 has been seen
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause information on the WithClause
-    /// @param pkbDispatch the PKB Dispatch Table to fill up
-    void ev_withClause_attrRef_attrRef_ss_01_setup(int rTableIdx,
-            const WithClause& withClause, EvalPKBDispatch& pkbDispatch)
-                const;
-    /// Setup the pkbDispatch for WithClause where both arguments
-    /// are AttrRef string and arg 1 has been seen
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause information on the WithClause
-    /// @param pkbDispatch the PKB Dispatch Table to fill up
-    void ev_withClause_attrRef_attrRef_ss_10_setup(int rTableIdx,
-            const WithClause& withClause, EvalPKBDispatch& pkbDispatch)
-                const;
-    /// Evaluates a WithClause where both arguments are AttrRef of
-    /// type int and none of them have been seen
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_withClause_ii_00(int rTableIdx,
-            const WithClause& withClause, const EvalPKBDispatch& disp);
-    /// Evaluates a WithClause where both arguments are AttrRef of
-    /// type int and arg 2 has  been seen
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_withClause_ii_01(int rTableIdx,
-            const WithClause& withClause, const EvalPKBDispatch& disp);
-    /// Evaluates a WithClause where both arguments are AttrRef of
-    /// type int and arg 1 has been seen
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_withClause_ii_10(int rTableIdx,
-            const WithClause& withClause, const EvalPKBDispatch& disp);
-    /// Evaluates a WithClause where both arguments are AttrRef of
-    /// type int and have been seen in same Table
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    void ev_withClause_ii_11(int rTableIdx,
-            const WithClause& withClause);
-    /// Evaluates a WithClause where both arguments are AttrRef of
-    /// type int and have been seen, but in same Table
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    void ev_withClause_ii_22(int rTableIdx,
-            const WithClause& withClause);
-    /// Evaluates a WithClause where both arguments are AttrRef of
-    /// type string and none of them have been seen
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_withClause_ss_00(int rTableIdx,
-            const WithClause& withClause, const EvalPKBDispatch& disp);
-    /// Evaluates a WithClause where both arguments are call.procName
-    /// and have not been seen
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    void ev_withClause_ss_cpn_cpn_00(int rTableIdx,
-            const WithClause& withClause);
-    /// Evaluates a WithClause where arg 1 is call.procName,
-    /// arg 2 is a string RefSynType (other than call.procName)
-    /// and both args have not been seen
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    /// @param disp PKB Dispatch Table
-    void ev_withClause_ss_cpn_X_00(int rTableIdx,
-            const WithClause& withClause,
-            const EvalPKBDispatch& disp);
-    /// Evaluates a WithClause where both arguments are AttrRef of
-    /// type string and arg 2 has been seen
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    /// @param disp the PKB Dispatch Table
-    void ev_withClause_ss_01(int rTableIdx,
-            const WithClause& withClause, const EvalPKBDispatch& disp);
-    /// Evaluates a WithClause where both arguments are call.procName
-    /// and arg 2 has been seen
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    void ev_withClause_ss_cpn_cpn_01(int rTableIdx,
-            const WithClause& withClause);
-    /// Evaluates a WithClause where arg 1 is call.procName,
-    /// arg 2 is a string RefSynType (not call.procName) and
-    /// arg 2 has been seen
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    void ev_withClause_ss_cpn_X_01(int rTableIdx,
-            const WithClause& withClause);
-    /// Evaluates a WithClause where arg 1 is a string RefSynType
-    /// (not call.procName), arg 2 is call.procName, and arg 2
-    /// has been seen
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    /// @param disp PKB Dispatch Table
-    void ev_withClause_ss_cpn_X_10(int rTableIdx,
-            const WithClause& withClause,
-            const EvalPKBDispatch& disp);
-    /// Evaluates a WithClause where both arguments are AttrRef of
-    /// type string and arg 1 has been seen
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    void ev_withClause_ss_11(int rTableIdx,
-            const WithClause& withClause);
-    /// Evaluates a WithClause where both args are call.procName
-    /// and have been seen in the same Table
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    void ev_withClause_ss_cpn_cpn_11(int rTableIdx,
-            const WithClause& withClause);
-    /// Evaluates a WithClause where arg 1 is call.procName,
-    /// arg 2 is a string RefSynType (not call.procName) and both args
-    /// have been seen in the same Table
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    void ev_withClause_ss_cpn_X_11(int rTableIdx,
-            const WithClause& withClause);
-    /// Evaluates a WithClause where both arguments are AttrRef of
-    /// type string and have been seen, but in same Table
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    void ev_withClause_ss_22(int rTableIdx,
-            const WithClause& withClause);
-    /// Evaluates a WithClause where both args are call.procName
-    /// and have been seen but in different Table
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    void ev_withClause_ss_cpn_cpn_22(int rTableIdx,
-            const WithClause& withClause);
-    /// Evaluates a WithClause where arg 1 is call.procName,
-    /// arg 2 is a string RefSynType (not call.procName) and both args
-    /// have been seen but in different Table
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    void ev_withClause_ss_cpn_X_22(int rTableIdx,
-            const WithClause& withClause);
-    /// Evaluates a WithClause where the LHS is an AttrRef and
-    /// the RHS is a concrete value
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    void ev_withClause_attrRef_X(int rTableIdx,
-            const WithClause& withClause);
-    /// Evaluates a WithClause where both arguments are of BASETYPE_INT,
-    /// the LHS is an AttrRef and the RHS is a concrete integer value
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    void ev_withClause_attrRef_X_int(int rTableIdx,
-            const WithClause& withClause);
-    /// Evaluates a WithClause where both arguments are of
-    /// BASETYPE_STRING, the LHS is an AttrRef and the RHS is a
-    /// concrete string value
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    void ev_withClause_attrRef_X_string(int rTableIdx,
-            const WithClause& withClause);
-    /// Evaluates a WithClause where both arguments are of BASETYPE_INT,
-    /// the LHS is an unseen AttrRef and RHS is a concrete integer value
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    /// @param disp PKB Dispatch Table
-    void ev_withClause_i_0(int rTableIdx, const WithClause& withClause,
-            const EvalPKBDispatch& disp);
-    /// Evaluates a WithClause where both arguments are of BASETYPE_INT,
-    /// the LHS is a seen AttrRef and RHS is a concrete integer value
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    /// @param disp PKB Dispatch Table
-    void ev_withClause_i_1(int rTableIdx, const WithClause& withClause);
-    /// Evaluates a WithClause where both arguments are of
-    /// BASETYPE_STRING, the LHS is an unseen string AttrRef
-    /// (not call.procName) and RHS is a concrete string value
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    /// @param disp PKB Dispatch Table
-    void ev_withClause_s_0(int rTableIdx, const WithClause& withClause,
-            const EvalPKBDispatch& disp);
-    /// Evaluates a WithClause where both arguments are of
-    /// BASETYPE_STRING, the LHS is an unseen call.procName and RHS is
-    /// a concrete string value
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    void ev_withClause_cpn_0(int rTableIdx, const WithClause& withClause);
-    /// Evaluates a WithClause where both arguments are of
-    /// BASETYPE_STRING, the LHS is a seen string AttrRef
-    /// (not call.procName) and RHS is a concrete string value
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    void ev_withClause_s_1(int rTableIdx, const WithClause& withClause);
-    /// Evaluates a WithClause where both arguments are of
-    /// BASETYPE_STRING, the LHS is a seen call.procName and RHS is
-    /// a concrete string value
-    /// @param rTableIdx ResultsTable index
-    /// @param withClause the WithClause to evaluate
-    void ev_withClause_cpn_1(int rTableIdx, const WithClause& withClause);
 
     void evaluate_patCl(int rTableIdx, const GenericRef *genRef);
     void evaluate_patCl_if(int rTableIdx, const PatCl *patCl);

@@ -335,7 +335,8 @@ void QueryEvaluator::evaluate(const string& queryStr,
                                 genericRef);
                         break;
                     case WITH_CLAUSE:
-                        this->evaluate_withClause(rTableIdx, genericRef);
+                        QueryEvaluator::evaluate_withClause(rTable, pkb,
+                                genericRef);
                         break;
                     case PATTERN_CLAUSE:
                         this->evaluate_patCl(rTableIdx, genericRef);
@@ -475,7 +476,8 @@ void * __cdecl thread_evaluate(void *qetInfo)
                 QueryEvaluator::evaluate_relRef(rTable, pkb, genericRef);
                 break;
             case WITH_CLAUSE:
-                //this->evaluate_withClause(rTableIdx, genericRef);
+                QueryEvaluator::evaluate_withClause(rTable, pkb,
+                        genericRef);
                 break;
             case PATTERN_CLAUSE:
                 //this->evaluate_patCl(rTableIdx, genericRef);
@@ -4032,8 +4034,8 @@ void __cdecl QueryEvaluator::ev_relRef_X_syn_wild_int_1(
     rTable.syn_1_transaction_end();
 }
 
-void QueryEvaluator::evaluate_withClause(int rTableIdx,
-        const GenericRef *genRef)
+void __cdecl QueryEvaluator::evaluate_withClause(ResultsTable& rTable,
+        PKB *pkb, const GenericRef *genRef)
 {
     const WithClause *withClausePtr =
         dynamic_cast<const WithClause *>(genRef);
@@ -4041,9 +4043,10 @@ void QueryEvaluator::evaluate_withClause(int rTableIdx,
     const WithClause& withClause = *withClausePtr;
     if (REF_ATTRREF == withClause.leftRef.refType &&
             REF_ATTRREF == withClause.rightRef.refType) {
-        this->ev_withClause_attrRef_attrRef(rTableIdx, withClause);
+        QueryEvaluator::ev_withClause_attrRef_attrRef(rTable, pkb,
+                withClause);
     } else if (REF_ATTRREF == withClause.leftRef.refType) {
-        this->ev_withClause_attrRef_X(rTableIdx, withClause);
+        QueryEvaluator::ev_withClause_attrRef_X(rTable, pkb, withClause);
     } else {
         // Either both are attrRef or lhs is attrRef
         // it cannot be any other case
@@ -4051,8 +4054,8 @@ void QueryEvaluator::evaluate_withClause(int rTableIdx,
     }
 }
 
-void QueryEvaluator::ev_withClause_attrRef_attrRef(int rTableIdx,
-        const WithClause& withClause)
+void __cdecl QueryEvaluator::ev_withClause_attrRef_attrRef(
+        ResultsTable& rTable, PKB *pkb, const WithClause& withClause)
 {
     using std::swap;
     BaseType leftRefType =
@@ -4062,7 +4065,6 @@ void QueryEvaluator::ev_withClause_attrRef_attrRef(int rTableIdx,
     assert(BASETYPE_INT == leftRefType ||
             BASETYPE_STRING == leftRefType);
     assert(leftRefType == rightRefType);
-    const ResultsTable& rTable = this->resultsTable[rTableIdx];
     EvalPKBDispatch pkbDispatch;
     if (BASETYPE_INT == leftRefType) {
         bool seenLeftSyn =
@@ -4072,22 +4074,25 @@ void QueryEvaluator::ev_withClause_attrRef_attrRef(int rTableIdx,
         if (seenLeftSyn && seenRightSyn) {
             if (rTable.syn_in_same_table(withClause.leftRef.refStringVal,
                     withClause.rightRef.refStringVal)) {
-                this->ev_withClause_ii_11(rTableIdx, withClause);
+                QueryEvaluator::ev_withClause_ii_11(rTable, withClause);
             } else {
-                this->ev_withClause_ii_22(rTableIdx, withClause);
+                QueryEvaluator::ev_withClause_ii_22(rTable, withClause);
             }
         } else if (seenLeftSyn) {
-            this->ev_withClause_attrRef_attrRef_ii_10_setup(rTableIdx,
+            QueryEvaluator::ev_withClause_attrRef_attrRef_ii_10_setup(
                     withClause, pkbDispatch);
-            this->ev_withClause_ii_10(rTableIdx, withClause, pkbDispatch);
+            QueryEvaluator::ev_withClause_ii_10(rTable, pkb, withClause,
+                    pkbDispatch);
         } else if (seenRightSyn) {
-            this->ev_withClause_attrRef_attrRef_ii_01_setup(rTableIdx,
+            QueryEvaluator::ev_withClause_attrRef_attrRef_ii_01_setup(
                     withClause, pkbDispatch);
-            this->ev_withClause_ii_01(rTableIdx, withClause, pkbDispatch);
+            QueryEvaluator::ev_withClause_ii_01(rTable, pkb, withClause,
+                    pkbDispatch);
         } else {
-            this->ev_withClause_attrRef_attrRef_ii_00_setup(rTableIdx,
+            QueryEvaluator::ev_withClause_attrRef_attrRef_ii_00_setup(
                     withClause, pkbDispatch);
-            this->ev_withClause_ii_00(rTableIdx, withClause, pkbDispatch);
+            QueryEvaluator::ev_withClause_ii_00(rTable, pkb, withClause,
+                    pkbDispatch);
         }
     } else if (BASETYPE_STRING == leftRefType) {
         bool seenLeftSyn =
@@ -4101,34 +4106,36 @@ void QueryEvaluator::ev_withClause_attrRef_attrRef(int rTableIdx,
                     withClause.rightRef.refStringVal)) {
                 if (REFSYN_CALL_PROCNAME == leftRefSynType &&
                         REFSYN_CALL_PROCNAME == rightRefSynType) {
-                    this->ev_withClause_ss_cpn_cpn_11(rTableIdx,
-                            withClause);
+                    QueryEvaluator::ev_withClause_ss_cpn_cpn_11(rTable,
+                            pkb, withClause);
                 } else if (REFSYN_CALL_PROCNAME == leftRefSynType) {
-                    this->ev_withClause_ss_cpn_X_11(rTableIdx,
-                            withClause);
+                    QueryEvaluator::ev_withClause_ss_cpn_X_11(rTable,
+                            pkb, withClause);
                 } else if (REFSYN_CALL_PROCNAME == rightRefSynType) {
                     WithClause tmpWithClause(withClause);
                     swap(tmpWithClause.leftRef, tmpWithClause.rightRef);
-                    this->ev_withClause_ss_cpn_X_11(rTableIdx,
-                            tmpWithClause);
+                    QueryEvaluator::ev_withClause_ss_cpn_X_11(rTable,
+                            pkb, tmpWithClause);
                 } else {
-                    this->ev_withClause_ss_11(rTableIdx, withClause);
+                    QueryEvaluator::ev_withClause_ss_11(rTable,
+                            withClause);
                 }
             } else {
                 if (REFSYN_CALL_PROCNAME == leftRefSynType &&
                         REFSYN_CALL_PROCNAME == rightRefSynType) {
-                    this->ev_withClause_ss_cpn_cpn_22(rTableIdx,
-                            withClause);
+                    QueryEvaluator::ev_withClause_ss_cpn_cpn_22(rTable,
+                            pkb, withClause);
                 } else if (REFSYN_CALL_PROCNAME == leftRefSynType) {
-                    this->ev_withClause_ss_cpn_X_22(rTableIdx,
-                            withClause);
+                    QueryEvaluator::ev_withClause_ss_cpn_X_22(rTable,
+                            pkb, withClause);
                 } else if (REFSYN_CALL_PROCNAME == rightRefSynType) {
                     WithClause tmpWithClause(withClause);
                     swap(tmpWithClause.leftRef, tmpWithClause.rightRef);
-                    this->ev_withClause_ss_cpn_X_22(rTableIdx,
-                            tmpWithClause);
+                    QueryEvaluator::ev_withClause_ss_cpn_X_22(rTable,
+                            pkb, tmpWithClause);
                 } else {
-                    this->ev_withClause_ss_22(rTableIdx, withClause);
+                    QueryEvaluator::ev_withClause_ss_22(rTable,
+                            withClause);
                 }
             }
         } else if (seenLeftSyn) {
@@ -4137,12 +4144,12 @@ void QueryEvaluator::ev_withClause_attrRef_attrRef(int rTableIdx,
                 WithClause tmpWithClause(withClause);
                 swap(tmpWithClause.leftRef, tmpWithClause.rightRef);
                 // convert 10 case to 01 case
-                this->ev_withClause_ss_cpn_cpn_01(rTableIdx,
+                QueryEvaluator::ev_withClause_ss_cpn_cpn_01(rTable, pkb,
                         tmpWithClause);
             } else if (REFSYN_CALL_PROCNAME == leftRefSynType) {
-                this->ev_withClause_attrRef_attrRef_ss_10_setup(rTableIdx,
+                QueryEvaluator::ev_withClause_attrRef_attrRef_ss_10_setup(
                         withClause, pkbDispatch);
-                this->ev_withClause_ss_cpn_X_10(rTableIdx,
+                QueryEvaluator::ev_withClause_ss_cpn_X_10(rTable, pkb,
                         withClause, pkbDispatch);
             } else if (REFSYN_CALL_PROCNAME == rightRefSynType) {
                 // 10 X_cpn case.
@@ -4156,19 +4163,21 @@ void QueryEvaluator::ev_withClause_attrRef_attrRef(int rTableIdx,
                 // convert to 01 case
                 WithClause tmpWithClause(withClause);
                 swap(tmpWithClause.leftRef, tmpWithClause.rightRef);
-                this->ev_withClause_attrRef_attrRef_ii_01_setup(rTableIdx,
+                QueryEvaluator::ev_withClause_attrRef_attrRef_ii_01_setup(
                         tmpWithClause, pkbDispatch);
-                this->ev_withClause_ss_01(rTableIdx, tmpWithClause,
-                        pkbDispatch);
+                QueryEvaluator::ev_withClause_ss_01(rTable, pkb,
+                        tmpWithClause, pkbDispatch);
             }
         } else if (seenRightSyn) {
-            this->ev_withClause_attrRef_attrRef_ss_01_setup(rTableIdx,
+            QueryEvaluator::ev_withClause_attrRef_attrRef_ss_01_setup(
                     withClause, pkbDispatch);
             if (REFSYN_CALL_PROCNAME == leftRefSynType &&
                     REFSYN_CALL_PROCNAME == rightRefSynType) {
-                this->ev_withClause_ss_cpn_cpn_01(rTableIdx, withClause);
+                QueryEvaluator::ev_withClause_ss_cpn_cpn_01(rTable, pkb,
+                        withClause);
             } else if (REFSYN_CALL_PROCNAME == leftRefSynType) {
-                this->ev_withClause_ss_cpn_X_01(rTableIdx, withClause);
+                QueryEvaluator::ev_withClause_ss_cpn_X_01(rTable, pkb,
+                        withClause);
             } else if (REFSYN_CALL_PROCNAME == rightRefSynType) {
                 // 01 X_cpn case.
                 // X = cpn is impossible case due to lexicographical
@@ -4178,30 +4187,31 @@ void QueryEvaluator::ev_withClause_attrRef_attrRef(int rTableIdx,
                 // convert 10 X_cpn case to 01 cpn_X case
                 assert(false);
             } else {
-                this->ev_withClause_ss_01(rTableIdx, withClause,
-                        pkbDispatch);
+                QueryEvaluator::ev_withClause_ss_01(rTable, pkb,
+                        withClause, pkbDispatch);
             }
         } else {
-            this->ev_withClause_attrRef_attrRef_ss_00_setup(rTableIdx,
+            QueryEvaluator::ev_withClause_attrRef_attrRef_ss_00_setup(
                     withClause, pkbDispatch);
             if (REFSYN_CALL_PROCNAME == leftRefSynType &&
                     REFSYN_CALL_PROCNAME == rightRefSynType) {
-                this->ev_withClause_ss_cpn_cpn_00(rTableIdx, withClause);
+                QueryEvaluator::ev_withClause_ss_cpn_cpn_00(rTable, pkb,
+                        withClause);
             } else if (REFSYN_CALL_PROCNAME == leftRefSynType) {
-                this->ev_withClause_ss_cpn_X_00(rTableIdx, withClause,
-                        pkbDispatch);
+                QueryEvaluator::ev_withClause_ss_cpn_X_00(rTable, pkb,
+                        withClause, pkbDispatch);
             } else if (REFSYN_CALL_PROCNAME == rightRefSynType) {
                 // convert 00 X_cpn case to 00 cpn_X case
                 WithClause tmpWithClause(withClause);
                 swap(tmpWithClause.leftRef, tmpWithClause.rightRef);
                 pkbDispatch.reset();
-                this->ev_withClause_attrRef_attrRef_ss_00_setup(rTableIdx,
+                QueryEvaluator::ev_withClause_attrRef_attrRef_ss_00_setup(
                         tmpWithClause, pkbDispatch);
-                this->ev_withClause_ss_cpn_X_00(rTableIdx, tmpWithClause,
-                        pkbDispatch);
+                QueryEvaluator::ev_withClause_ss_cpn_X_00(rTable, pkb,
+                        tmpWithClause, pkbDispatch);
             } else {
-                this->ev_withClause_ss_00(rTableIdx, withClause,
-                        pkbDispatch);
+                QueryEvaluator::ev_withClause_ss_00(rTable, pkb,
+                        withClause, pkbDispatch);
             }
         }
     } else {
@@ -4210,7 +4220,7 @@ void QueryEvaluator::ev_withClause_attrRef_attrRef(int rTableIdx,
 }
 
 QueryEvaluator::pkbGetAllIntFn
-QueryEvaluator::get_all_int_pkb_method_from_RefSynType(
+__cdecl QueryEvaluator::get_all_int_pkb_method_from_RefSynType(
         RefSynType refSynType)
 {
     switch (refSynType) {
@@ -4243,7 +4253,7 @@ QueryEvaluator::get_all_int_pkb_method_from_RefSynType(
 }
 
 QueryEvaluator::pkbGetAllStringFn
-QueryEvaluator::get_all_string_pkb_method_from_RefSynType(
+__cdecl QueryEvaluator::get_all_string_pkb_method_from_RefSynType(
         RefSynType refSynType)
 {
     switch (refSynType) {
@@ -4263,7 +4273,7 @@ QueryEvaluator::get_all_string_pkb_method_from_RefSynType(
 }
 
 QueryEvaluator::pkbHasAnyIntFn
-QueryEvaluator::get_hasAnyInt_pkb_method_from_RefSynType(
+__cdecl QueryEvaluator::get_hasAnyInt_pkb_method_from_RefSynType(
         RefSynType refSynType)
 {
     switch (refSynType) {
@@ -4296,7 +4306,7 @@ QueryEvaluator::get_hasAnyInt_pkb_method_from_RefSynType(
 }
 
 QueryEvaluator::pkbHasAnyStringFn
-QueryEvaluator::get_hasAnyString_pkb_method_from_RefSynType(
+__cdecl QueryEvaluator::get_hasAnyString_pkb_method_from_RefSynType(
         RefSynType refSynType)
 {
     switch (refSynType) {
@@ -4314,9 +4324,8 @@ QueryEvaluator::get_hasAnyString_pkb_method_from_RefSynType(
     }
 }
 
-void QueryEvaluator::ev_withClause_attrRef_attrRef_ii_00_setup(
-        int rTableIdx, const WithClause& withClause,
-        EvalPKBDispatch& pkbDispatch) const
+void __cdecl QueryEvaluator::ev_withClause_attrRef_attrRef_ii_00_setup(
+        const WithClause& withClause, EvalPKBDispatch& pkbDispatch)
 {
     pkbDispatch.get_all_int_argOne =
             QueryEvaluator::get_all_int_pkb_method_from_RefSynType(
@@ -4326,27 +4335,24 @@ void QueryEvaluator::ev_withClause_attrRef_attrRef_ii_00_setup(
                     withClause.rightRef.refSynType);
 }
 
-void QueryEvaluator::ev_withClause_attrRef_attrRef_ii_01_setup(
-        int rTableIdx, const WithClause& withClause,
-        EvalPKBDispatch& pkbDispatch) const
+void __cdecl QueryEvaluator::ev_withClause_attrRef_attrRef_ii_01_setup(
+        const WithClause& withClause, EvalPKBDispatch& pkbDispatch)
 {
     pkbDispatch.has_any_int =
             QueryEvaluator::get_hasAnyInt_pkb_method_from_RefSynType(
                     withClause.leftRef.refSynType);
 }
 
-void QueryEvaluator::ev_withClause_attrRef_attrRef_ii_10_setup(
-        int rTableIdx, const WithClause& withClause,
-        EvalPKBDispatch& pkbDispatch) const
+void __cdecl QueryEvaluator::ev_withClause_attrRef_attrRef_ii_10_setup(
+        const WithClause& withClause, EvalPKBDispatch& pkbDispatch)
 {
     pkbDispatch.has_any_int =
             QueryEvaluator::get_hasAnyInt_pkb_method_from_RefSynType(
                     withClause.rightRef.refSynType);
 }
 
-void QueryEvaluator::ev_withClause_attrRef_attrRef_ss_00_setup(
-        int rTableIdx, const WithClause& withClause,
-        EvalPKBDispatch& pkbDispatch) const
+void __cdecl QueryEvaluator::ev_withClause_attrRef_attrRef_ss_00_setup(
+        const WithClause& withClause, EvalPKBDispatch& pkbDispatch)
 {
     pkbDispatch.get_all_string_argOne =
             QueryEvaluator::get_all_string_pkb_method_from_RefSynType(
@@ -4356,51 +4362,47 @@ void QueryEvaluator::ev_withClause_attrRef_attrRef_ss_00_setup(
                     withClause.rightRef.refSynType);
 }
 
-void QueryEvaluator::ev_withClause_attrRef_attrRef_ss_01_setup(
-        int rTableIdx, const WithClause& withClause,
-        EvalPKBDispatch& pkbDispatch) const
+void __cdecl QueryEvaluator::ev_withClause_attrRef_attrRef_ss_01_setup(
+        const WithClause& withClause, EvalPKBDispatch& pkbDispatch)
 {
     pkbDispatch.has_any_string =
             QueryEvaluator::get_hasAnyString_pkb_method_from_RefSynType(
                     withClause.leftRef.refSynType);
 }
 
-void QueryEvaluator::ev_withClause_attrRef_attrRef_ss_10_setup(
-        int rTableIdx, const WithClause& withClause,
-        EvalPKBDispatch& pkbDispatch) const
+void __cdecl QueryEvaluator::ev_withClause_attrRef_attrRef_ss_10_setup(
+        const WithClause& withClause, EvalPKBDispatch& pkbDispatch)
 {
     pkbDispatch.has_any_string =
             QueryEvaluator::get_hasAnyString_pkb_method_from_RefSynType(
                     withClause.rightRef.refSynType);
 }
 
-void QueryEvaluator::ev_withClause_ii_00(int rTableIdx,
-        const WithClause& withClause,
+void __cdecl QueryEvaluator::ev_withClause_ii_00(ResultsTable& rTable,
+        PKB *pkb, const WithClause& withClause,
         const EvalPKBDispatch& disp)
 {
     assert(NULL != disp.get_all_int_argOne);
     assert(NULL != disp.has_any_int);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     rTable.syn_00_transaction_begin(withClause.leftRef.refStringVal,
             RV_INT, withClause.rightRef.refStringVal, RV_INT);
     const set<int>& argOneSet =
-            (this->pkb->*(disp.get_all_int_argOne))();
+            (pkb->*(disp.get_all_int_argOne))();
     for (set<int>::const_iterator argOneIt = argOneSet.begin();
             argOneIt != argOneSet.end(); argOneIt++) {
         int argOneVal = *argOneIt;
-        if ((this->pkb->*(disp.has_any_int))(argOneVal)) {
+        if ((pkb->*(disp.has_any_int))(argOneVal)) {
             rTable.syn_00_add_row(argOneVal, argOneVal);
         }
     }
     rTable.syn_00_transaction_end();
 }
 
-void QueryEvaluator::ev_withClause_ii_01(int rTableIdx,
-        const WithClause& withClause,
+void __cdecl QueryEvaluator::ev_withClause_ii_01(ResultsTable& rTable,
+        PKB *pkb, const WithClause& withClause,
         const EvalPKBDispatch& disp)
 {
     assert(NULL != disp.has_any_int);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair =
             rTable.syn_01_transaction_begin(
                     withClause.leftRef.refStringVal,
@@ -4413,19 +4415,18 @@ void QueryEvaluator::ev_withClause_ii_01(int rTableIdx,
         const Record& record = records[i];
         const pair<string, int>& siPair = record.get_column(colIdx);
         int argTwoVal = siPair.second;
-        if ((this->pkb->*(disp.has_any_int))(argTwoVal)) {
+        if ((pkb->*(disp.has_any_int))(argTwoVal)) {
             rTable.syn_01_augment_new_row(i, argTwoVal);
         }
     }
     rTable.syn_01_transaction_end();
 }
 
-void QueryEvaluator::ev_withClause_ii_10(int rTableIdx,
-        const WithClause& withClause,
+void __cdecl QueryEvaluator::ev_withClause_ii_10(ResultsTable& rTable,
+        PKB *pkb, const WithClause& withClause,
         const EvalPKBDispatch& disp)
 {
     assert(NULL != disp.has_any_int);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair =
             rTable.syn_10_transaction_begin(
                     withClause.leftRef.refStringVal,
@@ -4438,17 +4439,16 @@ void QueryEvaluator::ev_withClause_ii_10(int rTableIdx,
         const Record& record = records[i];
         const pair<string, int>& siPair = record.get_column(colIdx);
         int argTwoVal = siPair.second;
-        if ((this->pkb->*(disp.has_any_int))(argTwoVal)) {
+        if ((pkb->*(disp.has_any_int))(argTwoVal)) {
             rTable.syn_10_augment_new_row(i, argTwoVal);
         }
     }
     rTable.syn_10_transaction_end();
 }
 
-void QueryEvaluator::ev_withClause_ii_11(int rTableIdx,
+void __cdecl QueryEvaluator::ev_withClause_ii_11(ResultsTable& rTable,
         const WithClause& withClause)
 {
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, pair<int, int> > viiPair =
             rTable.syn_11_transaction_begin(
                     withClause.leftRef.refStringVal,
@@ -4470,10 +4470,9 @@ void QueryEvaluator::ev_withClause_ii_11(int rTableIdx,
     rTable.syn_11_transaction_end();
 }
 
-void QueryEvaluator::ev_withClause_ii_22(int rTableIdx,
+void __cdecl QueryEvaluator::ev_withClause_ii_22(ResultsTable& rTable,
         const WithClause& withClause)
 {
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<pair<const vector<Record> *, int>,
          pair<const vector<Record> *, int> > vipPair =
             rTable.syn_22_transaction_begin(
@@ -4511,45 +4510,44 @@ void QueryEvaluator::ev_withClause_ii_22(int rTableIdx,
     rTable.syn_22_transaction_end();
 }
 
-void QueryEvaluator::ev_withClause_ss_00(int rTableIdx,
-        const WithClause& withClause,
+void __cdecl QueryEvaluator::ev_withClause_ss_00(ResultsTable& rTable,
+        PKB *pkb, const WithClause& withClause,
         const EvalPKBDispatch& disp)
 {
     assert(NULL != disp.get_all_string_argOne);
     assert(NULL != disp.has_any_string);
     assert(REFSYN_CALL_PROCNAME != withClause.leftRef.refSynType);
     assert(REFSYN_CALL_PROCNAME != withClause.rightRef.refSynType);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     rTable.syn_00_transaction_begin(withClause.leftRef.refStringVal,
             RV_STRING, withClause.rightRef.refStringVal, RV_STRING);
     const set<string>& argOneSet =
-            (this->pkb->*(disp.get_all_string_argOne))();
+            (pkb->*(disp.get_all_string_argOne))();
     for (set<string>::const_iterator argOneIt = argOneSet.begin();
             argOneIt != argOneSet.end(); argOneIt++) {
         const string& argOneVal = *argOneIt;
-        if ((this->pkb->*(disp.has_any_string))(argOneVal)) {
+        if ((pkb->*(disp.has_any_string))(argOneVal)) {
             rTable.syn_00_add_row(argOneVal, argOneVal);
         }
     }
     rTable.syn_00_transaction_end();
 }
 
-void QueryEvaluator::ev_withClause_ss_cpn_cpn_00(int rTableIdx,
+void __cdecl QueryEvaluator::ev_withClause_ss_cpn_cpn_00(
+        ResultsTable& rTable, PKB *pkb,
         const WithClause& withClause)
 {
     // Both are call.procName and not seen
     assert(REFSYN_CALL_PROCNAME == withClause.leftRef.refSynType);
     assert(REFSYN_CALL_PROCNAME == withClause.rightRef.refSynType);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     rTable.syn_00_transaction_begin(withClause.leftRef.refStringVal,
             RV_INT, withClause.rightRef.refStringVal, RV_INT);
-    const set<int>& argOneSet = this->pkb->get_all_call();
+    const set<int>& argOneSet = pkb->get_all_call();
     for (set<int>::const_iterator argOneIt = argOneSet.begin();
             argOneIt != argOneSet.end(); argOneIt++) {
         int argOneVal = *argOneIt;
-        const string& procCalled = this->pkb->get_call_procName(argOneVal);
+        const string& procCalled = pkb->get_call_procName(argOneVal);
         const set<int>& callStmtCallingProc =
-                this->pkb->get_call_stmt_calling(procCalled);
+                pkb->get_call_stmt_calling(procCalled);
         for (set<int>::const_iterator argTwoIt =
                 callStmtCallingProc.begin();
                 argTwoIt != callStmtCallingProc.end(); argTwoIt++) {
@@ -4559,36 +4557,34 @@ void QueryEvaluator::ev_withClause_ss_cpn_cpn_00(int rTableIdx,
     rTable.syn_00_transaction_end();
 }
 
-void QueryEvaluator::ev_withClause_ss_cpn_X_00(int rTableIdx,
+void __cdecl QueryEvaluator::ev_withClause_ss_cpn_X_00(
+        ResultsTable& rTable, PKB *pkb,
         const WithClause& withClause, const EvalPKBDispatch& disp)
 {
     assert(REFSYN_CALL_PROCNAME == withClause.leftRef.refSynType);
     assert(REFSYN_CALL_PROCNAME != withClause.rightRef.refSynType);
     assert(NULL != disp.has_any_string);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     rTable.syn_00_transaction_begin(withClause.leftRef.refStringVal,
             RV_INT, withClause.rightRef.refStringVal, RV_STRING);
-    const set<int>& argOneSet = this->pkb->get_all_call();
+    const set<int>& argOneSet = pkb->get_all_call();
     for (set<int>::const_iterator argOneIt = argOneSet.begin();
             argOneIt != argOneSet.end(); argOneIt++) {
         int argOneVal = *argOneIt;
-        const string& procCalled =
-                this->pkb->get_call_procName(argOneVal);
-        if ((this->pkb->*(disp.has_any_string))(procCalled)) {
+        const string& procCalled = pkb->get_call_procName(argOneVal);
+        if ((pkb->*(disp.has_any_string))(procCalled)) {
             rTable.syn_00_add_row(argOneVal, procCalled);
         }
     }
     rTable.syn_00_transaction_end();
 }
 
-void QueryEvaluator::ev_withClause_ss_01(int rTableIdx,
-        const WithClause& withClause,
+void __cdecl QueryEvaluator::ev_withClause_ss_01(ResultsTable& rTable,
+        PKB *pkb, const WithClause& withClause,
         const EvalPKBDispatch& disp)
 {
     assert(REFSYN_CALL_PROCNAME != withClause.leftRef.refSynType);
     assert(REFSYN_CALL_PROCNAME != withClause.rightRef.refSynType);
     assert(NULL != disp.has_any_string);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair =
             rTable.syn_01_transaction_begin(
                     withClause.leftRef.refStringVal,
@@ -4600,19 +4596,19 @@ void QueryEvaluator::ev_withClause_ss_01(int rTableIdx,
         const Record& record = records[i];
         const pair<string, int>& siPair = record.get_column(colIdx);
         const string& argTwoVal = siPair.first;
-        if ((this->pkb->*(disp.has_any_string))(argTwoVal)) {
+        if ((pkb->*(disp.has_any_string))(argTwoVal)) {
             rTable.syn_01_augment_new_row(i, argTwoVal);
         }
     }
     rTable.syn_01_transaction_end();
 }
 
-void QueryEvaluator::ev_withClause_ss_cpn_cpn_01(int rTableIdx,
+void __cdecl QueryEvaluator::ev_withClause_ss_cpn_cpn_01(
+        ResultsTable& rTable, PKB *pkb,
         const WithClause& withClause)
 {
     assert(REFSYN_CALL_PROCNAME == withClause.leftRef.refSynType);
     assert(REFSYN_CALL_PROCNAME == withClause.rightRef.refSynType);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair =
             rTable.syn_01_transaction_begin(
                     withClause.leftRef.refStringVal,
@@ -4624,10 +4620,9 @@ void QueryEvaluator::ev_withClause_ss_cpn_cpn_01(int rTableIdx,
         const Record& record = records[i];
         const pair<string, int>& siPair = record.get_column(colIdx);
         int argTwoVal = siPair.second;
-        const string& procCalled =
-                this->pkb->get_call_procName(argTwoVal);
+        const string& procCalled = pkb->get_call_procName(argTwoVal);
         const set<int>& callStmtCallingProc =
-                this->pkb->get_call_stmt_calling(procCalled);
+                pkb->get_call_stmt_calling(procCalled);
         for (set<int>::const_iterator argOneIt =
                 callStmtCallingProc.begin();
                 argOneIt != callStmtCallingProc.end(); argOneIt++) {
@@ -4638,12 +4633,12 @@ void QueryEvaluator::ev_withClause_ss_cpn_cpn_01(int rTableIdx,
     rTable.syn_01_transaction_end();
 }
 
-void QueryEvaluator::ev_withClause_ss_cpn_X_01(int rTableIdx,
+void __cdecl QueryEvaluator::ev_withClause_ss_cpn_X_01(
+        ResultsTable &rTable, PKB *pkb,
         const WithClause& withClause)
 {
     assert(REFSYN_CALL_PROCNAME == withClause.leftRef.refSynType);
     assert(REFSYN_CALL_PROCNAME != withClause.rightRef.refSynType);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair =
             rTable.syn_01_transaction_begin(
                     withClause.leftRef.refStringVal,
@@ -4656,7 +4651,7 @@ void QueryEvaluator::ev_withClause_ss_cpn_X_01(int rTableIdx,
         const pair<string, int> siPair = record.get_column(colIdx);
         const string& procCalled = siPair.first;
         const set<int>& argOneSet =
-                this->pkb->get_call_stmt_calling(procCalled);
+                pkb->get_call_stmt_calling(procCalled);
         for (set<int>::const_iterator argOneIt = argOneSet.begin();
                 argOneIt != argOneSet.end(); argOneIt++) {
             rTable.syn_01_augment_new_row(i, *argOneIt);
@@ -4665,13 +4660,13 @@ void QueryEvaluator::ev_withClause_ss_cpn_X_01(int rTableIdx,
     rTable.syn_01_transaction_end();
 }
 
-void QueryEvaluator::ev_withClause_ss_cpn_X_10(int rTableIdx,
+void __cdecl QueryEvaluator::ev_withClause_ss_cpn_X_10(
+        ResultsTable& rTable, PKB *pkb,
         const WithClause& withClause, const EvalPKBDispatch& disp)
 {
     assert(REFSYN_CALL_PROCNAME == withClause.leftRef.refSynType);
     assert(REFSYN_CALL_PROCNAME != withClause.rightRef.refSynType);
     assert(NULL != disp.has_any_string);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair =
             rTable.syn_10_transaction_begin(
                     withClause.leftRef.refStringVal,
@@ -4683,21 +4678,19 @@ void QueryEvaluator::ev_withClause_ss_cpn_X_10(int rTableIdx,
         const Record& record = records[i];
         const pair<string, int>& siPair = record.get_column(colIdx);
         int callStmt = siPair.second;
-        const string& procCalled =
-                this->pkb->get_call_procName(callStmt);
-        if ((this->pkb->*(disp.has_any_string))(procCalled)) {
+        const string& procCalled = pkb->get_call_procName(callStmt);
+        if ((pkb->*(disp.has_any_string))(procCalled)) {
             rTable.syn_10_augment_new_row(i, procCalled);
         }
     }
     rTable.syn_10_transaction_end();
 }
 
-void QueryEvaluator::ev_withClause_ss_11(int rTableIdx,
+void __cdecl QueryEvaluator::ev_withClause_ss_11(ResultsTable& rTable,
         const WithClause& withClause)
 {
     assert(REFSYN_CALL_PROCNAME != withClause.leftRef.refSynType);
     assert(REFSYN_CALL_PROCNAME != withClause.rightRef.refSynType);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, pair<int, int> > viiPair =
             rTable.syn_11_transaction_begin(
                     withClause.leftRef.refStringVal,
@@ -4719,12 +4712,12 @@ void QueryEvaluator::ev_withClause_ss_11(int rTableIdx,
     rTable.syn_11_transaction_end();
 }
 
-void QueryEvaluator::ev_withClause_ss_cpn_cpn_11(int rTableIdx,
+void __cdecl QueryEvaluator::ev_withClause_ss_cpn_cpn_11(
+        ResultsTable& rTable, PKB *pkb,
         const WithClause& withClause)
 {
     assert(REFSYN_CALL_PROCNAME == withClause.leftRef.refSynType);
     assert(REFSYN_CALL_PROCNAME == withClause.rightRef.refSynType);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, pair<int, int> > viiPair =
             rTable.syn_11_transaction_begin(
                     withClause.leftRef.refStringVal,
@@ -4737,12 +4730,10 @@ void QueryEvaluator::ev_withClause_ss_cpn_cpn_11(int rTableIdx,
         const Record& record = records[i];
         const pair<string, int>& pOne = record.get_column(colOne);
         int argOneVal = pOne.second;
-        const string& procOneName =
-                this->pkb->get_call_procName(argOneVal);
+        const string& procOneName = pkb->get_call_procName(argOneVal);
         const pair<string, int>& pTwo = record.get_column(colTwo);
         int argTwoVal = pTwo.second;
-        const string& procTwoName =
-                this->pkb->get_call_procName(argTwoVal);
+        const string& procTwoName = pkb->get_call_procName(argTwoVal);
         if (0 == procOneName.compare(procTwoName)) {
             rTable.syn_11_mark_row_ok(i);
         }
@@ -4750,12 +4741,12 @@ void QueryEvaluator::ev_withClause_ss_cpn_cpn_11(int rTableIdx,
     rTable.syn_11_transaction_end();
 }
 
-void QueryEvaluator::ev_withClause_ss_cpn_X_11(int rTableIdx,
+void __cdecl QueryEvaluator::ev_withClause_ss_cpn_X_11(
+        ResultsTable& rTable, PKB *pkb,
         const WithClause& withClause)
 {
     assert(REFSYN_CALL_PROCNAME == withClause.leftRef.refSynType);
     assert(REFSYN_CALL_PROCNAME != withClause.rightRef.refSynType);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, pair<int, int> > viiPair =
             rTable.syn_11_transaction_begin(
                     withClause.leftRef.refStringVal,
@@ -4768,7 +4759,7 @@ void QueryEvaluator::ev_withClause_ss_cpn_X_11(int rTableIdx,
         const Record& record = records[i];
         const pair<string, int>& pOne = record.get_column(colOne);
         int argOneVal = pOne.second;
-        const string& procName = this->pkb->get_call_procName(argOneVal);
+        const string& procName = pkb->get_call_procName(argOneVal);
         const pair<string, int>& pTwo = record.get_column(colTwo);
         const string& argTwoVal = pTwo.first;
         if (0 == procName.compare(argTwoVal)) {
@@ -4778,12 +4769,11 @@ void QueryEvaluator::ev_withClause_ss_cpn_X_11(int rTableIdx,
     rTable.syn_11_transaction_end();
 }
 
-void QueryEvaluator::ev_withClause_ss_22(int rTableIdx,
+void __cdecl QueryEvaluator::ev_withClause_ss_22(ResultsTable& rTable,
         const WithClause& withClause)
 {
     assert(REFSYN_CALL_PROCNAME != withClause.leftRef.refSynType);
     assert(REFSYN_CALL_PROCNAME != withClause.rightRef.refSynType);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<pair<const vector<Record> *, int>,
          pair<const vector<Record> *, int> > vipPair =
                 rTable.syn_22_transaction_begin(
@@ -4821,12 +4811,12 @@ void QueryEvaluator::ev_withClause_ss_22(int rTableIdx,
     rTable.syn_22_transaction_end();
 }
 
-void QueryEvaluator::ev_withClause_ss_cpn_cpn_22(int rTableIdx,
+void __cdecl QueryEvaluator::ev_withClause_ss_cpn_cpn_22(
+        ResultsTable& rTable, PKB *pkb,
         const WithClause& withClause)
 {
     assert(REFSYN_CALL_PROCNAME == withClause.leftRef.refSynType);
     assert(REFSYN_CALL_PROCNAME == withClause.rightRef.refSynType);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<pair<const vector<Record> *, int>,
          pair<const vector<Record> *, int> > vipPair =
                 rTable.syn_22_transaction_begin(
@@ -4840,7 +4830,7 @@ void QueryEvaluator::ev_withClause_ss_cpn_cpn_22(int rTableIdx,
         const Record& record = recordOne[i];
         const pair<string, int>& siPair = record.get_column(colOne);
         int callStmt = siPair.second;
-        const string& procName = this->pkb->get_call_procName(callStmt);
+        const string& procName = pkb->get_call_procName(callStmt);
         argOneVec.push_back(procName);
     }
     const vector<Record>& recordTwo = *(vipPair.second.first);
@@ -4851,7 +4841,7 @@ void QueryEvaluator::ev_withClause_ss_cpn_cpn_22(int rTableIdx,
         const Record& record = recordTwo[i];
         const pair<string, int>& siPair = record.get_column(colTwo);
         int callStmt = siPair.second;
-        const string& procName = this->pkb->get_call_procName(callStmt);
+        const string& procName = pkb->get_call_procName(callStmt);
         argTwoVec.push_back(procName);
     }
     for (int rowOne = 0; rowOne < nrRecordOne; rowOne++) {
@@ -4866,12 +4856,12 @@ void QueryEvaluator::ev_withClause_ss_cpn_cpn_22(int rTableIdx,
     rTable.syn_22_transaction_end();
 }
 
-void QueryEvaluator::ev_withClause_ss_cpn_X_22(int rTableIdx,
+void __cdecl QueryEvaluator::ev_withClause_ss_cpn_X_22(
+        ResultsTable& rTable, PKB *pkb,
         const WithClause& withClause)
 {
     assert(REFSYN_CALL_PROCNAME == withClause.leftRef.refSynType);
     assert(REFSYN_CALL_PROCNAME != withClause.rightRef.refSynType);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<pair<const vector<Record> *, int>,
          pair<const vector<Record> *, int> > vipPair =
             rTable.syn_22_transaction_begin(
@@ -4885,7 +4875,7 @@ void QueryEvaluator::ev_withClause_ss_cpn_X_22(int rTableIdx,
         const Record& record = recordOne[i];
         const pair<string, int>& siPair = record.get_column(colOne);
         int callStmt = siPair.second;
-        const string& procName = this->pkb->get_call_procName(callStmt);
+        const string& procName = pkb->get_call_procName(callStmt);
         argOneVec.push_back(procName);
     }
     const vector<Record>& recordTwo = *(vipPair.second.first);
@@ -4910,71 +4900,74 @@ void QueryEvaluator::ev_withClause_ss_cpn_X_22(int rTableIdx,
     rTable.syn_22_transaction_end();
 }
 
-void QueryEvaluator::ev_withClause_attrRef_X(int rTableIdx,
-        const WithClause& withClause)
+void __cdecl QueryEvaluator::ev_withClause_attrRef_X(ResultsTable& rTable,
+        PKB *pkb, const WithClause& withClause)
 {
     BaseType leftRefType =
             refSynType_to_BaseType(withClause.leftRef.refSynType);
     assert(BASETYPE_INVALID != leftRefType);
     if (BASETYPE_INT == leftRefType) {
         assert(REF_INT == withClause.rightRef.refType);
-        this->ev_withClause_attrRef_X_int(rTableIdx, withClause);
+        QueryEvaluator::ev_withClause_attrRef_X_int(rTable, pkb,
+                withClause);
     } else if (BASETYPE_STRING == leftRefType) {
         assert(REF_STRING == withClause.rightRef.refType);
-        this->ev_withClause_attrRef_X_string(rTableIdx, withClause);
+        QueryEvaluator::ev_withClause_attrRef_X_string(rTable, pkb,
+                withClause);
     } else {
         assert(false);
     }
 }
 
-void QueryEvaluator::ev_withClause_attrRef_X_int(int rTableIdx,
+void __cdecl QueryEvaluator::ev_withClause_attrRef_X_int(
+        ResultsTable& rTable, PKB *pkb,
         const WithClause& withClause)
 {
     EvalPKBDispatch pkbDispatch;
-    const ResultsTable& rTable = this->resultsTable[rTableIdx];
     if (rTable.has_synonym(withClause.leftRef.refStringVal)) {
-        this->ev_withClause_i_1(rTableIdx, withClause);
+        QueryEvaluator::ev_withClause_i_1(rTable, withClause);
     } else {
         pkbDispatch.get_all_int_argOne =
                 QueryEvaluator::get_all_int_pkb_method_from_RefSynType(
                         withClause.leftRef.refSynType);
-        this->ev_withClause_i_0(rTableIdx, withClause, pkbDispatch);
+        QueryEvaluator::ev_withClause_i_0(rTable, pkb, withClause,
+                pkbDispatch);
     }
 }
 
-void QueryEvaluator::ev_withClause_attrRef_X_string(int rTableIdx,
+void __cdecl QueryEvaluator::ev_withClause_attrRef_X_string(
+        ResultsTable& rTable, PKB *pkb,
         const WithClause& withClause)
 {
     EvalPKBDispatch pkbDispatch;
-    const ResultsTable& rTable = this->resultsTable[rTableIdx];
     if (rTable.has_synonym(withClause.leftRef.refStringVal)) {
         if (REFSYN_CALL_PROCNAME == withClause.leftRef.refSynType) {
-            this->ev_withClause_cpn_1(rTableIdx, withClause);
+            QueryEvaluator::ev_withClause_cpn_1(rTable, pkb, withClause);
         } else {
-            this->ev_withClause_s_1(rTableIdx, withClause);
+            QueryEvaluator::ev_withClause_s_1(rTable, withClause);
         }
     } else {
         if (REFSYN_CALL_PROCNAME == withClause.leftRef.refSynType) {
-            this->ev_withClause_cpn_0(rTableIdx, withClause);
+            QueryEvaluator::ev_withClause_cpn_0(rTable, pkb, withClause);
         } else {
             pkbDispatch.get_all_string_argOne =
                     QueryEvaluator::
                         get_all_string_pkb_method_from_RefSynType(
                                 withClause.leftRef.refSynType);
-            this->ev_withClause_s_0(rTableIdx, withClause, pkbDispatch);
+            QueryEvaluator::ev_withClause_s_0(rTable, pkb, withClause,
+                    pkbDispatch);
         }
     }
 }
 
-void QueryEvaluator::ev_withClause_i_0(int rTableIdx,
-        const WithClause& withClause, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_withClause_i_0(ResultsTable& rTable,
+        PKB *pkb, const WithClause& withClause,
+        const EvalPKBDispatch& disp)
 {
     assert(NULL != disp.get_all_int_argOne);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     rTable.syn_0_transaction_begin(withClause.leftRef.refStringVal,
             RV_INT);
-    const set<int>& argOneSet =
-            (this->pkb->*(disp.get_all_int_argOne))();
+    const set<int>& argOneSet = (pkb->*(disp.get_all_int_argOne))();
     const int concreteVal = withClause.rightRef.refIntVal;
     if (argOneSet.end() != argOneSet.find(concreteVal)) {
         rTable.syn_0_add_row(concreteVal);
@@ -4982,10 +4975,9 @@ void QueryEvaluator::ev_withClause_i_0(int rTableIdx,
     rTable.syn_0_transaction_end();
 }
 
-void QueryEvaluator::ev_withClause_i_1(int rTableIdx,
+void __cdecl QueryEvaluator::ev_withClause_i_1(ResultsTable& rTable,
         const WithClause& withClause)
 {
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair =
             rTable.syn_1_transaction_begin(
                     withClause.leftRef.refStringVal);
@@ -5004,16 +4996,15 @@ void QueryEvaluator::ev_withClause_i_1(int rTableIdx,
     rTable.syn_1_transaction_end();
 }
 
-void QueryEvaluator::ev_withClause_s_0(int rTableIdx,
-        const WithClause& withClause, const EvalPKBDispatch& disp)
+void __cdecl QueryEvaluator::ev_withClause_s_0(ResultsTable& rTable,
+        PKB *pkb, const WithClause& withClause, const EvalPKBDispatch& disp)
 {
     assert(REFSYN_CALL_PROCNAME != withClause.leftRef.refSynType);
     assert(NULL != disp.get_all_string_argOne);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     rTable.syn_0_transaction_begin(withClause.leftRef.refStringVal,
             RV_STRING);
     const set<string>& argOneSet =
-            (this->pkb->*(disp.get_all_string_argOne))();
+            (pkb->*(disp.get_all_string_argOne))();
     const string& concreteVal = withClause.rightRef.refStringVal;
     if (argOneSet.end() != argOneSet.find(concreteVal)) {
         rTable.syn_0_add_row(concreteVal);
@@ -5021,20 +5012,18 @@ void QueryEvaluator::ev_withClause_s_0(int rTableIdx,
     rTable.syn_0_transaction_end();
 }
 
-void QueryEvaluator::ev_withClause_cpn_0(int rTableIdx,
-        const WithClause& withClause)
+void __cdecl QueryEvaluator::ev_withClause_cpn_0(ResultsTable& rTable,
+        PKB *pkb, const WithClause& withClause)
 {
     assert(REFSYN_CALL_PROCNAME == withClause.leftRef.refSynType);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     rTable.syn_0_transaction_begin(withClause.leftRef.refStringVal,
             RV_INT);
-    const set<int>& argOneSet = this->pkb->get_all_call();
+    const set<int>& argOneSet = pkb->get_all_call();
     const string& concreteVal = withClause.rightRef.refStringVal;
     for (set<int>::const_iterator argOneIt = argOneSet.begin();
             argOneIt != argOneSet.end(); argOneIt++) {
         int callStmt = *argOneIt;
-        const string& procCalled =
-                this->pkb->get_call_procName(callStmt);
+        const string& procCalled = pkb->get_call_procName(callStmt);
         if (0 == procCalled.compare(concreteVal)) {
             rTable.syn_0_add_row(callStmt);
         }
@@ -5042,11 +5031,10 @@ void QueryEvaluator::ev_withClause_cpn_0(int rTableIdx,
     rTable.syn_0_transaction_end();
 }
 
-void QueryEvaluator::ev_withClause_s_1(int rTableIdx,
+void __cdecl QueryEvaluator::ev_withClause_s_1(ResultsTable& rTable,
         const WithClause& withClause)
 {
     assert(REFSYN_CALL_PROCNAME != withClause.leftRef.refSynType);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair =
             rTable.syn_1_transaction_begin(
                     withClause.leftRef.refStringVal);
@@ -5065,11 +5053,10 @@ void QueryEvaluator::ev_withClause_s_1(int rTableIdx,
     rTable.syn_1_transaction_end();
 }
 
-void QueryEvaluator::ev_withClause_cpn_1(int rTableIdx,
-        const WithClause& withClause)
+void __cdecl QueryEvaluator::ev_withClause_cpn_1(ResultsTable& rTable,
+        PKB *pkb, const WithClause& withClause)
 {
     assert(REFSYN_CALL_PROCNAME == withClause.leftRef.refSynType);
-    ResultsTable& rTable = this->resultsTable[rTableIdx];
     pair<const vector<Record> *, int> viPair =
             rTable.syn_1_transaction_begin(
                     withClause.leftRef.refStringVal);
@@ -5081,8 +5068,7 @@ void QueryEvaluator::ev_withClause_cpn_1(int rTableIdx,
         const Record& record = records[i];
         const pair<string, int>& siPair = record.get_column(colIdx);
         int callStmt = siPair.second;
-        const string& procCalled =
-                this->pkb->get_call_procName(callStmt);
+        const string& procCalled = pkb->get_call_procName(callStmt);
         if (0 == procCalled.compare(concreteVal)) {
             rTable.syn_1_mark_row_ok(i);
         }
