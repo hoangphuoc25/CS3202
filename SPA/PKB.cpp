@@ -1050,7 +1050,7 @@ set<int> PKB::affects_X_Y_get_int_X_from_int_Y(DesignEnt xType,
     Node *n = stmtBank->get_node(y);
     assert(NULL != n);
     const set<string>& var = n->get_uses();
-    string procName = procTable->which_proc(y);
+    const string& procName = procTable->which_proc(y);
     set<int> s, res;
     set<int>::const_iterator it_stmt;
     set<string>::iterator it_var;

@@ -720,13 +720,13 @@ void Test_30_PKB::test_one(){
     s1 = pkb.affects_X_Y_get_int_X_from_int_Y(ENT_ASSIGN, ENT_ASSIGN, 1);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(), stringSet);
-    s1 = pkb.affects_X_Y_get_int_X_from_int_Y(ENT_ASSIGN, ENT_ASSIGN, 10);
     CPPUNIT_ASSERT_EQUAL(true,
             pkb.affects_query_int_X_int_Y(ENT_ASSIGN, 17,
                     ENT_ASSIGN, 10));
     CPPUNIT_ASSERT_EQUAL(true,
             pkb.affects_query_int_X_int_Y(ENT_ASSIGN, 12,
                     ENT_ASSIGN, 10));
+    s1 = pkb.affects_X_Y_get_int_X_from_int_Y(ENT_ASSIGN, ENT_ASSIGN, 10);
     stringSet = SetWrapper<string>(s1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "12", "17"), stringSet);
 

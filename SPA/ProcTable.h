@@ -32,7 +32,7 @@ class ProcTable{
 public:
     ProcTable();
     int get_index(string procName) const;
-    string get_proc_name(int index);
+    const std::string& get_proc_name(int index) const;
 
     void update_table(VarTable *vt);
 
@@ -46,10 +46,10 @@ public:
     void add_uses(string procName, string varName);
     void add_calls(string proc1, string proc2); 
 
-    int get_start(string procName);
-    int get_end(string procName);
-    Node* get_root(string procName);
-    Node* get_root(int index);
+    int get_start(const std::string& procName) const;
+    int get_end(const std::string& procName) const;
+    Node* get_root(const std::string& procName) const;
+    Node* get_root(int index) const;
 
     const std::set<std::string>& get_calls(const std::string& procName)
             const;
@@ -76,7 +76,7 @@ public:
     bool uses_query_procedure_var(const std::string& proc,
             const std::string& var) const;
 
-    string which_proc(int stmtNo);
+    const std::string& which_proc(int stmtNo) const;
 
     /// Checks if there is at least one procedure in the ProcTable
     /// @return true if there is atl east one procedure in the
@@ -101,7 +101,6 @@ private:
     map<string, int> nameToIndex;
     vector<ProcElements> procTable;
     VarTable *varTable;
-
 };
 
 #endif

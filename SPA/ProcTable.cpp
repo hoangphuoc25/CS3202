@@ -18,7 +18,8 @@ int ProcTable::get_index(string procName) const
     }
 }
 
-string ProcTable::get_proc_name(int index) {
+const string& ProcTable::get_proc_name(int index) const
+{
     int sz = procTable.size();
     if (index < 0 || index >= sz) {
         return "";
@@ -132,32 +133,39 @@ void ProcTable::add_called_by(string proc1, string proc2){
     }
 }
 
-int ProcTable::get_start(string procName){
-    if (nameToIndex.find(procName) != nameToIndex.end()) {
-        return procTable[nameToIndex[procName]].start;
+int ProcTable::get_start(const string& procName) const
+{
+    int idx = this->get_index(procName);
+    if (-1 != idx) {
+        return procTable[idx].start;
     } else {
         return -1;
     }
 }
 
 
-int ProcTable::get_end(string procName){
-    if (nameToIndex.find(procName) != nameToIndex.end()) {
-        return procTable[nameToIndex[procName]].end;
+int ProcTable::get_end(const string& procName) const
+{
+    int idx = this->get_index(procName);
+    if (-1 != idx) {
+        return procTable[idx].end;
     } else {
         return -1;
     }
 }
 
-Node* ProcTable::get_root(string procName){
-    if (nameToIndex.find(procName) != nameToIndex.end()) {
-        return procTable[nameToIndex[procName]].procRoot;
+Node* ProcTable::get_root(const string& procName) const
+{
+    int idx = this->get_index(procName);
+    if (-1 != idx) {
+        return procTable[idx].procRoot;
     } else {
         return NULL;
     }
 }
 
-Node* ProcTable::get_root(int index){
+Node* ProcTable::get_root(int index) const
+{
     int sz = procTable.size();
     if (index < 0 || index >= sz) {
         return NULL;
@@ -261,9 +269,9 @@ bool ProcTable::uses_query_procedure_var(const string& proc,
     return false;
 }
 
-string ProcTable::which_proc(int stmtNo)
+const string& ProcTable::which_proc(int stmtNo) const
 {
-    return procFinder.lower_bound(stmtNo)->second;
+    return this->procFinder.lower_bound(stmtNo)->second;
 }
 
 bool ProcTable::has_any_proc() const
