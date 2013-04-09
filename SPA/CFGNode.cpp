@@ -12,6 +12,9 @@ CFGNode::CFGNode(int n)
     inTwo = NULL;
     outOne = NULL;
     outTwo = NULL;
+    terminator = false;
+    last = false;
+    caller = false;
 }
 
 void CFGNode::set_edge(CFGNode *node, edge e, int i)
