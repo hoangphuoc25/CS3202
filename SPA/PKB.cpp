@@ -1334,6 +1334,70 @@ bool PKB::affectsStar_X_Y_smth_int_Y(DesignEnt yType, int y) const
     return affects_X_Y_smth_int_Y(yType,y);
 }
 
+// Next BIP
+bool PKB::is_next_BIP(int stmt1, int stmt2)
+{
+    if (!is_valid_stmtNo(stmt1) || !is_valid_stmtNo(stmt2)) {
+        return false;
+    }
+    if (is_same_procedure(stmt1, stmt2)) {
+        if (!is_stmtType(stmt1, ENT_CALL)) {
+            set<int> s =  CFG->at(stmt1)->get_after();
+            return (s.find(stmt2) != s.end());
+        } else {
+            return false;
+        }
+    } else {
+        CFGNode* head = CFG->at(stmt1);
+        set<int> after = head->get_after_BIP();
+        return (after.find(stmt2) != after.end());
+    }
+}
+
+bool PKB::is_next_star_BIP(int stmt1, int stmt2)
+{
+return true;
+}
+
+set<int> PKB::get_before_BIP(int stmtNo)
+{
+    if (!is_valid_stmtNo(stmtNo)) {
+        return EMPTY_INTSET;
+    }
+    set<int> s,t;
+    CFGNode *n = CFG->at(stmtNo); 
+    if (n->has_Bip(IN)) {
+        s = n->get_before_BIP();
+    }
+    t = n->get_before_helper();
+    s.insert(t.begin(),t.end());
+    return s;
+}
+
+set<int> PKB::get_before_BIP_star(int stmtNo)
+{
+    return EMPTY_INTSET;
+}
+
+set<int> PKB::get_after_BIP(int stmtNo)
+{
+    if (!is_valid_stmtNo(stmtNo)) {
+        return EMPTY_INTSET;
+    }
+    set<int> s, t;
+    CFGNode *n = CFG->at(stmtNo); 
+    s = n->get_after_BIP();
+    t = n->get_after_helper();
+    s.insert(t.begin(),t.end());
+    return s;
+}
+
+set<int> PKB::get_after_BIP_star(int stmtNo)
+{
+    return EMPTY_INTSET;
+}
+
+
 set<int> PKB::get_all_assign() const
 {
     return this->stmtBank->get_all_assign();
@@ -1595,6 +1659,11 @@ bool PKB::is_stmtType(int stmtNo, DesignEnt type) const{
 bool PKB::is_valid_stmtNo(int stmtNo) const
 {
     return stmtBank->is_valid_stmtNo(stmtNo);
+}
+
+bool PKB::is_same_procedure(int stmt1, int stmt2)
+{
+    return (procTable->which_proc(stmt1) == procTable->which_proc(stmt2));
 }
 
 set<int> PKB::get_all_stmt(){
