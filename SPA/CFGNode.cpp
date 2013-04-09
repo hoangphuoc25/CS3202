@@ -10,7 +10,6 @@ CFGNode::CFGNode(int n)
     stmtNo = n;
     inOne = NULL;
     inTwo = NULL;
-    inThree = NULL;
     outOne = NULL;
     outTwo = NULL;
 }
@@ -25,9 +24,6 @@ void CFGNode::set_edge(CFGNode *node, edge e, int i)
             break;
         case 2:
             inTwo = node;
-            break;
-        case 3:
-            inThree = node;
             break;
         }
         break;
@@ -120,6 +116,101 @@ set<int> CFGNode::get_after() const
     return s;
 }
 
+set<int> CFGNode::get_before_helper() const
+{
+    set<int> s, temp;
+    int n;
+    if (inOne != NULL) {
+        n = inOne->get_stmtNo();
+        if (n != DUMMY) {
+            if(!inOne->is_caller()){
+                s.insert(n);
+            }
+        } else {
+            s = inOne->get_before_helper();
+        }
+    }
+    if (inTwo != NULL) {
+        n = inTwo->get_stmtNo();
+        if (n != DUMMY) {
+            if (!inTwo->is_caller()) {
+                s.insert(n);
+            }
+        } else {
+            temp = inTwo->get_before_helper();
+            s.insert(temp.begin(),temp.end());
+        }
+    }
+    return s;
+}
+
+set<int> CFGNode::get_after_helper() const
+{
+    set<int> s,temp;
+    int n;
+    if (caller) {
+        return s;
+    }
+    if (outOne != NULL) {
+        n = outOne->get_stmtNo();
+        if (n != DUMMY) {
+            s.insert(n);
+        } else {
+            // Dummy nodes only have outOne.
+            s =  outOne->get_after_helper();
+        }
+    }
+    if (outTwo != NULL) {
+        n = outTwo->get_stmtNo();
+        assert(n != DUMMY);
+        s.insert(n);
+    }
+    return s;
+}
+
+set<int> CFGNode::get_before_BIP() const
+{
+    set<int> s;
+    for (set<CFGNode*>::iterator it = bipIn.begin(); it != bipIn.end(); it++) {
+        if((*it)->is_terminator()){
+            set<int> t = (*it)->get_before_helper();
+            s.insert(t.begin(),t.end());
+            t = (*it)->get_before_BIP();
+            s.insert(t.begin(),t.end());
+        } else {
+            s.insert((*it)->get_stmtNo());
+        }
+    }
+    return s;
+}
+
+set<int> CFGNode::get_after_BIP() const
+{
+    set<int> s;
+    if (last && !caller) {
+        assert(outOne != NULL);
+        s = outOne->get_after_BIP();
+    }
+    for (set<CFGNode*>::iterator it = bipOut.begin(); it != bipOut.end(); it++) {
+        if((*it)->is_terminator()){
+            set<int> t = (*it)->get_after_BIP();
+            s.insert(t.begin(),t.end());
+        } else {
+            s.insert((*it)->get_stmtNo());
+        }
+    }
+    return s;
+}
+
+bool CFGNode::has_Bip(edge e) const
+{
+    if (e == IN) {
+        return (bipIn.size() != 0);
+    } else if (e == OUT) {
+        return (bipOut.size() != 0);
+    }
+}
+
 
 void CFGNode::print() const
 {
@@ -137,4 +228,34 @@ void CFGNode::print() const
         printf("outTwo: %d\n", outTwo->get_stmtNo());
     }
     putchar('\n');
+}
+
+void CFGNode::set_terminator()
+{
+    terminator = true;
+}
+
+bool CFGNode::is_terminator() const
+{
+    return terminator;
+}
+
+void CFGNode::set_last()
+{
+    last = true;
+}
+
+bool CFGNode::is_last() const
+{
+    return last;
+}
+
+void CFGNode::set_caller()
+{
+    caller = true;
+}
+
+bool CFGNode::is_caller() const
+{
+    return caller;
 }
