@@ -1335,7 +1335,7 @@ bool PKB::affectsStar_X_Y_smth_int_Y(DesignEnt yType, int y) const
 }
 
 // Next BIP
-bool PKB::is_next_BIP(int stmt1, int stmt2)
+bool PKB::is_next_BIP(int stmt1, int stmt2) const
 {
     if (!is_valid_stmtNo(stmt1) || !is_valid_stmtNo(stmt2)) {
         return false;
@@ -1354,12 +1354,12 @@ bool PKB::is_next_BIP(int stmt1, int stmt2)
     }
 }
 
-bool PKB::is_next_star_BIP(int stmt1, int stmt2)
+bool PKB::is_next_star_BIP(int stmt1, int stmt2) const
 {
 return true;
 }
 
-set<int> PKB::get_before_BIP(int stmtNo)
+set<int> PKB::get_before_BIP(int stmtNo) const
 {
     if (!is_valid_stmtNo(stmtNo)) {
         return EMPTY_INTSET;
@@ -1374,12 +1374,12 @@ set<int> PKB::get_before_BIP(int stmtNo)
     return s;
 }
 
-set<int> PKB::get_before_BIP_star(int stmtNo)
+set<int> PKB::get_before_BIP_star(int stmtNo) const
 {
     return EMPTY_INTSET;
 }
 
-set<int> PKB::get_after_BIP(int stmtNo)
+set<int> PKB::get_after_BIP(int stmtNo) const
 {
     if (!is_valid_stmtNo(stmtNo)) {
         return EMPTY_INTSET;
@@ -1392,7 +1392,7 @@ set<int> PKB::get_after_BIP(int stmtNo)
     return s;
 }
 
-set<int> PKB::get_after_BIP_star(int stmtNo)
+set<int> PKB::get_after_BIP_star(int stmtNo) const
 {
     return EMPTY_INTSET;
 }
@@ -1661,7 +1661,7 @@ bool PKB::is_valid_stmtNo(int stmtNo) const
     return stmtBank->is_valid_stmtNo(stmtNo);
 }
 
-bool PKB::is_same_procedure(int stmt1, int stmt2)
+bool PKB::is_same_procedure(int stmt1, int stmt2) const
 {
     return (procTable->which_proc(stmt1) == procTable->which_proc(stmt2));
 }

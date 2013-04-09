@@ -808,19 +808,19 @@ public:
     set<string> get_var_stmt_modifies(int stmtNo) const;
 
     // Next BIP
-    bool is_next_BIP(int stmt1, int stmt2);
-    bool is_next_star_BIP(int stmt1, int stmt2);
+    bool is_next_BIP(int stmt1, int stmt2) const;
+    bool is_next_star_BIP(int stmt1, int stmt2) const;
 
-    set<int> get_before_BIP(int stmtNo);
-    set<int> get_before_BIP_star(int stmtNo);
+    set<int> get_before_BIP(int stmtNo) const;
+    set<int> get_before_BIP_star(int stmtNo) const;
 
-    set<int> get_after_BIP(int stmtNo);
-    set<int> get_after_BIP_star(int stmtNo);
+    set<int> get_after_BIP(int stmtNo) const;
+    set<int> get_after_BIP_star(int stmtNo) const;
 
     // Others
     bool is_stmtType(int stmtNo, DesignEnt type) const;
     bool is_valid_stmtNo(int stmtNo) const;
-    bool is_same_procedure(int stmt1, int stmt2);
+    bool is_same_procedure(int stmt1, int stmt2) const;
 
     set<int> get_all_stmt();
     set<int> get_all_stmt_by_proc(string procName);
