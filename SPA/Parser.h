@@ -102,8 +102,9 @@ private:
     CFGNode* build_CFG(int stmtNo);
     void make_CFG();
     void set_edge(CFGNode* outNode, CFGNode* inNode, int out, int in);
-
-
+    void set_BIPedge(CFGNode* outNode, CFGNode* inNode);
+    map<string,CFGNode*> progHead;
+    map<string,CFGNode*> progTail;
 
     //Printer functions
     void token_out();

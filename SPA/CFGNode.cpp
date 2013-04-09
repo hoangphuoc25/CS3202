@@ -40,6 +40,15 @@ void CFGNode::set_edge(CFGNode *node, edge e, int i)
     }
 }
 
+void CFGNode::set_BIPedge(CFGNode *node, edge e)
+{
+    if (e == IN) {
+        bipIn.insert(node);
+    } else if (e == OUT) {
+        bipOut.insert(node);
+    }
+}
+
 CFGNode* CFGNode::get_edge(edge e, int i) const
 {
     switch (e) {

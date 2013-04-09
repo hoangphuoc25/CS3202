@@ -143,6 +143,7 @@ void Parser::update_calls()
     set<string> s;
     set<string>::iterator sit;
     string name;
+    CFGNode *call, *next;
     for (it = callBank.begin(); it != callBank.end(); it++) {
         Node *callNode = it->second;
         int callNodeStmtNo = callNode->get_stmtNo();
@@ -158,6 +159,16 @@ void Parser::update_calls()
         for (sit = s.begin(); sit != s.end(); sit++) {
             this->varTable->add_used_by(*sit, ENT_CALL, callNode->get_stmtNo());
         }
+        // Update CFG with BIP links
+        call = CFG->at(callNodeStmtNo);
+        set_BIPedge(call,progHead[name]);
+        call->set_caller();
+        next = call->get_edge(OUT,1);
+        assert(next != NULL);
+        while (next->get_stmtNo() == DUMMY && !next->is_terminator()) {
+                next = next->get_edge(OUT, 1);
+        }
+        set_BIPedge(progTail[name],next);
     }
 }
 
@@ -668,11 +679,18 @@ void Parser::make_CFG()
 {
     set<string>::iterator it;
     set<string> s = procTable->get_all_procs();
+    CFGNode *head, *tail, *end;
     int start;
     init_CFG();
     for (it = s.begin(); it != s.end(); it++) {
         start = procTable->get_start(*it);
-        build_CFG(start);
+        progHead[*it] = CFG->at(start);
+        end = build_CFG(start);
+        end->set_last();
+        tail = new CFGNode(DUMMY);
+        tail->set_terminator();
+        set_edge(end,tail,1,1);
+        progTail[*it] = tail;
     }
 }
 
@@ -684,6 +702,12 @@ void Parser::set_edge(CFGNode* outNode, CFGNode* inNode, int out, int in)
     if (inNode != NULL) {
         inNode->set_edge(outNode, IN, in);
     }
+}
+
+void Parser::set_BIPedge(CFGNode* outNode, CFGNode* inNode)
+{
+    outNode->set_BIPedge(inNode, OUT);
+    inNode->set_BIPedge(outNode, IN);
 }
 
 
