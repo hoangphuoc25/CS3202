@@ -673,6 +673,45 @@ void Test_30_PKB_NextBIP::test_nextBipStar_multiproc()
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(2,1));
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(13,4));
 
+    stringSet = pkb->get_after_BIP_star(1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(13,"1","2","3","4","5","6",
+        "7","8","9","10","11","12","13"),stringSet);
+    stringSet = pkb->get_after_BIP_star(2);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(13,"1","2","3","4","5","6",
+        "7","8","9","10","11","12","13"),stringSet);
+    stringSet = pkb->get_after_BIP_star(3);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(13,"1","2","3","4","5","6",
+        "7","8","9","10","11","12","13"),stringSet);
+    stringSet = pkb->get_after_BIP_star(4);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(13,"1","2","3","4","5","6",
+        "7","8","9","10","11","12","13"),stringSet);
+    stringSet = pkb->get_after_BIP_star(5);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(13,"1","2","3","4","5","6",
+        "7","8","9","10","11","12","13"),stringSet);
+    stringSet = pkb->get_after_BIP_star(6);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(13,"1","2","3","4","5","6",
+        "7","8","9","10","11","12","13"),stringSet);
+    stringSet = pkb->get_after_BIP_star(7);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(13,"1","2","3","4","5","6",
+        "7","8","9","10","11","12","13"),stringSet);
+    stringSet = pkb->get_after_BIP_star(8);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(13,"1","2","3","4","5","6",
+        "7","8","9","10","11","12","13"),stringSet);
+    stringSet = pkb->get_after_BIP_star(9);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(13,"1","2","3","4","5","6",
+        "7","8","9","10","11","12","13"),stringSet);
+    stringSet = pkb->get_after_BIP_star(10);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(13,"1","2","3","4","5","6",
+        "7","8","9","10","11","12","13"),stringSet);
+    stringSet = pkb->get_after_BIP_star(11);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(13,"1","2","3","4","5","6",
+        "7","8","9","10","11","12","13"),stringSet);
+    stringSet = pkb->get_after_BIP_star(12);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(13,"1","2","3","4","5","6",
+        "7","8","9","10","11","12","13"),stringSet);
+    stringSet = pkb->get_after_BIP_star(13);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(13,"1","2","3","4","5","6",
+        "7","8","9","10","11","12","13"),stringSet);
 }
 
 void Test_30_PKB_NextBIP::test_nextBipStar_procback()
@@ -767,5 +806,47 @@ void Test_30_PKB_NextBIP::test_nextBipStar_procback()
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(3,1));
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(3,13));
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(4,14));
+
+    stringSet = pkb->get_after_BIP_star(1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(12,"1","2","3","4","6",
+        "7","8","9","10","11","13","14"),stringSet);
+    stringSet = pkb->get_after_BIP_star(2);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(12,"1","2","3","4","6",
+        "7","8","9","10","11","13","14"),stringSet);
+    stringSet = pkb->get_after_BIP_star(3);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(12,"1","2","3","4","6",
+        "7","8","9","10","11","13","14"),stringSet);
+    stringSet = pkb->get_after_BIP_star(4);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(13,"1","2","3","4","6",
+        "7","8","9","10","11","13","14","16"),stringSet);
+    stringSet = pkb->get_after_BIP_star(5);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(10,"1","2","3","4","6",
+        "7","8","9","10","11"),stringSet);
+    stringSet = pkb->get_after_BIP_star(6);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6,"4",
+        "7","8","9","10","11"),stringSet);
+    stringSet = pkb->get_after_BIP_star(7);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5,"4",
+        "8","9","10","11"),stringSet);
+    stringSet = pkb->get_after_BIP_star(8);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3,
+        "4","10","11"),stringSet);
+    stringSet = pkb->get_after_BIP_star(9);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2,"10","11"),stringSet);
+    stringSet = pkb->get_after_BIP_star(10);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2,"10","11"),stringSet);
+    stringSet = pkb->get_after_BIP_star(11);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2,"10","11"),stringSet);
+    stringSet = pkb->get_after_BIP_star(12);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6,"1","2","3","4",
+        "13","14"),stringSet);
+    stringSet = pkb->get_after_BIP_star(13);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"14"),stringSet);
+    stringSet = pkb->get_after_BIP_star(14);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
+    stringSet = pkb->get_after_BIP_star(15);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2,"4","16"),stringSet);
+    stringSet = pkb->get_after_BIP_star(16);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
 
 }

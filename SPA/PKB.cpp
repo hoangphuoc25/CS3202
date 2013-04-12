@@ -1574,7 +1574,70 @@ set<int> PKB::get_after_BIP(int stmtNo) const
 
 set<int> PKB::get_after_BIP_star(int stmtNo) const
 {
-    return EMPTY_INTSET;
+    if (!is_valid_stmtNo(stmtNo)) {
+        return EMPTY_INTSET;
+    }
+    set<int> s, visited, res;
+    set<int>::iterator it;
+    stack<pair<int,bool> > dfsStack;
+    int currStmt, numStmt = 0;
+    CFGNode *currNode;
+    bool topLvl;
+
+    dfsStack.push(pair<int,bool>(stmtNo,true));
+    while (!dfsStack.empty()) {
+        currStmt = dfsStack.top().first;
+        topLvl = dfsStack.top().second;
+        dfsStack.pop(); // Always pop first
+        if (numStmt++) {
+            res.insert(currStmt);
+        }
+        if (visited.find(currStmt) == visited.end()) {
+            visited.insert(currStmt);
+            currNode = CFG->at(currStmt);
+            if (currNode->is_last() && currNode->is_caller()) {
+                if (topLvl) { // if not inside called procedure
+                    CFGNode* tNode = currNode->get_edge(OUT,1);
+                    assert(tNode->is_terminator());
+                    s = tNode->get_after_BIP();
+                    for (it = s.begin(); it != s.end(); it++) {
+                        dfsStack.push(pair<int,bool>(*it,true));
+                    }
+                }
+                s = currNode->get_after_BIP();
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,bool>(*it,false));
+                }
+            } else if (currNode->is_last()) {
+                if (topLvl) { // if not inside called procedure
+                    s = currNode->get_after_BIP();
+                    for (it = s.begin(); it != s.end(); it++) {
+                        dfsStack.push(pair<int,bool>(*it,true));
+                    }
+                }
+                s = currNode->get_after(); // sp case: while
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,bool>(*it,true));
+                }
+                    
+            } else if (currNode->is_caller()) {
+                s = currNode->get_after();
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,bool>(*it,topLvl));
+                }
+                s = currNode->get_after_BIP();
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,bool>(*it,false));
+                }
+            } else { // normal traversal
+                s = currNode->get_after();
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,bool>(*it,topLvl));
+                }
+            }
+        }
+    }
+    return res;
 }
 
 
