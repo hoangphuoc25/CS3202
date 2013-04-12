@@ -5,6 +5,7 @@
 #include <string>
 #include <queue>
 #include <stack>
+#include <utility>
 #include "PQL.h"
 #include "ProcTable.h"
 #include "VarTable.h"
@@ -18,6 +19,7 @@ using std::set;
 using std::string;
 using std::queue;
 using std::stack;
+using std::pair;
 
 
 class PKB{

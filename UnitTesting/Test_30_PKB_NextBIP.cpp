@@ -645,16 +645,32 @@ void Test_30_PKB_NextBIP::test_nextBipStar_multiproc()
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(12,4));
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(3,13));
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(4,9));
-
-
-    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(6,1));
-    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(6,2));
-    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(6,12));
-    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(6,4));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(10,2));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(10,12));
+    // Dist 3
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(1,11));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(2,11));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(9,4));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(11,4));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(11,13));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(11,10));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(11,2));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(7,3));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(7,4));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(8,1));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(8,2));
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(10,3));
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(6,13));
-    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(8,1));
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(7,11));
-    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(7,4));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(4,1));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(1,1));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(2,2));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(12,12));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(4,4));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(3,3));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(7,8));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(5,5));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(2,1));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(13,4));
 
 }
