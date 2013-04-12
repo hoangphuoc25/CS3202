@@ -610,6 +610,102 @@ public:
     bool nextStar_X_Y_smth_int_Y(DesignEnt yType, int y) const;
 
     /**
+     * NextBip(X,Y); given Y (int), retrieve all X (int) such that
+     * NextBip(X,Y).
+     * @param xType type of X
+     * @param yType type of Y
+     * @param y integer value of Y
+     * @return set of X (int) such that NextBip(X,Y)
+     */
+    std::set<int> nextBip_X_Y_get_int_X_from_int_Y(DesignEnt xType,
+            DesignEnt yType, int y) const;
+    /**
+     * NextBip(X,Y); given X (int), retrieve all Y (int) such that
+     * NextBip(X,Y).
+     * @param xType type of X
+     * @param yType type of Y
+     * @param x integer value of X
+     * @return set of Y (int) such that NextBip(X,Y)
+     */
+    std::set<int> nextBip_X_Y_get_int_Y_from_int_X(DesignEnt xType,
+            DesignEnt yType, int x) const;
+
+    /**
+     * Given X (int) and Y (int), checks if NextBip(X,Y) is true.
+     * @param xType type of X
+     * @param x value of X
+     * @param yType type of Y
+     * @param y value of Y
+     * @return true if NextBip(X,Y), false otherwise
+     */
+    bool nextBip_query_int_X_int_Y(DesignEnt xType,
+            int x, DesignEnt yType, int y) const;
+
+    /**
+     * Returns true if NextBip(X,_)
+     * @param xType type of X
+     * @param x statement number of X
+     * @return true if NextBip(X,_), false otherwise
+     */
+    bool nextBip_X_Y_int_X_smth(DesignEnt xType, int x) const;
+
+    /**
+     * Returns true if NextBip(_,Y)
+     * @param xType type of Y
+     * @param x statement number of Y
+     * @return true if NextBip(_,Y), false otherwise
+     */
+    bool nextBip_X_Y_smth_int_Y(DesignEnt yType, int y) const;
+
+    /**
+     * NextBip*(X,Y); given Y (int), retrieve all X (int) such that
+     * NextBip*(X,Y).
+     * @param xType type of X
+     * @param yType type of Y
+     * @param y integer value of Y
+     * @return set of X (int) such that NextBip*(X,Y)
+     */
+    std::set<int> nextBipStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
+            DesignEnt yType, int y) const;
+    /**
+     * NextBip*(X,Y); given X (int), retrieve all Y (int) such that
+     * NextBip*(X,Y).
+     * @param xType type of X
+     * @param yType type of Y
+     * @param x integer value of X
+     * @return set of Y (int) such that NextBip*(X,Y)
+     */
+    std::set<int> nextBipStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
+            DesignEnt yType, int x) const;
+
+    /**
+     * Given X (int) and Y (int), checks if NextBip*(X,Y) is true.
+     * @param xType type of X
+     * @param x value of X
+     * @param yType type of Y
+     * @param y value of Y
+     * @return true if NextBip*(X,Y), false otherwise
+     */
+    bool nextBipStar_query_int_X_int_Y(DesignEnt xType,
+            int x, DesignEnt yType, int y) const;
+
+    /**
+     * Returns true if NextBip*(X,_)
+     * @param xType type of X
+     * @param x statement number of X
+     * @return true if NextBip*(X,_), false otherwise
+     */
+    bool nextBipStar_X_Y_int_X_smth(DesignEnt xType, int x) const;
+
+    /**
+     * Returns true if NextBip*(_,Y)
+     * @param xType type of Y
+     * @param x statement number of Y
+     * @return true if NextBip*(_,Y), false otherwise
+     */
+    bool nextBipStar_X_Y_smth_int_Y(DesignEnt yType, int y) const;
+
+    /**
      * Affects(X,Y); given Y (int), retrieve all X (int) such that
      * Affects(X,Y).
      * @param xType type of X
@@ -704,6 +800,101 @@ public:
      */
     bool affectsStar_X_Y_smth_int_Y(DesignEnt yType, int y) const;
 
+    /**
+     * AffectsBip(X,Y); given Y (int), retrieve all X (int) such that
+     * AffectsBip(X,Y).
+     * @param xType type of X
+     * @param yType type of Y
+     * @param y integer value of Y
+     * @return set of X (int) such that AffectsBip(X,Y)
+     */
+    std::set<int> affectsBip_X_Y_get_int_X_from_int_Y(DesignEnt xType,
+            DesignEnt yType, int y) const;
+    /**
+     * AffectsBip(X,Y); given X (int), retrieve all Y (int) such that
+     * AffectsBip(X,Y).
+     * @param xType type of X
+     * @param yType type of Y
+     * @param x integer value of X
+     * @return set of Y (int) such that AffectsBip(X,Y)
+     */
+    std::set<int> affectsBip_X_Y_get_int_Y_from_int_X(DesignEnt xType,
+            DesignEnt yType, int x) const;
+
+    /**
+     * Given X (int) and Y (int), checks if AffectsBip(X,Y) is true.
+     * @param xType type of X
+     * @param x value of X
+     * @param yType type of Y
+     * @param y value of Y
+     * @return true if AffectsBip(X,Y), false otherwise
+     */
+    bool affectsBip_query_int_X_int_Y(DesignEnt xType,
+            int x, DesignEnt yType, int y) const;
+
+    /**
+     * Returns true if AffectsBip(X,_)
+     * @param xType type of X
+     * @param x statement number of X
+     * @return true if AffectsBip(X,_), false otherwise
+     */
+    bool affectsBip_X_Y_int_X_smth(DesignEnt xType, int x) const;
+
+    /**
+     * Returns true if AffectsBip(_,Y)
+     * @param xType type of Y
+     * @param x statement number of Y
+     * @return true if AffectsBip(_,Y), false otherwise
+     */
+    bool affectsBip_X_Y_smth_int_Y(DesignEnt yType, int y) const;
+
+    /**
+     * AffectsBip*(X,Y); given Y (int), retrieve all X (int) such that
+     * AffectsBip*(X,Y).
+     * @param xType type of X
+     * @param yType type of Y
+     * @param y integer value of Y
+     * @return set of X (int) such that AffectsBip*(X,Y)
+     */
+    std::set<int> affectsBipStar_X_Y_get_int_X_from_int_Y(
+            DesignEnt xType, DesignEnt yType, int y) const;
+    /**
+     * AffectsBip*(X,Y); given X (int), retrieve all Y (int) such that
+     * AffectsBip*(X,Y).
+     * @param xType type of X
+     * @param yType type of Y
+     * @param x integer value of X
+     * @return set of Y (int) such that AffectsBip*(X,Y)
+     */
+    std::set<int> affectsBipStar_X_Y_get_int_Y_from_int_X(
+            DesignEnt xType, DesignEnt yType, int x) const;
+    /**
+     * Given X (int) and Y (int), checks if AffectsBip*(X,Y) is true.
+     * @param xType type of X
+     * @param x value of X
+     * @param yType type of Y
+     * @param y value of Y
+     * @return true if AffectsBip*(X,Y), false otherwise
+     */
+    bool affectsBipStar_query_int_X_int_Y(DesignEnt xType,
+            int x, DesignEnt yType, int y) const;
+
+    /**
+     * Returns true if AffectsBip*(X,_)
+     * @param xType type of X
+     * @param x statement number of X
+     * @return true if AffectsBip*(X,_), false otherwise
+     */
+    bool affectsBipStar_X_Y_int_X_smth(DesignEnt xType, int x) const;
+
+    /**
+     * Returns true if AffectsBip*(_,Y)
+     * @param xType type of Y
+     * @param x statement number of Y
+     * @return true if AffectsBip*(_,Y), false otherwise
+     */
+    bool affectsBipStar_X_Y_smth_int_Y(DesignEnt yType, int y) const;
+
     // Retrieve everything
     std::set<int> get_all_assign() const;
     std::set<int> get_all_if() const;
@@ -759,6 +950,16 @@ public:
     /// @return true if Affects(_,_) is true
     ///         [which implies Affects*(_,_) is true]
     bool has_any_affects();
+    /// Checks if NextBip(_,_) / NextBip*(_,_) is true
+    /// NOTE: This is NOT thread-safe
+    /// @return true if NextBip(_,_) is true
+    ///         [which implies NextBip*(_,_) is true]
+    bool has_any_nextBip();
+    /// Checks if AffectsBip(_,_) / AffectsBip*(_,_) is true
+    /// NOTE: This is NOT thread-safe
+    /// @return true if AffectsBip(_,_) is true
+    ///         [which implies AffectsBip*(_,_) is true]
+    bool has_any_affectsBip();
 
     //////////////////////////////////////////////////////////////////
     // For pattern clause
@@ -868,6 +1069,10 @@ private:
     bool hasAnyNextVal_;
     bool hasAnyAffectsComputed_;
     bool hasAnyAffectsVal_;
+    bool hasAnyNextBipComputed_;
+    bool hasAnyNextBipVal_;
+    bool hasAnyAffectsBipComputed_;
+    bool hasAnyAffectsBipVal_;
 };
 
 #endif

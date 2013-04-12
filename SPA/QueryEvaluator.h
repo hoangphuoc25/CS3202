@@ -625,14 +625,28 @@ public:
     /// @param rTable the ResultsTable for this Relation
     /// @param pkb PKB
     /// @param relRef info on this Relation clause
-    static void __cdecl ev_relRef_syn_X_0_nextAndStar(
+    static void __cdecl ev_relRef_syn_X_0_nextAndStar_nextBipAndStar(
             ResultsTable& rTable, PKB *pkb, const RelRef *relRef);
     /// Evaluates Next(X,syn) and Next*(X,syn), where syn has not been
     /// seen.
     /// @param rTable the ResultsTable for this Relation
     /// @param pkb PKB
     /// @param relRef the Relation clause to evaluate
-    static void __cdecl ev_relRef_syn_X_1_nextAndStar(
+    static void __cdecl ev_relRef_syn_X_1_nextAndStar_nextBipAndStar(
+            ResultsTable& rTable, PKB *pkb, const RelRef *relRef);
+    /// Evaluates AffectsBip(X,syn) and AffectsBip*(X,syn), where syn
+    /// has not been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    static void __cdecl ev_relRef_syn_X_0_affectsAndStar_affectsBipAndStar(
+            ResultsTable& rTable, PKB *pkb, const RelRef *relRef);
+    /// Evaluates AffectsBip(X,syn) and AffectsBip*(X,syn), where syn
+    /// has been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    static void __cdecl ev_relRef_syn_X_1_affectsAndStar_affectsBipAndStar(
             ResultsTable& rTable, PKB *pkb, const RelRef *relRef);
     /// Evaluates a Relation clause where args are (string,string),
     /// the first synonym has not been seen and the second arg
@@ -842,33 +856,35 @@ public:
     /// @param relRef info on this Relation clause
     static void __cdecl ev_relRef_X_syn_1_followsAndStar(
             ResultsTable& rTable, PKB *pkb, const RelRef *relRef);
-    /// Evaluates Next(X,syn) and Next*(X,syn) where syn
+    /// Evaluates Next(X,syn), Next*(X,syn), NextBip(X,syn) and
+    /// NextBip*(X,syn) where syn has not been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    static void __cdecl ev_relRef_X_syn_0_nextAndStar_nextBipAndStar(
+            ResultsTable& rTable, PKB *pkb, const RelRef *relRef);
+    /// Evaluates Next(X,syn), Next*(X,syn), NextBip(X,syn) and
+    /// NextBip*(X,syn) where syn has been seen.
+    /// @param rTable the ResultsTable for this Relation
+    /// @param pkb PKB
+    /// @param relRef info on this Relation clause
+    static void __cdecl ev_relRef_X_syn_1_nextAndStar_nextBipAndStar(
+            ResultsTable& rTable, PKB *pkb, const RelRef *relRef);
+    /// Evaluates Affects(X,syn), Affects*(X,syn), AffectsBip(X,syn)
+    /// and AffectsBip*(X,syn) where syn
     /// has not been seen.
     /// @param rTable the ResultsTable for this Relation
     /// @param pkb PKB
     /// @param relRef info on this Relation clause
-    static void __cdecl ev_relRef_X_syn_0_nextAndStar(
+    static void __cdecl ev_relRef_X_syn_0_affectsAndStar_affectsBipAndStar(
             ResultsTable& rTable, PKB *pkb, const RelRef *relRef);
-    /// Evaluates Next(X,syn) and Next*(X,syn) where syn
+    /// Evaluates Affects(X,syn), Affects*(X,syn), AffectsBip(X,syn)
+    /// and AffectsBip*(X,syn) where syn
     /// has been seen.
     /// @param rTable the ResultsTable for this Relation
     /// @param pkb PKB
     /// @param relRef info on this Relation clause
-    static void __cdecl ev_relRef_X_syn_1_nextAndStar(
-            ResultsTable& rTable, PKB *pkb, const RelRef *relRef);
-    /// Evaluates Affects(X,syn) and Affects*(X,syn) where syn
-    /// has not been seen.
-    /// @param rTable the ResultsTable for this Relation
-    /// @param pkb PKB
-    /// @param relRef info on this Relation clause
-    static void __cdecl ev_relRef_X_syn_0_affectsAndStar(
-            ResultsTable& rTable, PKB *pkb, const RelRef *relRef);
-    /// Evaluates Affects(X,syn) and Affects*(X,syn) where syn
-    /// has been seen.
-    /// @param rTable the ResultsTable for this Relation
-    /// @param pkb PKB
-    /// @param relRef info on this Relation clause
-    static void __cdecl ev_relRef_X_syn_1_affectsAndStar(
+    static void __cdecl ev_relRef_X_syn_1_affectsAndStar_affectsBipAndStar(
             ResultsTable& rTable, PKB *pkb, const RelRef *relRef);
     /// Evaluates Rel(X,syn), where both arguments are strings and syn
     /// has not been seen.

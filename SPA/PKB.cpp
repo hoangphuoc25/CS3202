@@ -6,14 +6,18 @@ const string PKB::EMPTY_STRING = "";
 PKB::PKB()
         : hasAnyFollowsComputed_(false), hasAnyFollowsVal_(false),
           hasAnyNextComputed_(false), hasAnyNextVal_(false),
-          hasAnyAffectsComputed_(false), hasAnyAffectsVal_(false)
+          hasAnyAffectsComputed_(false), hasAnyAffectsVal_(false),
+          hasAnyNextBipComputed_(false), hasAnyNextBipVal_(false),
+          hasAnyAffectsBipComputed_(false), hasAnyAffectsBipVal_(false)
 {}
 
 PKB::PKB(Node *root, ProcTable *pt, VarTable *vt, StmtBank *sb,
         vector<CFGNode*> *cfg)
         : hasAnyFollowsComputed_(false), hasAnyFollowsVal_(false),
           hasAnyNextComputed_(false), hasAnyNextVal_(false),
-          hasAnyAffectsComputed_(false), hasAnyAffectsVal_(false)
+          hasAnyAffectsComputed_(false), hasAnyAffectsVal_(false),
+          hasAnyNextBipComputed_(false), hasAnyNextBipVal_(false),
+          hasAnyAffectsBipComputed_(false), hasAnyAffectsBipVal_(false)
 {
     progRoot = root;
     procTable = pt;
@@ -1030,6 +1034,138 @@ bool PKB::nextStar_X_Y_smth_int_Y(DesignEnt yType, int y) const
     return next_X_Y_smth_int_Y(yType, y);
 }
 
+set<int> PKB::nextBip_X_Y_get_int_X_from_int_Y(DesignEnt xType,
+        DesignEnt yType, int y) const
+{
+    // TODO: Implement
+    return set<int>();
+}
+
+set<int> PKB::nextBip_X_Y_get_int_Y_from_int_X(DesignEnt xType,
+        DesignEnt yType, int x) const
+{
+    // TODO: Implement
+    return set<int>();
+}
+
+bool PKB::nextBip_query_int_X_int_Y(DesignEnt xType, int x,
+        DesignEnt yType, int y) const
+{
+    // TODO: Implement
+    return false;
+}
+
+bool PKB::nextBip_X_Y_int_X_smth(DesignEnt xType, int x) const
+{
+    // TODO: Implement
+    return false;
+}
+
+bool PKB::nextBip_X_Y_smth_int_Y(DesignEnt yType, int y) const
+{
+    // TODO: Implement
+    return false;
+}
+
+set<int> PKB::nextBipStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
+        DesignEnt yType, int y) const
+{
+    // TODO: Implement
+    return set<int>();
+}
+
+set<int> PKB::nextBipStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
+        DesignEnt yType, int x) const
+{
+    // TODO: Implement
+    return set<int>();
+}
+
+bool PKB::nextBipStar_query_int_X_int_Y(DesignEnt xType, int x,
+        DesignEnt yType, int y) const
+{
+    // TODO: Implement
+    return false;
+}
+
+bool PKB::nextBipStar_X_Y_int_X_smth(DesignEnt xType, int x) const
+{
+    // TODO: Implement
+    return false;
+}
+
+bool PKB::nextBipStar_X_Y_smth_int_Y(DesignEnt yType, int y) const
+{
+    // TODO: Implement
+    return false;
+}
+
+set<int> PKB::affectsBip_X_Y_get_int_X_from_int_Y(DesignEnt xType,
+        DesignEnt yType, int y) const
+{
+    // TODO: Implement
+    return set<int>();
+}
+
+set<int> PKB::affectsBip_X_Y_get_int_Y_from_int_X(DesignEnt xType,
+        DesignEnt yType, int x) const
+{
+    // TODO: Implement
+    return set<int>();
+}
+
+bool PKB::affectsBip_query_int_X_int_Y(DesignEnt xType, int x,
+        DesignEnt yType, int y) const
+{
+    // TODO: Implement
+    return false;
+}
+
+bool PKB::affectsBip_X_Y_int_X_smth(DesignEnt xType, int x) const
+{
+    // TODO: Implement
+    return false;
+}
+
+bool PKB::affectsBip_X_Y_smth_int_Y(DesignEnt yType, int y) const
+{
+    // TODO: Implement
+    return false;
+}
+
+set<int> PKB::affectsBipStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
+        DesignEnt yType, int y) const
+{
+    // TODO: Implement
+    return set<int>();
+}
+
+set<int> PKB::affectsBipStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
+        DesignEnt yType, int x) const
+{
+    // TODO: Implement
+    return set<int>();
+}
+
+bool PKB::affectsBipStar_query_int_X_int_Y(DesignEnt xType, int x,
+        DesignEnt yType, int y) const
+{
+    // TODO: Implement
+    return false;
+}
+
+bool PKB::affectsBipStar_X_Y_int_X_smth(DesignEnt xType, int x) const
+{
+    // TODO: Implement
+    return false;
+}
+
+bool PKB::affectsBipStar_X_Y_smth_int_Y(DesignEnt yType, int y) const
+{
+    // TODO: Implement
+    return false;
+}
+
 set<int> PKB::affects_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
@@ -1627,6 +1763,38 @@ bool PKB::has_any_affects()
         hasAnyAffectsComputed_ = true;
         return hasAnyAffectsVal_;
     }
+}
+
+bool PKB::has_any_nextBip()
+{
+    if (!hasAnyNextBipComputed_) {
+        const set<int>& allStmt = this->get_all_stmt();
+        for (set<int>::const_iterator it = allStmt.begin();
+                it != allStmt.end(); it++) {
+            if (this->nextBip_X_Y_int_X_smth(ENT_STMT, *it)) {
+                hasAnyNextBipVal_ = true;
+                break;
+            }
+        }
+        hasAnyNextBipComputed_ = true;
+    }
+    return hasAnyNextBipVal_;
+}
+
+bool PKB::has_any_affectsBip()
+{
+    if (!hasAnyAffectsBipComputed_) {
+        const set<int>& allAssign = this->get_all_assign();
+        for (set<int>::const_iterator it = allAssign.begin();
+                it != allAssign.end(); it++) {
+            if (this->affectsBip_X_Y_int_X_smth(ENT_ASSIGN, *it)) {
+                hasAnyAffectsBipVal_ = true;
+                break;
+            }
+        }
+        hasAnyAffectsBipComputed_ = true;
+    }
+    return hasAnyAffectsBipVal_;
 }
 
 string PKB::get_call_procName(int callStmt) const

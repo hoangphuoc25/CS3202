@@ -873,6 +873,22 @@ bool QueryEvaluator::ev_isolated_relation_int_int(
         return this->pkb->affectsStar_query_int_X_int_Y(ENT_ASSIGN,
                        relRef->argOneInt, ENT_ASSIGN, relRef->argTwoInt);
         break;
+    case REL_NEXTBIP:
+        return this->pkb->nextBip_query_int_X_int_Y(ENT_STMT,
+                       relRef->argOneInt, ENT_STMT, relRef->argTwoInt);
+        break;
+    case REL_NEXTBIP_STAR:
+        return this->pkb->nextBipStar_query_int_X_int_Y(ENT_STMT,
+                       relRef->argOneInt, ENT_STMT, relRef->argTwoInt);
+        break;
+    case REL_AFFECTSBIP:
+        return this->pkb->affectsBip_query_int_X_int_Y(ENT_ASSIGN,
+                       relRef->argOneInt, ENT_ASSIGN, relRef->argTwoInt);
+        break;
+    case REL_AFFECTSBIP_STAR:
+        return this->pkb->affectsBipStar_query_int_X_int_Y(ENT_ASSIGN,
+                       relRef->argOneInt, ENT_ASSIGN, relRef->argTwoInt);
+        break;
     }
     assert(false);
     return false;
@@ -920,6 +936,22 @@ bool QueryEvaluator::ev_isolated_relation_int_wild(
         break;
     case REL_AFFECTS_STAR:
         return this->pkb->affectsStar_X_Y_int_X_smth(ENT_ASSIGN,
+                       relRef->argOneInt);
+        break;
+    case REL_NEXTBIP:
+        return this->pkb->nextBip_X_Y_int_X_smth(ENT_STMT,
+                       relRef->argOneInt);
+        break;
+    case REL_NEXTBIP_STAR:
+        return this->pkb->nextBipStar_X_Y_int_X_smth(ENT_STMT,
+                       relRef->argOneInt);
+        break;
+    case REL_AFFECTSBIP:
+        return this->pkb->affectsBip_X_Y_int_X_smth(ENT_ASSIGN,
+                       relRef->argOneInt);
+        break;
+    case REL_AFFECTSBIP_STAR:
+        return this->pkb->affectsBipStar_X_Y_int_X_smth(ENT_ASSIGN,
                        relRef->argOneInt);
         break;
     }
@@ -980,6 +1012,21 @@ bool QueryEvaluator::ev_isolated_relation_wild_int(
     case REL_AFFECTS_STAR:
         this->pkb->affectsStar_X_Y_smth_int_Y(ENT_ASSIGN, relRef->argTwoInt);
         break;
+    case REL_NEXTBIP:
+        this->pkb->nextBip_X_Y_smth_int_Y(ENT_STMT, relRef->argTwoInt);
+        break;
+    case REL_NEXTBIP_STAR:
+        this->pkb->nextBipStar_X_Y_smth_int_Y(ENT_STMT,
+                relRef->argTwoInt);
+        break;
+    case REL_AFFECTSBIP:
+        this->pkb->affectsBip_X_Y_smth_int_Y(ENT_ASSIGN,
+                relRef->argTwoInt);
+        break;
+    case REL_AFFECTSBIP_STAR:
+        this->pkb->affectsBipStar_X_Y_smth_int_Y(ENT_ASSIGN,
+                relRef->argTwoInt);
+        break;
     }
     assert(false);
     return false;
@@ -1018,6 +1065,14 @@ bool QueryEvaluator::ev_isolated_relation_wild_wild(
     case REL_AFFECTS:
     case REL_AFFECTS_STAR:
         return this->pkb->has_any_affects();
+        break;
+    case REL_NEXTBIP:
+    case REL_NEXTBIP_STAR:
+        return this->pkb->has_any_nextBip();
+        break;
+    case REL_AFFECTSBIP:
+    case REL_AFFECTSBIP_STAR:
+        return this->pkb->has_any_affectsBip();
         break;
     }
     assert(false);
@@ -1139,6 +1194,22 @@ void __cdecl QueryEvaluator::ev_relRef_syn_syn_0_setup(
         pkbDispatch.f_int_argOne_int_argTwo =
                 &PKB::affectsStar_query_int_X_int_Y;
         break;
+    case REL_NEXTBIP:
+        pkbDispatch.f_int_argOne_int_argTwo =
+                &PKB::nextBip_query_int_X_int_Y;
+        break;
+    case REL_NEXTBIP_STAR:
+        pkbDispatch.f_int_argOne_int_argTwo =
+                &PKB::nextBipStar_query_int_X_int_Y;
+        break;
+    case REL_AFFECTSBIP:
+        pkbDispatch.f_int_argOne_int_argTwo =
+                &PKB::affectsBip_query_int_X_int_Y;
+        break;
+    case REL_AFFECTSBIP_STAR:
+        pkbDispatch.f_int_argOne_int_argTwo =
+                &PKB::affectsBipStar_query_int_X_int_Y;
+        break;
     }
     pkbDispatch.relRef_eval =
             &QueryEvaluator::ev_rr_ss_int_int_0;
@@ -1174,6 +1245,22 @@ void __cdecl QueryEvaluator::ev_relRef_syn_syn_1_setup(
     case REL_AFFECTS_STAR:
         pkbDispatch.f_int_argOne_int_argTwo =
                 &PKB::affectsStar_query_int_X_int_Y;
+        break;
+    case REL_NEXTBIP:
+        pkbDispatch.f_int_argOne_int_argTwo =
+                &PKB::nextBip_query_int_X_int_Y;
+        break;
+    case REL_NEXTBIP_STAR:
+        pkbDispatch.f_int_argOne_int_argTwo =
+                &PKB::nextBipStar_query_int_X_int_Y;
+        break;
+    case REL_AFFECTSBIP:
+        pkbDispatch.f_int_argOne_int_argTwo =
+                &PKB::affectsBip_query_int_X_int_Y;
+        break;
+    case REL_AFFECTSBIP_STAR:
+        pkbDispatch.f_int_argOne_int_argTwo =
+                &PKB::affectsBipStar_query_int_X_int_Y;
         break;
     }
     pkbDispatch.relRef_eval =
@@ -1420,6 +1507,22 @@ void __cdecl QueryEvaluator::ev_relRef_syn_syn_11_22_setup(
             pkbDispatch.f_int_argOne_int_argTwo =
                     &PKB::affectsStar_query_int_X_int_Y;
             break;
+        case REL_NEXTBIP:
+            pkbDispatch.f_int_argOne_int_argTwo =
+                    &PKB::nextBip_query_int_X_int_Y;
+            break;
+        case REL_NEXTBIP_STAR:
+            pkbDispatch.f_int_argOne_int_argTwo =
+                    &PKB::nextBipStar_query_int_X_int_Y;
+            break;
+        case REL_AFFECTSBIP:
+            pkbDispatch.f_int_argOne_int_argTwo =
+                    &PKB::affectsBip_query_int_X_int_Y;
+            break;
+        case REL_AFFECTSBIP_STAR:
+            pkbDispatch.f_int_argOne_int_argTwo =
+                    &PKB::affectsBipStar_query_int_X_int_Y;
+            break;
         default:
             assert(false);
         }
@@ -1551,6 +1654,18 @@ __cdecl QueryEvaluator::pkbd_setup_get_1IS_From_2IS(RelRefType relType)
     case REL_AFFECTS_STAR:
         return &PKB::affectsStar_X_Y_get_int_X_from_int_Y;
         break;
+    case REL_NEXTBIP:
+        return &PKB::nextBip_X_Y_get_int_X_from_int_Y;
+        break;
+    case REL_NEXTBIP_STAR:
+        return &PKB::nextBipStar_X_Y_get_int_X_from_int_Y;
+        break;
+    case REL_AFFECTSBIP:
+        return &PKB::affectsBip_X_Y_get_int_X_from_int_Y;
+        break;
+    case REL_AFFECTSBIP_STAR:
+        return &PKB::affectsBipStar_X_Y_get_int_X_from_int_Y;
+        break;
     default:
         assert(false);
     }
@@ -1630,6 +1745,18 @@ __cdecl QueryEvaluator::pkbd_setup_get_2IS_From_1IS(RelRefType relType)
         break;
     case REL_AFFECTS_STAR:
         return &PKB::affectsStar_X_Y_get_int_Y_from_int_X;
+        break;
+    case REL_NEXTBIP:
+        return &PKB::nextBip_X_Y_get_int_Y_from_int_X;
+        break;
+    case REL_NEXTBIP_STAR:
+        return &PKB::nextBipStar_X_Y_get_int_Y_from_int_X;
+        break;
+    case REL_AFFECTSBIP:
+        return &PKB::affectsBip_X_Y_get_int_Y_from_int_X;
+        break;
+    case REL_AFFECTSBIP_STAR:
+        return &PKB::affectsBipStar_X_Y_get_int_Y_from_int_X;
         break;
     default:
         assert(false);
@@ -2419,44 +2546,21 @@ void __cdecl QueryEvaluator::ev_relRef_syn_X(ResultsTable& rTable,
             }
             break;
         case REL_NEXT:
-            QueryEvaluator::ev_relRef_syn_X_1_nextAndStar(rTable, pkb,
-                    relRef);
-            break;
         case REL_NEXT_STAR:
-            QueryEvaluator::ev_relRef_syn_X_1_nextAndStar(rTable, pkb,
-                    relRef);
+        case REL_NEXTBIP:
+        case REL_NEXTBIP_STAR:
+            QueryEvaluator::ev_relRef_syn_X_1_nextAndStar_nextBipAndStar(
+                    rTable, pkb, relRef);
             break;
         case REL_AFFECTS:
-            // arg one is all stmt type
-            if (RELARG_INT == relRef->argTwoType) {
-                pkbDispatch.f_int_argOne_int_argTwo =
-                        &PKB::affects_query_int_X_int_Y;
-                QueryEvaluator::ev_rr_syn_X_int_int_1(rTable, pkb, relRef,
-                        pkbDispatch, ENT_ASSIGN, relRef->argTwoInt);
-            } else {
-                // arg two is wildcard
-                pkbDispatch.f_int_argOne_smth =
-                        &PKB::affects_X_Y_int_X_smth;
-                QueryEvaluator::ev_rr_syn_X_int_wild_1(rTable, pkb,
-                        relRef, pkbDispatch);
-            }
-            break;
         case REL_AFFECTS_STAR:
-            // arg one is all stmt type
-            if (RELARG_INT == relRef->argTwoType) {
-                pkbDispatch.f_int_argOne_int_argTwo =
-                        &PKB::affectsStar_query_int_X_int_Y;
-                QueryEvaluator::ev_rr_syn_X_int_int_1(rTable, pkb,
-                        relRef, pkbDispatch, ENT_ASSIGN,
-                        relRef->argTwoInt);
-            } else {
-                // arg two is wildcard
-                pkbDispatch.f_int_argOne_smth =
-                        &PKB::affectsStar_X_Y_int_X_smth;
-                QueryEvaluator::ev_rr_syn_X_int_wild_1(rTable, pkb,
-                        relRef, pkbDispatch);
-            }
+        case REL_AFFECTSBIP:
+        case REL_AFFECTSBIP_STAR:
+            QueryEvaluator::ev_relRef_syn_X_1_affectsAndStar_affectsBipAndStar(rTable,
+                    pkb, relRef);
             break;
+        default:
+            assert(false);
         }
     } else {
         // have not seen syn
@@ -2772,66 +2876,26 @@ void __cdecl QueryEvaluator::ev_relRef_syn_X(ResultsTable& rTable,
             }
             break;
         case REL_NEXT:
-            QueryEvaluator::ev_relRef_syn_X_0_nextAndStar(rTable, pkb,
-                    relRef);
-            break;
         case REL_NEXT_STAR:
-            QueryEvaluator::ev_relRef_syn_X_0_nextAndStar(rTable, pkb,
-                    relRef);
+        case REL_NEXTBIP:
+        case REL_NEXTBIP_STAR:
+            QueryEvaluator::ev_relRef_syn_X_0_nextAndStar_nextBipAndStar(
+                    rTable, pkb, relRef);
             break;
         case REL_AFFECTS:
-            // syn one is assign
-            if (RELARG_INT == relRef->argTwoType) {
-                pkbDispatch.get_int_set_argOne_from_int_argTwo =
-                        &PKB::affects_X_Y_get_int_X_from_int_Y;
-                QueryEvaluator::ev_rr_syn_X_int_int_0(rTable, pkb, relRef,
-                        pkbDispatch, ENT_ASSIGN, relRef->argTwoInt);
-            } else if (RELARG_WILDCARD == relRef->argTwoType) {
-                switch (relRef->argOneSyn) {
-                case ENT_ASSIGN:
-                    pkbDispatch.get_all_int_argOne =
-                            &PKB::get_all_assign;
-                    break;
-                default:
-                    assert(false);
-                }
-                pkbDispatch.f_int_argOne_smth =
-                        &PKB::affects_X_Y_int_X_smth;
-                QueryEvaluator::ev_rr_syn_X_int_wild_0(rTable, pkb,
-                        relRef, pkbDispatch);
-            } else {
-                assert(false);
-            }
-            break;
         case REL_AFFECTS_STAR:
-            // syn one is assign
-            if (RELARG_INT == relRef->argTwoType) {
-                pkbDispatch.get_int_set_argOne_from_int_argTwo =
-                        &PKB::affectsStar_X_Y_get_int_X_from_int_Y;
-                QueryEvaluator::ev_rr_syn_X_int_int_0(rTable, pkb, relRef,
-                        pkbDispatch, ENT_ASSIGN, relRef->argTwoInt);
-            } else if (RELARG_WILDCARD == relRef->argTwoType) {
-                switch (relRef->argOneSyn) {
-                case ENT_ASSIGN:
-                    pkbDispatch.get_all_int_argOne =
-                            &PKB::get_all_assign;
-                    break;
-                default:
-                    assert(false);
-                }
-                pkbDispatch.f_int_argOne_smth =
-                        &PKB::affectsStar_X_Y_int_X_smth;
-                QueryEvaluator::ev_rr_syn_X_int_wild_0(rTable, pkb,
-                        relRef, pkbDispatch);
-            } else {
-                assert(false);
-            }
+        case REL_AFFECTSBIP:
+        case REL_AFFECTSBIP_STAR:
+            QueryEvaluator::ev_relRef_syn_X_0_affectsAndStar_affectsBipAndStar(
+                    rTable, pkb, relRef);
             break;
+        default:
+            assert(false);
         }
     }
 }
 
-void __cdecl QueryEvaluator::ev_relRef_syn_X_0_nextAndStar(
+void __cdecl QueryEvaluator::ev_relRef_syn_X_0_nextAndStar_nextBipAndStar(
         ResultsTable& rTable, PKB *pkb, const RelRef *relRef)
 {
     EvalPKBDispatch pkbDispatch;
@@ -2843,6 +2907,12 @@ void __cdecl QueryEvaluator::ev_relRef_syn_X_0_nextAndStar(
         } else if (REL_NEXT_STAR == relRef->relType) {
             pkbDispatch.get_int_set_argOne_from_int_argTwo =
                     &PKB::nextStar_X_Y_get_int_X_from_int_Y;
+        } else if (REL_NEXTBIP == relRef->relType) {
+            pkbDispatch.get_int_set_argOne_from_int_argTwo =
+                    &PKB::nextBip_X_Y_get_int_X_from_int_Y;
+        } else if (REL_NEXTBIP_STAR == relRef->relType) {
+            pkbDispatch.get_int_set_argOne_from_int_argTwo =
+                    &PKB::nextBipStar_X_Y_get_int_X_from_int_Y;
         } else {
             assert(false);
         }
@@ -2881,6 +2951,12 @@ void __cdecl QueryEvaluator::ev_relRef_syn_X_0_nextAndStar(
         } else if (REL_NEXT_STAR == relRef->relType) {
             pkbDispatch.f_int_argOne_smth =
                     &PKB::nextStar_X_Y_int_X_smth;
+        } else if (REL_NEXTBIP == relRef->relType) {
+            pkbDispatch.f_int_argOne_smth =
+                    &PKB::nextBip_X_Y_int_X_smth;
+        } else if (REL_NEXTBIP_STAR == relRef->relType) {
+            pkbDispatch.f_int_argOne_smth =
+                    &PKB::nextBipStar_X_Y_int_X_smth;
         } else {
             assert(false);
         }
@@ -2892,7 +2968,7 @@ void __cdecl QueryEvaluator::ev_relRef_syn_X_0_nextAndStar(
     }
 }
 
-void __cdecl QueryEvaluator::ev_relRef_syn_X_1_nextAndStar(
+void __cdecl QueryEvaluator::ev_relRef_syn_X_1_nextAndStar_nextBipAndStar(
         ResultsTable& rTable, PKB *pkb, const RelRef *relRef)
 {
     EvalPKBDispatch pkbDispatch;
@@ -2904,6 +2980,12 @@ void __cdecl QueryEvaluator::ev_relRef_syn_X_1_nextAndStar(
         } else if (REL_NEXT_STAR == relRef->relType) {
             pkbDispatch.f_int_argOne_int_argTwo =
                     &PKB::nextStar_query_int_X_int_Y;
+        } else if (REL_NEXTBIP == relRef->relType) {
+            pkbDispatch.f_int_argOne_int_argTwo =
+                    &PKB::nextBip_query_int_X_int_Y;
+        } else if (REL_NEXTBIP_STAR == relRef->relType) {
+            pkbDispatch.f_int_argOne_int_argTwo =
+                    &PKB::nextBipStar_query_int_X_int_Y;
         } else {
             assert(false);
         }
@@ -2917,11 +2999,116 @@ void __cdecl QueryEvaluator::ev_relRef_syn_X_1_nextAndStar(
         } else if (REL_NEXT_STAR == relRef->relType) {
             pkbDispatch.f_int_argOne_smth =
                     &PKB::nextStar_X_Y_int_X_smth;
+        } else if (REL_NEXTBIP == relRef->relType) {
+            pkbDispatch.f_int_argOne_smth =
+                    &PKB::nextBip_X_Y_int_X_smth;
+        } else if (REL_NEXTBIP_STAR == relRef->relType) {
+            pkbDispatch.f_int_argOne_smth =
+                    &PKB::nextBipStar_X_Y_int_X_smth;
         } else {
             assert(false);
         }
         QueryEvaluator::ev_rr_syn_X_int_wild_1(rTable, pkb, relRef,
                 pkbDispatch);
+        break;
+    default:
+        assert(false);
+    }
+}
+
+void __cdecl QueryEvaluator::ev_relRef_syn_X_0_affectsAndStar_affectsBipAndStar(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef)
+{
+    EvalPKBDispatch pkbDispatch;
+    switch (relRef->argTwoType) {
+    case RELARG_INT:
+        if (REL_AFFECTS == relRef->relType) {
+            pkbDispatch.get_int_set_argOne_from_int_argTwo =
+                    &PKB::affects_X_Y_get_int_X_from_int_Y;
+        } else if (REL_AFFECTS_STAR == relRef->relType) {
+            pkbDispatch.get_int_set_argOne_from_int_argTwo =
+                        &PKB::affectsStar_X_Y_get_int_X_from_int_Y;
+        } else if (REL_AFFECTSBIP == relRef->relType) {
+            pkbDispatch.get_int_set_argOne_from_int_argTwo =
+                    &PKB::affectsBip_X_Y_get_int_X_from_int_Y;
+        } else if (REL_AFFECTSBIP_STAR == relRef->relType) {
+            pkbDispatch.get_int_set_argOne_from_int_argTwo =
+                    &PKB::affectsBipStar_X_Y_get_int_X_from_int_Y;
+        } else {
+            assert(false);
+        }
+        QueryEvaluator::ev_rr_syn_X_int_int_0(rTable, pkb, relRef,
+                pkbDispatch, ENT_ASSIGN, relRef->argTwoInt);
+        break;
+    case RELARG_WILDCARD:
+        assert(ENT_ASSIGN == relRef->argOneSyn);
+        pkbDispatch.get_all_int_argOne = &PKB::get_all_assign;
+        if (REL_AFFECTS == relRef->relType) {
+            pkbDispatch.f_int_argOne_smth =
+                    &PKB::affects_X_Y_int_X_smth;
+        } else if (REL_AFFECTS_STAR == relRef->relType) {
+            pkbDispatch.f_int_argOne_smth =
+                        &PKB::affectsStar_X_Y_int_X_smth;
+        } else if (REL_AFFECTSBIP == relRef->relType) {
+            pkbDispatch.f_int_argOne_smth =
+                    &PKB::affectsBip_X_Y_int_X_smth;
+        } else if (REL_AFFECTSBIP_STAR == relRef->relType) {
+            pkbDispatch.f_int_argOne_smth =
+                    &PKB::affectsBipStar_X_Y_int_X_smth;
+        } else {
+            assert(false);
+        }
+        QueryEvaluator::ev_rr_syn_X_int_wild_0(rTable, pkb,
+                relRef, pkbDispatch);
+        break;
+    default:
+        assert(false);
+        break;
+    }
+}
+
+void __cdecl QueryEvaluator::ev_relRef_syn_X_1_affectsAndStar_affectsBipAndStar(
+        ResultsTable& rTable, PKB *pkb, const RelRef *relRef)
+{
+    EvalPKBDispatch pkbDispatch;
+    switch (relRef->argTwoType) {
+    case RELARG_INT:
+        if (REL_AFFECTS == relRef->relType) {
+                pkbDispatch.f_int_argOne_int_argTwo =
+                        &PKB::affects_query_int_X_int_Y;
+        } else if (REL_AFFECTS_STAR == relRef->relType) {
+            pkbDispatch.f_int_argOne_int_argTwo =
+                        &PKB::affectsStar_query_int_X_int_Y;
+        } else if (REL_AFFECTSBIP == relRef->relType) {
+            pkbDispatch.f_int_argOne_int_argTwo =
+                        &PKB::affectsBip_query_int_X_int_Y;
+        } else if (REL_AFFECTSBIP_STAR == relRef->relType) {
+            pkbDispatch.f_int_argOne_int_argTwo =
+                        &PKB::affectsBipStar_query_int_X_int_Y;
+        } else {
+            assert(false);
+        }
+        QueryEvaluator::ev_rr_syn_X_int_int_1(rTable, pkb, relRef,
+                pkbDispatch, ENT_ASSIGN, relRef->argTwoInt);
+        break;
+    case RELARG_WILDCARD:
+        if (REL_AFFECTS == relRef->relType) {
+            pkbDispatch.f_int_argOne_smth =
+                            &PKB::affects_X_Y_int_X_smth;
+        } else if (REL_AFFECTS_STAR == relRef->relType) {
+            pkbDispatch.f_int_argOne_smth =
+                        &PKB::affectsStar_X_Y_int_X_smth;
+        } else if (REL_AFFECTSBIP == relRef->relType) {
+            pkbDispatch.f_int_argOne_smth =
+                        &PKB::affectsBip_X_Y_int_X_smth;
+        } else if (REL_AFFECTSBIP_STAR == relRef->relType) {
+            pkbDispatch.f_int_argOne_smth =
+                        &PKB::affectsBipStar_X_Y_int_X_smth;
+        } else {
+            assert(false);
+        }
+        QueryEvaluator::ev_rr_syn_X_int_wild_1(rTable, pkb,
+                relRef, pkbDispatch);
         break;
     default:
         assert(false);
@@ -3160,12 +3347,16 @@ void __cdecl QueryEvaluator::ev_relRef_X_syn(ResultsTable& rTable,
             break;
         case REL_NEXT:
         case REL_NEXT_STAR:
-            QueryEvaluator::ev_relRef_X_syn_1_nextAndStar(rTable,
-                    pkb, relRef);
+        case REL_NEXTBIP:
+        case REL_NEXTBIP_STAR:
+            QueryEvaluator::ev_relRef_X_syn_1_nextAndStar_nextBipAndStar(
+                    rTable, pkb, relRef);
             break;
         case REL_AFFECTS:
         case REL_AFFECTS_STAR:
-            QueryEvaluator::ev_relRef_X_syn_1_affectsAndStar(rTable,
+        case REL_AFFECTSBIP:
+        case REL_AFFECTSBIP_STAR:
+            QueryEvaluator::ev_relRef_X_syn_1_affectsAndStar_affectsBipAndStar(rTable,
                     pkb, relRef);
             break;
         }
@@ -3201,13 +3392,17 @@ void __cdecl QueryEvaluator::ev_relRef_X_syn(ResultsTable& rTable,
             break;
         case REL_NEXT:
         case REL_NEXT_STAR:
-            QueryEvaluator::ev_relRef_X_syn_0_nextAndStar(rTable, pkb,
-                    relRef);
+        case REL_NEXTBIP:
+        case REL_NEXTBIP_STAR:
+            QueryEvaluator::ev_relRef_X_syn_0_nextAndStar_nextBipAndStar(
+                    rTable, pkb, relRef);
             break;
         case REL_AFFECTS:
         case REL_AFFECTS_STAR:
-            QueryEvaluator::ev_relRef_X_syn_0_affectsAndStar(rTable,
-                    pkb, relRef);
+        case REL_AFFECTSBIP:
+        case REL_AFFECTSBIP_STAR:
+            QueryEvaluator::ev_relRef_X_syn_0_affectsAndStar_affectsBipAndStar(
+                    rTable, pkb, relRef);
             break;
         }
     }
@@ -3656,7 +3851,7 @@ void __cdecl QueryEvaluator::ev_relRef_X_syn_1_followsAndStar(
     }
 }
 
-void __cdecl QueryEvaluator::ev_relRef_X_syn_0_nextAndStar(
+void __cdecl QueryEvaluator::ev_relRef_X_syn_0_nextAndStar_nextBipAndStar(
         ResultsTable& rTable, PKB *pkb, const RelRef *relRef)
 {
     EvalPKBDispatch pkbDispatch;
@@ -3668,6 +3863,12 @@ void __cdecl QueryEvaluator::ev_relRef_X_syn_0_nextAndStar(
         } else if (REL_NEXT_STAR == relRef->relType) {
             pkbDispatch.get_int_set_argTwo_from_int_argOne =
                     &PKB::nextStar_X_Y_get_int_Y_from_int_X;
+        } else if (REL_NEXTBIP == relRef->relType) {
+            pkbDispatch.get_int_set_argTwo_from_int_argOne =
+                    &PKB::nextBip_X_Y_get_int_Y_from_int_X;
+        } else if (REL_NEXTBIP_STAR == relRef->relType) {
+            pkbDispatch.get_int_set_argTwo_from_int_argOne =
+                    &PKB::nextBipStar_X_Y_get_int_Y_from_int_X;
         } else {
             assert(false);
         }
@@ -3703,9 +3904,17 @@ void __cdecl QueryEvaluator::ev_relRef_X_syn_0_nextAndStar(
         if (REL_NEXT == relRef->relType) {
             pkbDispatch.f_smth_int_argTwo =
                     &PKB::next_X_Y_smth_int_Y;
-        } else {
+        } else if (REL_NEXT_STAR == relRef->relType) {
             pkbDispatch.f_smth_int_argTwo =
                     &PKB::nextStar_X_Y_smth_int_Y;
+        } else if (REL_NEXTBIP == relRef->relType) {
+            pkbDispatch.f_smth_int_argTwo =
+                    &PKB::nextBip_X_Y_smth_int_Y;
+        } else if (REL_NEXTBIP_STAR == relRef->relType) {
+            pkbDispatch.f_smth_int_argTwo =
+                    &PKB::nextBipStar_X_Y_smth_int_Y;
+        } else {
+            assert(false);
         }
         QueryEvaluator::ev_relRef_X_syn_wild_int_0(rTable, pkb, relRef,
                 pkbDispatch);
@@ -3715,7 +3924,7 @@ void __cdecl QueryEvaluator::ev_relRef_X_syn_0_nextAndStar(
     }
 }
 
-void __cdecl QueryEvaluator::ev_relRef_X_syn_1_nextAndStar(
+void __cdecl QueryEvaluator::ev_relRef_X_syn_1_nextAndStar_nextBipAndStar(
         ResultsTable& rTable, PKB *pkb, const RelRef *relRef)
 {
     EvalPKBDispatch pkbDispatch;
@@ -3727,6 +3936,12 @@ void __cdecl QueryEvaluator::ev_relRef_X_syn_1_nextAndStar(
         } else if (REL_NEXT_STAR == relRef->relType) {
             pkbDispatch.f_int_argOne_int_argTwo =
                     &PKB::nextStar_query_int_X_int_Y;
+        } else if (REL_NEXTBIP == relRef->relType) {
+            pkbDispatch.f_int_argOne_int_argTwo =
+                    &PKB::nextBip_query_int_X_int_Y;
+        } else if (REL_NEXTBIP_STAR == relRef->relType) {
+            pkbDispatch.f_int_argOne_int_argTwo =
+                    &PKB::nextBipStar_query_int_X_int_Y;
         } else {
             assert(false);
         }
@@ -3740,6 +3955,12 @@ void __cdecl QueryEvaluator::ev_relRef_X_syn_1_nextAndStar(
         } else if (REL_NEXT_STAR == relRef->relType) {
             pkbDispatch.f_smth_int_argTwo =
                     &PKB::nextStar_X_Y_smth_int_Y;
+        } else if (REL_NEXTBIP == relRef->relType) {
+            pkbDispatch.f_smth_int_argTwo =
+                    &PKB::nextBip_X_Y_smth_int_Y;
+        } else if (REL_NEXTBIP_STAR == relRef->relType) {
+            pkbDispatch.f_smth_int_argTwo =
+                    &PKB::nextBipStar_X_Y_smth_int_Y;
         } else {
             assert(false);
         }
@@ -3751,7 +3972,7 @@ void __cdecl QueryEvaluator::ev_relRef_X_syn_1_nextAndStar(
     }
 }
 
-void __cdecl QueryEvaluator::ev_relRef_X_syn_0_affectsAndStar(
+void __cdecl QueryEvaluator::ev_relRef_X_syn_0_affectsAndStar_affectsBipAndStar(
         ResultsTable& rTable, PKB *pkb, const RelRef *relRef)
 {
     EvalPKBDispatch pkbDispatch;
@@ -3763,6 +3984,12 @@ void __cdecl QueryEvaluator::ev_relRef_X_syn_0_affectsAndStar(
         } else if (REL_AFFECTS_STAR == relRef->relType) {
             pkbDispatch.get_int_set_argTwo_from_int_argOne =
                     &PKB::affectsStar_X_Y_get_int_Y_from_int_X;
+        } else if (REL_AFFECTSBIP == relRef->relType) {
+            pkbDispatch.get_int_set_argTwo_from_int_argOne =
+                    &PKB::affectsBip_X_Y_get_int_Y_from_int_X;
+        } else if (REL_AFFECTSBIP_STAR == relRef->relType) {
+            pkbDispatch.get_int_set_argTwo_from_int_argOne =
+                    &PKB::affectsBipStar_X_Y_get_int_Y_from_int_X;
         } else {
             assert(false);
         }
@@ -3784,6 +4011,12 @@ void __cdecl QueryEvaluator::ev_relRef_X_syn_0_affectsAndStar(
         } else if (REL_AFFECTS_STAR == relRef->relType) {
             pkbDispatch.f_smth_int_argTwo =
                     &PKB::affectsStar_X_Y_smth_int_Y;
+        } else if (REL_AFFECTSBIP == relRef->relType) {
+            pkbDispatch.f_smth_int_argTwo =
+                    &PKB::affectsBip_X_Y_smth_int_Y;
+        } else if (REL_AFFECTSBIP_STAR == relRef->relType) {
+            pkbDispatch.f_smth_int_argTwo =
+                    &PKB::affectsBipStar_X_Y_smth_int_Y;
         } else {
             assert(false);
         }
@@ -3795,7 +4028,7 @@ void __cdecl QueryEvaluator::ev_relRef_X_syn_0_affectsAndStar(
     }
 }
 
-void __cdecl QueryEvaluator::ev_relRef_X_syn_1_affectsAndStar(
+void __cdecl QueryEvaluator::ev_relRef_X_syn_1_affectsAndStar_affectsBipAndStar(
         ResultsTable& rTable, PKB *pkb, const RelRef *relRef)
 {
     EvalPKBDispatch pkbDispatch;
@@ -3807,6 +4040,12 @@ void __cdecl QueryEvaluator::ev_relRef_X_syn_1_affectsAndStar(
         } else if (REL_AFFECTS_STAR == relRef->relType) {
             pkbDispatch.f_int_argOne_int_argTwo =
                     &PKB::affectsStar_query_int_X_int_Y;
+        } else if (REL_AFFECTSBIP == relRef->relType) {
+            pkbDispatch.f_int_argOne_int_argTwo =
+                    &PKB::affectsBip_query_int_X_int_Y;
+        } else if (REL_AFFECTSBIP_STAR == relRef->relType) {
+            pkbDispatch.f_int_argOne_int_argTwo =
+                    &PKB::affectsBipStar_query_int_X_int_Y;
         } else {
             assert(false);
         }
@@ -3820,6 +4059,12 @@ void __cdecl QueryEvaluator::ev_relRef_X_syn_1_affectsAndStar(
         } else if (REL_AFFECTS_STAR == relRef->relType) {
             pkbDispatch.f_smth_int_argTwo =
                     &PKB::affectsStar_X_Y_smth_int_Y;
+        } else if (REL_AFFECTSBIP == relRef->relType) {
+            pkbDispatch.f_smth_int_argTwo =
+                    &PKB::affectsBip_X_Y_smth_int_Y;
+        } else if (REL_AFFECTSBIP_STAR == relRef->relType) {
+            pkbDispatch.f_smth_int_argTwo =
+                    &PKB::affectsBipStar_X_Y_smth_int_Y;
         } else {
             assert(false);
         }
