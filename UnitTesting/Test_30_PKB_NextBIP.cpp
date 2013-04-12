@@ -766,5 +766,6 @@ void Test_30_PKB_NextBIP::test_nextBipStar_procback()
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(12,2));
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(3,1));
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(3,13));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(4,14));
 
 }

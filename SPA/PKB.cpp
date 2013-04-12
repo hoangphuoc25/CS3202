@@ -1362,7 +1362,7 @@ bool PKB::is_next_star_BIP(int stmt1, int stmt2) const
     set<int> s, visited;
     set<int>::iterator it;
     stack<pair<int,bool> > dfsStack;
-    int currStmt, callCounter = 0;
+    int currStmt;
     CFGNode *currNode;
     bool topLvl;
 
