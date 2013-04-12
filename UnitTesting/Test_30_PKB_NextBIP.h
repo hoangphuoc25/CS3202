@@ -11,6 +11,8 @@ CPPUNIT_TEST(test_nextBIP2);
 CPPUNIT_TEST(test_nextBIP_if);
 CPPUNIT_TEST(test_nextBIP_while);
 CPPUNIT_TEST(test_nextBIP_multiproc);
+CPPUNIT_TEST(test_nextBipStar);
+CPPUNIT_TEST(test_nextBipStar_multiproc);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -22,6 +24,8 @@ private:
     void test_nextBIP_if();
     void test_nextBIP_while();
     void test_nextBIP_multiproc();
+    void test_nextBipStar();
+    void test_nextBipStar_multiproc();
 };
 
 #endif

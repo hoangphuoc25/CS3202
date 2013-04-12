@@ -466,3 +466,195 @@ void Test_30_PKB_NextBIP::test_nextBIP_multiproc()
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_BIP(9,4));
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_BIP(9,6));
 }
+
+void Test_30_PKB_NextBIP::test_nextBipStar()
+{
+        const string& simpleProg =
+            "procedure next {\
+                a = 1;\
+                while b2 {\
+                    if c3 then {\
+                        call lala; }\
+                    else {\
+                        e5 = 1;}\
+                    if f6 then {\
+                        call lala; }\
+                    else {\
+                        h8 = 1; }\
+                    call lala;\
+                    while j10 {\
+                        call lala; }}\
+                if l12 then {\
+                    while m13 {\
+                        call lala; }}\
+                else {\
+                    if o15 then {\
+                        p16 = 1; }\
+                    else {\
+                        call lala; }}\
+                r18 = 1;\
+                s19 = 1;\
+            }\
+            procedure lala {\
+                a = 1;\
+                e = (x+y)+1;\
+            }";
+
+    string queryStr;
+    set<int> intSet;
+    SetWrapper<string> stringSet;
+    Parser parser(simpleProg, FROMSTRING);
+    parser.init();
+    auto_ptr<PKB> pkb(parser.get_pkb());
+
+    // NextBip Cross procedure out 
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(4,20));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(7,20));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(9,20));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(11,20));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(14,20));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(17,20));
+
+    //  NextBip Cross procedure in
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(21,9));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(21,10));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(21,13));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(21,18));
+
+    // NextBip Same procedure
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(3,4));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(2,12));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(13,14));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(10,2));
+    
+    //NextBip Star Cross procedure out 
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(1,21));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(6,21));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(10,20));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(15,20));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->is_next_star_BIP(18,20));
+
+    //  NextBip Cross procedure in
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(20,9));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(20,19));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(20,3));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->is_next_star_BIP(20,1));
+
+    // NextBip Same procedure
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(21,20));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(20,20));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(21,21));
+
+    // get before
+    stringSet = pkb->get_before_BIP(20);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>
+        (6, "4","7","9","11","14","17"),stringSet);
+    stringSet = pkb->get_before_BIP(6);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2,"5","21"),stringSet);
+    stringSet = pkb->get_before_BIP(9);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2,"8","21"),stringSet);
+    stringSet = pkb->get_before_BIP(10);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"21"),stringSet);
+    stringSet = pkb->get_before_BIP(13);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2,"12","21"),stringSet);
+    stringSet = pkb->get_before_BIP(18);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3,"13","16","21"),stringSet);
+    stringSet = pkb->get_before_BIP(20);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>
+        (6,"4","7","9","11","14","17"),stringSet);
+    stringSet = pkb->get_before_BIP(8);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"6"),stringSet);
+    stringSet = pkb->get_before_BIP(16);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"15"),stringSet);
+    stringSet = pkb->get_before_BIP(12);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"2"),stringSet);
+    stringSet = pkb->get_before_BIP(21);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"20"),stringSet);
+
+    // get after
+    stringSet = pkb->get_after_BIP(21);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>
+        (5, "6","9","10","13","18"),stringSet);
+    stringSet = pkb->get_after_BIP(4);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"20"),stringSet);
+    stringSet = pkb->get_after_BIP(7);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"20"),stringSet);
+    stringSet = pkb->get_after_BIP(9);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"20"),stringSet);
+    stringSet = pkb->get_after_BIP(11);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"20"),stringSet);
+    stringSet = pkb->get_after_BIP(14);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"20"),stringSet);
+    stringSet = pkb->get_after_BIP(17);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"20"),stringSet);
+    stringSet = pkb->get_after_BIP(16);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"18"),stringSet);
+    stringSet = pkb->get_after_BIP(12);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2,"13","15"),stringSet);
+    stringSet = pkb->get_after_BIP(6);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2,"7","8"),stringSet);
+}
+
+void Test_30_PKB_NextBIP::test_nextBipStar_multiproc()
+{
+        const string& simpleProg =
+            "procedure left {\
+                a = 1;\
+                b = 2;\
+            }\
+            procedure one {\
+                call two;\
+            }\
+            procedure two{\
+                d = 4;\
+            }\
+            procedure main{\
+                while i5 {\
+                    if i6 then {\
+                        call left;\
+                    } else {\
+                        call right; }\
+                    f = 9;\
+                    g = 10;\
+                }\
+            }\
+            procedure right{\
+                bb = 11;\
+                call one;\
+                cc = 13;\
+            }";
+
+    string queryStr;
+    set<int> intSet;
+    SetWrapper<string> stringSet;
+    Parser parser(simpleProg, FROMSTRING);
+    parser.init();
+    auto_ptr<PKB> pkb(parser.get_pkb());
+
+    // NextBip Cross procedure out
+    // Dist 1
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(7,1));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(8,11));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(12,3));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(3,4));
+    // Dist 2
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(6,1));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(6,11));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(8,3));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(8,4));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(12,4));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(3,13));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(4,9));
+
+
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(6,1));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(6,2));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(6,12));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(6,4));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(10,3));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(6,13));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(8,1));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(7,11));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(7,4));
+
+}

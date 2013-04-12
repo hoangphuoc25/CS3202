@@ -1356,7 +1356,72 @@ bool PKB::is_next_BIP(int stmt1, int stmt2) const
 
 bool PKB::is_next_star_BIP(int stmt1, int stmt2) const
 {
-return true;
+    if (!is_valid_stmtNo(stmt1) || !is_valid_stmtNo(stmt2)) {
+        return false;
+    }
+    set<int> s, visited;
+    set<int>::iterator it;
+    stack<int> dfsStack;
+    int currStmt, callCounter = 0;
+    CFGNode *currNode;
+
+    dfsStack.push(stmt1);
+    while (!dfsStack.empty()) {
+        if (dfsStack.top() == stmt2) {
+            return true;
+        } else if (dfsStack.top() == -1) {
+            dfsStack.pop();
+            callCounter--;
+        } else {
+            currStmt = dfsStack.top();
+            dfsStack.pop(); // Always pop first
+            if (visited.find(currStmt) == visited.end()) {
+                visited.insert(currStmt);
+                currNode = CFG->at(currStmt);
+                if (currNode->is_last() && currNode->is_caller()) {
+                    if (callCounter == 0) {
+                        CFGNode* tNode = currNode->get_edge(OUT,1);
+                        assert(tNode->is_terminator());
+                        s = tNode->get_after_BIP();
+                        for (it = s.begin(); it != s.end(); it++) {
+                            dfsStack.push(*it);
+                        }
+                    }
+                    dfsStack.push(-1); // Push in before the call procedure
+                    s = currNode->get_after_BIP();
+                    for (it = s.begin(); it != s.end(); it++) {
+                        dfsStack.push(*it);
+                    }
+                    callCounter++; // enter a called procedure
+                } else if (currNode->is_last()) {
+                    if (callCounter == 0) { // if not inside called procedure
+                        s = currNode->get_after_BIP();
+                        for (it = s.begin(); it != s.end(); it++) {
+                            dfsStack.push(*it);
+                        }
+                    } else {
+                        callCounter--; // exit a called procedure
+                    }
+                } else if (currNode->is_caller()) {
+                    s = currNode->get_after();
+                    for (it = s.begin(); it != s.end(); it++) {
+                        dfsStack.push(*it);
+                    }
+                    s = currNode->get_after_BIP();
+                    for (it = s.begin(); it != s.end(); it++) {
+                        dfsStack.push(*it);
+                    }
+                    callCounter++; // enter a called procedure
+                } else { // normal traversal
+                    s = currNode->get_after();
+                    for (it = s.begin(); it != s.end(); it++) {
+                        dfsStack.push(*it);
+                    }
+                }
+            }
+        }
+    }
+    return false;
 }
 
 set<int> PKB::get_before_BIP(int stmtNo) const
