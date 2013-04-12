@@ -6270,7 +6270,7 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_wildcard_exprwild(
             int assignStmt = *i;
             Node *assignNode = pkb->get_stmtBank()->get_node(assignStmt);
             std::queue<Node *> nodeQueue;
-            nodeQueue.push(assignNode);
+            nodeQueue.push(assignNode->get_leaves()[1]);
             while (!nodeQueue.empty()) {
                 Node *frontNode = nodeQueue.front();
                 nodeQueue.pop();
@@ -6278,12 +6278,18 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_wildcard_exprwild(
                 int nrLeaves = leaves.size();
                 for (int i = 0; i < nrLeaves; i++) {
                     nodeQueue.push(leaves[i]);
-                    if (leaves[i]->get_name() ==
+                    /*if (leaves[i]->get_name() ==
                             rootExprTree->get_name()) {
                         if (QueryEvaluator::evaluate_matching_tree(
                                 leaves[i], rootExprTree)) {
                             rTable.syn_0_add_row(assignStmt);
                         }
+                    }*/
+                }
+                if (frontNode->get_name() == rootExprTree->get_name()) {
+                    if (QueryEvaluator::evaluate_matching_tree(
+                            frontNode, rootExprTree)) {
+                        rTable.syn_0_add_row(assignStmt);
                     }
                 }
             }

@@ -132,4 +132,11 @@ void Test30_01_Pattern::test_2()
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "jobs 6","jobs 10","time 6",
         "time 10","relax 6","relax 10"), stringSet);
+
+    queryStr = "assign a; Select a pattern a(_, _\"energy\"_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "6", "10", "11", "22"),
+            stringSet);
+
 }
