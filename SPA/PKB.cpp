@@ -1642,6 +1642,88 @@ set<int> PKB::get_after_BIP_star(int stmtNo) const
 
 bool PKB::is_affects_Bip(int stmt1, int stmt2) const
 {
+    if (!(is_stmtType(stmt1, ENT_ASSIGN) && is_stmtType(stmt2, ENT_ASSIGN))) {
+        return false;
+    }
+    set<int> s, visited, res;
+    set<string> uses, modifies;
+    set<int>::iterator it;
+    stack<pair<int,bool> > dfsStack;
+    int currStmt;
+    CFGNode *currNode;
+    bool topLvl;
+    string var = *stmtBank->get_node(stmt1)->get_modifies().begin();
+    
+    currNode = CFG->at(stmt1);
+    if (currNode->is_last()) {
+        s = currNode->get_after_BIP();
+        for (it = s.begin(); it != s.end(); it++) {
+            dfsStack.push(pair<int,bool>(*it,true));
+        }
+    } // make else?
+    s = currNode->get_after_helper();
+    for (it = s.begin(); it != s.end(); it++) {
+        dfsStack.push(pair<int,bool>(*it,true));
+    }
+    while (!dfsStack.empty()) {
+        currStmt = dfsStack.top().first;
+        topLvl = dfsStack.top().second;
+        dfsStack.pop(); // Always pop first
+        if (is_stmtType(currStmt, ENT_ASSIGN)) {
+            uses = stmtBank->get_node(currStmt)->get_uses();
+            if (uses.find(var) != uses.end() && (currStmt == stmt2)) {
+                return true;
+            }
+            modifies = stmtBank->get_node(currStmt)->get_modifies();
+            if (modifies.find(var) != modifies.end()) {
+                continue; // break traversal
+            }
+        }
+        if (visited.find(currStmt) == visited.end()) {
+            visited.insert(currStmt);
+            currNode = CFG->at(currStmt);
+            if (currNode->is_last() && currNode->is_caller()) {
+                if (topLvl) { // if not inside called procedure
+                    CFGNode* tNode = currNode->get_edge(OUT,1);
+                    assert(tNode->is_terminator());
+                    s = tNode->get_after_BIP();
+                    for (it = s.begin(); it != s.end(); it++) {
+                        dfsStack.push(pair<int,bool>(*it,true));
+                    }
+                }
+                s = currNode->get_after_BIP();
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,bool>(*it,false));
+                }
+            } else if (currNode->is_last()) {
+                if (topLvl) { // if not inside called procedure
+                    s = currNode->get_after_BIP();
+                    for (it = s.begin(); it != s.end(); it++) {
+                        dfsStack.push(pair<int,bool>(*it,true));
+                    }
+                }
+                s = currNode->get_after(); // sp case: while
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,bool>(*it,true));
+                }
+                    
+            } else if (currNode->is_caller()) {
+                s = currNode->get_after();
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,bool>(*it,topLvl));
+                }
+                s = currNode->get_after_BIP();
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,bool>(*it,false));
+                }
+            } else { // normal traversal
+                s = currNode->get_after();
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,bool>(*it,topLvl));
+                }
+            }
+        }
+    }
     return false;
 }
 
@@ -1652,7 +1734,89 @@ bool PKB::is_affects_star_Bip(int stmt1, int stmt2) const
 
 set<int> PKB::get_affects_Bip(int stmtNo) const
 {
-    return EMPTY_INTSET;
+    if (!(is_stmtType(stmtNo, ENT_ASSIGN))) {
+        return EMPTY_INTSET;
+    }
+    set<int> s, visited, res;
+    set<string> uses, modifies;
+    set<int>::iterator it;
+    stack<pair<int,bool> > dfsStack;
+    int currStmt;
+    CFGNode *currNode;
+    bool topLvl;
+    string var = *stmtBank->get_node(stmtNo)->get_modifies().begin();
+    
+    currNode = CFG->at(stmtNo);
+    if (currNode->is_last()) {
+        s = currNode->get_after_BIP();
+        for (it = s.begin(); it != s.end(); it++) {
+            dfsStack.push(pair<int,bool>(*it,true));
+        }
+    } // make else?
+    s = currNode->get_after_helper();
+    for (it = s.begin(); it != s.end(); it++) {
+        dfsStack.push(pair<int,bool>(*it,true));
+    }
+    while (!dfsStack.empty()) {
+        currStmt = dfsStack.top().first;
+        topLvl = dfsStack.top().second;
+        dfsStack.pop(); // Always pop first
+        if (is_stmtType(currStmt, ENT_ASSIGN)) {
+            uses = stmtBank->get_node(currStmt)->get_uses();
+            if (uses.find(var) != uses.end()) {
+                res.insert(currStmt);
+            }
+            modifies = stmtBank->get_node(currStmt)->get_modifies();
+            if (modifies.find(var) != modifies.end()) {
+                continue; // break traversal
+            }
+        }
+        if (visited.find(currStmt) == visited.end()) {
+            visited.insert(currStmt);
+            currNode = CFG->at(currStmt);
+            if (currNode->is_last() && currNode->is_caller()) {
+                if (topLvl) { // if not inside called procedure
+                    CFGNode* tNode = currNode->get_edge(OUT,1);
+                    assert(tNode->is_terminator());
+                    s = tNode->get_after_BIP();
+                    for (it = s.begin(); it != s.end(); it++) {
+                        dfsStack.push(pair<int,bool>(*it,true));
+                    }
+                }
+                s = currNode->get_after_BIP();
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,bool>(*it,false));
+                }
+            } else if (currNode->is_last()) {
+                if (topLvl) { // if not inside called procedure
+                    s = currNode->get_after_BIP();
+                    for (it = s.begin(); it != s.end(); it++) {
+                        dfsStack.push(pair<int,bool>(*it,true));
+                    }
+                }
+                s = currNode->get_after(); // sp case: while
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,bool>(*it,true));
+                }
+                    
+            } else if (currNode->is_caller()) {
+                s = currNode->get_after();
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,bool>(*it,topLvl));
+                }
+                s = currNode->get_after_BIP();
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,bool>(*it,false));
+                }
+            } else { // normal traversal
+                s = currNode->get_after();
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,bool>(*it,topLvl));
+                }
+            }
+        }
+    }
+    return res;
 }
 
 set<int> PKB::get_affects_star_Bip(int stmtNo) const
