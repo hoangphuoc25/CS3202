@@ -867,7 +867,6 @@ bool PKB::followsStar_X_Y_smth_int_Y(DesignEnt yType, int y) const
 set<int> PKB::next_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
-    // TODO: Please implement
     if (stmtBank->is_valid_stmtNo(y)) {
         set<int> s = CFG->at(y)->get_before();
         set<int> res;
@@ -885,7 +884,6 @@ set<int> PKB::next_X_Y_get_int_X_from_int_Y(DesignEnt xType,
 set<int> PKB::next_X_Y_get_int_Y_from_int_X(DesignEnt xType,
         DesignEnt yType, int x) const
 {
-    // TODO: Please implement
     if (stmtBank->is_valid_stmtNo(x)) {
         set<int> s = CFG->at(x)->get_after();
         set<int> res;
@@ -903,7 +901,6 @@ set<int> PKB::next_X_Y_get_int_Y_from_int_X(DesignEnt xType,
 bool PKB::next_query_int_X_int_Y(DesignEnt xType, int x,
         DesignEnt yType, int y) const
 {
-    // TODO: Please implement
     if (stmtBank->is_valid_stmtNo(x) && stmtBank->is_valid_stmtNo(y)) {
         set<int> s =  CFG->at(x)->get_after();
         return (s.find(y) != s.end());
@@ -914,7 +911,6 @@ bool PKB::next_query_int_X_int_Y(DesignEnt xType, int x,
 
 bool PKB::next_X_Y_int_X_smth(DesignEnt xType, int x) const
 {
-    // TODO: Please implement
     if (stmtBank->is_valid_stmtNo(x)) {
         set<int> s =  CFG->at(x)->get_after();
         return (!s.empty());
@@ -925,7 +921,6 @@ bool PKB::next_X_Y_int_X_smth(DesignEnt xType, int x) const
 
 bool PKB::next_X_Y_smth_int_Y(DesignEnt yType, int y) const
 {
-    // TODO: Please implement
     if (stmtBank->is_valid_stmtNo(y)) {
         set<int> s =  CFG->at(y)->get_before();
         return (!s.empty());
@@ -937,7 +932,6 @@ bool PKB::next_X_Y_smth_int_Y(DesignEnt yType, int y) const
 set<int> PKB::nextStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
-    // TODO: Please implement
     if (stmtBank->is_valid_stmtNo(y)) {
         set<int> s =  CFG->at(y)->get_before();
         set<int>::iterator it;
@@ -968,7 +962,6 @@ set<int> PKB::nextStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
 set<int> PKB::nextStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
         DesignEnt yType, int x) const
 {
-    // TODO: Please implement
     if (stmtBank->is_valid_stmtNo(x)) {
         set<int> s =  CFG->at(x)->get_after();
         set<int>::iterator it;
@@ -999,7 +992,6 @@ set<int> PKB::nextStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
 bool PKB::nextStar_query_int_X_int_Y(DesignEnt xType, int x,
         DesignEnt yType, int y) const
 {
-    // TODO: Please implement
     if (stmtBank->is_valid_stmtNo(x) && stmtBank->is_valid_stmtNo(y)) {
         set<int> s =  CFG->at(x)->get_after();
         set<int> vis;
@@ -1030,20 +1022,17 @@ bool PKB::nextStar_query_int_X_int_Y(DesignEnt xType, int x,
 
 bool PKB::nextStar_X_Y_int_X_smth(DesignEnt xType, int x) const
 {
-    // TODO: Please implement
     return  next_X_Y_int_X_smth(xType,x);
 }
 
 bool PKB::nextStar_X_Y_smth_int_Y(DesignEnt yType, int y) const
 {
-    // TODO: Please implement
     return next_X_Y_smth_int_Y(yType, y);
 }
 
 set<int> PKB::affects_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
-    // TODO: Please implement
     if (!stmtBank->is_stmtType(y, ENT_ASSIGN)) {
         return EMPTY_INTSET;
     }
@@ -1069,7 +1058,6 @@ set<int> PKB::affects_X_Y_get_int_X_from_int_Y(DesignEnt xType,
 set<int> PKB::affects_X_Y_get_int_Y_from_int_X(DesignEnt xType,
         DesignEnt yType, int x) const
 {
-    // TODO: Please implement
     assert(yType == ENT_ASSIGN);
 
     if (!stmtBank->is_stmtType(x, ENT_ASSIGN)) {
@@ -1139,7 +1127,6 @@ set<int> PKB::affects_X_Y_get_int_Y_from_int_X(DesignEnt xType,
 bool PKB::affects_query_int_X_int_Y(DesignEnt xType, int x,
         DesignEnt yType, int y) const
 {
-    // TODO: Please implement
     if (!stmtBank->is_stmtType(x, ENT_ASSIGN) || !stmtBank->is_stmtType(y, ENT_ASSIGN)) {
         return false;
     }
@@ -1203,20 +1190,17 @@ bool PKB::affects_query_int_X_int_Y(DesignEnt xType, int x,
 
 bool PKB::affects_X_Y_int_X_smth(DesignEnt xType, int x) const
 {
-    // TODO: Please implement
     return (!affects_X_Y_get_int_Y_from_int_X(ENT_ASSIGN,ENT_ASSIGN,x).empty());
 }
 
 bool PKB::affects_X_Y_smth_int_Y(DesignEnt yType, int y) const
 {
-    // TODO: Please implement
     return (!affects_X_Y_get_int_X_from_int_Y(ENT_ASSIGN,ENT_ASSIGN,y).empty());
 }
 
 set<int> PKB::affectsStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
-    // TODO: Please implement
     if (!is_stmtType(y, ENT_ASSIGN)) {
         return EMPTY_INTSET;
     }
@@ -1251,7 +1235,6 @@ set<int> PKB::affectsStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
 set<int> PKB::affectsStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
         DesignEnt yType, int x) const
 {
-    // TODO: Please implement
     if (!is_stmtType(x, ENT_ASSIGN)) {
         return EMPTY_INTSET;
     }
@@ -1288,7 +1271,6 @@ set<int> PKB::affectsStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
 bool PKB::affectsStar_query_int_X_int_Y(DesignEnt xType, int x,
         DesignEnt yType, int y) const
 {
-    // TODO: Please implement
     if (!is_stmtType(x, ENT_ASSIGN) || !is_stmtType(y, ENT_ASSIGN)) {
         return false;
     }
@@ -1324,13 +1306,11 @@ bool PKB::affectsStar_query_int_X_int_Y(DesignEnt xType, int x,
 
 bool PKB::affectsStar_X_Y_int_X_smth(DesignEnt xType, int x) const
 {
-    // TODO: Please implement
     return affects_X_Y_int_X_smth(xType,x);
 }
 
 bool PKB::affectsStar_X_Y_smth_int_Y(DesignEnt yType, int y) const
 {
-    // TODO: Please implement
     return affects_X_Y_smth_int_Y(yType,y);
 }
 
