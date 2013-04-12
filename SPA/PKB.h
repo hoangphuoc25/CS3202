@@ -1020,6 +1020,16 @@ public:
     set<int> get_after_BIP(int stmtNo) const;
     set<int> get_after_BIP_star(int stmtNo) const;
 
+    // Affects Bip
+    bool is_affects_Bip(int stmt1, int stmt2) const;
+    bool is_affects_star_Bip(int stmt1, int stmt2) const;
+
+    set<int> get_affects_Bip(int stmtNo) const;
+    set<int> get_affects_star_Bip(int stmtNo) const;
+
+    set<int> get_affected_by_Bip(int stmtNo) const;
+    set<int> get_affected_by_star_Bip(int stmtNo) const;
+
     // Others
     bool is_stmtType(int stmtNo, DesignEnt type) const;
     bool is_valid_stmtNo(int stmtNo) const;

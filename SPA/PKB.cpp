@@ -1640,6 +1640,34 @@ set<int> PKB::get_after_BIP_star(int stmtNo) const
     return res;
 }
 
+bool PKB::is_affects_Bip(int stmt1, int stmt2) const
+{
+    return false;
+}
+
+bool PKB::is_affects_star_Bip(int stmt1, int stmt2) const
+{
+    return false;
+}
+
+set<int> PKB::get_affects_Bip(int stmtNo) const
+{
+    return EMPTY_INTSET;
+}
+
+set<int> PKB::get_affects_star_Bip(int stmtNo) const
+{
+    return EMPTY_INTSET;
+}
+
+set<int> PKB::get_affected_by_Bip(int stmtNo) const
+{
+    return EMPTY_INTSET;
+}
+set<int> PKB::get_affected_by_star_Bip(int stmtNo) const
+{
+    return EMPTY_INTSET;
+}
 
 set<int> PKB::get_all_assign() const
 {
