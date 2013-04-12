@@ -1396,11 +1396,12 @@ bool PKB::is_next_star_BIP(int stmt1, int stmt2) const
                         for (it = s.begin(); it != s.end(); it++) {
                             dfsStack.push(pair<int,bool>(*it,true));
                         }
-                        s = currNode->get_after(); // sp case: while
-                        for (it = s.begin(); it != s.end(); it++) {
-                            dfsStack.push(pair<int,bool>(*it,true));
-                        }
                     }
+                    s = currNode->get_after(); // sp case: while
+                    for (it = s.begin(); it != s.end(); it++) {
+                        dfsStack.push(pair<int,bool>(*it,true));
+                    }
+                    
                 } else if (currNode->is_caller()) {
                     s = currNode->get_after();
                     for (it = s.begin(); it != s.end(); it++) {

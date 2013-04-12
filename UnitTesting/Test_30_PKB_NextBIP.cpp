@@ -674,3 +674,97 @@ void Test_30_PKB_NextBIP::test_nextBipStar_multiproc()
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(13,4));
 
 }
+
+void Test_30_PKB_NextBIP::test_nextBipStar_procback()
+{
+        const string& simpleProg =
+            "procedure willy{\
+                while one{\
+                a = 2;\
+                call two;\
+                }\
+            }\
+            procedure two{\
+                a = 4;\
+            }\
+            procedure first{\
+                call willy;\
+                b = 6;\
+                if i7 then {\
+                    call two;\
+                } else {\
+                   a = 9;\
+                }\
+                while i10 {\
+                    d = 11;\
+                }\
+            }\
+            procedure three {\
+                call willy;\
+                call four;\
+            }\
+            procedure four{\
+                gg = 14;\
+            }\
+            procedure five {\
+                call two;\
+                hh = 16;\
+           }";
+
+
+    string queryStr;
+    set<int> intSet;
+    SetWrapper<string> stringSet;
+    Parser parser(simpleProg, FROMSTRING);
+    parser.init();
+    auto_ptr<PKB> pkb(parser.get_pkb());
+    
+    // Normal Next
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(1,2));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(1,6));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(2,3));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(3,4));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(4,1));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(5,1));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(4,10));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(9,10));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(8,10));
+
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(2,10));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(3,11));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(3,11));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->is_next_star_BIP(7,3));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->is_next_star_BIP(9,1));
+
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(2,4));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(2,6));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(2,13));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(2,14));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->is_next_star_BIP(2,16));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(5,3));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(5,4));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(8,4));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(12,2));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(12,4));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(12,13));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(12,14));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->is_next_star_BIP(12,6));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->is_next_star_BIP(12,10));
+
+    // Only topLvl terminators can go to all procs
+    CPPUNIT_ASSERT_EQUAL(false,pkb->is_next_star_BIP(3,16));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->is_next_star_BIP(5,16));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->is_next_star_BIP(5,13));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->is_next_star_BIP(8,16));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->is_next_star_BIP(8,1));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->is_next_star_BIP(8,13));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->is_next_star_BIP(5,13));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->is_next_star_BIP(5,14));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->is_next_star_BIP(12,16));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(5,2));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(12,1));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(12,2));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(3,1));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(3,13));
+
+}
