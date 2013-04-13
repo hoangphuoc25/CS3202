@@ -1645,7 +1645,8 @@ bool PKB::is_affects_Bip(int stmt1, int stmt2) const
     if (!(is_stmtType(stmt1, ENT_ASSIGN) && is_stmtType(stmt2, ENT_ASSIGN))) {
         return false;
     }
-    set<int> s, visited, res;
+    set<int> s, res;
+    vector<set<int> > visited;
     set<string> uses, modifies;
     set<int>::iterator it;
     stack<pair<int,int> > dfsStack;
@@ -1670,6 +1671,7 @@ bool PKB::is_affects_Bip(int stmt1, int stmt2) const
     for (it = s.begin(); it != s.end(); it++) {
         dfsStack.push(pair<int,int>(*it,0));
     }
+    visited.push_back(set<int>());
     while (!dfsStack.empty()) {
         currStmt = dfsStack.top().first;
         currDepth = dfsStack.top().second;
@@ -1684,8 +1686,8 @@ bool PKB::is_affects_Bip(int stmt1, int stmt2) const
                 continue; // break traversal
             }
         }
-        if (visited.find(currStmt) == visited.end()) {
-            visited.insert(currStmt);
+        if (visited[currDepth].find(currStmt) == visited[currDepth].end()) {
+            visited[currDepth].insert(currStmt);
             currNode = CFG->at(currStmt);
             if (currNode->is_last() && currNode->is_caller()) {
                 if (currDepth == 0) { // if not inside called procedure
@@ -1700,6 +1702,10 @@ bool PKB::is_affects_Bip(int stmt1, int stmt2) const
                 for (it = s.begin(); it != s.end(); it++) {
                     dfsStack.push(pair<int,int>(*it,currDepth+1));
                 }
+                while (visited.size() < currDepth+2) {
+                    visited.push_back(set<int>());
+                }
+                visited[currDepth+1].clear();
             } else if (currNode->is_last()) {
                 if (currDepth == 0) { // if not inside called procedure
                     s = currNode->get_after_BIP();
@@ -1735,6 +1741,10 @@ bool PKB::is_affects_Bip(int stmt1, int stmt2) const
                 for (it = s.begin(); it != s.end(); it++) {
                     dfsStack.push(pair<int,int>(*it,currDepth+1));
                 }
+                while (visited.size() < currDepth+2) {
+                    visited.push_back(set<int>());
+                }
+                visited[currDepth+1].clear();
             } else { // normal traversal
                 s = currNode->get_after();
                 for (it = s.begin(); it != s.end(); it++) {
@@ -1756,7 +1766,8 @@ set<int> PKB::get_affects_Bip(int stmtNo) const
     if (!(is_stmtType(stmtNo, ENT_ASSIGN))) {
         return EMPTY_INTSET;
     }
-    set<int> s, visited, res;
+    set<int> s, res;
+    vector<set<int> > visited;
     set<string> uses, modifies;
     set<int>::iterator it;
     stack<pair<int,int> > dfsStack;
@@ -1776,6 +1787,7 @@ set<int> PKB::get_affects_Bip(int stmtNo) const
     for (it = s.begin(); it != s.end(); it++) {
         dfsStack.push(pair<int,int>(*it,0));
     }
+    visited.push_back(set<int>());
     while (!dfsStack.empty()) {
         currStmt = dfsStack.top().first;
         currDepth = dfsStack.top().second;
@@ -1790,8 +1802,8 @@ set<int> PKB::get_affects_Bip(int stmtNo) const
                 continue; // break traversal
             }
         }
-        if (visited.find(currStmt) == visited.end()) {
-            visited.insert(currStmt);
+        if (visited[currDepth].find(currStmt) == visited[currDepth].end()) {
+            visited[currDepth].insert(currStmt);
             currNode = CFG->at(currStmt);
             if (currNode->is_last() && currNode->is_caller()) {
                 if (currDepth == 0) { // if not inside called procedure
@@ -1806,6 +1818,10 @@ set<int> PKB::get_affects_Bip(int stmtNo) const
                 for (it = s.begin(); it != s.end(); it++) {
                     dfsStack.push(pair<int,int>(*it,currDepth+1));
                 }
+                while (visited.size() < currDepth+2) {
+                    visited.push_back(set<int>());
+                }
+                visited[currDepth+1].clear();
             } else if (currNode->is_last()) {
                 if (currDepth == 0) { // if not inside called procedure
                     s = currNode->get_after_BIP();
@@ -1841,6 +1857,10 @@ set<int> PKB::get_affects_Bip(int stmtNo) const
                 for (it = s.begin(); it != s.end(); it++) {
                     dfsStack.push(pair<int,int>(*it,currDepth+1));
                 }
+                while (visited.size() < currDepth+2) {
+                    visited.push_back(set<int>());
+                }
+                visited[currDepth+1].clear();
             } else { // normal traversal
                 s = currNode->get_after();
                 for (it = s.begin(); it != s.end(); it++) {
@@ -1859,7 +1879,21 @@ set<int> PKB::get_affects_star_Bip(int stmtNo) const
 
 set<int> PKB::get_affected_by_Bip(int stmtNo) const
 {
-    return EMPTY_INTSET;
+    if (!(is_stmtType(stmtNo, ENT_ASSIGN))) {
+        return EMPTY_INTSET;
+    }
+    set<int> modifies, res;
+    set<int>::iterator it;
+    set<string> uses = stmtBank->get_node(stmtNo)->get_uses();
+    for (set<string>::iterator var = uses.begin(); var != uses.end(); var++) { 
+        modifies = varTable->get_assign_modifying_var(*var);
+        for (it = modifies.begin(); it != modifies.end(); it++) {
+            if (is_affects_Bip(*it,stmtNo)) {
+                res.insert(*it);
+            }
+        }
+    }
+    return res;
 }
 set<int> PKB::get_affected_by_star_Bip(int stmtNo) const
 {
