@@ -58,6 +58,21 @@ void Test_30_PKB_AffectsBip::test_AffectsBip()
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_affects_Bip(4,1));
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_affects_Bip(1,11));
 
+    stringSet = pkb->get_affects_Bip(9);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"10"),stringSet);
+    stringSet = pkb->get_affects_Bip(10);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"9"),stringSet);
+    stringSet = pkb->get_affects_Bip(13);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"2"),stringSet);
+    stringSet = pkb->get_affects_Bip(2);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"4"),stringSet);
+    stringSet = pkb->get_affects_Bip(4);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"1"),stringSet);
+    stringSet = pkb->get_affects_Bip(1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"11"),stringSet);
+
+
+
 }
 
 void Test_30_PKB_AffectsBip::test_AffectsBip_multiproc()
@@ -113,6 +128,23 @@ void Test_30_PKB_AffectsBip::test_AffectsBip_multiproc()
     CPPUNIT_ASSERT_EQUAL(false,pkb->is_affects_Bip(4,9));
     CPPUNIT_ASSERT_EQUAL(false,pkb->is_affects_Bip(7,3));
     CPPUNIT_ASSERT_EQUAL(false,pkb->is_affects_Bip(11,13));
+
+    stringSet = pkb->get_affects_Bip(19);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"18"),stringSet);
+    stringSet = pkb->get_affects_Bip(18);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"17"),stringSet);
+    stringSet = pkb->get_affects_Bip(17);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"19"),stringSet);
+    stringSet = pkb->get_affects_Bip(10);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"13"),stringSet);
+    stringSet = pkb->get_affects_Bip(1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
+    stringSet = pkb->get_affects_Bip(4);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
+    stringSet = pkb->get_affects_Bip(7);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
+    stringSet = pkb->get_affects_Bip(11);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
 }
 
 void Test_30_PKB_AffectsBip::test_AffectsBip_procBack()
@@ -161,6 +193,20 @@ void Test_30_PKB_AffectsBip::test_AffectsBip_procBack()
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_affects_Bip(10,9));
     CPPUNIT_ASSERT_EQUAL(false,pkb->is_affects_Bip(11,10));
     CPPUNIT_ASSERT_EQUAL(false,pkb->is_affects_Bip(11,5));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->is_affects_Bip(12,5));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->is_affects_Bip(11,8));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->is_affects_Bip(1,10));
+
+    stringSet = pkb->get_affects_Bip(13);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2,"5","10"),stringSet);
+    stringSet = pkb->get_affects_Bip(1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"11"),stringSet);
+    stringSet = pkb->get_affects_Bip(10);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"9"),stringSet);
+    stringSet = pkb->get_affects_Bip(11);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
+    stringSet = pkb->get_affects_Bip(12);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
 
 }
 
