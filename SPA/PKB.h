@@ -856,8 +856,9 @@ public:
      * @param y integer value of Y
      * @return set of X (int) such that AffectsBip*(X,Y)
      */
-    std::set<int> affectsBipStar_X_Y_get_int_X_from_int_Y(
-            DesignEnt xType, DesignEnt yType, int y) const;
+    std::set<int> affectsBipStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
+            DesignEnt yType, int y) const;
+
     /**
      * AffectsBip*(X,Y); given X (int), retrieve all Y (int) such that
      * AffectsBip*(X,Y).
@@ -866,8 +867,9 @@ public:
      * @param x integer value of X
      * @return set of Y (int) such that AffectsBip*(X,Y)
      */
-    std::set<int> affectsBipStar_X_Y_get_int_Y_from_int_X(
-            DesignEnt xType, DesignEnt yType, int x) const;
+    std::set<int> affectsBipStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
+            DesignEnt yType, int x) const;
+
     /**
      * Given X (int) and Y (int), checks if AffectsBip*(X,Y) is true.
      * @param xType type of X
