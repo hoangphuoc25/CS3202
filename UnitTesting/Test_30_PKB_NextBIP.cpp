@@ -831,6 +831,20 @@ void Test_30_PKB_NextBIP::test_nextBipStar_procback()
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(9,10));
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(8,10));
 
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextBipStar_query_int_X_int_Y
+        (ENT_STMT,1,ENT_STMT,6));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextBipStar_query_int_X_int_Y
+        (ENT_STMT,2,ENT_STMT,3));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextBipStar_query_int_X_int_Y
+        (ENT_STMT,5,ENT_STMT,1));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextBipStar_query_int_X_int_Y
+        (ENT_STMT,4,ENT_STMT,10));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextBipStar_query_int_X_int_Y
+        (ENT_STMT,8,ENT_STMT,10));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextBipStar_query_int_X_int_Y
+        (ENT_STMT,9,ENT_STMT,10));
+
+
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(2,10));
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(3,11));
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(3,11));
@@ -868,6 +882,13 @@ void Test_30_PKB_NextBIP::test_nextBipStar_procback()
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(3,1));
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(3,13));
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(4,14));
+
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextBipStar_query_int_X_int_Y
+        (ENT_STMT,12,ENT_STMT,1));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextBipStar_query_int_X_int_Y
+        (ENT_STMT,3,ENT_STMT,13));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->nextBipStar_query_int_X_int_Y
+        (ENT_STMT,5,ENT_STMT,16));
 
     stringSet = pkb->get_after_BIP_star(1);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(12,"1","2","3","4","6",
@@ -911,4 +932,75 @@ void Test_30_PKB_NextBIP::test_nextBipStar_procback()
     stringSet = pkb->get_after_BIP_star(16);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
 
+    stringSet = pkb->nextBipStar_X_Y_get_int_Y_from_int_X(ENT_STMT,ENT_STMT,15);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2,"4","16"),stringSet);
+    stringSet = pkb->nextBipStar_X_Y_get_int_Y_from_int_X(ENT_STMT,ENT_STMT,12);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6,"1","2","3","4",
+        "13","14"),stringSet);
+    stringSet = pkb->nextBipStar_X_Y_get_int_Y_from_int_X(ENT_STMT,ENT_STMT,3);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(12,"1","2","3","4","6",
+        "7","8","9","10","11","13","14"),stringSet);
+    stringSet = pkb->nextBipStar_X_Y_get_int_Y_from_int_X(ENT_STMT,ENT_ASSIGN,3);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6,"2","4","6",
+        "9","11","14"),stringSet);
+
+    stringSet = pkb->get_before_BIP_star(1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(10,"12","5","4","3","2",
+        "15","8","7","6","1"),stringSet);
+    stringSet = pkb->get_before_BIP_star(2);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(10,"12","5","4","3","2",
+        "15","8","7","6","1"),stringSet);
+    stringSet = pkb->get_before_BIP_star(3);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(10,"12","5","4","3","2",
+        "15","8","7","6","1"),stringSet);
+    stringSet = pkb->get_before_BIP_star(4);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(10,"12","5","4","3","2",
+        "15","8","7","6","1"),stringSet);
+    stringSet = pkb->get_before_BIP_star(5);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
+    stringSet = pkb->get_before_BIP_star(6);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(10,"12","5","4","3","2",
+        "15","8","7","6","1"),stringSet);
+    stringSet = pkb->get_before_BIP_star(7);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(10,"12","5","4","3","2",
+        "15","8","7","6","1"),stringSet);
+    stringSet = pkb->get_before_BIP_star(8);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(10,"12","5","4","3","2",
+        "15","8","7","6","1"),stringSet);
+    stringSet = pkb->get_before_BIP_star(9);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(10,"12","5","4","3","2",
+        "15","8","7","6","1"),stringSet);
+    stringSet = pkb->get_before_BIP_star(10);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(13,"12","5","4","3","2",
+        "15","8","7","6","1","9","10","11"),stringSet);
+    stringSet = pkb->get_before_BIP_star(11);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(13,"12","5","4","3","2",
+        "15","8","7","6","1","9","10","11"),stringSet);
+    stringSet = pkb->get_before_BIP_star(12);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
+    stringSet = pkb->get_before_BIP_star(13);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(11,"12","5","4","3","2",
+        "15","8","7","6","1","12"),stringSet);
+    stringSet = pkb->get_before_BIP_star(14);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(12,"12","5","4","3","2",
+        "15","8","7","6","1","12","13"),stringSet);
+    stringSet = pkb->get_before_BIP_star(15);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
+    stringSet = pkb->get_before_BIP_star(16);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(11,"12","5","4","3","2",
+        "15","8","7","6","1","15"),stringSet);
+
+
+    stringSet = pkb->nextBipStar_X_Y_get_int_X_from_int_Y(ENT_STMT,ENT_STMT,13);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(11,"12","5","4","3","2",
+        "15","8","7","6","1","12"),stringSet);
+    stringSet = pkb->nextBipStar_X_Y_get_int_X_from_int_Y(ENT_STMT,ENT_STMT,16);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(11,"12","5","4","3","2",
+        "15","8","7","6","1","15"),stringSet);
+    stringSet = pkb->nextBipStar_X_Y_get_int_X_from_int_Y(ENT_CALL,ENT_STMT,16);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5,"12","5","3",
+        "15","8"),stringSet);
+
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextBipStar_X_Y_smth_int_Y(ENT_STMT,16));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextBipStar_X_Y_int_X_smth(ENT_STMT,3));
 }
