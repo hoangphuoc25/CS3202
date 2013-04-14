@@ -1034,138 +1034,6 @@ bool PKB::nextStar_X_Y_smth_int_Y(DesignEnt yType, int y) const
     return next_X_Y_smth_int_Y(yType, y);
 }
 
-set<int> PKB::nextBip_X_Y_get_int_X_from_int_Y(DesignEnt xType,
-        DesignEnt yType, int y) const
-{
-    // TODO: Implement
-    return set<int>();
-}
-
-set<int> PKB::nextBip_X_Y_get_int_Y_from_int_X(DesignEnt xType,
-        DesignEnt yType, int x) const
-{
-    // TODO: Implement
-    return set<int>();
-}
-
-bool PKB::nextBip_query_int_X_int_Y(DesignEnt xType, int x,
-        DesignEnt yType, int y) const
-{
-    // TODO: Implement
-    return false;
-}
-
-bool PKB::nextBip_X_Y_int_X_smth(DesignEnt xType, int x) const
-{
-    // TODO: Implement
-    return false;
-}
-
-bool PKB::nextBip_X_Y_smth_int_Y(DesignEnt yType, int y) const
-{
-    // TODO: Implement
-    return false;
-}
-
-set<int> PKB::nextBipStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
-        DesignEnt yType, int y) const
-{
-    // TODO: Implement
-    return set<int>();
-}
-
-set<int> PKB::nextBipStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
-        DesignEnt yType, int x) const
-{
-    // TODO: Implement
-    return set<int>();
-}
-
-bool PKB::nextBipStar_query_int_X_int_Y(DesignEnt xType, int x,
-        DesignEnt yType, int y) const
-{
-    // TODO: Implement
-    return false;
-}
-
-bool PKB::nextBipStar_X_Y_int_X_smth(DesignEnt xType, int x) const
-{
-    // TODO: Implement
-    return false;
-}
-
-bool PKB::nextBipStar_X_Y_smth_int_Y(DesignEnt yType, int y) const
-{
-    // TODO: Implement
-    return false;
-}
-
-set<int> PKB::affectsBip_X_Y_get_int_X_from_int_Y(DesignEnt xType,
-        DesignEnt yType, int y) const
-{
-    // TODO: Implement
-    return set<int>();
-}
-
-set<int> PKB::affectsBip_X_Y_get_int_Y_from_int_X(DesignEnt xType,
-        DesignEnt yType, int x) const
-{
-    // TODO: Implement
-    return set<int>();
-}
-
-bool PKB::affectsBip_query_int_X_int_Y(DesignEnt xType, int x,
-        DesignEnt yType, int y) const
-{
-    // TODO: Implement
-    return false;
-}
-
-bool PKB::affectsBip_X_Y_int_X_smth(DesignEnt xType, int x) const
-{
-    // TODO: Implement
-    return false;
-}
-
-bool PKB::affectsBip_X_Y_smth_int_Y(DesignEnt yType, int y) const
-{
-    // TODO: Implement
-    return false;
-}
-
-set<int> PKB::affectsBipStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
-        DesignEnt yType, int y) const
-{
-    // TODO: Implement
-    return set<int>();
-}
-
-set<int> PKB::affectsBipStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
-        DesignEnt yType, int x) const
-{
-    // TODO: Implement
-    return set<int>();
-}
-
-bool PKB::affectsBipStar_query_int_X_int_Y(DesignEnt xType, int x,
-        DesignEnt yType, int y) const
-{
-    // TODO: Implement
-    return false;
-}
-
-bool PKB::affectsBipStar_X_Y_int_X_smth(DesignEnt xType, int x) const
-{
-    // TODO: Implement
-    return false;
-}
-
-bool PKB::affectsBipStar_X_Y_smth_int_Y(DesignEnt yType, int y) const
-{
-    // TODO: Implement
-    return false;
-}
-
 set<int> PKB::affects_X_Y_get_int_X_from_int_Y(DesignEnt xType,
         DesignEnt yType, int y) const
 {
@@ -1448,6 +1316,427 @@ bool PKB::affectsStar_X_Y_int_X_smth(DesignEnt xType, int x) const
 bool PKB::affectsStar_X_Y_smth_int_Y(DesignEnt yType, int y) const
 {
     return affects_X_Y_smth_int_Y(yType,y);
+}
+
+set<int> PKB::nextBip_X_Y_get_int_X_from_int_Y(DesignEnt xType,
+        DesignEnt yType, int y) const
+{
+    if (!is_valid_stmtNo(y)) {
+        return EMPTY_INTSET;
+    }
+    set<int> s,t,res;
+    CFGNode *n = CFG->at(y); 
+    if (n->has_Bip(IN)) {
+        s = n->get_before_BIP();
+    }
+    t = n->get_before_helper();
+    s.insert(t.begin(),t.end());
+    for (set<int>::iterator it = s.begin(); it != s.end(); it++) {
+        if (is_stmtType(*it,xType)) {
+            res.insert(*it);
+        }
+    }
+    return res;
+}
+
+set<int> PKB::nextBip_X_Y_get_int_Y_from_int_X(DesignEnt xType,
+        DesignEnt yType, int x) const
+{
+    if (!is_valid_stmtNo(x)) {
+        return EMPTY_INTSET;
+    }
+    set<int> s, t, res;
+    CFGNode *n = CFG->at(x); 
+    s = n->get_after_BIP();
+    t = n->get_after_helper();
+    s.insert(t.begin(),t.end());
+    for (set<int>::iterator it = s.begin(); it != s.end(); it++) {
+        if (is_stmtType(*it,yType)) {
+            res.insert(*it);
+        }
+    }
+    return res;
+}
+
+bool PKB::nextBip_query_int_X_int_Y(DesignEnt xType,
+        int x, DesignEnt yType, int y) const
+{
+    if (!is_valid_stmtNo(x) || !is_valid_stmtNo(y)) {
+        return false;
+    }
+    if (is_same_procedure(x, y)) {
+        if (!is_stmtType(x, ENT_CALL)) {
+            set<int> s =  CFG->at(x)->get_after();
+            return (s.find(y) != s.end());
+        } else {
+            return false;
+        }
+    } else {
+        CFGNode* head = CFG->at(x);
+        set<int> after = head->get_after_BIP();
+        return (after.find(y) != after.end());
+    }
+}
+
+bool PKB::nextBip_X_Y_int_X_smth(DesignEnt xType, int x) const
+{
+    return !nextBip_X_Y_get_int_Y_from_int_X(xType,ENT_STMT,x).empty();
+}
+
+bool PKB::nextBip_X_Y_smth_int_Y(DesignEnt yType, int y) const
+{
+    return !nextBip_X_Y_get_int_Y_from_int_X(ENT_STMT,yType,y).empty();
+}
+
+set<int> PKB::nextBipStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
+            DesignEnt yType, int y) const
+{
+    if (!is_valid_stmtNo(y)) {
+        return EMPTY_INTSET;
+    }
+    set<int> s,visited,res;
+    set<int>::iterator it;
+    queue<int> q;
+    int currStmt, numStmt = 0;
+    CFGNode *currNode;
+
+    q.push(y);
+    while (!q.empty()) {
+        currStmt = q.front();
+        q.pop();
+        if (numStmt++ && is_stmtType(currStmt, xType)) {
+            res.insert(currStmt);
+        }
+        if (visited.find(currStmt) == visited.end()) {
+            visited.insert(currStmt);
+            currNode = CFG->at(currStmt);
+            s = currNode->get_before_helper();
+            for (it = s.begin(); it != s.end(); it++) {
+                q.push(*it);
+            }
+            s = currNode->get_before_BIP();
+            for (it = s.begin(); it != s.end(); it++) {
+                q.push(*it);
+            }
+        }
+    }
+    return res;
+}
+
+set<int> PKB::nextBipStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
+            DesignEnt yType, int x) const
+{
+    if (!is_valid_stmtNo(x)) {
+        return EMPTY_INTSET;
+    }
+    set<int> s, visited, res;
+    set<int>::iterator it;
+    stack<pair<int,bool> > dfsStack;
+    int currStmt, numStmt = 0;
+    CFGNode *currNode;
+    bool topLvl;
+
+    dfsStack.push(pair<int,bool>(x,true));
+    while (!dfsStack.empty()) {
+        currStmt = dfsStack.top().first;
+        topLvl = dfsStack.top().second;
+        dfsStack.pop(); // Always pop first
+        if (numStmt++ && is_stmtType(currStmt,yType)) {
+            res.insert(currStmt);
+        }
+        if (visited.find(currStmt) == visited.end()) {
+            visited.insert(currStmt);
+            currNode = CFG->at(currStmt);
+            if (currNode->is_last() && currNode->is_caller()) {
+                if (topLvl) { // if not inside called procedure
+                    CFGNode* tNode = currNode->get_edge(OUT,1);
+                    assert(tNode->is_terminator());
+                    s = tNode->get_after_BIP();
+                    for (it = s.begin(); it != s.end(); it++) {
+                        dfsStack.push(pair<int,bool>(*it,true));
+                    }
+                }
+                s = currNode->get_after_BIP();
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,bool>(*it,false));
+                }
+            } else if (currNode->is_last()) {
+                if (topLvl) { // if not inside called procedure
+                    s = currNode->get_after_BIP();
+                    for (it = s.begin(); it != s.end(); it++) {
+                        dfsStack.push(pair<int,bool>(*it,true));
+                    }
+                }
+                s = currNode->get_after(); // sp case: while
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,bool>(*it,topLvl));
+                }
+                    
+            } else if (currNode->is_caller()) {
+                s = currNode->get_after();
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,bool>(*it,topLvl));
+                }
+                s = currNode->get_after_BIP();
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,bool>(*it,false));
+                }
+            } else { // normal traversal
+                s = currNode->get_after();
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,bool>(*it,topLvl));
+                }
+            }
+        }
+    }
+    return res;
+}
+
+bool PKB::nextBipStar_query_int_X_int_Y(DesignEnt xType,
+            int x, DesignEnt yType, int y) const
+{
+    if (!is_valid_stmtNo(x) || !is_valid_stmtNo(y)) {
+        return false;
+    }
+    set<int> s, visited;
+    set<int>::iterator it;
+    stack<pair<int,bool> > dfsStack;
+    int currStmt;
+    CFGNode *currNode;
+    bool topLvl;
+
+    dfsStack.push(pair<int,bool>(x,true));
+    while (!dfsStack.empty()) {
+        if (dfsStack.top().first == y) {
+            return true;
+        } else {
+            currStmt = dfsStack.top().first;
+            topLvl = dfsStack.top().second;
+            dfsStack.pop(); // Always pop first
+            if (visited.find(currStmt) == visited.end()) {
+                visited.insert(currStmt);
+                currNode = CFG->at(currStmt);
+                if (currNode->is_last() && currNode->is_caller()) {
+                    if (topLvl) { // if not inside called procedure
+                        CFGNode* tNode = currNode->get_edge(OUT,1);
+                        assert(tNode->is_terminator());
+                        s = tNode->get_after_BIP();
+                        for (it = s.begin(); it != s.end(); it++) {
+                            dfsStack.push(pair<int,bool>(*it,true));
+                        }
+                    }
+                    s = currNode->get_after_BIP();
+                    for (it = s.begin(); it != s.end(); it++) {
+                        dfsStack.push(pair<int,bool>(*it,false));
+                    }
+                } else if (currNode->is_last()) {
+                    if (topLvl) { // if not inside called procedure
+                        s = currNode->get_after_BIP();
+                        for (it = s.begin(); it != s.end(); it++) {
+                            dfsStack.push(pair<int,bool>(*it,true));
+                        }
+                    }
+                    s = currNode->get_after(); // sp case: while
+                    for (it = s.begin(); it != s.end(); it++) {
+                        dfsStack.push(pair<int,bool>(*it,topLvl));
+                    }
+                    
+                } else if (currNode->is_caller()) {
+                    s = currNode->get_after();
+                    for (it = s.begin(); it != s.end(); it++) {
+                        dfsStack.push(pair<int,bool>(*it,topLvl));
+                    }
+                    s = currNode->get_after_BIP();
+                    for (it = s.begin(); it != s.end(); it++) {
+                        dfsStack.push(pair<int,bool>(*it,false));
+                    }
+                } else { // normal traversal
+                    s = currNode->get_after();
+                    for (it = s.begin(); it != s.end(); it++) {
+                        dfsStack.push(pair<int,bool>(*it,topLvl));
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+
+bool PKB::nextBipStar_X_Y_int_X_smth(DesignEnt xType, int x) const
+{
+    return !nextBipStar_X_Y_get_int_Y_from_int_X(xType,ENT_STMT,x).empty();
+}
+
+bool PKB::nextBipStar_X_Y_smth_int_Y(DesignEnt yType, int y) const
+{
+    return !nextBipStar_X_Y_get_int_X_from_int_Y(ENT_STMT,yType,y).empty();
+}
+
+set<int> PKB::affectsBip_X_Y_get_int_X_from_int_Y(DesignEnt xType,
+            DesignEnt yType, int y) const
+{
+    return EMPTY_INTSET;
+}
+
+set<int> PKB::affectsBip_X_Y_get_int_Y_from_int_X(DesignEnt xType,
+            DesignEnt yType, int x) const
+{
+    return EMPTY_INTSET;
+}
+
+bool PKB::affectsBip_query_int_X_int_Y(DesignEnt xType,
+            int x, DesignEnt yType, int y) const
+{
+    if (!(is_stmtType(x, ENT_ASSIGN) && is_stmtType(y, ENT_ASSIGN))) {
+        return false;
+    }
+    set<int> s, res;
+    vector<set<int> > visited;
+    set<string> uses, modifies;
+    set<int>::iterator it;
+    stack<pair<int,int> > dfsStack;
+    vector<pair<int,int> > callStack;
+    int currStmt, currDepth, callDepth; // DFS => ensure no conflict in depths
+    CFGNode *currNode;
+    string var = *stmtBank->get_node(x)->get_modifies().begin();
+
+    uses = stmtBank->get_node(y)->get_uses();
+    if (uses.find(var) == uses.end()) {
+        return false;
+    }
+
+    currNode = CFG->at(x);
+    if (currNode->is_last()) {
+        s = currNode->get_after_BIP();
+        for (it = s.begin(); it != s.end(); it++) {
+            dfsStack.push(pair<int,int>(*it,0));
+        }
+    } // make else?
+    s = currNode->get_after_helper();
+    for (it = s.begin(); it != s.end(); it++) {
+        dfsStack.push(pair<int,int>(*it,0));
+    }
+    visited.push_back(set<int>());
+    while (!dfsStack.empty()) {
+        currStmt = dfsStack.top().first;
+        currDepth = dfsStack.top().second;
+        dfsStack.pop(); // Always pop first
+        if (is_stmtType(currStmt, ENT_ASSIGN)) {
+            uses = stmtBank->get_node(currStmt)->get_uses();
+            if (uses.find(var) != uses.end() && (currStmt == y)) {
+                return true;
+            }
+            modifies = stmtBank->get_node(currStmt)->get_modifies();
+            if (modifies.find(var) != modifies.end()) {
+                continue; // break traversal
+            }
+        }
+        if (visited[currDepth].find(currStmt) == visited[currDepth].end()) {
+            visited[currDepth].insert(currStmt);
+            currNode = CFG->at(currStmt);
+            if (currNode->is_last() && currNode->is_caller()) {
+                if (currDepth == 0) { // if not inside called procedure
+                    CFGNode* tNode = currNode->get_edge(OUT,1);
+                    assert(tNode->is_terminator());
+                    s = tNode->get_after_BIP();
+                    for (it = s.begin(); it != s.end(); it++) {
+                        callStack.push_back(pair<int,int>(*it,0));
+                    }
+                }
+                s = currNode->get_after_BIP();
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,int>(*it,currDepth+1));
+                }
+                while (visited.size() < currDepth+2) {
+                    visited.push_back(set<int>());
+                }
+                visited[currDepth+1].clear();
+            } else if (currNode->is_last()) {
+                if (currDepth == 0) { // if not inside called procedure
+                    s = currNode->get_after_BIP();
+                    for (it = s.begin(); it != s.end(); it++) {
+                        dfsStack.push(pair<int,int>(*it,0));
+                    }
+                } else {
+                    // Lazy deletion
+                    while (!callStack.empty() && currDepth <= 
+                        callStack.back().second) {
+                            callStack.pop_back();
+                    } // return to a lower depth!
+                    if (!callStack.empty()) { // return to all possible paths
+                        callDepth = callStack.back().second;
+                        while (!callStack.empty() && callDepth == 
+                            callStack.back().second) {
+                                dfsStack.push(callStack.back());
+                                callStack.pop_back();
+                        }
+                    }
+                }
+                // traverse while first
+                s = currNode->get_after(); // sp case: while
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,int>(*it,currDepth));
+                }
+            } else if (currNode->is_caller()) {
+                s = currNode->get_after(); // get following node
+                for (it = s.begin(); it != s.end(); it++) {
+                    callStack.push_back(pair<int,int>(*it,currDepth));
+                }
+                s = currNode->get_after_BIP(); // enter procedure
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,int>(*it,currDepth+1));
+                }
+                while (visited.size() < currDepth+2) {
+                    visited.push_back(set<int>());
+                }
+                visited[currDepth+1].clear();
+            } else { // normal traversal
+                s = currNode->get_after();
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,int>(*it,currDepth));
+                }
+            }
+        }
+    }
+    return false;
+}
+
+bool PKB::affectsBip_X_Y_int_X_smth(DesignEnt xType, int x) const
+{
+    return false;
+}
+
+bool PKB::affectsBip_X_Y_smth_int_Y(DesignEnt yType, int y) const
+{
+    return false;;
+}
+
+set<int> PKB::affectsBipStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
+            DesignEnt yType, int y) const
+{
+    return EMPTY_INTSET;
+}
+
+set<int> PKB::affectsBipStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
+            DesignEnt yType, int x) const
+{
+    return EMPTY_INTSET;
+}
+
+bool PKB::affectsBipStar_query_int_X_int_Y(DesignEnt xType,
+            int x, DesignEnt yType, int y) const
+{
+    return false;
+}
+
+bool PKB::affectsBipStar_X_Y_int_X_smth(DesignEnt xType, int x) const
+{
+    return false;
+}
+
+bool PKB::affectsBipStar_X_Y_smth_int_Y(DesignEnt yType, int y) const
+{
+    return false;
 }
 
 // Next BIP
