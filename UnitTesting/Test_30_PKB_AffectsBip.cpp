@@ -302,6 +302,14 @@ void Test_30_PKB_AffectsBip::test_AffectsBip_affectedby()
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_affects_Bip(11,2));
     CPPUNIT_ASSERT_EQUAL(false,pkb->is_affects_Bip(13,2));
 
+    CPPUNIT_ASSERT_EQUAL(true,pkb->affectsbip_query_int_X_int_Y
+        (ENT_ASSIGN,2,ENT_ASSIGN,6));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->affectsbip_query_int_X_int_Y
+        (ENT_ASSIGN,3,ENT_ASSIGN,1));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->affectsbip_query_int_X_int_Y
+        (ENT_ASSIGN,11,ENT_ASSIGN,2));
+
+
     stringSet = pkb->get_affects_Bip(2);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"6"),stringSet);
     stringSet = pkb->get_affects_Bip(3);
@@ -317,6 +325,13 @@ void Test_30_PKB_AffectsBip::test_AffectsBip_affectedby()
     stringSet = pkb->get_affects_Bip(13);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
 
+    stringSet = pkb->affectsBip_X_Y_get_int_Y_from_int_X
+        (ENT_ASSIGN,ENT_ASSIGN,8);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2,"2","6"),stringSet);
+    stringSet = pkb->get_affects_Bip(11);
+    CPPUNIT_ASSERT_EQUAL(true,pkb->affectsBip_X_Y_int_X_smth
+        (ENT_ASSIGN,8));
+
     stringSet = pkb->get_affected_by_Bip(2);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4,"5","8","9","11"),stringSet);
     stringSet = pkb->get_affected_by_Bip(3);
@@ -331,6 +346,12 @@ void Test_30_PKB_AffectsBip::test_AffectsBip_affectedby()
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
     stringSet = pkb->get_affected_by_Bip(13);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
+
+    stringSet = pkb->affectsBip_X_Y_get_int_X_from_int_Y
+        (ENT_ASSIGN,ENT_ASSIGN,2);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4,"5","8","9","11"),stringSet);
+    CPPUNIT_ASSERT_EQUAL(true,pkb->affectsBip_X_Y_smth_int_Y(ENT_ASSIGN,5));
+
 
 }
 

@@ -1575,13 +1575,133 @@ bool PKB::nextBipStar_X_Y_smth_int_Y(DesignEnt yType, int y) const
 set<int> PKB::affectsBip_X_Y_get_int_X_from_int_Y(DesignEnt xType,
             DesignEnt yType, int y) const
 {
-    return EMPTY_INTSET;
+    if (!(is_stmtType(y, ENT_ASSIGN))) {
+        return EMPTY_INTSET;
+    }
+    set<int> modifies, res;
+    set<int>::iterator it;
+    set<string> uses = stmtBank->get_node(y)->get_uses();
+    for (set<string>::iterator var = uses.begin(); var != uses.end(); var++) { 
+        modifies = varTable->get_assign_modifying_var(*var);
+        for (it = modifies.begin(); it != modifies.end(); it++) {
+            if (is_affects_Bip(*it,y)) {
+                res.insert(*it);
+            }
+        }
+    }
+    return res;
 }
 
 set<int> PKB::affectsBip_X_Y_get_int_Y_from_int_X(DesignEnt xType,
             DesignEnt yType, int x) const
 {
-    return EMPTY_INTSET;
+    if (!(is_stmtType(x, ENT_ASSIGN))) {
+        return EMPTY_INTSET;
+    }
+    set<int> s, res;
+    vector<set<int> > visited;
+    set<string> uses, modifies;
+    set<int>::iterator it;
+    stack<pair<int,int> > dfsStack;
+    vector<pair<int,int> > callStack;
+    int currStmt, currDepth, callDepth; // DFS => ensure no conflict in depths
+    CFGNode *currNode;
+    string var = *stmtBank->get_node(x)->get_modifies().begin();
+
+    currNode = CFG->at(x);
+    if (currNode->is_last()) {
+        s = currNode->get_after_BIP();
+        for (it = s.begin(); it != s.end(); it++) {
+            dfsStack.push(pair<int,int>(*it,0));
+        }
+    } // make else?
+    s = currNode->get_after_helper();
+    for (it = s.begin(); it != s.end(); it++) {
+        dfsStack.push(pair<int,int>(*it,0));
+    }
+    visited.push_back(set<int>());
+    while (!dfsStack.empty()) {
+        currStmt = dfsStack.top().first;
+        currDepth = dfsStack.top().second;
+        dfsStack.pop(); // Always pop first
+        if (is_stmtType(currStmt, ENT_ASSIGN)) {
+            uses = stmtBank->get_node(currStmt)->get_uses();
+            if (uses.find(var) != uses.end()) {
+                res.insert(currStmt);
+            }
+            modifies = stmtBank->get_node(currStmt)->get_modifies();
+            if (modifies.find(var) != modifies.end()) {
+                continue; // break traversal
+            }
+        }
+        if (visited[currDepth].find(currStmt) == visited[currDepth].end()) {
+            visited[currDepth].insert(currStmt);
+            currNode = CFG->at(currStmt);
+            if (currNode->is_last() && currNode->is_caller()) {
+                if (currDepth == 0) { // if not inside called procedure
+                    CFGNode* tNode = currNode->get_edge(OUT,1);
+                    assert(tNode->is_terminator());
+                    s = tNode->get_after_BIP();
+                    for (it = s.begin(); it != s.end(); it++) {
+                        callStack.push_back(pair<int,int>(*it,0));
+                    }
+                }
+                s = currNode->get_after_BIP();
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,int>(*it,currDepth+1));
+                }
+                while (visited.size() < currDepth+2) {
+                    visited.push_back(set<int>());
+                }
+                visited[currDepth+1].clear();
+            } else if (currNode->is_last()) {
+                if (currDepth == 0) { // if not inside called procedure
+                    s = currNode->get_after_BIP();
+                    for (it = s.begin(); it != s.end(); it++) {
+                        dfsStack.push(pair<int,int>(*it,0));
+                    }
+                } else {
+                    // Lazy deletion
+                    while (!callStack.empty() && currDepth <= 
+                        callStack.back().second) {
+                            callStack.pop_back();
+                    } // return to a lower depth!
+                    if (!callStack.empty()) { // return to all possible paths
+                        callDepth = callStack.back().second;
+                        while (!callStack.empty() && callDepth == 
+                            callStack.back().second) {
+                                dfsStack.push(callStack.back());
+                                callStack.pop_back();
+                        }
+                    }
+                }
+                // traverse while first
+                s = currNode->get_after(); // sp case: while
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,int>(*it,currDepth));
+                }
+            } else if (currNode->is_caller()) {
+                s = currNode->get_after(); // get following node
+                for (it = s.begin(); it != s.end(); it++) {
+                    callStack.push_back(pair<int,int>(*it,currDepth));
+                }
+                s = currNode->get_after_BIP(); // enter procedure
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,int>(*it,currDepth+1));
+                }
+                while (visited.size() < currDepth+2) {
+                    visited.push_back(set<int>());
+                }
+                visited[currDepth+1].clear();
+            } else { // normal traversal
+                s = currNode->get_after();
+                for (it = s.begin(); it != s.end(); it++) {
+                    dfsStack.push(pair<int,int>(*it,currDepth));
+                }
+            }
+        }
+    }
+    return res;
 }
 
 bool PKB::affectsBip_query_int_X_int_Y(DesignEnt xType,
@@ -1703,12 +1823,14 @@ bool PKB::affectsBip_query_int_X_int_Y(DesignEnt xType,
 
 bool PKB::affectsBip_X_Y_int_X_smth(DesignEnt xType, int x) const
 {
-    return false;
+    return !affectsBip_X_Y_get_int_Y_from_int_X
+        (ENT_ASSIGN,ENT_ASSIGN,x).empty();
 }
 
 bool PKB::affectsBip_X_Y_smth_int_Y(DesignEnt yType, int y) const
 {
-    return false;;
+    return !affectsBip_X_Y_get_int_X_from_int_Y
+        (ENT_ASSIGN,ENT_ASSIGN,y).empty();
 }
 
 set<int> PKB::affectsBipStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
