@@ -62,6 +62,20 @@ void Test_30_PKB_NextBIP::test_nextBIP()
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_BIP(11,20));
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_BIP(14,20));
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_BIP(17,20));
+
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextBip_query_int_X_int_Y
+        (ENT_STMT,4,ENT_STMT,20));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextBip_query_int_X_int_Y
+        (ENT_STMT,7,ENT_STMT,20));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextBip_query_int_X_int_Y
+        (ENT_STMT,9,ENT_STMT,20));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextBip_query_int_X_int_Y
+        (ENT_STMT,11,ENT_STMT,20));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextBip_query_int_X_int_Y
+        (ENT_STMT,14,ENT_STMT,20));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextBip_query_int_X_int_Y
+        (ENT_STMT,17,ENT_STMT,20));
+
     /*
     CPPUNIT_ASSERT_EQUAL(false,pkb->is_next(4,20));
     CPPUNIT_ASSERT_EQUAL(false,pkb->is_next(7,20));
@@ -75,6 +89,16 @@ void Test_30_PKB_NextBIP::test_nextBIP()
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_BIP(21,10));
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_BIP(21,13));
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_BIP(21,18));
+
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextBip_query_int_X_int_Y
+        (ENT_STMT,21,ENT_STMT,9));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextBip_query_int_X_int_Y
+        (ENT_STMT,21,ENT_STMT,10));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextBip_query_int_X_int_Y
+        (ENT_STMT,21,ENT_STMT,13));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextBip_query_int_X_int_Y
+        (ENT_STMT,21,ENT_STMT,18));
+
     /*
     CPPUNIT_ASSERT_EQUAL(false,pkb->is_next(21,9));
     CPPUNIT_ASSERT_EQUAL(false,pkb->is_next(21,10));
@@ -87,6 +111,15 @@ void Test_30_PKB_NextBIP::test_nextBIP()
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_BIP(2,12));
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_BIP(13,14));
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_BIP(10,2));
+
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextBip_query_int_X_int_Y
+        (ENT_STMT,3,ENT_STMT,4));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextBip_query_int_X_int_Y
+        (ENT_STMT,2,ENT_STMT,12));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextBip_query_int_X_int_Y
+        (ENT_STMT,13,ENT_STMT,14));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextBip_query_int_X_int_Y
+        (ENT_STMT,10,ENT_STMT,2));
 
     // Link should be broken after calls for BIP
     //CPPUNIT_ASSERT_EQUAL(true,pkb->is_next(14,13));
@@ -101,6 +134,20 @@ void Test_30_PKB_NextBIP::test_nextBIP()
     CPPUNIT_ASSERT_EQUAL(false,pkb->is_next_BIP(11,10));
     //CPPUNIT_ASSERT_EQUAL(true,pkb->is_next(17,18));
     CPPUNIT_ASSERT_EQUAL(false,pkb->is_next_BIP(17,18));
+
+    CPPUNIT_ASSERT_EQUAL(false,pkb->nextBip_query_int_X_int_Y
+        (ENT_STMT,14,ENT_STMT,13));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->nextBip_query_int_X_int_Y
+        (ENT_STMT,4,ENT_STMT,6));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->nextBip_query_int_X_int_Y
+        (ENT_STMT,7,ENT_STMT,9));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->nextBip_query_int_X_int_Y
+        (ENT_STMT,9,ENT_STMT,10));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->nextBip_query_int_X_int_Y
+        (ENT_STMT,11,ENT_STMT,10));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->nextBip_query_int_X_int_Y
+        (ENT_STMT,17,ENT_STMT,18));
+
 
     stringSet = pkb->get_before_BIP(20);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>
@@ -127,6 +174,14 @@ void Test_30_PKB_NextBIP::test_nextBIP()
     stringSet = pkb->get_before_BIP(21);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"20"),stringSet);
 
+    stringSet = pkb->nextBip_X_Y_get_int_X_from_int_Y(ENT_CALL,ENT_STMT,20);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>
+        (6,"4","7","9","11","14","17"),stringSet);
+    stringSet = pkb->nextBip_X_Y_get_int_X_from_int_Y(ENT_ASSIGN,ENT_STMT,20);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>
+        (0),stringSet);
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextBip_X_Y_smth_int_Y(ENT_STMT,20));
+
     // get after
     stringSet = pkb->get_after_BIP(21);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>
@@ -150,6 +205,13 @@ void Test_30_PKB_NextBIP::test_nextBIP()
     stringSet = pkb->get_after_BIP(6);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2,"7","8"),stringSet);
 
+    stringSet = pkb->nextBip_X_Y_get_int_Y_from_int_X(ENT_STMT,ENT_STMT,12);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2,"13","15"),stringSet);
+    stringSet = pkb->nextBip_X_Y_get_int_Y_from_int_X(ENT_STMT,ENT_WHILE,12);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"13"),stringSet);
+    stringSet = pkb->nextBip_X_Y_get_int_Y_from_int_X(ENT_STMT,ENT_IF,12);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"15"),stringSet);
+    CPPUNIT_ASSERT_EQUAL(true,pkb->nextBip_X_Y_int_X_smth(ENT_ASSIGN,12));
 
 }
 
