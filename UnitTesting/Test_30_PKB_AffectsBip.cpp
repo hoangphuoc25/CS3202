@@ -302,11 +302,11 @@ void Test_30_PKB_AffectsBip::test_AffectsBip_affectedby()
     CPPUNIT_ASSERT_EQUAL(true,pkb->is_affects_Bip(11,2));
     CPPUNIT_ASSERT_EQUAL(false,pkb->is_affects_Bip(13,2));
 
-    CPPUNIT_ASSERT_EQUAL(true,pkb->affectsbip_query_int_X_int_Y
+    CPPUNIT_ASSERT_EQUAL(true,pkb->affectsBip_query_int_X_int_Y
         (ENT_ASSIGN,2,ENT_ASSIGN,6));
-    CPPUNIT_ASSERT_EQUAL(true,pkb->affectsbip_query_int_X_int_Y
+    CPPUNIT_ASSERT_EQUAL(true,pkb->affectsBip_query_int_X_int_Y
         (ENT_ASSIGN,3,ENT_ASSIGN,1));
-    CPPUNIT_ASSERT_EQUAL(true,pkb->affectsbip_query_int_X_int_Y
+    CPPUNIT_ASSERT_EQUAL(true,pkb->affectsBip_query_int_X_int_Y
         (ENT_ASSIGN,11,ENT_ASSIGN,2));
 
 

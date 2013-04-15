@@ -1967,7 +1967,36 @@ set<int> PKB::get_before_BIP(int stmtNo) const
 
 set<int> PKB::get_before_BIP_star(int stmtNo) const
 {
-    return EMPTY_INTSET;
+    if (!is_valid_stmtNo(stmtNo)) {
+        return EMPTY_INTSET;
+    }
+    set<int> s,visited,res;
+    set<int>::iterator it;
+    queue<int> q;
+    int currStmt, numStmt = 0;
+    CFGNode *currNode;
+
+    q.push(stmtNo);
+    while (!q.empty()) {
+        currStmt = q.front();
+        q.pop();
+        if (numStmt++) {
+            res.insert(currStmt);
+        }
+        if (visited.find(currStmt) == visited.end()) {
+            visited.insert(currStmt);
+            currNode = CFG->at(currStmt);
+            s = currNode->get_before_helper();
+            for (it = s.begin(); it != s.end(); it++) {
+                q.push(*it);
+            }
+            s = currNode->get_before_BIP();
+            for (it = s.begin(); it != s.end(); it++) {
+                q.push(*it);
+            }
+        }
+    }
+    return res;
 }
 
 set<int> PKB::get_after_BIP(int stmtNo) const
