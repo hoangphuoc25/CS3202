@@ -355,4 +355,135 @@ void Test_30_PKB_AffectsBip::test_AffectsBip_affectedby()
 
 }
 
+void Test_30_PKB_AffectsBip::test_AffectsBipStar()
+{
+        const string& simpleProg =
+            "procedure left{\
+            a = 1;\
+            call right;\
+            b = 3 + e;\
+            c = 4 + a;\
+            call right;\
+            }\
+            procedure right{\
+            d = 6 + c;\
+            e = 7 + c;\
+            }";
+
+    string queryStr;
+    set<int> intSet;
+    SetWrapper<string> stringSet;
+    Parser parser(simpleProg, FROMSTRING);
+    parser.init();
+    auto_ptr<PKB> pkb(parser.get_pkb());
+
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_affects_Bip(1,4));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_affects_Bip(4,6));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_affects_Bip(4,7));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_affects_Bip(7,3));
+
+    stringSet = pkb->get_affects_Bip(1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"4"),stringSet);
+    stringSet = pkb->get_affects_Bip(2);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
+    stringSet = pkb->get_affects_Bip(3);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
+    stringSet = pkb->get_affects_Bip(4);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2,"6","7"),stringSet);
+    stringSet = pkb->get_affects_Bip(5);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
+    stringSet = pkb->get_affects_Bip(6);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
+    stringSet = pkb->get_affects_Bip(7);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"3"),stringSet);
+
+    stringSet = pkb->get_affected_by_Bip(1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
+    stringSet = pkb->get_affected_by_Bip(2);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
+    stringSet = pkb->get_affected_by_Bip(3);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"7"),stringSet);
+    stringSet = pkb->get_affected_by_Bip(4);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"1"),stringSet);
+    stringSet = pkb->get_affected_by_Bip(5);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
+    stringSet = pkb->get_affected_by_Bip(6);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"4"),stringSet);
+    stringSet = pkb->get_affected_by_Bip(7);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"4"),stringSet);
+
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_affects_star_Bip(1,4));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_affects_star_Bip(4,6));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_affects_star_Bip(4,7));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_affects_star_Bip(7,3));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_affects_star_Bip(1,6));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->is_affects_star_Bip(1,7));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->is_affects_star_Bip(4,3));
+
+    CPPUNIT_ASSERT_EQUAL(true,pkb->affectsBipStar_query_int_X_int_Y
+        (ENT_ASSIGN,1,ENT_ASSIGN,4));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->affectsBipStar_query_int_X_int_Y
+        (ENT_ASSIGN,4,ENT_ASSIGN,6));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->affectsBipStar_query_int_X_int_Y
+        (ENT_ASSIGN,4,ENT_ASSIGN,7));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->affectsBipStar_query_int_X_int_Y
+        (ENT_ASSIGN,7,ENT_ASSIGN,3));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->affectsBipStar_query_int_X_int_Y
+        (ENT_ASSIGN,1,ENT_ASSIGN,4));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->affectsBipStar_query_int_X_int_Y
+        (ENT_ASSIGN,1,ENT_ASSIGN,6));
+    CPPUNIT_ASSERT_EQUAL(true,pkb->affectsBipStar_query_int_X_int_Y
+        (ENT_ASSIGN,1,ENT_ASSIGN,7));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->affectsBipStar_query_int_X_int_Y
+        (ENT_ASSIGN,4,ENT_ASSIGN,3));
+
+    stringSet = pkb->get_affects_star_Bip(1); // wrong
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4,"3","4","6","7"),stringSet);
+    stringSet = pkb->get_affects_star_Bip(2);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
+    stringSet = pkb->get_affects_star_Bip(3);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
+    stringSet = pkb->get_affects_star_Bip(4);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2,"6","7"),stringSet);
+    stringSet = pkb->get_affects_star_Bip(5);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
+    stringSet = pkb->get_affects_star_Bip(6);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
+    stringSet = pkb->get_affects_star_Bip(7);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"3"),stringSet);
+
+    stringSet = pkb->affectsBipStar_X_Y_get_int_Y_from_int_X
+        (ENT_ASSIGN,ENT_ASSIGN,1); // wrong
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4,"3","4","6","7"),stringSet);
+    stringSet = pkb->affectsBipStar_X_Y_get_int_Y_from_int_X
+        (ENT_ASSIGN,ENT_ASSIGN,4);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2,"6","7"),stringSet);
+    CPPUNIT_ASSERT_EQUAL(true,pkb->affectsBipStar_X_Y_int_X_smth(ENT_ASSIGN,4));
+
+
+    stringSet = pkb->get_affected_by_star_Bip(1);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
+    stringSet = pkb->get_affected_by_star_Bip(2);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
+    stringSet = pkb->get_affected_by_star_Bip(3);//wrong...
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2,"1","7"),stringSet);
+    stringSet = pkb->get_affected_by_star_Bip(4);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,"1"),stringSet);
+    stringSet = pkb->get_affected_by_star_Bip(5);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(0),stringSet);
+    stringSet = pkb->get_affected_by_star_Bip(6);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2,"1","4"),stringSet);
+    stringSet = pkb->get_affected_by_star_Bip(7);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2,"1","4"),stringSet);
+
+
+    stringSet = pkb->affectsBipStar_X_Y_get_int_X_from_int_Y
+        (ENT_ASSIGN,ENT_ASSIGN,7);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2,"1","4"),stringSet);
+    CPPUNIT_ASSERT_EQUAL(true,pkb->affectsBipStar_X_Y_smth_int_Y
+        (ENT_ASSIGN,7));
+
+}
+
+
 

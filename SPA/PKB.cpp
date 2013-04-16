@@ -1836,29 +1836,122 @@ bool PKB::affectsBip_X_Y_smth_int_Y(DesignEnt yType, int y) const
 set<int> PKB::affectsBipStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
             DesignEnt yType, int y) const
 {
-    return EMPTY_INTSET;
+    if (!(is_stmtType(y, ENT_ASSIGN))) {
+        return EMPTY_INTSET;
+    }
+    set<int> s, res;
+    set<int> processed;
+    set<int>::iterator it;
+    queue<int> q;
+    int currStmt;
+    CFGNode *currNode;
+
+    s = affectsBip_X_Y_get_int_X_from_int_Y(ENT_ASSIGN,ENT_ASSIGN,y);
+    for (it = s.begin(); it != s.end(); it++) {
+        q.push(*it);
+    }
+    processed.insert(y);
+    while (!q.empty()) {
+        currStmt = q.front();
+        q.pop();
+        if (nextBipStar_query_int_X_int_Y(ENT_ASSIGN,currStmt,ENT_ASSIGN,y)) {
+            res.insert(currStmt);
+        }
+        if (processed.find(currStmt) == processed.end()) {
+            processed.insert(currStmt);
+            s = affectsBip_X_Y_get_int_X_from_int_Y
+                (ENT_ASSIGN,ENT_ASSIGN,currStmt);
+            for (it = s.begin(); it != s.end(); it++) {
+                q.push(*it);
+            }
+        }
+    }
+    return res;
 }
 
 set<int> PKB::affectsBipStar_X_Y_get_int_Y_from_int_X(DesignEnt xType,
             DesignEnt yType, int x) const
 {
-    return EMPTY_INTSET;
+    if (!(is_stmtType(x, ENT_ASSIGN))) {
+        return EMPTY_INTSET;
+    }
+    set<int> s, res;
+    set<int> processed;
+    set<int>::iterator it;
+    queue<int> q;
+    int currStmt;
+    CFGNode *currNode;
+
+    s = affectsBip_X_Y_get_int_Y_from_int_X(ENT_ASSIGN,ENT_ASSIGN,x);
+    for (it = s.begin(); it != s.end(); it++) {
+        q.push(*it);
+    }
+    processed.insert(x);
+    while (!q.empty()) {
+        currStmt = q.front();
+        q.pop();
+        if (nextBipStar_query_int_X_int_Y(ENT_ASSIGN,x,ENT_ASSIGN,currStmt)) {
+            res.insert(currStmt);
+        }
+        if (processed.find(currStmt) == processed.end()) {
+            processed.insert(currStmt);
+            s = affectsBip_X_Y_get_int_Y_from_int_X
+                (ENT_ASSIGN,ENT_ASSIGN,currStmt);
+            for (it = s.begin(); it != s.end(); it++) {
+                q.push(*it);
+            }
+        }
+    }
+    return res;
 }
 
 bool PKB::affectsBipStar_query_int_X_int_Y(DesignEnt xType,
             int x, DesignEnt yType, int y) const
 {
+    if (!(is_stmtType(x, ENT_ASSIGN) && is_stmtType(y, ENT_ASSIGN))) {
+        return false;
+    }
+    if (!nextBipStar_query_int_X_int_Y(ENT_ASSIGN,x,ENT_ASSIGN,y)) {
+        return false;
+    }
+    set<int> s;
+    set<int> processed;
+    set<int>::iterator it;
+    queue<int> q;
+    int currStmt;
+    CFGNode *currNode;
+
+    s = affectsBip_X_Y_get_int_Y_from_int_X(ENT_ASSIGN,ENT_ASSIGN,x);
+    for (it = s.begin(); it != s.end(); it++) {
+        q.push(*it);
+    }
+    processed.insert(x);
+    while (!q.empty()) {
+        currStmt = q.front();
+        q.pop();
+        if (currStmt == y) {
+            return true;
+        }
+        if (processed.find(currStmt) == processed.end()) {
+            processed.insert(currStmt);
+            s = affectsBip_X_Y_get_int_Y_from_int_X
+                (ENT_ASSIGN,ENT_ASSIGN,currStmt);
+            for (it = s.begin(); it != s.end(); it++) {
+                q.push(*it);
+            }
+        }
+    }
     return false;
 }
 
 bool PKB::affectsBipStar_X_Y_int_X_smth(DesignEnt xType, int x) const
 {
-    return false;
+    return !affectsBipStar_X_Y_get_int_Y_from_int_X(ENT_ASSIGN,ENT_ASSIGN,x).empty();
 }
 
 bool PKB::affectsBipStar_X_Y_smth_int_Y(DesignEnt yType, int y) const
 {
-    return false;
+    return !affectsBipStar_X_Y_get_int_X_from_int_Y(ENT_ASSIGN,ENT_ASSIGN,y).empty();
 }
 
 // Next BIP
@@ -2198,6 +2291,38 @@ bool PKB::is_affects_Bip(int stmt1, int stmt2) const
 
 bool PKB::is_affects_star_Bip(int stmt1, int stmt2) const
 {
+    if (!(is_stmtType(stmt1, ENT_ASSIGN) && is_stmtType(stmt2, ENT_ASSIGN))) {
+        return false;
+    }
+    if (!is_next_star_BIP(stmt1, stmt2)) {
+        return false;
+    }
+    set<int> s;
+    set<int> processed;
+    set<int>::iterator it;
+    queue<int> q;
+    int currStmt;
+    CFGNode *currNode;
+
+    s = get_affects_Bip(stmt1);
+    for (it = s.begin(); it != s.end(); it++) {
+        q.push(*it);
+    }
+    processed.insert(stmt1);
+    while (!q.empty()) {
+        currStmt = q.front();
+        q.pop();
+        if (currStmt == stmt2) {
+            return true;
+        }
+        if (processed.find(currStmt) == processed.end()) {
+            processed.insert(currStmt);
+            s = get_affects_Bip(currStmt);
+            for (it = s.begin(); it != s.end(); it++) {
+                q.push(*it);
+            }
+        }
+    }
     return false;
 }
 
@@ -2314,7 +2439,36 @@ set<int> PKB::get_affects_Bip(int stmtNo) const
 
 set<int> PKB::get_affects_star_Bip(int stmtNo) const
 {
-    return EMPTY_INTSET;
+    if (!(is_stmtType(stmtNo, ENT_ASSIGN))) {
+        return EMPTY_INTSET;
+    }
+    set<int> s, res;
+    set<int> processed;
+    set<int>::iterator it;
+    queue<int> q;
+    int currStmt;
+    CFGNode *currNode;
+
+    s = get_affects_Bip(stmtNo);
+    for (it = s.begin(); it != s.end(); it++) {
+        q.push(*it);
+    }
+    processed.insert(stmtNo);
+    while (!q.empty()) {
+        currStmt = q.front();
+        q.pop();
+        if (is_next_star_BIP(stmtNo, currStmt)) {
+            res.insert(currStmt);
+        }
+        if (processed.find(currStmt) == processed.end()) {
+            processed.insert(currStmt);
+            s = get_affects_Bip(currStmt);
+            for (it = s.begin(); it != s.end(); it++) {
+                q.push(*it);
+            }
+        }
+    }
+    return res;
 }
 
 set<int> PKB::get_affected_by_Bip(int stmtNo) const
@@ -2337,7 +2491,36 @@ set<int> PKB::get_affected_by_Bip(int stmtNo) const
 }
 set<int> PKB::get_affected_by_star_Bip(int stmtNo) const
 {
-    return EMPTY_INTSET;
+    if (!(is_stmtType(stmtNo, ENT_ASSIGN))) {
+        return EMPTY_INTSET;
+    }
+    set<int> s, res;
+    set<int> processed;
+    set<int>::iterator it;
+    queue<int> q;
+    int currStmt;
+    CFGNode *currNode;
+
+    s = get_affected_by_Bip(stmtNo);
+    for (it = s.begin(); it != s.end(); it++) {
+        q.push(*it);
+    }
+    processed.insert(stmtNo);
+    while (!q.empty()) {
+        currStmt = q.front();
+        q.pop();
+        if (is_next_star_BIP(currStmt,stmtNo)) {
+            res.insert(currStmt);
+        }
+        if (processed.find(currStmt) == processed.end()) {
+            processed.insert(currStmt);
+            s = get_affected_by_Bip(currStmt);
+            for (it = s.begin(); it != s.end(); it++) {
+                q.push(*it);
+            }
+        }
+    }
+    return res;
 }
 
 set<int> PKB::get_all_assign() const
