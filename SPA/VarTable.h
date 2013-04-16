@@ -12,6 +12,7 @@ using std::pair;
 using std::string;
 using std::set;
 
+/// An entry inside the varTable
 struct VarElements {
     int index;
     string var;
@@ -38,7 +39,7 @@ struct VarElements {
     VarElements& operator=(const struct VarElements &other);
 };
 
-
+/// Stores information relating to variables
 class VarTable {
 public:
     VarTable();

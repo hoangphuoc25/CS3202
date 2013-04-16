@@ -22,6 +22,7 @@ using std::stack;
 using std::pair;
 
 
+ ///Stores the various data structures and answers queries from the QE
 class PKB{
 
 

@@ -7,6 +7,7 @@
 
 using std::map;
 
+/// Stores information relating to statments
 class StmtBank {
 public:
     // returned by get_call_procName if the call stmt is invalid

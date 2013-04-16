@@ -18,6 +18,7 @@ using std::set;
 using std::stack;
 using std::queue;
 
+/// Parses simple input, extracts relationships and builds data structures
 class Parser {
 public:
     Parser();

@@ -7,6 +7,7 @@
 
 /**** Tokeniser functions ***/
 
+/// Transforms input text into valid tokens for parsing
 Tokenizer::Tokenizer()
 {
     strBuffer.clear();

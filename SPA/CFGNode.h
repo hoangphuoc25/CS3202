@@ -9,6 +9,7 @@ using std::set;
 
 enum edge {IN, OUT};
 
+/// Building blocks for the CFG
 class CFGNode
 {
 

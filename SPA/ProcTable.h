@@ -12,6 +12,7 @@ using std::string;
 using std::set;
 using std::map;
 
+/// An entry inside the procTable
 struct ProcElements {
     string procName;
     Node *procRoot;
@@ -26,7 +27,7 @@ struct ProcElements {
     ProcElements(string name);
 };
 
-
+/// Stores information regarding procedures
 class ProcTable{
 
 public:

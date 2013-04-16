@@ -6,6 +6,7 @@
 enum tokenType {PROC_NAME, VAR_NAME, OPERATOR, EQUALSIGN, CONSTANT,
     BRACES, BRACKETS, KEYWORD, NONE}; 
 
+/// A unit of input text
 class Token {
 
 public:

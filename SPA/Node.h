@@ -14,6 +14,7 @@ enum NodeType {
     IF_STMT, ASSIGN_STMT, OPERATOR_, VARIABLE_, CONSTANT_, BRACKETS_
 };
 
+/// Building blocks for the AST
 class Node {
 
 public:
