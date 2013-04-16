@@ -8,6 +8,7 @@ class Test30_10_Pattern: public CPPUNIT_NS::TestFixture {
 CPPUNIT_TEST_SUITE(Test30_10_Pattern);
 //CPPUNIT_TEST(test_select_one_syn);
 CPPUNIT_TEST(test_2);
+CPPUNIT_TEST(test_3);
 CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -17,6 +18,7 @@ private:
     std::string SELECT_ONE_SIMPLEPROG;
     //void test_select_one_syn();
     void test_2();
+    void test_3();
 };
 
 #endif

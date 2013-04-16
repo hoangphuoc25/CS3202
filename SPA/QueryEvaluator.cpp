@@ -5460,7 +5460,7 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_string_exprwild(
             Node *assignNode = pkb->get_stmtBank()->get_node(assignStmt);
             string modifiedVar = assignNode->get_leaves()[0]->get_name();
             std::queue<Node *> nodeQueue;
-            nodeQueue.push(assignNode);
+            nodeQueue.push(assignNode->get_leaves()[1]);
             ///NEED TEST
             while (!nodeQueue.empty()) {
                 Node *frontNode = nodeQueue.front();
@@ -5469,12 +5469,18 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_string_exprwild(
                 int nrLeaves = leaves.size();
                 for (int k = 0; k < nrLeaves; k++) {
                     nodeQueue.push(leaves[k]);
-                    if (leaves[k]->get_name() ==
+                    /*if (leaves[k]->get_name() ==
                             rootExprTree->get_name()) {
                         if (QueryEvaluator::evaluate_matching_tree(
                                 leaves[k], rootExprTree)) {
                             rTable.syn_1_mark_row_ok(i);
                         }
+                    }*/
+                }
+                if (frontNode->get_name() == rootExprTree->get_name()) {
+                    if (QueryEvaluator::evaluate_matching_tree(
+                        frontNode, rootExprTree)) {
+                        rTable.syn_1_mark_row_ok(i);
                     }
                 }
             }
@@ -5944,7 +5950,7 @@ void QueryEvaluator::evaluate_patCl_assign_syn_exprwild_11(
         }
         if (modifiedVar == var) {
             std::queue<Node *> nodeQueue;
-            nodeQueue.push(assignNode);
+            nodeQueue.push(assignNode->get_leaves()[1]);
             while (!(nodeQueue.empty())) {
                 Node *frontNode = nodeQueue.front();
                 nodeQueue.pop();
@@ -5952,11 +5958,17 @@ void QueryEvaluator::evaluate_patCl_assign_syn_exprwild_11(
                 int nrLeaves = leaves.size();
                 for (int k = 0; k < nrLeaves; k++) {
                     Node *child = leaves[k];
-                    if (child->get_name() == rootExprTree->get_name()) {
+                    /*if (child->get_name() == rootExprTree->get_name()) {
                         if (QueryEvaluator::evaluate_matching_tree(child,
                                 rootExprTree)) {
                             rTable.syn_11_mark_row_ok(i);
                         }
+                    }*/
+                }
+                if (frontNode->get_name() == rootExprTree->get_name()) {
+                    if (QueryEvaluator::evaluate_matching_tree(
+                        frontNode, rootExprTree)) {
+                        rTable.syn_11_mark_row_ok(i);
                     }
                 }
             }
@@ -5995,7 +6007,7 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_syn_exprwild_22(
             string var = varPair.first;
             if (var == modifiedVar) {
                 std::queue<Node *> nodeQueue;
-                nodeQueue.push(assignNode);
+                nodeQueue.push(assignNode->get_leaves()[1]);
                 while (!(nodeQueue.empty())) {
                     Node *frontNode = nodeQueue.front();
                     nodeQueue.pop();
@@ -6005,11 +6017,17 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_syn_exprwild_22(
                     for (int k = 0; k < nrLeaves; k++) {
                         nodeQueue.push(leaves[k]);
                         Node *child = leaves[k];
-                        if (child->get_name() == exprNode->get_name()) {
+                        /*if (child->get_name() == exprNode->get_name()) {
                             if (QueryEvaluator::evaluate_matching_tree(
                                     child, exprNode)) {
                                 rTable.syn_22_add_row(i,j);
                             }
+                        }*/
+                    }
+                    if (frontNode->get_name() == exprNode->get_name()) {
+                        if (QueryEvaluator::evaluate_matching_tree(
+                            frontNode, exprNode)) {
+                            rTable.syn_22_add_row(i, j);
                         }
                     }
                 }
@@ -6243,7 +6261,7 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_wildcard_exprwild(
             Node *assignNode =
                     pkb->get_stmtBank()->get_node(assignStmt);
             std::queue<Node *> nodeQueue;
-            nodeQueue.push(assignNode);
+            nodeQueue.push(assignNode->get_leaves()[1]);
             while (!nodeQueue.empty()) {
                 Node *frontNode = nodeQueue.front();
                 nodeQueue.pop();
@@ -6251,12 +6269,18 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_wildcard_exprwild(
                 int nrLeaves = leaves.size();
                 for (int k = 0; k < nrLeaves; k++) {
                     nodeQueue.push(leaves[k]);
-                    if (leaves[k]->get_name() ==
+                    /*if (leaves[k]->get_name() ==
                             rootExprTree->get_name()) {
                         if (QueryEvaluator::evaluate_matching_tree(
                                 leaves[k], rootExprTree)) {
                             rTable.syn_1_mark_row_ok(i);
                         }
+                    }*/
+                }
+                if (frontNode->get_name() == rootExprTree->get_name()) {
+                    if (QueryEvaluator::evaluate_matching_tree(
+                        frontNode, rootExprTree)) {
+                        rTable.syn_1_mark_row_ok(i);
                     }
                 }
             }
