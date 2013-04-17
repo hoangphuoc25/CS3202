@@ -138,5 +138,10 @@ void Test30_01_Pattern::test_2()
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "6", "10", "11", "22"),
             stringSet);
-
+    queryStr = "assign a; variable v; ";
+    queryStr += " Select a such that Uses(20,v) pattern a(v,_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "14", "16", "18", "20"),
+            stringSet);
 }

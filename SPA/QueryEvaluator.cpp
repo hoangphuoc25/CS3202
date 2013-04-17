@@ -6156,12 +6156,13 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_syn_wildcard(
         for (int i = 0; i < noRecords; i++) {
             const Record& rec = records[i];
             const pair<string, int>& varPair = rec.get_column(varCol);
-            string var = varPair.first;
-            set<int> stmtModifies = pkb->get_stmt_modifies(var);
+            const string& var = varPair.first;
+            set<int> stmtModifies =
+                    pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+                            ENT_VAR, var);
             for (set<int>::iterator k = stmtModifies.begin();
                     k != stmtModifies.end(); k++) {
-                int stmt = *k;
-                rTable.syn_01_augment_new_row(i, stmt);
+                rTable.syn_01_augment_new_row(i, *k);
             }
         }
         rTable.syn_01_transaction_end();
