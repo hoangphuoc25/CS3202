@@ -169,6 +169,20 @@ void Test30_10_Pattern::test_2()
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(6, "5 6", "5 7",
         "5 10","5 11","15 16","15 18"), stringSet);
+
+    queryStr = "while w; variable v; ";
+    queryStr += " Select <w,v> with w.stmt# = 5 pattern w(v,_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "5 do"),
+            stringSet);
+    queryStr = "while w; variable v; ";
+    queryStr += " Select <w,v> such that Uses(\"time\", v) ";
+    queryStr += " pattern w(v,_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(2, "5 do", "15 hp"),
+            stringSet);
 }
 
 void Test30_10_Pattern::test_3()

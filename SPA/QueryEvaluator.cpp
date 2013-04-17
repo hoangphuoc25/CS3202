@@ -6684,7 +6684,7 @@ void QueryEvaluator::evaluate_patCl_while_var_syn(ResultsTable& rTable,
         //10 transaction
         pair<const vector<Record> *, int> viPair = rTable.
             syn_10_transaction_begin(patCl->syn, patCl->varRefString,
-                    RV_INT);
+                    RV_STRING);
         const vector<Record>& records = *(viPair.first);
         int nrRecords = records.size();
         int whileCol = viPair.second;
@@ -6711,10 +6711,12 @@ void QueryEvaluator::evaluate_patCl_while_var_syn(ResultsTable& rTable,
         for (int i = 0; i < noRecords; i++) {
             const Record& rec = records[i];
             const pair<string, int>& varPair = rec.get_column(varCol);
-            string var = varPair.first;
-            const set<int> allWhileStmts = pkb->get_all_while();
-            for (set<int>::iterator k = allWhileStmts.begin();
-                    k != allWhileStmts.end(); k++) {
+            const string& var = varPair.first;
+            const set<int>& whileStmts =
+                    pkb->uses_X_Y_get_int_X_from_string_Y(ENT_WHILE,
+                            ENT_VAR, var);
+            for (set<int>::iterator k = whileStmts.begin();
+                    k != whileStmts.end(); k++) {
                 int whileStmt = *k;
                 if (pkb->has_control_variable(ENT_WHILE,
                         whileStmt, var)) {
