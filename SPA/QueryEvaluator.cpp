@@ -131,6 +131,67 @@ void EvalPKBDispatch::reset()
     this->has_any_string = NULL;
     this->relRef_eval = NULL;
 }
+
+//////////////////////////////////////////////////////////////////////
+// QueryPreprocessor
+//////////////////////////////////////////////////////////////////////
+
+QueryPreprocessor::QueryPreprocessor() {}
+
+bool QueryPreprocessor::has_false_queries(const vector<int>& clauses,
+        const QueryInfo *qinfo)
+{
+    int nrClauses = clauses.size();
+    int clauseIdx;
+    ClauseType clauseType;
+    bool hasFalseQueries = false;
+    for (int i = 0; i < nrClauses && !hasFalseQueries; i++) {
+        clauseIdx = clauses[i];
+        const GenericRef *genRef =
+                qinfo->get_nth_clause(clauseIdx, &clauseType);
+        assert(NULL != genRef);
+        assert(INVALID_CLAUSE != clauseType);
+        if (SUCHTHAT_CLAUSE == clauseType) {
+            const RelRef *relRef = dynamic_cast<const RelRef *>(genRef);
+            assert(NULL != relRef);
+            switch (relRef->relType) {
+            case REL_CALLS:
+            case REL_CALLS_STAR:
+                if (RELARG_SYN == relRef->argOneType  &&
+                        RELARG_SYN == relRef->argTwoType &&
+                        0 == relRef->argOneString.compare(
+                                relRef->argTwoString)) {
+                    hasFalseQueries = true;
+                } else if (RELARG_STRING == relRef->argOneType &&
+                        RELARG_STRING == relRef->argTwoType &&
+                        0 == relRef->argOneString.compare(
+                                relRef->argTwoString)) {
+                    hasFalseQueries = true;
+                }
+                break;
+            case REL_PARENT:
+            case REL_PARENT_STAR:
+            case REL_FOLLOWS:
+            case REL_FOLLOWS_STAR:
+                if (RELARG_SYN == relRef->argOneType &&
+                        RELARG_SYN == relRef->argTwoType &&
+                        0 == relRef->argOneString.compare(
+                                relRef->argTwoString)) {
+                    hasFalseQueries = true;
+                } else if (RELARG_INT == relRef->argOneType &&
+                        RELARG_INT == relRef->argTwoType &&
+                        relRef->argOneInt == relRef->argTwoInt) {
+                    hasFalseQueries = true;
+                }
+                break;
+            default:
+                break;
+            }
+        }
+    }
+    return hasFalseQueries;
+}
+
 //////////////////////////////////////////////////////////////////////
 // Query Evaluator
 //////////////////////////////////////////////////////////////////////
@@ -138,7 +199,8 @@ void EvalPKBDispatch::reset()
 const RelRefType QueryEvaluator::EV_SAME_SYN_RELATION_ARR[
                                          EV_SAME_SYN_RELATION_ARR_SZ
                                  ] = {
-    REL_NEXT, REL_NEXT_STAR, REL_AFFECTS, REL_AFFECTS_STAR
+    REL_NEXT, REL_NEXT_STAR, REL_AFFECTS, REL_AFFECTS_STAR,
+    REL_NEXTBIP, REL_NEXTBIP_STAR, REL_AFFECTSBIP, REL_AFFECTSBIP_STAR
 };
 
 const set<RelRefType> QueryEvaluator::EV_SAME_SYN_RELATION(
@@ -321,6 +383,10 @@ void QueryEvaluator::evaluate(const string& queryStr,
             ClauseType clauseType;
             for (int rTableIdx = 0; rTableIdx < nrPartitions; rTableIdx++) {
                 const vector<int>& vec = this->partitionedClauses[rTableIdx];
+                if (QueryPreprocessor::has_false_queries(vec, qinfo)) {
+                    this->isAlive = false;
+                    break;
+                }
                 int nrClauses = vec.size();
                 ResultsTable& rTable = this->resultsTable[rTableIdx];
                 for (int k = 0; k < nrClauses && rTable.is_alive(); k++) {
@@ -464,8 +530,12 @@ void * __cdecl thread_evaluate(void *qetInfo)
         // TODO: Reorder queries here
         const vector<int>& vec =
                 (*(threadInfo->partitionedClauses_))[i];
-        int nrClauses = vec.size();
         ResultsTable& rTable = (*threadInfo->resultsTable_)[i];
+        if (QueryPreprocessor::has_false_queries(vec, qinfo)) {
+            rTable.kill();
+            break;
+        }
+        int nrClauses = vec.size();
         for (int k = 0; k < nrClauses && rTable.is_alive(); k++) {
             int clauseIdx = vec[k];
             const GenericRef *genericRef =

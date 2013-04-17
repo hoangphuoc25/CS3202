@@ -164,6 +164,16 @@ struct EvalPKBDispatch {
     void reset();
 };
 
+/// Preprocesses PQL query and returns false if any clause
+/// is false
+class QueryPreprocessor {
+public:
+    static bool has_false_queries(const std::vector<int>& clauses,
+            const QueryInfo *qinfo);
+private:
+    QueryPreprocessor();
+};
+
 /// QueryEvaluator, the brains of the SPA.
 /// Configuration of QueryEvaluator settings can be done through
 /// supplying a map of string -> int flags in one of its constructors.
@@ -1465,7 +1475,7 @@ private:
     /// vector of ResultsTable, one for each component
     std::vector<ResultsTable> resultsTable;
 
-    #define EV_SAME_SYN_RELATION_ARR_SZ 4
+    #define EV_SAME_SYN_RELATION_ARR_SZ 8
     /// Contains all the possible Relation types where we can have
     /// the exact same synonym argument as both the arguments
     static const RelRefType EV_SAME_SYN_RELATION_ARR[

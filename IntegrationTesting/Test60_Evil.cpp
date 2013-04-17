@@ -167,6 +167,111 @@ void Test60_Evil::test_select_assign_while_true_query__no_while()
             stringSet);
 }
 
+void Test60_Evil::test_relation_same_arg_false()
+{
+    string simpleProg, queryStr;
+    QueryEvaluator evaluator;
+    SetWrapper<string> stringSet;
+    list<string> resultList;
+
+    simpleProg = "procedure A { a = 1; while x { x = x + 1; } }";
+    evaluator.parseSimple(simpleProg);
+    queryStr = "procedure proc; ";
+    queryStr += " Select BOOLEAN such that Calls(proc,proc)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(
+            SetWrapper<string>(1, ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "procedure proc; ";
+    queryStr += " Select proc such that Calls(proc,proc)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(
+            SetWrapper<string>(),
+            stringSet);
+    queryStr = " Select BOOLEAN such that Calls(\"A\",\"A\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(
+            SetWrapper<string>(1, ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "procedure p; Select p such that Modifies(p,\"x\") ";
+    queryStr += " and Calls(p,p)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
+            stringSet);
+    queryStr = "stmt s; Select s such that Follows(s,s)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
+            stringSet);
+    queryStr = "stmt s; Select BOOLEAN such that Follows(s,s)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(
+            SetWrapper<string>(1, ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Follows(2,2)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(
+            SetWrapper<string>(1, ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "stmt s; Select s such that Follows*(s,s)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
+            stringSet);
+    queryStr = "stmt s; Select BOOLEAN such that Follows*(s,s)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(
+            SetWrapper<string>(1, ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Follows*(3,3)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(
+            SetWrapper<string>(1, ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "stmt s; Select s such that Parent(s,s)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
+            stringSet);
+    queryStr = "stmt s; Select BOOLEAN such that Parent(s,s)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(
+            SetWrapper<string>(1, ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Parent(2,2)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(
+            SetWrapper<string>(1, ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "stmt s ; Select s such that Parent*(2,2)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Parent*(2,2)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(
+            SetWrapper<string>(1, ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+    queryStr = "Select BOOLEAN such that Parent*(2,2)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(
+            SetWrapper<string>(1, ResultsProjector::FALSE_STR.c_str()),
+            stringSet);
+}
+
 void Test60_Evil::test_sx()
 {
     string simpleProg, queryStr;
