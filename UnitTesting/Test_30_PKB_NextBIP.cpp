@@ -1004,3 +1004,50 @@ void Test_30_PKB_NextBIP::test_nextBipStar_procback()
     CPPUNIT_ASSERT_EQUAL(true,pkb->nextBipStar_X_Y_smth_int_Y(ENT_STMT,16));
     CPPUNIT_ASSERT_EQUAL(true,pkb->nextBipStar_X_Y_int_X_smth(ENT_STMT,3));
 }
+
+void Test_30_PKB_NextBIP::test_gifts()
+{
+        const string& simpleProg =
+            "procedure Bill {\
+            x = 5;\
+            call Mary;\
+            y = x + 6;\
+            call John;\
+            z = x * y + 2;\
+            }\
+            \
+            procedure Mary {\
+            y = x * 3 ;\
+            call John;\
+            z = x + y;\
+            }\
+            \
+            procedure John {\
+            if i then {\
+                x = x + z; }\
+            else {\
+                y = x * y; }\
+            }";
+
+    string queryStr;
+    set<int> intSet;
+    SetWrapper<string> stringSet;
+    Parser parser(simpleProg, FROMSTRING);
+    parser.init();
+    auto_ptr<PKB> pkb(parser.get_pkb());
+
+    //stringSet = pkb->nextBipStar_X_Y_get_int_Y_from_int_X(ENT_STMT,ENT_STMT,9);
+//    CPPUNIT_ASSERT_EQUAL(true,pkb->is_next_star_BIP(9,9));
+    stringSet = pkb->get_after_BIP_star(9);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(7,"10", "11", "8", "5", "3", "4", "9"
+        ),stringSet);
+    CPPUNIT_ASSERT_EQUAL(false,pkb->is_next_star_BIP(4,4));
+    CPPUNIT_ASSERT_EQUAL(false,pkb->nextBipStar_query_int_X_int_Y(ENT_STMT,4,ENT_STMT,4));
+    stringSet = pkb->get_before_BIP_star(4);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(9,"3","8", "10", "11", "9", "7", "6", "2", "1"
+        ),stringSet);
+    stringSet = pkb->nextBipStar_X_Y_get_int_X_from_int_Y(ENT_STMT,ENT_STMT,4);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(9,"3","8", "10", "11", "9", "7", "6", "2", "1"
+        ),stringSet);
+}
+

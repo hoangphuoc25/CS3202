@@ -686,6 +686,23 @@ void Parser::make_CFG()
         start = procTable->get_start(*it);
         progHead[*it] = CFG->at(start);
         end = build_CFG(start);
+        if (end->get_stmtNo() == DUMMY) {
+            queue<CFGNode*> q;
+            CFGNode* currNode;
+            q.push(end->get_edge(IN,1));
+            q.push(end->get_edge(IN,2));
+            while(!q.empty()){
+                currNode = q.front();
+                q.pop();
+                if (currNode != NULL) {
+                    currNode->set_last();
+                    if (currNode->get_stmtNo() == DUMMY) {
+                        q.push(currNode->get_edge(IN,1));
+                        q.push(currNode->get_edge(IN,2));
+                    }
+                }
+            }
+        }
         end->set_last();
         tail = new CFGNode(DUMMY);
         tail->set_terminator();

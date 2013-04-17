@@ -1400,23 +1400,35 @@ set<int> PKB::nextBipStar_X_Y_get_int_X_from_int_Y(DesignEnt xType,
     int currStmt, numStmt = 0;
     CFGNode *currNode;
 
-    q.push(y);
+    visited.insert(y);
+    currNode = CFG->at(y);
+    s = currNode->get_before_helper();
+    for (it = s.begin(); it != s.end(); it++) {
+        q.push(*it);
+    }
+    s = currNode->get_before_BIP();
+    for (it = s.begin(); it != s.end(); it++) {
+        q.push(*it);
+    }
+
     while (!q.empty()) {
         currStmt = q.front();
         q.pop();
-        if (numStmt++ && is_stmtType(currStmt, xType)) {
-            res.insert(currStmt);
-        }
-        if (visited.find(currStmt) == visited.end()) {
-            visited.insert(currStmt);
-            currNode = CFG->at(currStmt);
-            s = currNode->get_before_helper();
-            for (it = s.begin(); it != s.end(); it++) {
-                q.push(*it);
+        if (nextBipStar_query_int_X_int_Y(ENT_STMT,currStmt,ENT_STMT,y)) {
+            if (is_stmtType(currStmt, xType)) {
+                res.insert(currStmt);
             }
-            s = currNode->get_before_BIP();
-            for (it = s.begin(); it != s.end(); it++) {
-                q.push(*it);
+            if (visited.find(currStmt) == visited.end()) {
+                visited.insert(currStmt);
+                currNode = CFG->at(currStmt);
+                s = currNode->get_before_helper();
+                for (it = s.begin(); it != s.end(); it++) {
+                    q.push(*it);
+                }
+                s = currNode->get_before_BIP();
+                for (it = s.begin(); it != s.end(); it++) {
+                    q.push(*it);
+                }
             }
         }
     }
@@ -1501,13 +1513,13 @@ bool PKB::nextBipStar_query_int_X_int_Y(DesignEnt xType,
     set<int> s, visited;
     set<int>::iterator it;
     stack<pair<int,bool> > dfsStack;
-    int currStmt;
+    int currStmt, numStmt = 0;
     CFGNode *currNode;
     bool topLvl;
 
     dfsStack.push(pair<int,bool>(x,true));
     while (!dfsStack.empty()) {
-        if (dfsStack.top().first == y) {
+        if (numStmt++ && dfsStack.top().first == y) {
             return true;
         } else {
             currStmt = dfsStack.top().first;
@@ -1982,13 +1994,13 @@ bool PKB::is_next_star_BIP(int stmt1, int stmt2) const
     set<int> s, visited;
     set<int>::iterator it;
     stack<pair<int,bool> > dfsStack;
-    int currStmt;
+    int currStmt, numStmt = 0;
     CFGNode *currNode;
     bool topLvl;
 
     dfsStack.push(pair<int,bool>(stmt1,true));
     while (!dfsStack.empty()) {
-        if (dfsStack.top().first == stmt2) {
+        if (numStmt++ && dfsStack.top().first == stmt2) {
             return true;
         } else {
             currStmt = dfsStack.top().first;
@@ -2069,23 +2081,33 @@ set<int> PKB::get_before_BIP_star(int stmtNo) const
     int currStmt, numStmt = 0;
     CFGNode *currNode;
 
-    q.push(stmtNo);
+    visited.insert(stmtNo);
+    currNode = CFG->at(stmtNo);
+    s = currNode->get_before_helper();
+    for (it = s.begin(); it != s.end(); it++) {
+        q.push(*it);
+    }
+    s = currNode->get_before_BIP();
+    for (it = s.begin(); it != s.end(); it++) {
+        q.push(*it);
+    }
+
     while (!q.empty()) {
         currStmt = q.front();
         q.pop();
-        if (numStmt++) {
+        if (is_next_star_BIP(currStmt,stmtNo)) {
             res.insert(currStmt);
-        }
-        if (visited.find(currStmt) == visited.end()) {
-            visited.insert(currStmt);
-            currNode = CFG->at(currStmt);
-            s = currNode->get_before_helper();
-            for (it = s.begin(); it != s.end(); it++) {
-                q.push(*it);
-            }
-            s = currNode->get_before_BIP();
-            for (it = s.begin(); it != s.end(); it++) {
-                q.push(*it);
+            if (visited.find(currStmt) == visited.end()) {
+                visited.insert(currStmt);
+                currNode = CFG->at(currStmt);
+                s = currNode->get_before_helper();
+                for (it = s.begin(); it != s.end(); it++) {
+                    q.push(*it);
+                }
+                s = currNode->get_before_BIP();
+                for (it = s.begin(); it != s.end(); it++) {
+                    q.push(*it);
+                }
             }
         }
     }
