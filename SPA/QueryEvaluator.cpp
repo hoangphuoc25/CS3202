@@ -5812,17 +5812,16 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_syn_expr_11(
         Node *assignNode =
                 pkb->get_stmtBank()->get_node(assignStmt);
         string var = varPair.first;
-        string modifiedVar;
         set<string> modifiedVarSet =
                 pkb->get_var_stmt_modifies(assignStmt);
         for (set<string>::iterator k = modifiedVarSet.begin();
                 k != modifiedVarSet.end(); k++) {
-            modifiedVar = *k;
-        }
-        if (modifiedVar == var) {
-            if (QueryEvaluator::evaluate_matching_tree(
-                    assignNode->get_leaves()[1],rootExprTree)) {
-                rTable.syn_11_mark_row_ok(i);
+            const string& modifiedVar = *k;
+            if (modifiedVar == var) {
+                if (QueryEvaluator::evaluate_matching_tree(
+                        assignNode->get_leaves()[1],rootExprTree)) {
+                    rTable.syn_11_mark_row_ok(i);
+                }
             }
         }
     }
