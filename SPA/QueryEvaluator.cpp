@@ -5743,10 +5743,11 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_syn_expr(
         int recordsSize = records.size();
         for (int j = 0; j < recordsSize; j++) {
             const Record& rec = records[j];
-            pair<string, int> varPair = rec.get_column(varCol);
-            string variable = varPair.first;
+            const pair<string, int>& varPair = rec.get_column(varCol);
+            const string& variable = varPair.first;
             set<int> allAssignStmts =
-                    pkb->get_stmt_modifies(variable);
+                    pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+                            ENT_VAR, variable);
             Node *exprNode = Parser(patCl->exprString, FROMSTRING).yard();
             for (set<int>::iterator i = allAssignStmts.begin();
                     i != allAssignStmts.end(); i++) {
@@ -5924,10 +5925,11 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_syn_exprwild(
         int recordsSize = records.size();
         for (int k = 0; k < recordsSize; k++) {
             const Record& rec = records[k];
-            pair<string, int> varPair = rec.get_column(varCol);
-            string var = varPair.first;
+            const pair<string, int>& varPair = rec.get_column(varCol);
+            const string& var = varPair.first;
             set<int> allConsideringStmts =
-                    pkb->get_stmt_modifies(var);
+                    pkb->modifies_X_Y_get_int_X_from_string_Y(
+                            ENT_ASSIGN, ENT_VAR, var);
             for (set<int>::iterator i = allConsideringStmts.begin();
                     i != allConsideringStmts.end(); i++) {
                 int assignStmt = *i;

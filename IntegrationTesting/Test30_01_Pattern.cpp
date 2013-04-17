@@ -16,7 +16,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(Test30_01_Pattern);
 
 void Test30_01_Pattern::test_2()
 {
-    const string simpleProg = "\
+    string simpleProg = "\
     procedure time {\
         I = 1231;\
         energy = I;\
@@ -143,5 +143,33 @@ void Test30_01_Pattern::test_2()
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "14", "16", "18", "20"),
+            stringSet);
+
+    simpleProg =
+        "procedure p1 { \
+           x = do; \
+           if do then { \
+             g = 1; \
+             x = 17; \
+           } else { \
+             b = 7; \
+           } \
+           while do { \
+             y = 27; \
+             x = 33; \
+           } \
+         }";
+    evaluator.parseSimple(simpleProg);
+    queryStr = "variable v; assign a; ";
+    queryStr += "Select a with v.varName = \"x\" pattern a(v, \"do\")";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "1"),
+            stringSet);
+    queryStr = "variable v; assign a; ";
+    queryStr += "Select a with v.varName = \"x\" pattern a(v, _\"do\"_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "1"),
             stringSet);
 }
