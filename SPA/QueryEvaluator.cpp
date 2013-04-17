@@ -5717,7 +5717,6 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_syn_expr(
         int assignCol = viPair.second;
         const vector<Record>& records = *(viPair.first);
         int recordsSize = records.size();
-        string variable;
         for (int i = 0; i < recordsSize; i++) {
             const Record& rec = records[i];
             pair<string, int> assignPair = rec.get_column(assignCol);
@@ -5730,11 +5729,11 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_syn_expr(
                         pkb->get_var_stmt_modifies(assignStmt);
                 for (set<string>::iterator j = get_modifies.begin();
                         j != get_modifies.end(); j++) {
-                    variable = *j;
-                }
-                if (QueryEvaluator::evaluate_matching_tree(
-                        assignNode->get_leaves()[1], exprNode)) {
-                    rTable.syn_10_augment_new_row(i, variable);
+                    const string& variable = *j;
+                    if (QueryEvaluator::evaluate_matching_tree(
+                            assignNode->get_leaves()[1], exprNode)) {
+                        rTable.syn_10_augment_new_row(i, variable);
+                    }
                 }
             }
         }
@@ -5776,7 +5775,6 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_syn_expr(
         for (set<int>::iterator i = allAssignStmts.begin();
                 i != allAssignStmts.end(); i++) {
             int assignStmt = *i;
-            string modifiedVar;
             Node *assignNode =
                     pkb->get_stmtBank()->get_node(assignStmt);
             Node *exprNode = Parser(patCl->exprString, FROMSTRING).yard();
@@ -5784,11 +5782,11 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_syn_expr(
                     pkb->get_var_stmt_modifies(assignStmt);
             for (set<string>::iterator i = get_modifies.begin();
                     i != get_modifies.end(); i++) {
-                modifiedVar = *i;
-            }
-            if (QueryEvaluator::evaluate_matching_tree(
-                    assignNode->get_leaves()[1], exprNode)) {
-                rTable.syn_00_add_row(assignStmt, modifiedVar);
+                const string& modifiedVar = *i;
+                if (QueryEvaluator::evaluate_matching_tree(
+                        assignNode->get_leaves()[1], exprNode)) {
+                    rTable.syn_00_add_row(assignStmt, modifiedVar);
+                }
             }
         }
         rTable.syn_00_transaction_end();
