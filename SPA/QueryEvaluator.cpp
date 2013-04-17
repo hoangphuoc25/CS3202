@@ -989,42 +989,42 @@ bool QueryEvaluator::ev_isolated_relation_wild_int(
 {
     switch (relRef->relType) {
     case REL_PARENT:
-        this->pkb->parent_X_Y_smth_int_Y(ENT_STMT, relRef->argTwoInt);
+        return this->pkb->parent_X_Y_smth_int_Y(ENT_STMT, relRef->argTwoInt);
         break;
     case REL_PARENT_STAR:
-        this->pkb->parentStar_X_Y_smth_int_Y(ENT_STMT, relRef->argTwoInt);
+        return this->pkb->parentStar_X_Y_smth_int_Y(ENT_STMT, relRef->argTwoInt);
         break;
     case REL_FOLLOWS:
-        this->pkb->follows_X_Y_smth_int_Y(ENT_STMT, relRef->argTwoInt);
+        return this->pkb->follows_X_Y_smth_int_Y(ENT_STMT, relRef->argTwoInt);
         break;
     case REL_FOLLOWS_STAR:
-        this->pkb->followsStar_X_Y_smth_int_Y(ENT_STMT, relRef->argTwoInt);
+        return this->pkb->followsStar_X_Y_smth_int_Y(ENT_STMT, relRef->argTwoInt);
         break;
     case REL_NEXT:
-        this->pkb->next_X_Y_smth_int_Y(ENT_STMT, relRef->argTwoInt);
+        return this->pkb->next_X_Y_smth_int_Y(ENT_STMT, relRef->argTwoInt);
         break;
     case REL_NEXT_STAR:
-        this->pkb->nextStar_X_Y_smth_int_Y(ENT_STMT, relRef->argTwoInt);
+        return this->pkb->nextStar_X_Y_smth_int_Y(ENT_STMT, relRef->argTwoInt);
         break;
     case REL_AFFECTS:
-        this->pkb->affects_X_Y_smth_int_Y(ENT_ASSIGN, relRef->argTwoInt);
+        return this->pkb->affects_X_Y_smth_int_Y(ENT_ASSIGN, relRef->argTwoInt);
         break;
     case REL_AFFECTS_STAR:
-        this->pkb->affectsStar_X_Y_smth_int_Y(ENT_ASSIGN, relRef->argTwoInt);
+        return this->pkb->affectsStar_X_Y_smth_int_Y(ENT_ASSIGN, relRef->argTwoInt);
         break;
     case REL_NEXTBIP:
-        this->pkb->nextBip_X_Y_smth_int_Y(ENT_STMT, relRef->argTwoInt);
+        return this->pkb->nextBip_X_Y_smth_int_Y(ENT_STMT, relRef->argTwoInt);
         break;
     case REL_NEXTBIP_STAR:
-        this->pkb->nextBipStar_X_Y_smth_int_Y(ENT_STMT,
+        return this->pkb->nextBipStar_X_Y_smth_int_Y(ENT_STMT,
                 relRef->argTwoInt);
         break;
     case REL_AFFECTSBIP:
-        this->pkb->affectsBip_X_Y_smth_int_Y(ENT_ASSIGN,
+        return this->pkb->affectsBip_X_Y_smth_int_Y(ENT_ASSIGN,
                 relRef->argTwoInt);
         break;
     case REL_AFFECTSBIP_STAR:
-        this->pkb->affectsBipStar_X_Y_smth_int_Y(ENT_ASSIGN,
+        return this->pkb->affectsBipStar_X_Y_smth_int_Y(ENT_ASSIGN,
                 relRef->argTwoInt);
         break;
     }
