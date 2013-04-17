@@ -6757,7 +6757,9 @@ void __cdecl QueryEvaluator::evaluate_patCl_while_var_string(
     } else {
         //whileSyn has not been seen
         rTable.syn_0_transaction_begin(patCl->syn, RV_INT);
-        set<int> allWhileStmts = pkb->get_all_while();
+        set<int> allWhileStmts =
+                pkb->uses_X_Y_get_int_X_from_string_Y(ENT_WHILE,
+                        ENT_VAR, patCl->varRefString);
         for (set<int>::iterator i = allWhileStmts.begin();
                 i != allWhileStmts.end(); i++) {
             int whileStmt = *i;
