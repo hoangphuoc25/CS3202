@@ -1,0 +1,2 @@
+MaxThreads = 4
+ThreadsOn = Yes
