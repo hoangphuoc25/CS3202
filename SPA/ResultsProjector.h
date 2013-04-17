@@ -10,15 +10,24 @@
 #include "PQL.h"
 #include "ResultsTable.h"
 
+/// ResultsProjector, extracts and displays results of a PQL query
 class ResultsProjector {
 public:
+    /// Default constructor
     ResultsProjector();
+    /// Extracts and retrieves the results of a PQL query
+    /// @param resultsTable the ResultsTable to extract results from
+    /// @param qinfo QueryInfo data structure
+    /// @param pkb PKB
+    /// @param results query evaluation results will be stored here
     void get_results(ResultsTable& resultsTable, QueryInfo *qinfo,
             PKB *pkb, std::list<std::string>& results);
-
+    /// True string
     static const std::string TRUE_STR;
+    /// False string
     static const std::string FALSE_STR;
 private:
+    /// Resets the ResultsProjector
     void reset();
     void recursive_generate(int n, QueryInfo *qinfo, PKB *pkb);
     void create_table_from_syn_set(ResultsTable& resultsTable,

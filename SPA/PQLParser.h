@@ -17,7 +17,7 @@
 #include "StringBuffer.h"
 #include "SPAUtils.h"
 
-// For printing out parse error
+/// For printing out parse error
 class PQLParseErrorStream {
 public:
     PQLParseErrorStream();
@@ -33,19 +33,36 @@ private:
     std::auto_ptr<std::ostream> os;
 };
 
+/// Parses PQL Query
 class PQLParser {
 public:
+    /// Default constructor
     PQLParser();
+    /// Destructor
     ~PQLParser();
+    /// Parses a PQL query
+    /// @param s the PQL query string
+    /// @param showErrors_ whether to show errors (default true)
+    /// @param showWarnings_ whether to show warnings (default true)
     void parse(const std::string &s, bool showErrors_=true,
             bool showWarnings_=true);
+    /// Parses a PQL query, but redirect stdout and stderr to an ostream
+    /// @param os the ostream to redirect output to
+    /// @param s the PQL query string
+    /// @param showErrors_ whether to show errors (default true)
+    /// @param showWarnings_ whether to show warnings (default true)
     void parse(std::ostream *os, const std::string &s,
             bool showErrors_=true, bool showWarnings_=true);
-
+    /// Retrieves a QueryInfo data structure, our in-memory representation
+    /// of a PQL query
+    /// @return a QueryInfo data structure obtained from the PQL query
     QueryInfo *get_queryinfo() const;
 
-    // For testing purposes
+    /// Obtains the parse result
+    /// @return a parse result
     ParseError get_parse_result() const;
+    /// Retrieves the declarations table
+    /// @return a map from names to synonym type
     std::map<std::string, DesignEnt> get_ent_table() const;
 
 private:

@@ -13,6 +13,7 @@ enum ReadMode {
     FROMFILE, FROMSTRING
 };
 
+/// Used by Parser for tokenizing
 class Tokenizer {
 
 public:

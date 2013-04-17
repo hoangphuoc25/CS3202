@@ -23,6 +23,7 @@ using std::queue;
 using std::set;
 using std::sort;
 
+/// A work unit for QueryEvaluator threads
 struct QEThreadInfo {
     /// the actual thread
     pthread_t thread_;

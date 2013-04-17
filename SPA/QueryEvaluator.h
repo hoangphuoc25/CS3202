@@ -35,9 +35,9 @@ enum SynInGraph {
     SYN_ARGS_INVALID //< invalid arguments
 };
 
-// Used by EvalSyn to dispatch to actual methods for evaluating RelRef
-// This contains sufficient information about the RelRef to allow us
-// to dispatch to the proper function
+/// Used by EvalSyn to dispatch to actual methods for evaluating RelRef
+/// This contains sufficient information about the RelRef to allow us
+/// to dispatch to the proper function
 struct EvalSynArgDesc {
     enum RelRefType relRefType;
     enum SynInGraph synInGraph;
@@ -51,7 +51,7 @@ struct EvalSynArgDesc {
             enum DesignEnt, enum RelRefArgType, enum RelRefArgType);
 };
 
-// Used to compare EvalSynArgDesc
+/// Used to compare EvalSynArgDesc
 struct EvalSynArgDescCmp {
     bool operator()(const EvalSynArgDesc &a, const EvalSynArgDesc &b) const;
 };

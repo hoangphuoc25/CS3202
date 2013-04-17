@@ -5,6 +5,7 @@
 #include <string>
 #include <set>
 
+/// A set data structure for displaying results in CPPUnit
 template<typename T>
 class SetWrapper {
 public:
