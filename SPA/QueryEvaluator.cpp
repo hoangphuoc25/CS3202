@@ -144,50 +144,67 @@ bool QueryPreprocessor::has_false_queries(const vector<int>& clauses,
 {
     int nrClauses = clauses.size();
     int clauseIdx;
-    ClauseType clauseType;
     bool hasFalseQueries = false;
     for (int i = 0; i < nrClauses && !hasFalseQueries; i++) {
         clauseIdx = clauses[i];
-        const GenericRef *genRef =
-                qinfo->get_nth_clause(clauseIdx, &clauseType);
-        assert(NULL != genRef);
-        assert(INVALID_CLAUSE != clauseType);
-        if (SUCHTHAT_CLAUSE == clauseType) {
-            const RelRef *relRef = dynamic_cast<const RelRef *>(genRef);
-            assert(NULL != relRef);
-            switch (relRef->relType) {
-            case REL_CALLS:
-            case REL_CALLS_STAR:
-                if (RELARG_SYN == relRef->argOneType  &&
-                        RELARG_SYN == relRef->argTwoType &&
-                        0 == relRef->argOneString.compare(
-                                relRef->argTwoString)) {
-                    hasFalseQueries = true;
-                } else if (RELARG_STRING == relRef->argOneType &&
-                        RELARG_STRING == relRef->argTwoType &&
-                        0 == relRef->argOneString.compare(
-                                relRef->argTwoString)) {
-                    hasFalseQueries = true;
-                }
-                break;
-            case REL_PARENT:
-            case REL_PARENT_STAR:
-            case REL_FOLLOWS:
-            case REL_FOLLOWS_STAR:
-                if (RELARG_SYN == relRef->argOneType &&
-                        RELARG_SYN == relRef->argTwoType &&
-                        0 == relRef->argOneString.compare(
-                                relRef->argTwoString)) {
-                    hasFalseQueries = true;
-                } else if (RELARG_INT == relRef->argOneType &&
-                        RELARG_INT == relRef->argTwoType &&
-                        relRef->argOneInt == relRef->argTwoInt) {
-                    hasFalseQueries = true;
-                }
-                break;
-            default:
-                break;
+        hasFalseQueries =
+                QueryPreprocessor::is_false_query(clauseIdx, qinfo);
+    }
+    return hasFalseQueries;
+}
+
+bool QueryPreprocessor::is_false_query(int clauseIdx,
+        const QueryInfo *qinfo)
+{
+    ClauseType clauseType;
+    bool hasFalseQueries = false;
+    const GenericRef *genRef =
+            qinfo->get_nth_clause(clauseIdx, &clauseType);
+    assert(NULL != genRef);
+    assert(INVALID_CLAUSE != clauseType);
+    if (SUCHTHAT_CLAUSE == clauseType) {
+        const RelRef *relRef = dynamic_cast<const RelRef *>(genRef);
+        assert(NULL != relRef);
+        switch (relRef->relType) {
+        case REL_MODIFIES:
+        case REL_USES:
+            // this is a case of ambiguous '_'.
+            // it can mean either a procedure/stmt
+            if (RELARG_WILDCARD == relRef->argOneType) {
+                hasFalseQueries = true;
             }
+            break;
+        case REL_CALLS:
+        case REL_CALLS_STAR:
+            if (RELARG_SYN == relRef->argOneType  &&
+                    RELARG_SYN == relRef->argTwoType &&
+                    0 == relRef->argOneString.compare(
+                            relRef->argTwoString)) {
+                hasFalseQueries = true;
+            } else if (RELARG_STRING == relRef->argOneType &&
+                    RELARG_STRING == relRef->argTwoType &&
+                    0 == relRef->argOneString.compare(
+                            relRef->argTwoString)) {
+                hasFalseQueries = true;
+            }
+            break;
+        case REL_PARENT:
+        case REL_PARENT_STAR:
+        case REL_FOLLOWS:
+        case REL_FOLLOWS_STAR:
+            if (RELARG_SYN == relRef->argOneType &&
+                    RELARG_SYN == relRef->argTwoType &&
+                    0 == relRef->argOneString.compare(
+                            relRef->argTwoString)) {
+                hasFalseQueries = true;
+            } else if (RELARG_INT == relRef->argOneType &&
+                    RELARG_INT == relRef->argTwoType &&
+                    relRef->argOneInt == relRef->argTwoInt) {
+                hasFalseQueries = true;
+            }
+            break;
+        default:
+            break;
         }
     }
     return hasFalseQueries;
@@ -811,7 +828,8 @@ void QueryEvaluator::evaluate(const string& queryStr,
             this->graph_isolatedClauses.begin();
             this->isAlive && it != this->graph_isolatedClauses.end();
             it++) {
-        if (!this->ev_isolated_clause(qinfo, *it)) {
+        if (QueryPreprocessor::is_false_query(*it, qinfo) ||
+                !this->ev_isolated_clause(qinfo, *it)) {
             this->isAlive = false;
             break;
         }
@@ -1485,12 +1503,9 @@ bool QueryEvaluator::ev_isolated_relation_wild_string(
 {
     switch (relRef->relType) {
     case REL_MODIFIES:
-        return this->pkb->modifies_X_Y_smth_string_Y(ENT_VAR,
-                       relRef->argTwoString);
-        break;
     case REL_USES:
-        return this->pkb->uses_X_Y_smth_string_Y(ENT_VAR,
-                       relRef->argTwoString);
+        // case of ambiguous '_'. can mean either procedure/stmt
+        assert(false);
         break;
     case REL_CALLS:
         return this->pkb->calls_X_Y_smth_string_Y(ENT_PROC,

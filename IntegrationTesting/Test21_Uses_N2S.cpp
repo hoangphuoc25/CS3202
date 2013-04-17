@@ -840,61 +840,61 @@ void Test21_Uses_N2S::test_uses_wild_string()
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
-                                 ResultsProjector::TRUE_STR.c_str()),
+                                 ResultsProjector::FALSE_STR.c_str()),
             stringSet);
     queryStr = "Select BOOLEAN such that Uses(_, \"black\")";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
-                                 ResultsProjector::TRUE_STR.c_str()),
+                                 ResultsProjector::FALSE_STR.c_str()),
             stringSet);
     queryStr = "Select BOOLEAN such that Uses(_, \"done\")";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
-                                 ResultsProjector::TRUE_STR.c_str()),
+                                 ResultsProjector::FALSE_STR.c_str()),
             stringSet);
     queryStr = "Select BOOLEAN such that Uses(_, \"ex\")";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
-                                 ResultsProjector::TRUE_STR.c_str()),
+                                 ResultsProjector::FALSE_STR.c_str()),
             stringSet);
     queryStr = "Select BOOLEAN such that Uses(_, \"idx\")";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
-                                 ResultsProjector::TRUE_STR.c_str()),
+                                 ResultsProjector::FALSE_STR.c_str()),
             stringSet);
     queryStr = "Select BOOLEAN such that Uses(_, \"idxLTLen\")";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
-                                 ResultsProjector::TRUE_STR.c_str()),
+                                 ResultsProjector::FALSE_STR.c_str()),
             stringSet);
     queryStr = "Select BOOLEAN such that Uses(_, \"me\")";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
-                                 ResultsProjector::TRUE_STR.c_str()),
+                                 ResultsProjector::FALSE_STR.c_str()),
             stringSet);
     queryStr = "Select BOOLEAN such that Uses(_, \"uOne\")";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
-                                 ResultsProjector::TRUE_STR.c_str()),
+                                 ResultsProjector::FALSE_STR.c_str()),
             stringSet);
     queryStr = "Select BOOLEAN such that Uses(_, \"uTwo\")";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
-                                 ResultsProjector::TRUE_STR.c_str()),
+                                 ResultsProjector::FALSE_STR.c_str()),
             stringSet);
     queryStr = "Select BOOLEAN such that Uses(_, \"zeroed\")";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
-                                 ResultsProjector::TRUE_STR.c_str()),
+                                 ResultsProjector::FALSE_STR.c_str()),
             stringSet);
 
     // variables in program but not used
@@ -979,7 +979,7 @@ void Test21_Uses_N2S::test_uses_wild_wild()
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
-                                 ResultsProjector::TRUE_STR.c_str()),
+                                 ResultsProjector::FALSE_STR.c_str()),
             stringSet);
     // SIMPLE program with an if statement
     simpleProg =
@@ -1000,7 +1000,7 @@ void Test21_Uses_N2S::test_uses_wild_wild()
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
-                                 ResultsProjector::TRUE_STR.c_str()),
+                                 ResultsProjector::FALSE_STR.c_str()),
             stringSet);
     // SIMPLE program with a while statement
     simpleProg =
@@ -1019,7 +1019,7 @@ void Test21_Uses_N2S::test_uses_wild_wild()
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
-                                 ResultsProjector::TRUE_STR.c_str()),
+                                 ResultsProjector::FALSE_STR.c_str()),
             stringSet);
     // SIMPLE program that uses no variables
     simpleProg =
@@ -1053,7 +1053,7 @@ void Test21_Uses_N2S::test_uses_wild_wild()
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
-                                 ResultsProjector::TRUE_STR.c_str()),
+                                 ResultsProjector::FALSE_STR.c_str()),
             stringSet);
 }
 
@@ -1125,16 +1125,13 @@ void Test21_Uses_N2S::test_uses_X_syn()
     queryStr = " variable v; Select v such that Uses(_,v)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(14, "c", "cool", "crap",
-            "daba", "doo", "go", "is", "it", "mm", "true", "useIf",
-            "useWhile", "x", "y"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
             stringSet);
     // Uses(_,syn) 1
     queryStr = " if if1; variable v; ";
     queryStr += " Select v such that Uses(if1,v) and Uses(_,v)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(5, "cool", "is", "it",
-            "useIf", "x"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
             stringSet);
 }

@@ -406,22 +406,20 @@ void Test40_With::test_ss_cpn_X_01()
     queryStr += " with c.procName = v.varName";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "7 doSmth", "10 nProc",
-            "15 doSmth"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
             stringSet);
     queryStr = " variable v; call c; Select <c,v> such that ";
     queryStr += " Modifies(_,v) with c.procName = v.varName";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "21 someProc"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
             stringSet);
     // same as above, but swap LHS and RHS
     queryStr = "variable v; call c; Select <c,v> such that Uses(_,v) ";
     queryStr += " with v.varName = c.procName";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "7 doSmth", "10 nProc",
-            "15 doSmth"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
             stringSet);
 }
 
@@ -858,8 +856,7 @@ void Test40_With::test_ss_cpn_X_22()
     queryStr += " with c.procName = v.varName";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "7 doSmth",
-            "18 doSmth", "24 someProc"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
             stringSet);
 }
 
@@ -1327,14 +1324,14 @@ void Test40_With::test_s_1()
     queryStr += " with v.varName = \"who\"";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "who"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
             stringSet);
     // same as above, but swap LHS and RHS
     queryStr = "variable v; Select v such that Modifies(_,v) ";
     queryStr += " with \"who\" = v.varName ";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "who"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
             stringSet);
     // same as org, but Uses
     queryStr = "variable v; Select v such that Uses(_,v) ";
@@ -1348,7 +1345,7 @@ void Test40_With::test_s_1()
     queryStr += " with v.varName = \"someCond\" ";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "someCond"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
             stringSet);
     // non existent variable
     queryStr = "variable v; Select v such that Uses(_,v) ";

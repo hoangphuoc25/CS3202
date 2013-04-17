@@ -337,37 +337,37 @@ void Test21_Modifies_N2S::test_modifies_wild_string()
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
-                                 ResultsProjector::TRUE_STR.c_str()),
+                                 ResultsProjector::FALSE_STR.c_str()),
             stringSet);
     queryStr = "Select BOOLEAN such that Modifies(_, \"secVar\")";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
-                                 ResultsProjector::TRUE_STR.c_str()),
+                                 ResultsProjector::FALSE_STR.c_str()),
             stringSet);
     queryStr = "Select BOOLEAN such that Modifies(_, \"thirdVar\")";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
-                                 ResultsProjector::TRUE_STR.c_str()),
+                                 ResultsProjector::FALSE_STR.c_str()),
             stringSet);
     queryStr = "Select BOOLEAN such that Modifies(_, \"fourthVar\")";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
-                                 ResultsProjector::TRUE_STR.c_str()),
+                                 ResultsProjector::FALSE_STR.c_str()),
             stringSet);
     queryStr = "Select BOOLEAN such that Modifies(_, \"fifthVar\")";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
-                                 ResultsProjector::TRUE_STR.c_str()),
+                                 ResultsProjector::FALSE_STR.c_str()),
             stringSet);
     queryStr = "Select BOOLEAN such that Modifies(_, \"sixthVar\")";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
-                                 ResultsProjector::TRUE_STR.c_str()),
+                                 ResultsProjector::FALSE_STR.c_str()),
             stringSet);
     // variables not being modified
     queryStr = "Select BOOLEAN such that Modifies(_, \"notMod\")";
@@ -432,7 +432,7 @@ void Test21_Modifies_N2S::test_modifies_wild_wild()
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1,
-                                 ResultsProjector::TRUE_STR.c_str()),
+                                 ResultsProjector::FALSE_STR.c_str()),
             stringSet);
 }
 
@@ -496,14 +496,13 @@ void Test21_Modifies_N2S::test_modifies_string_syn()
     queryStr = " variable v; Select v such that Modifies(_,v)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(9, "a", "gj", "good",
-            "it", "no", "truth", "var", "x", "ya"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
             stringSet);
     // Modifies(_,syn) 1
     queryStr = " stmt s; variable v; ";
     queryStr += " Select v such that Uses(s,v) and  Modifies(_,v)";
     evaluator.evaluate(queryStr, resultList);
     stringSet = SetWrapper<string>(resultList);
-    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(3, "it", "good", "x"),
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(),
             stringSet);
 }

@@ -170,6 +170,7 @@ class QueryPreprocessor {
 public:
     static bool has_false_queries(const std::vector<int>& clauses,
             const QueryInfo *qinfo);
+    static bool is_false_query(int clauseIdx, const QueryInfo *qinfo);
 private:
     QueryPreprocessor();
 };
