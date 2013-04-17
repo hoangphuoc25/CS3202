@@ -21,6 +21,7 @@ using std::min;
 using std::ofstream;
 using std::queue;
 using std::set;
+using std::sort;
 
 struct QEThreadInfo {
     /// the actual thread
@@ -191,6 +192,446 @@ bool QueryPreprocessor::has_false_queries(const vector<int>& clauses,
     }
     return hasFalseQueries;
 }
+
+//////////////////////////////////////////////////////////////////////
+// QueryOptimizer - internal class used for optimizing queries
+//////////////////////////////////////////////////////////////////////
+
+/// Used for optimizing PQL queries by reordering them and prioritizing
+/// clauses which require less time to compute
+class QueryOptimizer {
+public:
+    /// Default constructor
+    QueryOptimizer(const QueryInfo *qinfo): qinfo_(qinfo) {}
+    /// Comparator to compare 2 clauses and find out which one has
+    /// a lower score
+    /// @param x the index of the first clause
+    /// @param y the index of the second clause
+    /// @return true if clause x has a lower score than clause y,
+    ///         false otherwise.
+    bool operator() (const int x, const int y) const {
+        ClauseType typeA, typeB;
+        const GenericRef *genRefA =
+                qinfo_->get_nth_clause(x, &typeA);
+        const GenericRef *genRefB =
+                qinfo_->get_nth_clause(y, &typeB);
+        assert(NULL != genRefA);
+        assert(NULL != genRefB);
+        assert(INVALID_CLAUSE != typeA);
+        assert(INVALID_CLAUSE != typeB);
+        int scoreA = this->get_score(genRefA, typeA);
+        int scoreB = this->get_score(genRefB, typeB);
+        return scoreA < scoreB;
+    }
+private:
+    int get_score(const GenericRef *genRef, ClauseType clauseType) const {
+        switch (clauseType) {
+        case SUCHTHAT_CLAUSE:
+            return this->get_relRef_score(genRef);
+            break;
+        case WITH_CLAUSE:
+            return this->get_withCl_score(genRef);
+            break;
+        case PATTERN_CLAUSE:
+            return this->get_patCl_score(genRef);
+            break;
+        }
+    }
+    int get_relRef_score(const GenericRef *genRef) const {
+        const RelRef *relRef = dynamic_cast<const RelRef *>(genRef);
+        assert(NULL != relRef);
+        int score = DEFAULT_SCORE;
+        switch (relRef->relType) {
+        case REL_MODIFIES:
+            if (RELARG_STRING == relRef->argOneType) {
+                score = 35;
+            } else if (RELARG_INT == relRef->argOneType) {
+                score = 20;
+            } else if (RELARG_STRING == relRef->argTwoType) {
+                assert(RELARG_SYN == relRef->argOneType);
+                if (ENT_PROC == relRef->argOneSyn) {
+                    score = 25;
+                } else {
+                    score = 30;
+                }
+            } else if (RELARG_SYN == relRef->argOneType) {
+                if (RELARG_SYN == relRef->argTwoType) {
+                    if (ENT_PROC == relRef->argOneSyn) {
+                        score = 210;
+                    } else {
+                        score = 220;
+                    }
+                } else if (RELARG_WILDCARD == relRef->argTwoType) {
+                    if (ENT_PROC == relRef->argOneSyn) {
+                        score = 100;
+                    } else {
+                        score = 110;
+                    }
+                }
+            } else if (RELARG_WILDCARD == relRef->argOneType) {
+                score = 140;
+            } else if (RELARG_WILDCARD == relRef->argTwoType) {
+                assert(RELARG_SYN == relRef->argOneType);
+                if (ENT_PROC == relRef->argOneSyn) {
+                    score = 100;
+                } else {
+                    score = 110;
+                }
+            }
+            break;
+        case REL_USES:
+            if (RELARG_STRING == relRef->argOneType) {
+                score = 40;
+            } else if (RELARG_INT == relRef->argOneType) {
+                score = 25;
+            } else if (RELARG_STRING == relRef->argTwoType) {
+                assert(RELARG_SYN == relRef->argOneType);
+                if (ENT_PROC == relRef->argOneSyn) {
+                    score = 25;
+                } else {
+                    score = 30;
+                }
+            } else if (RELARG_SYN == relRef->argOneType) {
+                if (RELARG_SYN == relRef->argTwoType) {
+                    if (ENT_PROC == relRef->argOneSyn) {
+                        score = 220;
+                    } else {
+                        score = 230;
+                    }
+                } else if (RELARG_WILDCARD == relRef->argTwoType) {
+                    if (ENT_PROC == relRef->argOneSyn) {
+                        score = 110;
+                    } else {
+                        score = 130;
+                    }
+                }
+            } else if (RELARG_WILDCARD == relRef->argOneType) {
+                score = 150;
+            } else if (RELARG_WILDCARD == relRef->argTwoType) {
+                assert(RELARG_SYN == relRef->argOneType);
+                if (ENT_PROC == relRef->argOneSyn) {
+                    score = 110;
+                } else {
+                    score = 130;
+                }
+            }
+            break;
+        case REL_CALLS:
+            if (RELARG_SYN == relRef->argOneType) {
+                if (RELARG_SYN == relRef->argTwoType) {
+                    score = 100;
+                } else if (RELARG_STRING == relRef->argTwoType) {
+                    score = 25;
+                } else if (RELARG_WILDCARD == relRef->argTwoType) {
+                    score = 20;
+                }
+            } else if (RELARG_STRING == relRef->argOneType) {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 25;
+            } else {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 20;
+            }
+            break;
+        case REL_CALLS_STAR:
+            if (RELARG_SYN == relRef->argOneType) {
+                if (RELARG_SYN == relRef->argTwoType) {
+                    score = 100;
+                } else if (RELARG_STRING == relRef->argTwoType) {
+                    score = 60;
+                } else if (RELARG_WILDCARD == relRef->argTwoType) {
+                    score = 20;
+                }
+            } else if (RELARG_STRING == relRef->argOneType) {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 60;
+            } else {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 20;
+            }
+            break;
+        case REL_FOLLOWS:
+            if (RELARG_SYN == relRef->argOneType) {
+                if (RELARG_SYN == relRef->argTwoType) {
+                    score = 210;
+                } else if (RELARG_INT == relRef->argTwoType) {
+                    score = 10;
+                } else {
+                    score = 140;
+                }
+            } else if (RELARG_INT == relRef->argOneType) {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 10;
+            } else {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 140;
+            }
+            break;
+        case REL_FOLLOWS_STAR:
+            if (RELARG_SYN == relRef->argOneType) {
+                if (RELARG_SYN == relRef->argTwoType) {
+                    score = 250;
+                } else if (RELARG_INT == relRef->argTwoType) {
+                    score = 70;
+                } else {
+                    score = 185;
+                }
+            } else if (RELARG_INT == relRef->argOneType) {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 60;
+            } else {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 185;
+            }
+            break;
+        case REL_PARENT:
+            if (RELARG_SYN == relRef->argOneType) {
+                if (RELARG_SYN == relRef->argTwoType) {
+                    score = 230;
+                } else if (RELARG_INT == relRef->argTwoType) {
+                    score = 10;
+                } else {
+                    score = 110;
+                }
+            } else if (RELARG_INT == relRef->argOneType) {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 35;
+            } else {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 160;
+            }
+            break;
+        case REL_PARENT_STAR:
+            if (RELARG_SYN == relRef->argOneType) {
+                if (RELARG_SYN == relRef->argTwoType) {
+                    score = 240;
+                } else if (RELARG_INT == relRef->argTwoType) {
+                    score = 40;
+                } else {
+                    score = 110;
+                }
+            } else if (RELARG_INT == relRef->argOneType) {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 80;
+            } else {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 180;
+            }
+            break;
+        case REL_NEXT:
+            if (RELARG_SYN == relRef->argOneType) {
+                if (RELARG_SYN == relRef->argTwoType) {
+                    score = 210;
+                } else if (RELARG_INT == relRef->argTwoType) {
+                    score = 15;
+                } else {
+                    score = 100;
+                }
+            } else if (RELARG_INT == relRef->argOneType) {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 15;
+            } else {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 100;
+            }
+            break;
+        case REL_NEXT_STAR:
+            if (RELARG_SYN == relRef->argOneType) {
+                if (RELARG_SYN == relRef->argTwoType) {
+                    score = 250;
+                } else if (RELARG_INT == relRef->argTwoType) {
+                    score = 80;
+                } else {
+                    score = 100;
+                }
+            } else if (RELARG_INT == relRef->argOneType) {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 80;
+            } else {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 100;
+            }
+            break;
+        case REL_AFFECTS:
+            if (RELARG_SYN == relRef->argOneType) {
+                if (RELARG_SYN == relRef->argTwoType) {
+                    score = 260;
+                } else if (RELARG_INT == relRef->argTwoType) {
+                    score = 90;
+                } else {
+                    score = 190;
+                }
+            } else if (RELARG_INT == relRef->argOneType) {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 90;
+            } else {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 190;
+            }
+            break;
+        case REL_AFFECTS_STAR:
+            if (RELARG_SYN == relRef->argOneType) {
+                if (RELARG_SYN == relRef->argTwoType) {
+                    score = 290;
+                } else if (RELARG_INT == relRef->argTwoType) {
+                    score = 95;
+                } else {
+                    score = 195;
+                }
+            } else if (RELARG_INT == relRef->argOneType) {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 95;
+            } else {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 195;
+            }
+            break;
+        case REL_NEXTBIP:
+            if (RELARG_SYN == relRef->argOneType) {
+                if (RELARG_SYN == relRef->argTwoType) {
+                    score = 250;
+                } else if (RELARG_INT == relRef->argTwoType) {
+                    score = 70;
+                } else {
+                    score = 170;
+                }
+            } else if (RELARG_INT == relRef->argOneType) {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 70;
+            } else {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 170;
+            }
+            break;
+        case REL_NEXTBIP_STAR:
+            if (RELARG_SYN == relRef->argOneType) {
+                if (RELARG_SYN == relRef->argTwoType) {
+                    score = 270;
+                } else if (RELARG_INT == relRef->argTwoType) {
+                    score = 96;
+                } else {
+                    score = 193;
+                }
+            } else if (RELARG_INT == relRef->argOneType) {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 96;
+            } else {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 193;
+            }
+            break;
+        case REL_AFFECTSBIP:
+            if (RELARG_SYN == relRef->argOneType) {
+                if (RELARG_SYN == relRef->argTwoType) {
+                    score = 295;
+                } else if (RELARG_INT == relRef->argTwoType) {
+                    score = 98;
+                } else {
+                    score = 198;
+                }
+            } else if (RELARG_INT == relRef->argOneType) {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 98;
+            } else {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 198;
+            }
+            break;
+        case REL_AFFECTSBIP_STAR:
+            if (RELARG_SYN == relRef->argOneType) {
+                if (RELARG_SYN == relRef->argTwoType) {
+                    score = 300;
+                } else if (RELARG_INT == relRef->argTwoType) {
+                    score = 99;
+                } else {
+                    score = 199;
+                }
+            } else if (RELARG_INT == relRef->argOneType) {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 99;
+            } else {
+                assert(RELARG_SYN == relRef->argTwoType);
+                score = 199;
+            }
+            break;
+        }
+        return score;
+    }
+    int get_withCl_score(const GenericRef *genRef) const {
+        const WithClause *withCl =
+                dynamic_cast<const WithClause *>(genRef);
+        assert(NULL != withCl);
+        assert(REF_ATTRREF == withCl->leftRef.refType);
+        int score = DEFAULT_SCORE;
+        if (REF_INT == withCl->rightRef.refType ||
+                REF_STRING == withCl->rightRef.refType) {
+            score = 0;
+        } else {
+            score = 200;
+        }
+        return score;
+    }
+    int get_patCl_score(const GenericRef *genRef) const {
+        const PatCl *patCl = dynamic_cast<const PatCl *>(genRef);
+        assert(NULL != patCl);
+        int score = DEFAULT_SCORE;
+        switch (patCl->type) {
+        case PATCL_ASSIGN:
+            if (PATVARREF_SYN == patCl->varRefType) {
+                if (PATEXPR_EXPR == patCl->exprType) {
+                    score = 40;
+                } else if (PATEXPR_EXPR_WILDCARD == patCl->exprType) {
+                    score = 50;
+                } else {
+                    score = 130;
+                }
+            } else if (PATVARREF_STRING == patCl->varRefType) {
+                if (PATEXPR_EXPR == patCl->exprType) {
+                    score = 25;
+                } else if (PATEXPR_EXPR_WILDCARD == patCl->exprType) {
+                    score = 30;
+                } else {
+                    score = 35;
+                }
+            } else {
+                if (PATEXPR_EXPR == patCl->exprType) {
+                    score = 60;
+                } else if (PATEXPR_EXPR_WILDCARD == patCl->exprType) {
+                    score = 80;
+                } else {
+                    score = 130;
+                }
+            }
+            break;
+        case PATCL_WHILE:
+            if (PATVARREF_SYN == patCl->varRefType) {
+                score = 110;
+            } else if (PATVARREF_STRING == patCl->varRefType) {
+                score = 30;
+            } else {
+                score = 120;
+            }
+            break;
+        case PATCL_IF:
+            if (PATVARREF_SYN == patCl->varRefType) {
+                score = 110;
+            } else if (PATVARREF_STRING == patCl->varRefType) {
+                score = 30;
+            } else {
+                score = 120;
+            }
+            break;
+        default:
+            break;
+        }
+        return score;
+    }
+    /// private default constructor
+    QueryOptimizer() {}
+
+    const QueryInfo *qinfo_;
+    static const int DEFAULT_SCORE = 300;
+};
 
 //////////////////////////////////////////////////////////////////////
 // Query Evaluator
@@ -382,11 +823,13 @@ void QueryEvaluator::evaluate(const string& queryStr,
             int nrPartitions = this->partitionedClauses.size();
             ClauseType clauseType;
             for (int rTableIdx = 0; rTableIdx < nrPartitions; rTableIdx++) {
-                const vector<int>& vec = this->partitionedClauses[rTableIdx];
+                vector<int>& vec = this->partitionedClauses[rTableIdx];
                 if (QueryPreprocessor::has_false_queries(vec, qinfo)) {
                     this->isAlive = false;
                     break;
                 }
+                // reorder clauses
+                QueryEvaluator::reorder_clauses(vec, qinfo);
                 int nrClauses = vec.size();
                 ResultsTable& rTable = this->resultsTable[rTableIdx];
                 for (int k = 0; k < nrClauses && rTable.is_alive(); k++) {
@@ -527,14 +970,15 @@ void * __cdecl thread_evaluate(void *qetInfo)
     PKB *pkb = threadInfo->pkb_;
     ClauseType clauseType;
     for (int i = threadInfo->startIdx_; i < threadInfo->endIdx_; i++) {
-        // TODO: Reorder queries here
-        const vector<int>& vec =
+        vector<int>& vec =
                 (*(threadInfo->partitionedClauses_))[i];
         ResultsTable& rTable = (*threadInfo->resultsTable_)[i];
         if (QueryPreprocessor::has_false_queries(vec, qinfo)) {
             rTable.kill();
             break;
         }
+        // reorder clauses
+        QueryEvaluator::reorder_clauses(vec, qinfo);
         int nrClauses = vec.size();
         for (int k = 0; k < nrClauses && rTable.is_alive(); k++) {
             int clauseIdx = vec[k];
@@ -560,6 +1004,13 @@ void * __cdecl thread_evaluate(void *qetInfo)
         }
     }
     return NULL;
+}
+
+void __cdecl QueryEvaluator::reorder_clauses(vector<int>& clauses,
+        const QueryInfo *qinfo)
+{
+    QueryOptimizer queryOptimizer(qinfo);
+    sort(clauses.begin(), clauses.end(), queryOptimizer);
 }
 
 void QueryEvaluator::partition_evaluation(const QueryInfo *qinfo)
@@ -4479,7 +4930,7 @@ void __cdecl QueryEvaluator::ev_withClause_attrRef_attrRef(
                 // convert to 01 case
                 WithClause tmpWithClause(withClause);
                 swap(tmpWithClause.leftRef, tmpWithClause.rightRef);
-                QueryEvaluator::ev_withClause_attrRef_attrRef_ii_01_setup(
+                QueryEvaluator::ev_withClause_attrRef_attrRef_ss_01_setup(
                         tmpWithClause, pkbDispatch);
                 QueryEvaluator::ev_withClause_ss_01(rTable, pkb,
                         tmpWithClause, pkbDispatch);

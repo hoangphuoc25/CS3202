@@ -257,6 +257,14 @@ public:
         get_hasAnyString_pkb_method_from_RefSynType(
             RefSynType refSynType);
 
+    /// Reorders clauses in a bid to optimize the PQL query
+    /// @param clauses the clauses in the current partition to reorder.
+    ///                This variable will be modified to obtain a
+    ///                different ordering
+    /// @param qinfo QueryInfo data structure - this is where more
+    ///              information about the clauses can be obtained
+    static void __cdecl reorder_clauses(std::vector<int>& clauses,
+            const QueryInfo *qinfo);
     /// Evaluates a Relation clause
     /// @param rTable the ResultsTable for this Relation
     /// @param pkb PKB
