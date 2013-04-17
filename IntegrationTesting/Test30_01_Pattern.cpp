@@ -145,6 +145,18 @@ void Test30_01_Pattern::test_2()
     CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(4, "14", "16", "18", "20"),
             stringSet);
 
+    queryStr = "assign a; Select a pattern a(\"do\", _\"do\"_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "7"),
+            stringSet);
+    queryStr = "assign a; Select a with a.stmt# = 7 ";
+    queryStr += " pattern a(\"do\", _\"do\"_)";
+    evaluator.evaluate(queryStr, resultList);
+    stringSet = SetWrapper<string>(resultList);
+    CPPUNIT_ASSERT_EQUAL(SetWrapper<string>(1, "7"),
+            stringSet);
+
     simpleProg =
         "procedure p1 { \
            x = do; \

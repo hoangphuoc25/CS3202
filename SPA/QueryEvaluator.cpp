@@ -5525,8 +5525,12 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_string_exprwild(
         int recordsSize = records.size();
         for (int i = 0; i < recordsSize; i++) {
             const Record& rec = records[i];
-            pair<string, int> assignPair = rec.get_column(assignCol);
+            const pair<string, int>& assignPair = rec.get_column(assignCol);
             int assignStmt = assignPair.second;
+            if (!pkb->modifies_query_int_X_string_Y(ENT_ASSIGN,
+                    assignStmt, ENT_VAR, patCl->varRefString)) {
+                continue;
+            }
             Node *assignNode = pkb->get_stmtBank()->get_node(assignStmt);
             string modifiedVar = assignNode->get_leaves()[0]->get_name();
             std::queue<Node *> nodeQueue;
@@ -5558,7 +5562,9 @@ void __cdecl QueryEvaluator::evaluate_patCl_assign_string_exprwild(
         rTable.syn_1_transaction_end();
     } else {
         rTable.syn_0_transaction_begin(patCl->syn, RV_INT);
-        set<int> allAssignStmts = pkb->get_all_assign();
+        set<int> allAssignStmts =
+                pkb->modifies_X_Y_get_int_X_from_string_Y(ENT_ASSIGN,
+                        ENT_VAR, patCl->varRefString);
         for (set<int>::iterator i = allAssignStmts.begin();
                 i != allAssignStmts.end(); i++) {
             int assignStmt = *i;
